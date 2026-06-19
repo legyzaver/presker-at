@@ -1,0 +1,325 @@
+/* ── Reset & base ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0e0e0e;
+  --bg2:       #161616;
+  --border:    #2a2a2a;
+  --text:      #e8e8e8;
+  --muted:     #888;
+  --accent:    #b8f57a;
+  --code:      #7ab8f5;
+  --art:       #f57ab8;
+  --vibe:      #f5c97a;
+  --radius:    10px;
+  --max:       860px;
+  font-size:   16px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Mono', 'Consolas', monospace;
+  line-height: 1.65;
+  min-height: 100vh;
+}
+
+/* ── Nav ── */
+nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 1.5rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.nav-links a {
+  font-size: 13px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.15s;
+}
+
+.nav-links a:hover { color: var(--text); }
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Hero ── */
+.hero {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 5rem 1.5rem 4rem;
+}
+
+.eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.hero h1 {
+  font-size: clamp(2.4rem, 6vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin-bottom: 1.25rem;
+}
+
+.hero h1 em { color: var(--accent); font-style: normal; }
+
+.sub {
+  font-size: 15px;
+  color: var(--muted);
+  max-width: 480px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* ── Sections ── */
+main {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 1.5rem 4rem;
+}
+
+section {
+  margin-bottom: 4rem;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── Grid & Cards ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  transition: border-color 0.2s, transform 0.15s;
+}
+
+.card:hover {
+  border-color: #444;
+  transform: translateY(-2px);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 3px 9px;
+  border-radius: 20px;
+}
+
+.tag-code  { background: #0d2033; color: var(--code); }
+.tag-art   { background: #2d0d21; color: var(--art);  }
+.tag-vibe  { background: #2d230d; color: var(--vibe); }
+
+.card-date {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.card h2 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.card p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin-bottom: 1rem;
+}
+
+.card-link {
+  font-size: 12px;
+  color: var(--accent);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+
+.card-link:hover { text-decoration: underline; }
+
+.card-empty {
+  border-style: dashed;
+  opacity: 0.4;
+}
+
+.card-empty p { margin-bottom: 0; }
+
+/* ── Feedback ── */
+.feedback-wrap {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.75rem;
+}
+
+.feedback-intro {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 1.25rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.feedback-form { display: flex; flex-direction: column; gap: 10px; }
+
+.form-row { display: flex; gap: 10px; }
+
+.form-row select, textarea, button {
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  font-size: 13px;
+}
+
+.form-row select {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 10px;
+  appearance: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.form-row select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+textarea {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 90px;
+  transition: border-color 0.15s;
+}
+
+textarea::placeholder { color: #555; }
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form-note {
+  font-size: 11px;
+  color: #555;
+}
+
+button[type="submit"] {
+  background: var(--accent);
+  color: #0e0e0e;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+button[type="submit"]:hover { opacity: 0.85; }
+
+/* ── Footer ── */
+footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: #444;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .nav-links { display: none; }
+  .hero { padding: 3rem 1.25rem 2.5rem; }
+  main { padding: 0 1.25rem 3rem; }
+  .form-row { flex-direction: column; }
+  footer { flex-direction: column; gap: 6px; text-align: center; }
+}

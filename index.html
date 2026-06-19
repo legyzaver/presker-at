@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PRESKER.AT — Digital Lab</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <nav>
+    <span class="logo">PRESKER.AT</span>
+    <div class="nav-links">
+      <a href="#projects">projects</a>
+      <a href="#art">art</a>
+      <a href="#vibe">vibe code</a>
+      <a href="#feedback">feedback</a>
+    </div>
+    <div class="status">
+      <span class="dot"></span>
+      <span>online</span>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <p class="eyebrow">Digital Lab</p>
+    <h1>Code, art &amp;<br>vibe-coded tools.</h1>
+    <p class="sub">A playground for experiments, projects, and whatever gets built next.</p>
+  </header>
+
+  <main>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <div class="section-header">
+        <span class="label">Code</span>
+      </div>
+      <div class="grid" id="code-grid">
+        <article class="card">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">Jun 2026</span>
+          </div>
+          <h2>Python CGI Lab</h2>
+          <p>CGI scripts and Python backend logic running live in a shared hosting environment.</p>
+          <a href="/test/hello.py" class="card-link">open →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- ART -->
+    <section id="art">
+      <div class="section-header">
+        <span class="label">Art</span>
+      </div>
+      <div class="grid" id="art-grid">
+        <article class="card card-empty">
+          <p>Art projects coming soon.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- VIBE CODE -->
+    <section id="vibe">
+      <div class="section-header">
+        <span class="label">Vibe Code</span>
+      </div>
+      <div class="grid" id="vibe-grid">
+        <article class="card card-empty">
+          <p>Vibe-coded tools coming soon.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- FEEDBACK -->
+    <section id="feedback">
+      <div class="section-header">
+        <span class="label">Feedback</span>
+      </div>
+      <div class="feedback-wrap">
+        <p class="feedback-intro">Spotted something broken, or have a thought? Drop a note — it goes straight to me. No login needed.</p>
+        <form action="/feedback/submit.py" method="POST" class="feedback-form">
+          <div class="form-row">
+            <select name="project">
+              <option value="">— which project?</option>
+              <option value="python-cgi">Python CGI Lab</option>
+              <option value="art">Art</option>
+              <option value="vibe">Vibe Code</option>
+              <option value="site">General / site</option>
+            </select>
+            <select name="type">
+              <option value="">— type</option>
+              <option value="bug">🐛 Bug / broken thing</option>
+              <option value="suggestion">💡 Suggestion</option>
+              <option value="liked">✨ Liked something</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <textarea name="message" placeholder="Tell me what you noticed…" rows="4"></textarea>
+          <div class="form-footer">
+            <span class="form-note">Anonymous is fine.</span>
+            <button type="submit">Send feedback →</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <span>© 2026 Presker.at</span>
+    <span>Hosted at World4You</span>
+  </footer>
+
+</body>
+</html>
