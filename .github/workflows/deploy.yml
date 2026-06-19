@@ -12,12 +12,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Deploy via SFTP
-        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          local_path: './*'
-          remote_path: '/www'
-          sftp_only: true
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Deploy via FTP
+        run: |
+          lftp -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} sftp.world4you.com << EOF
+          set sftp:auto-confirm yes
+          set net:timeout 10
+          mirror -R --delete --exclude .git --exclude .github . /www
+          bye
+          EOF
