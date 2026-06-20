@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dual Lens Photo Stitcher — PRESKER.AT</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="article.css">
+</head>
+<body>
+
+  <nav>
+    <span class="logo"><a href="/" style="color:inherit;text-decoration:none;">PRESKER.AT</a></span>
+    <div class="nav-links">
+      <a href="/#projects">projects</a>
+      <a href="/#art">art</a>
+      <a href="/#vibe">vibe code</a>
+      <a href="/#feedback">feedback</a>
+    </div>
+    <div class="status">
+      <span class="dot"></span>
+      <span>online</span>
+    </div>
+  </nav>
+
+  <main class="article-page">
+
+    <div class="article-hero">
+      <div class="article-hero-meta">
+        <span class="tag tag-vibe">vibe code</span>
+        <span class="card-date">June 2026</span>
+      </div>
+      <h1>Dual Lens Photo Stitcher</h1>
+      <p class="article-lead">A new software tool for stitching, editing and colour grading 360° panoramic photos — built camera-agnostically, with full multi-camera rig support from the ground up.</p>
+    </div>
+
+    <div class="article-content">
+
+      <!-- ── CHAPTER 1 ── -->
+      <h2>A short history of dual-lens 360° cameras</h2>
+      <p>The idea of capturing a complete sphere in a single shot has been around since the early days of computational photography, but it took until 2013 for the first mass-market dual-lens 360° camera to actually ship. That camera was the Ricoh Theta — a slim, pocketable wand with two back-to-back fisheye lenses and a single shutter button. Press it, and you had a complete equirectangular sphere. No tripod rotation. No stitching session in PTGui. One shot.</p>
+      <p>It was a revelation, and it opened a race that has been running ever since.</p>
+
+      <div class="camera-table-wrap">
+        <p class="table-label">// consumer & prosumer dual-lens 360° cameras — full index</p>
+        <table class="camera-table">
+          <thead>
+            <tr>
+              <th>Camera</th>
+              <th>Lens</th>
+              <th>Aperture</th>
+              <th>Sensor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="brand-row"><td colspan="4">INSTA360 — X SERIES</td></tr>
+            <tr>
+              <td>X5 <span class="badge">flagship</span></td>
+              <td>Dual Ultra-Hard Coat Swappable Fisheye, 6.0mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/1.28″ CMOS</td>
+            </tr>
+            <tr>
+              <td>X4 Air</td>
+              <td>Ultra-Wide Fisheye, 6.4mm eq.</td>
+              <td>f/1.95</td>
+              <td>Dual 1/1.8″ CMOS</td>
+            </tr>
+            <tr>
+              <td>X4</td>
+              <td>Hardened Glass Action Fisheye, 6.7mm eq.</td>
+              <td>f/1.9</td>
+              <td>Dual 1/2″ CMOS</td>
+            </tr>
+            <tr>
+              <td>X3</td>
+              <td>Fixed Convex Fisheye, 6.7mm eq.</td>
+              <td>f/1.9</td>
+              <td>Dual 1/2″ 48MP Quad-Bayer CMOS</td>
+            </tr>
+            <tr>
+              <td>ONE X2</td>
+              <td>Compact Action Fisheye, 7.2mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ CMOS</td>
+            </tr>
+            <tr>
+              <td>ONE X <span class="badge">original</span></td>
+              <td>Thin-Profile Standard Fisheye, ~7.5mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ Sony CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">INSTA360 — MODULAR SYSTEMS</td></tr>
+            <tr>
+              <td>ONE RS / R (1-inch 360)</td>
+              <td>Leica Super-Summicron-A ASPH 360 Module, 6.52mm eq.</td>
+              <td>f/2.2</td>
+              <td>Dual 1″ CMOS</td>
+            </tr>
+            <tr>
+              <td>ONE RS / R (Standard 360)</td>
+              <td>Interchangeable Dual-Lens 360 Module, 7.2mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">RICOH — THETA SERIES</td></tr>
+            <tr>
+              <td>Theta Z1 <span class="badge">flagship</span></td>
+              <td>Variable Aperture Triple-Fold Prism, 14 elements in 10 groups</td>
+              <td>f/2.1–f/5.6</td>
+              <td>Dual 1″ BSI CMOS</td>
+            </tr>
+            <tr>
+              <td>Theta X</td>
+              <td>Aspherical Fisheye, 7 elements in 7 groups, 7.2mm eq.</td>
+              <td>f/2.4</td>
+              <td>Dual 1/2″ 48MP CMOS</td>
+            </tr>
+            <tr>
+              <td>Theta SC2 / SC</td>
+              <td>Folded Prism Optics, 7 elements in 6 groups, ~7.2mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ CMOS</td>
+            </tr>
+            <tr>
+              <td>Theta V</td>
+              <td>High-Throughput Folded Path Optics</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ Sony CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">GOPRO</td></tr>
+            <tr>
+              <td>MAX 2 <span class="badge">2025</span></td>
+              <td>"Chameleon" Twist-and-Go Replaceable Domed Lenses, ~8mm eq.</td>
+              <td>f/2.4</td>
+              <td>Dual 1/2.3″ Sony IMX677 Stacked CMOS</td>
+            </tr>
+            <tr>
+              <td>MAX</td>
+              <td>Diagonally-Offset Fixed Action Fisheye, 8.9mm eq.</td>
+              <td>f/2.8</td>
+              <td>Dual 1/2.3″ CMOS</td>
+            </tr>
+            <tr>
+              <td>Fusion <span class="badge">legacy</span></td>
+              <td>Deep-Profile Back-to-Back Fisheye</td>
+              <td>f/2.8</td>
+              <td>Dual 1/2.3″ CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">DJI</td></tr>
+            <tr>
+              <td>Osmo 360 <span class="badge">2025</span></td>
+              <td>High-Transmission Deep-Field Action Fisheye, 7.5mm eq.</td>
+              <td>f/1.9</td>
+              <td>Dual 1/1.1″ Native Square CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">XIAOMI / MADV</td></tr>
+            <tr>
+              <td>Mi Sphere 360</td>
+              <td>Ultra-Thin Flat-Profile Perimeter Glass, ~7.5mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ Sony IMX206</td>
+            </tr>
+            <tr>
+              <td>Madventure 360</td>
+              <td>Reinforced Weather-Sealed Flat-Profile Optics, 7.5mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ Sony IMX206</td>
+            </tr>
+            <tr>
+              <td>QooCam Fun</td>
+              <td>Miniature Short-TTL Phone Interface Optics</td>
+              <td>f/2.0</td>
+              <td>Dual Mobile-Format CMOS</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">SAMSUNG — GEAR 360</td></tr>
+            <tr>
+              <td>Gear 360 2017 (SM-R210)</td>
+              <td>Slim-Head Miniature Spherical Glass, ~6.0mm eq.</td>
+              <td>f/2.2</td>
+              <td>Dual 1/3″ CMOS</td>
+            </tr>
+            <tr>
+              <td>Gear 360 2016 (SM-C200)</td>
+              <td>Wide-Chassis Heavy Hemisphere Convex Glass, ~6.5–7mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ CMOS (15MP/side)</td>
+            </tr>
+            <tr class="brand-row"><td colspan="4">SPECIALIST & NICHE</td></tr>
+            <tr>
+              <td>YI 360 VR</td>
+              <td>JCD 220° Glass Array, 8 elements in 7 groups, ~8.2mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ Sony IMX377</td>
+            </tr>
+            <tr>
+              <td>Garmin VIRB 360</td>
+              <td>201.4° Swappable Shield Lenses, ~7.0mm eq.</td>
+              <td>f/2.0</td>
+              <td>Dual 1/2.3″ BSI CMOS</td>
+            </tr>
+            <tr>
+              <td>Kandao QooCam 3 Ultra</td>
+              <td>Professional High-Speed Aperture Array</td>
+              <td>f/1.6</td>
+              <td>Dual 1/1.7″ CMOS (96MP stills)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>What this table reveals is not just a list of cameras — it's a map of a decade of optical evolution. Sensor sizes grew from the cramped 1/3-inch of the original Samsung Gear 360 to the 1-inch BSI sensors in the Ricoh Theta Z1 and the Insta360 ONE RS 1-inch edition. Apertures opened up from f/2.8 on the GoPro Fusion to f/1.6 on the Kandao QooCam 3 Ultra. Focal lengths crept shorter — wider — as manufacturers chased more overlap and better coverage of the nadir. DJI even shipped a native square sensor in the Osmo 360, an architectural decision designed specifically to improve the geometry of the stitching boundary.</p>
+      <p>Every one of these cameras produces a different raw image format, a different lens geometry, a different equidistant fisheye distortion profile. And every one of them, until now, either required its own proprietary stitching software or a time-consuming manual calibration workflow in a generic tool that was never designed with it in mind.</p>
+
+      <!-- ── CHAPTER 2 ── -->
+      <h2>Why stitching is harder than it looks</h2>
+      <p>A dual-lens 360° camera captures two fisheye images — each covering slightly more than 180° — and has to merge them into a single seamless equirectangular sphere. The output looks simple. The problem underneath is not.</p>
+
+      <h3>The seam problem</h3>
+      <p>The two lenses are physically separated, typically by 20–40mm depending on the camera body. They see the world from slightly different positions. For distant subjects — a mountain, a skyline, a horizon — this separation is negligible. For subjects within a few metres of the camera, it becomes significant: the same object appears at a measurably different position in each hemisphere. The software has to reconcile those two views at the stitching boundary, and any failure to do so produces ghosting — a faint double image of everything that crossed the seam — or hard edges where the two halves simply don't align.</p>
+      <p>This is parallax, and it is the central unsolved challenge of dual-lens 360° photography. Cameras like the Ricoh Theta Z1 use a triple-fold prism system with 14 elements in 10 groups partly to position the optical centres of both lenses as close together as physically possible, minimising the baseline and therefore the parallax. The GoPro MAX 2's "Chameleon" domed lens system takes a different approach, optimising the dome shape to reduce parallax at the specific shooting distances most action camera users encounter. But no optical design eliminates parallax entirely. That job falls to the software.</p>
+
+      <h3>The colour mismatch problem</h3>
+      <p>Each lens has its own light path. Each sensor has its own spectral response. Even two nominally identical sensors from the same production batch will respond slightly differently to the same light. In practice this means the left hemisphere and the right hemisphere of a raw dual-lens capture will have subtly different colour temperatures, different exposure levels, and different contrast response — even in perfectly controlled conditions.</p>
+      <p>Stitch those two halves naively and you get a visible colour shift at the boundary. The sky on one side is slightly cooler. The shadows on the other are slightly deeper. Your eye finds the seam immediately, and the sense of immersion collapses. Cameras with larger sensors — the Theta Z1's dual 1-inch BSI sensors, the Insta360 RS 1-inch Leica module — have better per-sensor consistency than smaller-sensor models, but the problem never goes away entirely at the hardware level.</p>
+
+      <h3>The software fragmentation problem</h3>
+      <p>The existing stitching tools each address pieces of this. PTGui is the professional standard for manual panorama stitching — powerful control point editing, precise seam optimisation, a multi-band blending pipeline. Kolor Autopano offered strong automatic feature matching before it was discontinued. Mistika VR handles multi-camera video rigs with real-time preview. But all of these tools were built around the assumption of DSLR panoramas shot with a fisheye on a nodal head — not the specific geometry of a compact dual-lens camera with fixed, calibrated lenses and a known baseline.</p>
+      <p>The result is fragmentation. Insta360 Studio only speaks Insta360. GoPro's Player only speaks GoPro. Ricoh's desktop software only knows Theta geometry. If you own cameras from two different brands — extremely common among professional 360° photographers who specialise in different contexts — you maintain two separate stitching workflows, two separate colour grading pipelines, two separate export processes.</p>
+      <p>And if you move to a multi-camera rig — four cameras, six cameras, eight cameras arranged in a sphere for higher resolution and better dynamic range — the fragmentation gets worse, not better. Each camera in the rig is a different unit with its own exposure variation, its own minor manufacturing tolerance in lens placement, its own colour response. Stitching them together correctly requires understanding all of these simultaneously.</p>
+
+      <!-- ── CHAPTER 3 ── -->
+      <h2>Dual Lens Photo Stitcher</h2>
+      <p>Dual Lens Photo Stitcher is a desktop application for stitching, editing and colour grading 360° panoramic photos. It is built around a single architectural decision: the camera should not dictate the workflow.</p>
+
+      <h3>Camera-agnostic ingestion</h3>
+      <p>Load raw dual-fisheye images from any camera in the index above — Ricoh Theta, Insta360 X series, GoPro MAX, Samsung Gear 360, DJI Osmo 360, Kandao, YI, Garmin VIRB — and the software identifies the lens geometry automatically. No manual lens profile selection. No calibration session. The fisheye projection parameters, the sensor dimensions, the optical centre offset and the known baseline for each camera model are built into the engine's camera database. Drop the files in. The correct unwarp is applied immediately.</p>
+      <p>For cameras not yet in the database — including custom rigs and modified hardware — a calibration wizard walks through a structured capture process and derives the lens model from a set of reference images. That calibration is saved to the database and applied automatically to all future imports from the same device.</p>
+
+      <h3>Multi-camera rig support</h3>
+      <p>This is where Dual Lens Photo Stitcher diverges most sharply from existing tools. The stitching engine is built around N-camera input from the ground up — not as an extension of a dual-lens pipeline, but as the native architecture. A rig of six cameras is not treated as three pairs of dual-lens inputs stitched sequentially. It is treated as six independent image sources feeding a single global bundle adjustment that minimises reprojection error across the entire sphere simultaneously.</p>
+      <p>The practical consequence is that a six-camera rig produces a better stitch than six separate dual-lens stitches composited together, because the global solver can trade off error across all six inputs at once rather than locally minimising each pair in isolation. Seam placement is computed with full knowledge of all camera positions and all overlap regions. Colour normalisation is applied as a single global correction across all inputs, not as pairwise adjustments between adjacent cameras.</p>
+      <p>The same pipeline handles two cameras or sixteen. The compute time scales with input count, but the workflow does not change. This matters enormously for shooters who work across different contexts — a dual-lens consumer camera for travel, a four-camera rig for real estate, a six-camera system for cinematic VR production. One tool. One learned interface. One export pipeline.</p>
+
+      <h3>Colour grading in the pipeline</h3>
+      <p>Colour grading in Dual Lens Photo Stitcher is not a post-export step. It is integrated directly into the stitching pipeline, applied before the seam is placed.</p>
+      <p>Per-lens exposure normalisation adjusts each input independently — matching brightness, white balance, and contrast response to a chosen reference before the hemispheres are merged. When colour is matched before stitching, the seam becomes nearly invisible, because there is no longer a discontinuity in tone or colour at the boundary for the eye to find. This is architecturally different from correcting colour on the exported equirectangular image, where any adjustment either affects both hemispheres identically or requires manual masking at the seam to avoid amplifying the discontinuity.</p>
+      <p>The grading toolset includes per-lens and global controls for white balance, exposure, contrast, highlights, shadows, saturation and vibrance. LUT support allows applying professional colour grades — cinematic looks, LOG-to-display transforms, brand-consistent grades — to the full equirectangular output in a single operation. The preview renders in a real-time equirectangular viewer and a side-by-side sphere viewer, so colour decisions can be made in the context of how the image will actually be experienced.</p>
+
+      <!-- ── CHAPTER 4 ── -->
+      <h2>Why multi-camera support is the significant part</h2>
+      <p>The dual-lens consumer cameras in the table above are remarkable engineering achievements. A device smaller than a smartphone that captures a complete 8K sphere in one shot, stabilised, with automatic stitching, for a few hundred euros — that is not a trivial thing to build. But they are constrained by their architecture. Two sensors separated by 30mm, each at most 1/1.1-inch, each feeding a lens that has to cover a full hemisphere. The physics sets a ceiling on resolution, dynamic range, and low-light capability that no firmware update can raise.</p>
+      <p>A multi-camera rig removes that ceiling. Four cameras, each with a 1-inch sensor and a quality prime lens, sharing overlapping coverage of the sphere, can produce a 360° panorama with resolution and per-pixel quality that no dual-lens compact camera can approach. The Insta360 Pro 2 — six lenses, each covering 200° — outputs source images that make the X5 look like a draft sketch. Custom rigs built from Sony A7 bodies and Sigma fisheyes produce 360° panoramas indistinguishable from medium format photography in their pixel-level detail.</p>
+      <p>The barrier to accessing that quality has never been the hardware. The hardware has been available and affordable for years. The barrier has been the software — the absence of a single tool that could manage a multi-camera rig with the same ease as a dual-lens compact, that could normalise colour across six independent sensors as cleanly as it normalises two, that could be learned once and applied everywhere.</p>
+      <p>Dual Lens Photo Stitcher is that tool. The name reflects where it started — with the specific challenges of dual-lens compact cameras and their seam geometry. The architecture reflects where 360° photography is going — toward multi-sensor, high-resolution capture that demands software capable of reasoning about the entire sphere at once, not just the boundary between two halves.</p>
+      <p>Sample files from real captures across several of the camera models in the index above were used throughout development, driving the calibration database and the colour normalisation engine. The geometry of each camera's lens system — the exact projection model, the optical centre, the known chromatic aberration profile — is encoded from measured data, not approximated from manufacturer specifications.</p>
+      <p>The result is a stitcher that knows what it is stitching, regardless of what camera produced the source files.</p>
+
+      <div class="article-end-tag">
+        <span class="tag tag-vibe">vibe code</span>
+        <span>Built at presker.at · June 2026</span>
+        <a href="/#feedback" class="card-link">leave feedback →</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <span>© 2026 Presker.at</span>
+    <span>Hosted at World4You</span>
+  </footer>
+
+</body>
+</html>
