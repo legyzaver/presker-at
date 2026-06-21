@@ -12,11 +12,19 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install lftp
-        run: sudo apt-get install -y lftp
-
       - name: Deploy via FTPS
-        run: |
-          lftp -u ${{ secrets.FTP_USER }},${{ secrets.FTP_PASS }} \
-            -e "set ftp:ssl-force true; set ftp:ssl-protect-data true; set ssl:verify-certificate false; mirror -R --delete --exclude .git --exclude .github . /; bye" \
-            ftp.world4you.com
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:     ${{ secrets.FTP_HOST }}
+          username:   ${{ secrets.FTP_USER }}
+          password:   ${{ secrets.FTP_PASS }}
+          protocol:   ftps
+          local-dir:  ./
+          server-dir: /
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            **/.claude/**
+            README.md
+            deploy.yml

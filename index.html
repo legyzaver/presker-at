@@ -8,6 +8,8 @@
 </head>
 <body>
 
+  <div class="top-bar"></div>
+
   <nav>
     <span class="logo">PRESKER.AT</span>
     <div class="nav-links">
@@ -24,8 +26,9 @@
 
   <header class="hero">
     <p class="eyebrow">Digital Lab</p>
-    <h1>Code, art &amp;<br>vibe-coded tools.</h1>
-    <p class="sub">A playground for experiments, projects, and whatever gets built next.</p>
+    <h1>Code, art &amp;<br><em>vibe-coded</em> tools.</h1>
+    <p class="sub">A playground for experiments, projects, and whatever gets built next.<span class="cursor">_</span></p>
+    <p class="now-building"><span class="nb-dot"></span>now building: Dual Lens Photo Stitcher</p>
   </header>
 
   <main>
@@ -120,6 +123,18 @@
     <span>© 2026 Presker.at</span>
     <span>Hosted at World4You</span>
   </footer>
+
+  <script>
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          observer.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('section').forEach(s => observer.observe(s));
+  </script>
 
 </body>
 </html>
