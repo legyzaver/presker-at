@@ -23,6 +23,7 @@
           ${a('/art/works/interactive-installations.html', 'Interactive Installations')}
           ${a('/art/works/light-sculptures.html', 'Light Sculptures')}
           ${a('/art/works/photography.html', 'Photography')}
+          ${a('/art/works/video-animation.html', 'Video / Animation')}
           ${a('/art/works/collaborative-projects.html', 'Collaborative Projects')}
         </ul>
       </li>
@@ -42,6 +43,10 @@
           ${a('/art/projects/flash.html', 'Flash')}
           ${a('/art/projects/intrude.html', 'Intrude')}
           ${a('/art/projects/invisible.html', 'Invisible')}
+          ${a('/art/projects/homo-diaphoricus.html', 'Homo Diaphoricus')}
+          ${a('/art/projects/425.html', '4 25')}
+          ${a('/art/projects/to-school.html', 'To School')}
+          ${a('/art/projects/dancing-with-the-corner.html', 'Dancing with the Corner')}
         </ul>
       </li>
       ${a('/art/exhibitions.html', 'Exhibitions')}
