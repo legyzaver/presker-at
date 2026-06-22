@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Archive — Miha Presker</title>
+  <link rel="stylesheet" href="/art/art.css">
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="art-shell">
+    <nav class="art-nav" id="art-nav"></nav>
+    <main class="art-main">
+
+      <div class="page-header">
+        <div class="page-eyebrow">Miha Presker</div>
+        <h1 class="page-title">Archive</h1>
+      </div>
+
+      <div class="archive-filters">
+        <button class="filter-btn active" onclick="filter(this,'all')">All</button>
+        <button class="filter-btn" onclick="filter(this,'sketch')">Sketches</button>
+        <button class="filter-btn" onclick="filter(this,'model')">Models</button>
+        <button class="filter-btn" onclick="filter(this,'photo')">Photos</button>
+        <button class="filter-btn" onclick="filter(this,'drawing')">Drawings</button>
+        <button class="filter-btn" onclick="filter(this,'video')">Video</button>
+        <button class="filter-btn" onclick="filter(this,'plan')">Floor Plans</button>
+        <button class="filter-btn" onclick="filter(this,'prototype')">Prototypes</button>
+        <button class="filter-btn" onclick="filter(this,'rejected')">Rejected Concepts</button>
+      </div>
+
+      <!-- Archive grid — add items following this pattern -->
+      <div class="archive-grid" id="archive-grid">
+
+        <div class="archive-item" data-type="sketch">
+          <div class="archive-item-img">
+            <img src="/art/images/archive/sketch-01.jpg" alt="Sketch" onerror="this.parentElement.style.background='var(--bg3)'">
+          </div>
+          <div class="archive-item-info">
+            <div class="archive-item-title">Formication — development sketch</div>
+            <div class="archive-item-meta">2006 · sketch</div>
+          </div>
+        </div>
+
+        <div class="archive-item" data-type="photo">
+          <div class="archive-item-img">
+            <img src="/art/images/archive/studio-01.jpg" alt="Studio" onerror="this.parentElement.style.background='var(--bg3)'">
+          </div>
+          <div class="archive-item-info">
+            <div class="archive-item-title">ISCP Studio, New York</div>
+            <div class="archive-item-meta">2008 · photo</div>
+          </div>
+        </div>
+
+        <div class="archive-item" data-type="model">
+          <div class="archive-item-img">
+            <img src="/art/images/archive/model-01.jpg" alt="Model" onerror="this.parentElement.style.background='var(--bg3)'">
+          </div>
+          <div class="archive-item-info">
+            <div class="archive-item-title">Spatial model</div>
+            <div class="archive-item-meta">[Year] · model</div>
+          </div>
+        </div>
+
+        <!-- Add more archive items here. Each needs data-type matching a filter button -->
+
+      </div>
+
+    </main>
+  </div>
+  <script src="/art/nav.js"></script>
+  <script>
+    function filter(btn, type) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.archive-item').forEach(item => {
+        item.style.display = (type === 'all' || item.dataset.type === type) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>
