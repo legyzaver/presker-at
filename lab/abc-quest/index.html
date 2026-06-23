@@ -1,15 +1,415 @@
 <!DOCTYPE html>
 <html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/lab/abc-quest/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="ABC Quest – Bilingual German/Slovenian alphabet learning game for kids in Carinthia" />
-    <title>ABC Quest 🇦🇹 🇸🇮</title>
-    <script type="module" crossorigin src="/lab/abc-quest/assets/index-qokyrKay.js"></script>
-    <link rel="stylesheet" crossorigin href="/lab/abc-quest/assets/index-BqmZBHOV.css">
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ABC Quest 🇦🇹 🇸🇮</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%231a0a2e'/><text x='50' y='72' font-size='60' text-anchor='middle' fill='%23ffd60a'>A</text></svg>" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body, #root { width: 100%; min-height: 100vh; background: #0d0520; }
+  body { font-family: 'Press Start 2P', cursive; -webkit-font-smoothing: antialiased; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const I = (file) => `images/${file}`;
+
+const ALPHA = [
+  { letter:"A",  de:"Ananas",          sl:"Ananas",      lang:"both", img:I("a_ananas.png"),                color:"#f9c74f" },
+  { letter:"Ä",  de:"Äpfel",           sl:null,          lang:"de",   img:I("ae_aepfel.png"),               color:"#e05030" },
+  { letter:"B",  de:"Banane",          sl:"Banana",      lang:"both", img:I("b_banane.png"),                color:"#f4d261" },
+  { letter:"C",  de:"CD",              sl:"CD",          lang:"both", img:I("c_cd.png"),                    color:"#a3a3a3" },
+  { letter:"Č",  de:null,              sl:"Čebela",      lang:"sl",   img:I("ch_cebela.png"),               color:"#f9c74f" },
+  { letter:"D",  de:"Delfin",          sl:"Delfin",      lang:"both", img:I("d_delfin.png"),                color:"#4cc9f0" },
+  { letter:"E",  de:"Energie",         sl:"Energija",    lang:"both", img:I("e_energie.png"),               color:"#ffd60a" },
+  { letter:"F",  de:"Feige",           sl:"Figa",        lang:"both", img:I("f_feige.png"),                 color:"#6d4c41" },
+  { letter:"G",  de:"Gorilla",         sl:"Gorila",      lang:"both", img:I("g_gorilla.png"),               color:"#4a4e69" },
+  { letter:"H",  de:"Helikopter",      sl:"Helikopter",  lang:"both", img:I("h_helikopter.png"),            color:"#c07830" },
+  { letter:"I",  de:"Iglu",            sl:"Iglu",        lang:"both", img:I("i_iglu.png"),                  color:"#88ccee" },
+  { letter:"J",  de:"Jaguar",          sl:"Jaguar",      lang:"both", img:I("j_jaguar.png"),                color:"#d4a030" },
+  { letter:"K",  de:"Krokodil",        sl:"Krokodil",    lang:"both", img:I("k_krokodil.png"),              color:"#2d6a4f" },
+  { letter:"L",  de:"Löwe",            sl:"Lev",         lang:"both", img:I("l_loewe.png"),                 color:"#e9c46a" },
+  { letter:"M",  de:"Mango",           sl:"Mango",       lang:"both", img:I("m_mango.png"),                 color:"#f77f00" },
+  { letter:"N",  de:"Nashorn",         sl:"Nosorog",     lang:"both", img:I("n_nashorn.png"),               color:"#8a8a9a" },
+  { letter:"O",  de:"Orang-Utan",      sl:"Orangutan",   lang:"both", img:I("o_orangutan.png"),             color:"#e07a5f" },
+  { letter:"Ö",  de:"Österreich",      sl:null,          lang:"de",   img:I("oe_oesterreich.png"),          color:"#e63946" },
+  { letter:"P",  de:"Papagei",         sl:"Papiga",      lang:"both", img:I("p_papagei.png"),               color:"#e03030" },
+  { letter:"Q",  de:"Qualle",          sl:null,          lang:"de",   img:I("q_qualle.png"),                color:"#e060a0" },
+  { letter:"R",  de:"Rose",            sl:"Roža",        lang:"both", img:I("r_rose.png"),                  color:"#cc2020" },
+  { letter:"S",  de:"Sonne",           sl:"Sonce",       lang:"both", img:I("s_sonne.png"),                 color:"#ffd60a" },
+  { letter:"Š",  de:"Schinken",        sl:"Šunka",       lang:"both", img:I("sh_schinken.png"),             color:"#e06050" },
+  { letter:"T",  de:"Tiger",           sl:"Tiger",       lang:"both", img:I("t_tiger.png"),                 color:"#f4a261" },
+  { letter:"U",  de:"UFO",             sl:"UFO",         lang:"both", img:I("u_ufo.png"),                   color:"#44aacc" },
+  { letter:"Ü",  de:"Überraschungsei", sl:null,          lang:"de",   img:I("ue_ueberraschungsei.png"),     color:"#c04070" },
+  { letter:"V",  de:"Vulkan",          sl:"Vulkan",      lang:"both", img:I("v_vulkan.png"),                color:"#ef233c" },
+  { letter:"W",  de:"Wolf",            sl:null,          lang:"de",   img:I("w_wolf.png"),                  color:"#7a7a8a" },
+  { letter:"X",  de:"Xylophon",        sl:null,          lang:"de",   img:I("x_xylophon.png"),              color:"#f72585" },
+  { letter:"Y",  de:"Yak",             sl:null,          lang:"de",   img:I("y_yak.png"),                   color:"#7a5030" },
+  { letter:"Z",  de:"Zebra",           sl:"Zebra",       lang:"both", img:I("z_zebra.png"),                 color:"#444"    },
+  { letter:"Ž",  de:null,              sl:"Žirafa",      lang:"sl",   img:I("zh_zirafa.png"),               color:"#f9a825" },
+];
+
+const TOTAL  = ALPHA.length;
+const VIEW_W = 480;
+const VIEW_H = 200;
+const GY     = 150;
+const DOOR_X = 330;
+const STOP_X = 210;
+
+function rng(s) { return (((s * 1664525 + 1013904223) | 0) >>> 0) / 0xffffffff; }
+
+function speak(text, lc) {
+  if (!window.speechSynthesis || !text) return;
+  window.speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lc; u.rate = 0.8; u.pitch = 1.2;
+  setTimeout(() => window.speechSynthesis.speak(u), 0);
+}
+
+function buildOptions(correctLetter) {
+  const others = [...ALPHA]
+    .filter(a => a.letter !== correctLetter)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3)
+    .map(a => a.letter);
+  return [...others, correctLetter].sort(() => Math.random() - 0.5);
+}
+
+function PixelScene({ charX, doorOpen, shake, stepIdx }) {
+  const walkFrame = Math.floor(Date.now() / 220) % 2;
+  const skyPalettes = [
+    ["#0d0030","#4a6fa5","#8ec8f0"],
+    ["#0a1a0a","#2a5a2a","#80c880"],
+    ["#1a0a2a","#6a2a8a","#cc88ff"],
+    ["#1a1000","#5a4800","#e8d080"],
+    ["#001020","#004466","#44aadd"],
+  ];
+  const [c0,c1,c2] = skyPalettes[stepIdx % skyPalettes.length];
+  const px = charX;
+  const seed = stepIdx * 17;
+  const trees = [30,120,380,440].map((x,i) => ({ x: x + rng(seed+i)*20-10 }));
+  const bushes = [70,170,290,410].map((x,i) => ({ x: x + rng(seed+i+10)*16-8 }));
+  const atDoor = Math.abs(px - STOP_X) < 10;
+  const lf = walkFrame;
+
+  return (
+    <svg width="100%" viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+      style={{ display:"block", imageRendering:"pixelated",
+        transform: shake ? "translateX(5px)" : "none",
+        transition: shake ? "none" : "transform .08s" }}
+      preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={c0}/><stop offset="50%" stopColor={c1}/><stop offset="100%" stopColor={c2}/>
+        </linearGradient>
+        <linearGradient id="gnd" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#5cba47"/><stop offset="20%" stopColor="#3d8c2f"/><stop offset="100%" stopColor="#7b4f2e"/>
+        </linearGradient>
+      </defs>
+      <rect x={0} y={0} width={VIEW_W} height={VIEW_H} fill="url(#sky)"/>
+      {[22,68,120,188,255,330,400,448].map((sx,i) => (
+        <rect key={i} x={sx} y={4+rng(i*7+seed)*28} width={2} height={2} fill="white" opacity={.4+rng(i+seed)*.5}/>
+      ))}
+      <circle cx={428} cy={34} r={18} fill="#ffe9a0"/>
+      <circle cx={436} cy={28} r={14} fill={c0}/>
+      {[0,90,180,270,360,430].map((mx,i) => (
+        <polygon key={i} points={`${mx},${GY} ${mx+48},${GY-55-rng(i*3+seed)*38} ${mx+96},${GY}`}
+          fill={i%2?"#2e3a5a":"#3a4a70"} opacity={.75}/>
+      ))}
+      <rect x={0} y={GY} width={VIEW_W} height={VIEW_H-GY} fill="url(#gnd)"/>
+      <rect x={0} y={GY} width={VIEW_W} height={3} fill="#7bd463"/>
+      {Array.from({length:11},(_,i) => (
+        <rect key={i} x={i*36} y={GY+1} width={34} height={9} rx={1} fill={i%2?"#a07840":"#8a6530"} opacity={.55}/>
+      ))}
+      {trees.map((tr,i) => (
+        <g key={i}>
+          <rect x={tr.x+5} y={GY-50} width={6} height={50} fill="#7b4f2e"/>
+          <polygon points={`${tr.x},${GY-44} ${tr.x+8},${GY-82} ${tr.x+16},${GY-44}`} fill="#2a6a1a"/>
+          <polygon points={`${tr.x-3},${GY-60} ${tr.x+8},${GY-94} ${tr.x+19},${GY-60}`} fill="#36891e"/>
+        </g>
+      ))}
+      {bushes.map((b,i) => (
+        <g key={i}>
+          <rect x={b.x} y={GY-15} width={22} height={15} rx={5} fill="#2d7a1a"/>
+          <rect x={b.x+4} y={GY-22} width={14} height={11} rx={4} fill="#3a9f22"/>
+        </g>
+      ))}
+      <rect x={DOOR_X-12} y={GY-96} width={12} height={96} fill="#7a7060"/>
+      <rect x={DOOR_X+62} y={GY-96} width={12} height={96} fill="#7a7060"/>
+      <rect x={DOOR_X-12} y={GY-100} width={86} height={14} rx={3} fill="#8a8070"/>
+      <rect x={DOOR_X+18} y={GY-114} width={26} height={18} rx={5} fill="#8a8070"/>
+      {[0,1,2].map(r => [0,1,2].map(c => (
+        <rect key={`${r}${c}`} x={DOOR_X-9+c*5} y={GY-90+r*26} width={3} height={3} fill="#6a6050" opacity={.5}/>
+      )))}
+      {doorOpen ? (
+        <>
+          <rect x={DOOR_X-10} y={GY-94} width={8}  height={94} fill="#5a2a0a" opacity={.6}/>
+          <rect x={DOOR_X+64} y={GY-94} width={8}  height={94} fill="#5a2a0a" opacity={.6}/>
+          <rect x={DOOR_X}    y={GY-94} width={62} height={94} fill="#ffd60a" opacity={.15}/>
+          {[0,1,2,3,4].map(i => (
+            <text key={i} x={DOOR_X+6+i*12} y={GY-30-rng(i*5)*40} fontSize={14} fill="#ffd60a">★</text>
+          ))}
+        </>
+      ) : (
+        <>
+          <rect x={DOOR_X}    y={GY-94} width={29} height={94} fill="#6b3a1a"/>
+          <rect x={DOOR_X+2}  y={GY-90} width={25} height={40} rx={2} fill="#7d4520"/>
+          <rect x={DOOR_X+2}  y={GY-46} width={25} height={40} rx={2} fill="#7d4520"/>
+          <rect x={DOOR_X+33} y={GY-94} width={29} height={94} fill="#6b3a1a"/>
+          <rect x={DOOR_X+35} y={GY-90} width={25} height={40} rx={2} fill="#7d4520"/>
+          <rect x={DOOR_X+35} y={GY-46} width={25} height={40} rx={2} fill="#7d4520"/>
+          <rect x={DOOR_X+24} y={GY-56} width={14} height={12} rx={3} fill="#c8a020"/>
+          <circle cx={DOOR_X+31} cy={GY-50} r={4} fill="#a07010" stroke="#ffd60a" strokeWidth={1.5}/>
+          <rect x={DOOR_X+29} y={GY-48} width={4} height={5} fill="#a07010"/>
+        </>
+      )}
+      {px > -20 && px < VIEW_W + 40 && (
+        <g>
+          <ellipse cx={px+8} cy={GY+3} rx={11} ry={3} fill="rgba(0,0,0,.3)"/>
+          <rect x={px+3} y={GY-15} width={5} height={lf?8:6} rx={2} fill="#1d3557"/>
+          <rect x={px+9} y={GY-15} width={5} height={lf?6:8} rx={2} fill="#1d3557"/>
+          <rect x={px+2}  y={GY-(lf?7:9)} width={7} height={4} rx={2} fill="#222"/>
+          <rect x={px+8}  y={GY-(lf?9:7)} width={7} height={4} rx={2} fill="#222"/>
+          <rect x={px+1}  y={GY-28} width={15} height={14} rx={3} fill="#e63946"/>
+          <rect x={px+1}  y={GY-25} width={15} height={3}  rx={1} fill="rgba(255,255,255,.2)"/>
+          <rect x={px+13} y={GY-27} width={6}  height={10} rx={2} fill="#457b9d"/>
+          {atDoor
+            ? <rect x={px-3} y={GY-38} width={4} height={18} rx={2} fill="#fdd9a0"/>
+            : <rect x={px-2} y={GY-27} width={4} height={9}  rx={2} fill="#fdd9a0"/>
+          }
+          <rect x={px+14} y={GY-27} width={4} height={9}  rx={2} fill="#fdd9a0"/>
+          <rect x={px}    y={GY-42} width={16} height={14} rx={4} fill="#fdd9a0"/>
+          <rect x={px}    y={GY-42} width={16} height={5}  rx={3} fill="#4a2511"/>
+          <rect x={px+3}  y={GY-35} width={3}  height={3}  rx={1} fill="#222"/>
+          <rect x={px+10} y={GY-35} width={3}  height={3}  rx={1} fill="#222"/>
+          <rect x={px+4}  y={GY-36} width={1}  height={1}  fill="white"/>
+          <rect x={px+11} y={GY-36} width={1}  height={1}  fill="white"/>
+          <rect x={px+4}  y={GY-29} width={8}  height={2}  rx={1} fill="#c47a52"/>
+        </g>
+      )}
+      {ALPHA.map((_, i) => i < stepIdx && (
+        <text key={i} x={8+i*13} y={VIEW_H-5} fontSize={9} fill="#ffd60a" opacity={.7}>★</text>
+      ))}
+    </svg>
+  );
+}
+
+function Sign({ item, lang, onSpeak }) {
+  const label = lang==="de"
+    ? (item.lang!=="sl" ? item.de : null)
+    : (item.lang!=="de" ? item.sl : null);
+  const shown = label || item.de || item.sl;
+  const flag  = item.lang==="de" ? "🇦🇹" : item.lang==="sl" ? "🇸🇮" : "🇦🇹 🇸🇮";
+  return (
+    <div style={{
+      background:"#fdf6e3", border:"4px solid #8b5e1a", borderRadius:8,
+      boxShadow:"4px 4px 0 #5a3a0a, inset 0 0 0 2px #d4a030",
+      overflow:"hidden", width:"100%", maxWidth:150, aspectRatio:"1/1",
+      display:"flex", flexDirection:"column", flexShrink:0,
+    }}>
+      <div style={{
+        background:"linear-gradient(90deg,#8b5e1a,#c08030,#8b5e1a)",
+        padding:"4px 6px", display:"flex", alignItems:"center",
+        justifyContent:"space-between", borderBottom:"2px solid #5a3a0a", flexShrink:0,
+      }}>
+        <span style={{fontFamily:"'Press Start 2P',monospace",fontSize:7,color:"#fdf6e3"}}>{flag}</span>
+        <button onClick={onSpeak} style={{cursor:"pointer",border:"none",background:"transparent",fontSize:13,lineHeight:1,padding:0}}>🔊</button>
+      </div>
+      <div style={{flex:1,overflow:"hidden",minHeight:0}}>
+        <img src={item.img} alt={shown}
+          style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+      </div>
+      <div style={{
+        background:"rgba(0,0,0,.75)", padding:"3px 6px", flexShrink:0,
+        fontFamily:"'Press Start 2P',monospace", fontSize:7, color:"white",
+        textAlign:"center", lineHeight:1.5,
+      }}>{shown}</div>
+    </div>
+  );
+}
+
+function LetterButtons({ options, onPick, result }) {
+  const colors = ["#c0392b","#2471a3","#1e8449","#d35400"];
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,width:"100%",maxWidth:300,flexShrink:0}}>
+      {options.map((letter, i) => {
+        const isCorrect = !!result && letter === result.correct;
+        const isWrong   = !!result && letter === result.chosen && letter !== result.correct;
+        const isDim     = !!result && !isCorrect && !isWrong;
+        return (
+          <button key={letter} onClick={() => !result && onPick(letter)} style={{
+            cursor: result ? "default" : "pointer",
+            border:"none", borderRadius:10,
+            background: isCorrect ? "#27ae60" : isWrong ? "#e74c3c" : colors[i],
+            color:"white", fontFamily:"'Press Start 2P',monospace",
+            fontSize:"clamp(18px,5vw,30px)", padding:"12px 6px",
+            boxShadow: result ? "none" : "0 5px 0 rgba(0,0,0,.4)",
+            opacity: isDim ? .35 : 1,
+            transition:"opacity .2s, transform .1s",
+            textShadow:"2px 2px 0 rgba(0,0,0,.3)",
+          }}
+          onMouseEnter={e=>{ if(!result) e.currentTarget.style.transform="scale(1.06) translateY(-2px)"; }}
+          onMouseLeave={e=>{ e.currentTarget.style.transform="scale(1)"; }}>
+            {letter}{isCorrect && " ✓"}{isWrong && " ✗"}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function App() {
+  const [step,     setStep]     = useState(0);
+  const [charX,    setCharX]    = useState(-30);
+  const [options,  setOptions]  = useState(() => buildOptions(ALPHA[0].letter));
+  const [result,   setResult]   = useState(null);
+  const [shake,    setShake]    = useState(false);
+  const [doorOpen, setDoorOpen] = useState(false);
+  const [stars,    setStars]    = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [lang,     setLang]     = useState("de");
+  const rafRef = useRef(0);
+  const xRef   = useRef(-30);
+
+  function startStep(idx) {
+    cancelAnimationFrame(rafRef.current);
+    xRef.current = -30;
+    setCharX(-30);
+    setDoorOpen(false);
+    setResult(null);
+    setOptions(buildOptions(ALPHA[idx].letter));
+    function walk() {
+      xRef.current += 3;
+      setCharX(xRef.current);
+      if (xRef.current < STOP_X) {
+        rafRef.current = requestAnimationFrame(walk);
+      } else {
+        xRef.current = STOP_X;
+        setCharX(STOP_X);
+        const item = ALPHA[idx];
+        const w  = lang === "de" ? item.de : item.sl;
+        const lc = lang === "de" ? "de-DE" : "sl-SI";
+        if (w) speak(w, lc);
+      }
+    }
+    rafRef.current = requestAnimationFrame(walk);
+  }
+
+  useEffect(() => {
+    startStep(0);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
+  function pickLetter(letter) {
+    const correct = ALPHA[step].letter;
+    if (letter === correct) {
+      setResult({ chosen: letter, correct });
+      setStars(s => s + 1);
+      setTimeout(() => setDoorOpen(true), 250);
+      setTimeout(() => {
+        function walkThrough() {
+          xRef.current += 3;
+          setCharX(xRef.current);
+          if (xRef.current < VIEW_W + 40) {
+            rafRef.current = requestAnimationFrame(walkThrough);
+          } else {
+            const next = step + 1;
+            if (next >= TOTAL) { setFinished(true); return; }
+            setStep(next);
+            startStep(next);
+          }
+        }
+        rafRef.current = requestAnimationFrame(walkThrough);
+      }, 1300);
+    } else {
+      setResult({ chosen: letter, correct });
+      setShake(true);
+      setTimeout(() => { setShake(false); setResult(null); }, 600);
+    }
+  }
+
+  function restart() {
+    setStep(0); setStars(0); setFinished(false);
+    startStep(0);
+  }
+
+  const item = ALPHA[Math.min(step, TOTAL - 1)];
+
+  if (finished) return (
+    <div style={{minHeight:"100vh",background:"#0d0520",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{background:"#1a0a2e",borderRadius:20,padding:"44px 32px",textAlign:"center",
+        boxShadow:"0 0 0 4px #ffd60a,0 0 0 8px #e63946,0 20px 60px rgba(0,0,0,.8)",maxWidth:380,width:"100%"}}>
+        <div style={{fontSize:64,marginBottom:8}}>🏆</div>
+        <div style={{fontSize:16,color:"#ffd60a",textShadow:"3px 3px 0 #e63946",marginBottom:16,lineHeight:1.7}}>GAME CLEAR!</div>
+        <div style={{fontSize:24,color:"#ffd60a",marginBottom:8}}>{"★".repeat(Math.min(stars,12))}</div>
+        <div style={{fontSize:13,color:"#aaa",marginBottom:28}}>{stars} / {TOTAL}</div>
+        <button onClick={restart} style={{cursor:"pointer",border:"none",background:"#ffd60a",
+          color:"#1a0a2e",borderRadius:8,padding:"14px 32px",fontSize:12,fontFamily:"inherit",
+          boxShadow:"0 5px 0 #b8860b"}}>▶ PLAY AGAIN</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{minHeight:"100vh",background:"#0d0520",display:"flex",flexDirection:"column",alignItems:"center"}}>
+      <div style={{width:"100%",maxWidth:640,background:"#110720",borderBottom:"4px solid #ffd60a",
+        padding:"8px 14px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:8}}>
+        <span style={{fontSize:"clamp(9px,2.5vw,13px)",color:"#ffd60a"}}>🇦🇹 ABC QUEST 🇸🇮</span>
+        <div style={{display:"flex",alignItems:"center",gap:6}}>
+          <span style={{fontSize:9,color:"#ffd60a"}}>⭐ {stars}</span>
+          <div style={{width:70,height:8,background:"#2a1a4a",borderRadius:4,overflow:"hidden",border:"1px solid #44335a"}}>
+            <div style={{height:"100%",background:"linear-gradient(90deg,#ffd60a,#e63946)",
+              width:`${(step/TOTAL)*100}%`,transition:"width .6s ease"}}/>
+          </div>
+          <span style={{fontSize:9,color:"#555"}}>{step+1}/{TOTAL}</span>
+        </div>
+        <div style={{display:"flex",gap:4}}>
+          {["de","sl"].map(l => (
+            <button key={l} onClick={() => setLang(l)} style={{
+              cursor:"pointer", border: lang===l ? "2px solid #ffd60a" : "2px solid #333",
+              background: lang===l ? "#ffd60a22" : "transparent",
+              color: lang===l ? "#ffd60a" : "#444",
+              borderRadius:4,padding:"2px 8px",fontSize:8,fontFamily:"inherit",
+            }}>{l==="de"?"🇦🇹":"🇸🇮"}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{width:"100%",maxWidth:640,background:"#000",borderLeft:"4px solid #ffd60a",borderRight:"4px solid #ffd60a"}}>
+        <PixelScene charX={charX} doorOpen={doorOpen} shake={shake} stepIdx={step}/>
+      </div>
+
+      <div style={{width:"100%",maxWidth:640,background:"#1a0a2e",
+        borderLeft:"4px solid #ffd60a",borderRight:"4px solid #ffd60a",borderBottom:"4px solid #ffd60a",
+        padding:"14px 14px 18px",display:"flex",alignItems:"center",justifyContent:"center",gap:16,flexWrap:"wrap"}}>
+        <Sign item={item} lang={lang} onSpeak={() => {
+          const w  = lang==="de" ? item.de : item.sl;
+          const lc = lang==="de" ? "de-DE" : "sl-SI";
+          if (w) speak(w, lc);
+        }}/>
+        <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8,flexShrink:0}}>
+          <div style={{fontSize:"clamp(8px,2vw,10px)",color:"#555",letterSpacing:.5,textAlign:"center"}}>
+            {lang==="de" ? "ANFANGSBUCHSTABE?" : "PRVA ČRKA?"}
+          </div>
+          <LetterButtons options={options} onPick={pickLetter} result={result}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
 </html>
