@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ABC Quest — E-Learning Lab — PRESKER.AT</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <div class="top-bar"></div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow">Digital Lab</p>
+    <h1>ABC Quest — building an e-learning game.</h1>
+    <p class="lab-sub">A bilingual German/Slovenian alphabet game for preschool kids in Carinthia — and a look at why it's built the way it is, not just how.</p>
+
+    <p><a href="/lab/abc-quest/" target="_blank" rel="noopener" class="lab-link">▶ Play it full-screen →</a></p>
+
+    <div class="lab-code" style="padding:0; overflow:hidden; aspect-ratio: 4/3; max-height: 480px;">
+      <iframe src="/lab/abc-quest/" title="ABC Quest" style="width:100%; height:100%; border:0; display:block;" loading="lazy"></iframe>
+    </div>
+
+    <h2>The pedagogical brief</h2>
+    <p>Carinthia (southern Austria) has a recognized Slovenian-speaking minority — kids there often grow up genuinely bilingual, or are being raised that way by choice. Learning the alphabet is usually a monolingual exercise: one set of letters, one set of words. ABC Quest treats the alphabet itself as the place where the two languages need to be reconciled, not bolted together afterward.</p>
+    <p>Concretely: German has <strong>Ä Ö Ü</strong> with no Slovenian equivalent; Slovenian has <strong>Č Š Ž</strong> with no German equivalent. Most letters overlap (<em>A</em>, <em>B</em>, <em>D</em>...) but the word behind each letter usually doesn't (<em>Banane</em> / <em>Banana</em>). The game's data model encodes this directly — each alphabet entry carries a <code>lang</code> field (<code>"de"</code>, <code>"sl"</code>, or <code>"both"</code>) and separate <code>de</code> / <code>sl</code> word fields, so a German-only letter simply has no Slovenian word to show, rather than a wrong or invented one.</p>
+
+    <h2>Why a "door" loop, specifically</h2>
+    <p>The whole game is one repeated four-beat loop: walk → see a picture and hear its word → pick the matching starting letter → door opens, walk through. For a preschool attention span, this matters more than it might look:</p>
+    <ul style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85;">
+      <li><strong>The reward is the same shape every time.</strong> A door that opens is unambiguous — there's no scoreboard to interpret, no paragraph of feedback to read. Right answer, door opens, walk through, immediately next picture.</li>
+      <li><strong>Three signals arrive together, not in sequence.</strong> The sign shows the picture, narrates the word out loud (<code>SpeechSynthesisUtterance</code>, locale-correct: <code>de-DE</code> or <code>sl-SI</code>), and the child has to map that to a written letter. Image, sound, and grapheme land in the same few seconds — that simultaneity is the actual mechanism for building the sound-to-letter association, not the game wrapper around it.</li>
+      <li><strong>Wrong answers don't stop anything.</strong> A wrong pick shakes the scene and clears after 600ms with no penalty, no life lost, no game-over. The cost of guessing wrong is kept close to zero on purpose, so guessing remains a reasonable strategy for a four-year-old rather than something to be afraid of.</li>
+    </ul>
+
+    <h2>Why the options are reshuffled every round</h2>
+    <p><code>buildOptions()</code> picks three random wrong letters and inserts the correct one at a random position, every single round. This is a small but deliberate anti-pattern fix: if the correct answer always appeared in the same screen position, a child could "solve" the game by memorizing position-to-reward instead of learning the letter-sound mapping. Reshuffling forces the only reliable strategy to be the real one.</p>
+
+    <h2>How the scene is actually drawn</h2>
+    <p>There are no image files in this project at all — not even for the alphabet pictures. Every visual, from the character to the trees to the "Ananas" icon on the sign, is an inline SVG, and the alphabet pictures are generated at runtime as tiny base64-encoded SVGs containing an emoji on a colour swatch (<code>makeImg()</code>). That's a real, deliberate constraint, not a placeholder shortcut: zero external image requests means zero broken-image risk, zero licensing question for icon sets, and a total JS bundle under 160KB.</p>
+    <p>The character's walk cycle doesn't use a sprite sheet either — it's <code>requestAnimationFrame</code> nudging an x-coordinate by 3px per frame, with leg/arm rectangles redrawn at slightly different heights depending on a <code>walkFrame</code> computed from <code>Date.now()</code>. It's a deliberately crude two-frame walk cycle, not a limitation — at this scale (a 16px-tall pixel character) more frames wouldn't read as smoother, just heavier.</p>
+
+    <h2>What's worth borrowing from this for other lessons</h2>
+    <p>None of the techniques above are specific to the alphabet. The same loop shape (show stimulus → multisensory presentation → low-stakes multiple choice → unambiguous reward → repeat) works for number recognition, shape/color vocabulary, or a second language's basic vocabulary — anything where the actual learning is a fast stimulus-response mapping rather than reasoning. The SVG-only asset approach is also worth keeping for any small teaching tool: it keeps the whole thing inside one JS file, with nothing that can 404.</p>
+
+    <a href="/" class="lab-back">← back to presker.at</a>
+
+  </main>
+</body>
+</html>

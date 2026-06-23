@@ -1,0 +1,196 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0e0e0e;
+  --bg2:    #161616;
+  --border: #2a2a2a;
+  --text:   #e8e8e8;
+  --muted:  #888;
+  --accent: #b8f57a;
+  --code:   #7ab8f5;
+  --sans:   -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --mono:   'SF Mono', 'Fira Mono', 'Consolas', monospace;
+}
+
+body {
+  background: var(--bg);
+  background-image: radial-gradient(circle, #222 1px, transparent 1px);
+  background-size: 24px 24px;
+  color: var(--text);
+  font-family: var(--sans);
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+a { color: inherit; }
+
+.top-bar {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--code), #f57ab8, transparent);
+  background-size: 200% 100%;
+  animation: slideBar 6s ease-in-out infinite alternate;
+}
+@keyframes slideBar { 0% { background-position: 0% 0; } 100% { background-position: 100% 0; } }
+
+.lab-page, .lab-shell {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem 5rem;
+}
+
+.lab-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.75rem;
+}
+
+.lab-page h1, .lab-shell h1 {
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 1rem;
+}
+
+.lab-sub {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 560px;
+  margin-bottom: 1.5rem;
+}
+
+.lab-page h2, .lab-shell h2 {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 2.5rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.lab-page p, .lab-shell p {
+  font-size: 15px;
+  line-height: 1.8;
+  margin-bottom: 1.1rem;
+}
+
+.lab-page code, .lab-shell code {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  background: var(--bg2);
+  padding: 2px 5px;
+  border-radius: 3px;
+  color: var(--code);
+}
+
+.lab-code {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.25rem;
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--text);
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+  white-space: pre;
+}
+
+.lab-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.lab-table th, .lab-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+}
+.lab-table th { color: var(--muted); font-weight: 500; }
+.lab-dim { color: #555; }
+
+.lab-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.lab-form input {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 8px 12px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.lab-form input:focus { outline: none; border-color: var(--accent); }
+.lab-form button {
+  background: var(--accent);
+  color: #0e0e0e;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: var(--mono);
+  cursor: pointer;
+}
+
+.lab-link {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  text-decoration: none;
+}
+.lab-link:hover { text-decoration: underline; }
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  margin-bottom: 1.5rem;
+}
+.lab-card {
+  background: var(--bg);
+  padding: 1.25rem;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s;
+}
+.lab-card:hover { background: var(--bg2); }
+.lab-card-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.lab-card-path {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.lab-card-desc {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.lab-back {
+  display: inline-block;
+  margin-top: 2rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+  text-decoration: none;
+}
+.lab-back:hover { color: var(--text); }

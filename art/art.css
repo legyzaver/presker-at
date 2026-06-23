@@ -774,17 +774,96 @@ img { display: block; max-width: 100%; }
 .contact-value a { color: var(--accent); }
 .contact-value a:hover { text-decoration: underline; }
 
+/* ── Mobile nav toggle bar + drawer ── */
+.nav-toggle-bar {
+  display: none;
+}
+
+.nav-toggle-btn {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  width: 36px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.nav-toggle-btn span {
+  display: block;
+  width: 16px;
+  height: 1.5px;
+  background: var(--text);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.nav-toggle-btn.is-open span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.nav-toggle-btn.is-open span:nth-child(2) { opacity: 0; }
+.nav-toggle-btn.is-open span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+
+.nav-backdrop {
+  display: none;
+}
+
 /* ── Responsive ── */
 @media (max-width: 900px) {
   .art-shell { flex-direction: column; }
 
-  .art-nav {
-    width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
+  .nav-toggle-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--bg);
     border-bottom: 1px solid var(--border);
-    padding: 1.25rem 0;
+    padding: 0.85rem 1.25rem;
+  }
+  .nav-toggle-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav-toggle-label .accent { color: var(--accent); }
+
+  .art-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 86%;
+    max-width: 320px;
+    height: 100vh;
+    border-right: 1px solid var(--border);
+    box-shadow: 4px 0 24px rgba(0,0,0,0.5);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 60;
+  }
+  .art-nav.is-open { transform: translateX(0); }
+
+  .nav-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    z-index: 55;
+  }
+  .nav-backdrop.is-open {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   .project-layout { grid-template-columns: 1fr; }

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python CGI Lab — PRESKER.AT</title>
+  <link rel="stylesheet" href="/lab/lab.css">
+</head>
+<body>
+  <div class="top-bar"></div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow">Digital Lab</p>
+    <h1>Python CGI Lab</h1>
+    <p class="lab-sub">CGI scripts and Python backend logic, running live on ordinary shared hosting — no app server, no port to bind, no process to keep alive. Just Apache and a Python interpreter.</p>
+
+    <h2>What CGI actually is</h2>
+    <p>CGI — the Common Gateway Interface — is the oldest way to make a web server run a program instead of serving a static file. It dates to 1993. The "interface" part is almost insultingly simple: when a request hits a script, the web server (Apache, here) starts a brand-new process, hands it the request as <strong>environment variables</strong> plus the raw request body on <strong>stdin</strong>, and reads whatever the process prints to <strong>stdout</strong> as the response.</p>
+    <p>That's the entire protocol. No sockets to open, no framework required, no persistent process. A CGI script is just a program that knows it must:</p>
+    <ol style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.8;">
+      <li>Print a <code>Content-Type</code> header line</li>
+      <li>Print one blank line (the header/body separator — easy to forget, breaks everything if missing)</li>
+      <li>Print the response body</li>
+    </ol>
+    <p>That's <a href="/test/hello.py" class="lab-link">hello.py →</a> in its entirety: three print statements.</p>
+
+    <h2>Why this still matters on shared hosting</h2>
+    <p>Modern Python web apps usually run as a long-lived process — Gunicorn, uWSGI, an ASGI server — sitting behind a reverse proxy, listening on its own port. Cheap shared hosting (like this site's host, World4You) generally won't let you do that: no port binding, no persistent background process, no control over what's listening where.</p>
+    <p>What shared hosts <em>do</em> support — going back decades — is Apache configured to execute a script and capture its output. That's exactly the contract CGI provides, which is why it's still the practical way to run server-side Python on this kind of hosting. The tradeoff is that the Python interpreter starts cold on every single request — there's no warm process holding a database connection pool or cached state. For small scripts and low traffic, that startup cost is negligible. It would be a real problem at scale.</p>
+
+    <h2>Statelessness — the core limitation</h2>
+    <p>Because every request gets a fresh process with no memory of the last one, a CGI script by itself has no concept of "earlier" or "later." Anything that needs to persist — a visit count, a session, a queue of feedback messages — has to be written somewhere <em>outside</em> the process, almost always the filesystem on shared hosting (a database is the other option, where available). <a href="/test/counter.py" class="lab-link">counter.py →</a> demonstrates this directly: it reads a number from a text file, increments it, writes it back, with an OS-level file lock so two simultaneous requests can't corrupt the count by racing each other.</p>
+
+    <h2>Reading a request: environment variables and stdin</h2>
+    <p>Everything the browser sent arrives as environment variables — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code>, and so on — readable with plain <code>os.environ</code>. A GET request's form data lives entirely in <code>QUERY_STRING</code>. A POST request's body has to be read from <code>sys.stdin</code>, exactly <code>CONTENT_LENGTH</code> bytes — read less and you lose data, read more (or read until EOF) and the script can hang waiting for bytes that will never arrive, since CGI doesn't close stdin for you. <a href="/test/env.py" class="lab-link">env.py →</a> dumps the environment variables for whatever request loaded it; <a href="/test/echo.py" class="lab-link">echo.py →</a> parses a real form submission via both GET and POST.</p>
+    <p style="font-size: 13px; color: var(--muted);">Note: these examples parse the query string and POST body with <code>urllib.parse</code> rather than the stdlib <code>cgi</code> module. <code>cgi.FieldStorage</code> was the traditional tool for this, but the whole <code>cgi</code> module was deprecated in Python 3.11 and removed entirely in 3.13 (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — worth knowing if you're maintaining older CGI code that imports it.</p>
+
+    <h2>Security notes that actually matter here</h2>
+    <p>CGI's simplicity cuts both ways — there's no framework quietly escaping things for you, so a few rules are worth stating plainly:</p>
+    <ul style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85;">
+      <li><strong>Escape everything you echo back.</strong> Any user-supplied string printed into HTML is a potential XSS vector unless run through <code>html.escape()</code> first — every script in this lab does this.</li>
+      <li><strong>Never build a shell command from request data.</strong> <code>os.system()</code> or <code>subprocess</code> with <code>shell=True</code> and unsanitized input is a direct path to remote code execution on the host. None of these scripts shell out at all.</li>
+      <li><strong>Trust <code>CONTENT_LENGTH</code>, not "read until done."</strong> Reading stdin without a length bound from an untrusted client risks both hangs and unbounded memory use.</li>
+      <li><strong>File locking matters the moment two requests can land at once.</strong> A naive read-modify-write to a shared file (like a counter or a log) will silently corrupt data under concurrent load without a lock.</li>
+    </ul>
+
+    <h2>Live demos</h2>
+    <div class="lab-grid">
+      <a href="/test/hello.py" class="lab-card">
+        <div class="lab-card-title">Hello, CGI</div>
+        <div class="lab-card-path">/test/hello.py</div>
+        <div class="lab-card-desc">The protocol in three lines: header, blank line, body.</div>
+      </a>
+      <a href="/test/env.py" class="lab-card">
+        <div class="lab-card-title">Request environment</div>
+        <div class="lab-card-path">/test/env.py</div>
+        <div class="lab-card-desc">What Apache actually hands the script per request.</div>
+      </a>
+      <a href="/test/echo.py" class="lab-card">
+        <div class="lab-card-title">Form echo</div>
+        <div class="lab-card-path">/test/echo.py</div>
+        <div class="lab-card-desc">Parses GET query strings and POST bodies by hand.</div>
+      </a>
+      <a href="/test/counter.py" class="lab-card">
+        <div class="lab-card-title">Persistent counter</div>
+        <div class="lab-card-path">/test/counter.py</div>
+        <div class="lab-card-desc">State surviving a stateless process, via a locked file.</div>
+      </a>
+    </div>
+
+    <p style="font-size: 13px; color: var(--muted);">More scripts and notes will land here over time — this is a working lab, not a finished reference.</p>
+
+    <a href="/" class="lab-back">← back to presker.at</a>
+
+  </main>
+</body>
+</html>

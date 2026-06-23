@@ -1,13 +1,16 @@
 (function () {
   const p = location.pathname.replace(/\/index\.html$/, '/');
+  let activeLabel = 'Art';
 
   function a(href, label) {
-    const active = p === href || (href !== '/art/' && p.startsWith(href.replace(/\.html$/, '')))
-      ? ' class="active"' : '';
-    return `<li><a href="${href}"${active}>${label}</a></li>`;
+    const isActive = p === href || (href !== '/art/' && p.startsWith(href.replace(/\.html$/, '')));
+    if (isActive) activeLabel = label;
+    return `<li><a href="${href}"${isActive ? ' class="active"' : ''}>${label}</a></li>`;
   }
 
-  document.getElementById('art-nav').innerHTML = `
+  const navEl = document.getElementById('art-nav');
+
+  navEl.innerHTML = `
     <div class="nav-top">
       <a href="/" class="back-link">← presker.at</a>
       <span class="nav-section-label">ART</span>
@@ -56,4 +59,37 @@
       ${a('/art/archive.html', 'Archive')}
       ${a('/art/contact.html', 'Contact')}
     </ul>`;
+
+  // ── Mobile toggle bar + backdrop (collapsed by default, self-hiding) ──
+  const shell = document.querySelector('.art-shell');
+
+  const toggleBar = document.createElement('div');
+  toggleBar.className = 'nav-toggle-bar';
+  toggleBar.innerHTML = `
+    <span class="nav-toggle-label">ART <span class="accent">/</span> ${activeLabel}</span>
+    <button class="nav-toggle-btn" type="button" aria-label="Toggle navigation" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>`;
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'nav-backdrop';
+
+  shell.parentNode.insertBefore(toggleBar, shell);
+  shell.parentNode.insertBefore(backdrop, shell);
+
+  const toggleBtn = toggleBar.querySelector('.nav-toggle-btn');
+
+  function setOpen(open) {
+    navEl.classList.toggle('is-open', open);
+    backdrop.classList.toggle('is-open', open);
+    toggleBtn.classList.toggle('is-open', open);
+    toggleBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  toggleBtn.addEventListener('click', () => setOpen(!navEl.classList.contains('is-open')));
+  backdrop.addEventListener('click', () => setOpen(false));
+  navEl.addEventListener('click', (e) => {
+    if (e.target.tagName === 'A') setOpen(false);
+  });
 })();
