@@ -56,7 +56,6 @@
       ${a('/art/awards.html', 'Awards & Residencies')}
       ${a('/art/publications.html', 'Publications')}
       ${a('/art/press.html', 'Press')}
-      ${a('/art/archive.html', 'Archive')}
       ${a('/art/contact.html', 'Contact')}
     </ul>`;
 

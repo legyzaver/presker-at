@@ -11,6 +11,7 @@
   --code:      #7ab8f5;
   --art:       #f57ab8;
   --vibe:      #f5c97a;
+  --diy:       #7af5d4;
   --radius:    10px;
   --max:       860px;
   font-size:   16px;
@@ -297,6 +298,11 @@ section.visible {
   box-shadow: 0 0 28px rgba(245, 201, 122, 0.1);
 }
 
+.card:has(.tag-diy):hover {
+  border-color: rgba(122, 245, 212, 0.45);
+  box-shadow: 0 0 28px rgba(122, 245, 212, 0.1);
+}
+
 .card-top {
   display: flex;
   justify-content: space-between;
@@ -315,6 +321,7 @@ section.visible {
 .tag-code  { background: #0d2033; color: var(--code); }
 .tag-art   { background: #2d0d21; color: var(--art);  }
 .tag-vibe  { background: #2d230d; color: var(--vibe); }
+.tag-diy   { background: #0d2d24; color: var(--diy);  }
 
 .card-date {
   font-size: 11px;
