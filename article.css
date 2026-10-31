@@ -149,6 +149,105 @@
   text-transform: uppercase;
 }
 
+/* ── Build figures & image sequence ── */
+.build-figure {
+  margin: 2rem 0;
+}
+
+.build-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg2);
+}
+
+.build-figure figcaption {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+  margin-top: 0.65rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.build-figure figcaption .step {
+  color: var(--accent);
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  margin-right: 0.4rem;
+}
+
+/* Graceful placeholder when the photo isn't in place yet */
+.img-ph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  padding: 2rem;
+  text-align: center;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+  background: repeating-linear-gradient(45deg, #131313, #131313 12px, #161616 12px, #161616 24px);
+  color: #555;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+}
+
+/* The "chain" narrative list */
+.build-chain {
+  list-style: none;
+  counter-reset: chain;
+  margin: 1.5rem 0 2rem;
+  padding: 0;
+}
+
+.build-chain li {
+  counter-increment: chain;
+  position: relative;
+  padding: 0.55rem 0 0.55rem 2.6rem;
+  font-size: 15px;
+  color: #c0c0c0;
+  line-height: 1.6;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.build-chain li:last-child { border-bottom: none; }
+
+.build-chain li::before {
+  content: counter(chain);
+  position: absolute;
+  left: 0;
+  top: 0.55rem;
+  width: 1.7rem;
+  height: 1.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+}
+
+.build-chain li strong { color: var(--text); }
+
+/* Back link at top of project pages */
+.back-link {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.5rem;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+}
+
+.back-link:hover { color: var(--text); }
+
 /* ── Article end ── */
 .article-end-tag {
   display: flex;
@@ -163,9 +262,72 @@
   font-family: 'SF Mono', 'Fira Mono', monospace;
 }
 
+/* ── Embedded tool (FP Disk Burner) — breaks out wider than the prose column ── */
+.tool-embed {
+  width: min(1180px, 94vw);
+  margin: 2.5rem 0;
+  margin-left: 50%;
+  transform: translateX(-50%);
+}
+.tool-embed-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.9rem;
+}
+.tool-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent);
+  color: #0e0e0e;
+  font-family: 'SF Mono', 'Fira Mono', 'Consolas', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: 20px;
+}
+.tool-open:hover { filter: brightness(1.08); }
+.tool-frame-wrap { position: relative; }
+.tool-fullscreen {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  font-size: 12px;
+  z-index: 5;
+  transition: background 0.15s, color 0.15s;
+}
+.tool-fullscreen:hover { background: var(--accent); color: var(--bg); }
+.tool-embed iframe {
+  width: 100%;
+  min-height: 780px;
+  display: block;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #0f1216;
+}
+.tool-embed iframe:fullscreen { min-height: 100vh; border-radius: 0; }
+.tool-note {
+  font-size: 12px;
+  color: #555;
+  font-family: 'SF Mono', 'Fira Mono', monospace;
+  margin-top: 0.6rem;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .article-page { padding: 2rem 1.25rem 3rem; }
   .camera-table { font-size: 11px; }
   .camera-table th, .camera-table td { padding: 0.5rem 0.65rem; }
+  .tool-embed { width: 100%; margin-left: 0; transform: none; }
+  .tool-embed iframe { min-height: 620px; }
 }

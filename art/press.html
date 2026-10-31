@@ -4,7 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Press — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      dlPreskerBiography: '/art/downloads/presker-biography.pdf',
+      dlPreskerStatement: '/art/downloads/presker-statement.pdf',
+      dlPreskerCv: '/art/downloads/presker-cv.pdf',
+      dlPreskerPresskit: '/art/downloads/presker-presskit.pdf',
+      pressKitTitle: 'Press Kit Downloads', pressStatement: 'Statement', pressPhotos: 'Press Photos', pressKit: 'Press Kit'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      dlPreskerBiography: '/art/downloads/presker-biography-de.pdf',
+      dlPreskerStatement: '/art/downloads/presker-statement-de.pdf',
+      dlPreskerCv: '/art/downloads/presker-cv-de.pdf',
+      dlPreskerPresskit: '/art/downloads/presker-presskit-de.pdf',
+      pressKitTitle: 'Presseunterlagen zum Download', pressStatement: 'Statement', pressPhotos: 'Pressefotos', pressKit: 'Presseset'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      dlPreskerBiography: '/art/downloads/presker-biography-sl.pdf',
+      dlPreskerStatement: '/art/downloads/presker-statement-sl.pdf',
+      dlPreskerCv: '/art/downloads/presker-cv-sl.pdf',
+      dlPreskerPresskit: '/art/downloads/presker-presskit-sl.pdf',
+      pressKitTitle: 'Gradivo za medije za prenos', pressStatement: 'Izjava', pressPhotos: 'Fotografije za medije', pressKit: 'Komplet za medije'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -14,67 +40,47 @@
 
       <div class="page-header">
         <div class="page-eyebrow">Miha Presker</div>
-        <h1 class="page-title">Press</h1>
+        <h1 class="page-title" data-i18n="artPress">Press</h1>
       </div>
 
       <!-- Downloads -->
       <div class="press-dl">
-        <div class="section-title">Press Kit Downloads</div>
+        <div class="section-title" data-i18n="pressKitTitle">Press Kit Downloads</div>
         <div class="dl-grid">
-          <a href="/art/downloads/presker-portrait.jpg" class="dl-item" download>
-            <div class="dl-type">JPG</div>
-            <div class="dl-name">Artist Portrait</div>
-          </a>
-          <a href="/art/downloads/presker-biography.pdf" class="dl-item" download>
+          <a href="/art/downloads/presker-biography.pdf" data-i18n-href="dlPreskerBiography" class="dl-item" download>
             <div class="dl-type">PDF</div>
-            <div class="dl-name">Biography</div>
+            <div class="dl-name" data-i18n="artBio">Biography</div>
           </a>
-          <a href="/art/downloads/presker-statement.pdf" class="dl-item" download>
+          <a href="/art/downloads/presker-statement.pdf" data-i18n-href="dlPreskerStatement" class="dl-item" download>
             <div class="dl-type">PDF</div>
-            <div class="dl-name">Statement</div>
+            <div class="dl-name" data-i18n="pressStatement">Statement</div>
           </a>
-          <a href="/art/downloads/presker-cv.pdf" class="dl-item" download>
+          <a href="/art/downloads/presker-cv.pdf" data-i18n-href="dlPreskerCv" class="dl-item" download>
             <div class="dl-type">PDF</div>
-            <div class="dl-name">CV</div>
+            <div class="dl-name" data-i18n="artCV">CV</div>
           </a>
           <a href="/art/downloads/presker-photos.zip" class="dl-item" download>
             <div class="dl-type">ZIP</div>
-            <div class="dl-name">High-res Photos</div>
+            <div class="dl-name" data-i18n="pressPhotos">Press Photos</div>
           </a>
-          <a href="/art/downloads/presker-presskit.pdf" class="dl-item" download>
+          <a href="/art/downloads/presker-presskit.pdf" data-i18n-href="dlPreskerPresskit" class="dl-item" download>
             <div class="dl-type">PDF</div>
-            <div class="dl-name">Press Kit</div>
+            <div class="dl-name" data-i18n="pressKit">Press Kit</div>
           </a>
         </div>
       </div>
 
-      <!-- Press coverage -->
-      <div class="pub-list">
-        <div class="section-title" style="margin: 0 0 0.5rem; padding-top: 2rem;">Coverage</div>
 
-        <div class="pub-card">
-          <div class="pub-year">[Year]</div>
-          <div class="pub-content">
-            <div class="pub-title">[Article title]</div>
-            <div class="pub-meta">Der Standard</div>
-            <a href="#" class="pub-link">Read ↗</a>
-          </div>
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
         </div>
-
-        <div class="pub-card">
-          <div class="pub-year">[Year]</div>
-          <div class="pub-content">
-            <div class="pub-title">[Article title]</div>
-            <div class="pub-meta">Maska</div>
-            <a href="#" class="pub-link">Read ↗</a>
-          </div>
-        </div>
-
-        <!-- Add press items here -->
       </div>
 
-    </main>
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

@@ -4,7 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invisible — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      dlInvisibleSheet: '/art/downloads/invisible-sheet.pdf',
+      metaMedium: 'Infrared photography series',
+      invLabelTitle: 'Title', invLabelMedium: 'Medium', invLabelDimensions: 'Dimensions',
+      invH2Description: 'Description', invH2Concept: 'Concept',
+      invPDescription: 'A series of infrared photographs, rendered in a consistent pink-violet palette, documenting public urban spaces — parks, streets, fences. A recurring motif is a street sign or notice board with its face wiped blank, the information it should carry erased or withheld.',
+      invPConcept: 'Infrared photography records light outside the visible spectrum — a literal register of the "invisible." Pairing this with blank signage doubles the theme: what the camera sees that the eye cannot, alongside information that should be public but has been removed. The series reads as a quiet study of withheld or unseen information in shared space.',
+      invLabelCredits: 'Credits', invLabelCollection: 'Collection', invLabelKeywords: 'Keywords', invLabelDownloads: 'Downloads',
+      invDownloadLink: 'Technical sheet PDF ↓',
+      invSectionDoc: 'Documentation (22 images)', invSectionRelated: 'Related Projects',
+      invContact: 'Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      dlInvisibleSheet: '/art/downloads/invisible-sheet-de.pdf',
+      metaMedium: 'Infrarot-Fotoserie',
+      invLabelTitle: 'Titel', invLabelMedium: 'Medium', invLabelDimensions: 'Maße',
+      invH2Description: 'Beschreibung', invH2Concept: 'Konzept',
+      invPDescription: 'Eine Serie von Infrarotfotografien in einer durchgängigen pink-violetten Farbpalette, die öffentliche urbane Räume dokumentiert — Parks, Straßen, Zäune. Ein wiederkehrendes Motiv ist ein Straßenschild oder eine Informationstafel, deren Fläche leer gewischt ist, die Information, die sie tragen sollte, gelöscht oder zurückgehalten.',
+      invPConcept: 'Infrarotfotografie hält Licht außerhalb des sichtbaren Spektrums fest — ein wörtliches Register des „Unsichtbaren". Die Kombination mit leeren Schildern verdoppelt das Thema: was die Kamera sieht und das Auge nicht kann, neben Information, die öffentlich sein sollte, aber entfernt wurde. Die Serie liest sich als stille Studie zurückgehaltener oder unsichtbarer Information im gemeinsamen Raum.',
+      invLabelCredits: 'Credits', invLabelCollection: 'Sammlung', invLabelKeywords: 'Schlagwörter', invLabelDownloads: 'Downloads',
+      invDownloadLink: 'Technisches Datenblatt PDF ↓',
+      invSectionDoc: 'Dokumentation (22 Bilder)', invSectionRelated: 'Verwandte Projekte',
+      invContact: 'Korrekturen oder Ergänzungen? <a href="mailto:miha@presker.at" style="color: var(--accent);">Künstler kontaktieren →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      dlInvisibleSheet: '/art/downloads/invisible-sheet-sl.pdf',
+      metaMedium: 'Serija infrardečih fotografij',
+      invLabelTitle: 'Naslov', invLabelMedium: 'Medij', invLabelDimensions: 'Dimenzije',
+      invH2Description: 'Opis', invH2Concept: 'Koncept',
+      invPDescription: 'Serija infrardečih fotografij v enotni rožnato-vijolični paleti, ki dokumentira javne urbane prostore — parke, ulice, ograje. Ponavljajoč se motiv je cestna tabla ali oglasna deska z izbrisano, prazno površino — informacija, ki bi jo morala nositi, je izbrisana ali zadržana.',
+      invPConcept: 'Infrardeča fotografija zajema svetlobo zunaj vidnega spektra — dobesedni register „nevidnega". Kombinacija s praznimi tablami podvoji temo: kar kamera vidi, a oko ne more, ob informaciji, ki bi morala biti javna, a je bila odstranjena. Serija se bere kot tiha študija zadržane ali neopažene informacije v skupnem prostoru.',
+      invLabelCredits: 'Zasluge', invLabelCollection: 'Zbirka', invLabelKeywords: 'Ključne besede', invLabelDownloads: 'Prenosi',
+      invDownloadLink: 'Tehnični list PDF ↓',
+      invSectionDoc: 'Dokumentacija (22 slik)', invSectionRelated: 'Sorodni projekti',
+      invContact: 'Popravki ali dodatki? <a href="mailto:miha@presker.at" style="color: var(--accent);">Kontaktirajte umetnika →</a>'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -19,70 +60,56 @@
 
       <div class="project-meta-bar">
         <div class="project-meta-item">
-          <div class="project-meta-label">Title</div>
+          <div class="project-meta-label" data-i18n="invLabelTitle">Title</div>
           <div class="project-meta-value">Invisible</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Year</div>
-          <div class="project-meta-value">[Year]</div>
+          <div class="project-meta-label" data-i18n="invLabelMedium">Medium</div>
+          <div class="project-meta-value" data-i18n="metaMedium">Infrared photography series</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Medium</div>
-          <div class="project-meta-value">Infrared photography series</div>
-        </div>
-        <div class="project-meta-item">
-          <div class="project-meta-label">Dimensions</div>
+          <div class="project-meta-label" data-i18n="invLabelDimensions">Dimensions</div>
           <div class="project-meta-value">[variable]</div>
-        </div>
-        <div class="project-meta-item">
-          <div class="project-meta-label">Status</div>
-          <div class="project-meta-value">[Add status]</div>
         </div>
       </div>
 
       <div class="project-layout">
         <div class="project-body">
-          <h2>Description</h2>
-          <p><em style="color:var(--dim);">[Based on the documentation images — please confirm/correct:]</em> A series of infrared photographs, rendered in a consistent pink-violet palette, documenting public urban spaces — parks, streets, fences. A recurring motif is a street sign or notice board with its face wiped blank, the information it should carry erased or withheld.</p>
+          <h2 data-i18n="invH2Description">Description</h2>
+          <p data-i18n-html="invPDescription">A series of infrared photographs, rendered in a consistent pink-violet palette, documenting public urban spaces — parks, streets, fences. A recurring motif is a street sign or notice board with its face wiped blank, the information it should carry erased or withheld.</p>
 
-          <h2>Concept</h2>
-          <p>Infrared photography records light outside the visible spectrum — a literal register of the "invisible." Pairing this with blank signage doubles the theme: what the camera sees that the eye cannot, alongside information that should be public but has been removed. The series reads as a quiet study of withheld or unseen information in shared space.</p>
-
-          <h2>Exhibition History</h2>
-          <p>[Add exhibition history.]</p>
-
-          <h2>Curatorial Text</h2>
-          <p>[Add curatorial or critical text if available.]</p>
+          <h2 data-i18n="invH2Concept">Concept</h2>
+          <p data-i18n-html="invPConcept">Infrared photography records light outside the visible spectrum — a literal register of the "invisible." Pairing this with blank signage doubles the theme: what the camera sees that the eye cannot, alongside information that should be public but has been removed. The series reads as a quiet study of withheld or unseen information in shared space.</p>
         </div>
 
         <div class="project-sidebar">
           <div class="sidebar-block">
-            <div class="sidebar-label">Credits</div>
+            <div class="sidebar-label" data-i18n="invLabelCredits">Credits</div>
             <div class="sidebar-value">Miha Presker</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Collection</div>
+            <div class="sidebar-label" data-i18n="invLabelCollection">Collection</div>
             <div class="sidebar-value">[Collection]</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Keywords</div>
+            <div class="sidebar-label" data-i18n="invLabelKeywords">Keywords</div>
             <div class="tags">
-              <span class="tag">installation</span>
-              <span class="tag">space</span>
-              <span class="tag">perception</span>
+              <span class="tag" data-i18n="tagInstallation">installation</span>
+              <span class="tag" data-i18n="tagSpace">space</span>
+              <span class="tag" data-i18n="tagPerception">perception</span>
             </div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Downloads</div>
+            <div class="sidebar-label" data-i18n="invLabelDownloads">Downloads</div>
             <div class="sidebar-value">
-              <a href="/art/downloads/invisible-sheet.pdf" style="color:var(--accent);font-size:11px;font-family:var(--mono);">Technical sheet PDF ↓</a>
+              <a href="/art/downloads/invisible-sheet.pdf" data-i18n-href="dlInvisibleSheet" style="color:var(--accent);font-size:11px;font-family:var(--mono);" data-i18n="invDownloadLink">Technical sheet PDF ↓</a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="gallery-section">
-        <div class="section-title">Documentation (22 images)</div>
+        <div class="section-title" data-i18n="invSectionDoc">Documentation (22 images)</div>
         <div class="gallery-grid">
           <div class="gallery-item"><img src="/art/images/invisible/invisible-01.jpg" alt="Invisible 01" onerror="this.parentElement.style.background='var(--bg3)'"></div>
           <div class="gallery-item"><img src="/art/images/invisible/invisible-02.jpg" alt="Invisible 02" onerror="this.parentElement.style.background='var(--bg3)'"></div>
@@ -110,7 +137,7 @@
       </div>
 
       <div class="related-section">
-        <div class="section-title">Related Projects</div>
+        <div class="section-title" data-i18n="invSectionRelated">Related Projects</div>
         <div class="related-grid">
           <a href="/art/projects/formication.html" class="related-card">
             <div class="related-card-img"><img src="/art/images/formication/formication-01.jpg" alt="Formication" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'related-card-ph\'></div>'"></div>
@@ -127,8 +154,18 @@
         </div>
       </div>
 
-    </main>
+      <p class="project-contact" style="margin-top: 3rem; font-size: 13px; color: var(--dim); font-family: var(--mono);" data-i18n-html="invContact">Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a></p>
+
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

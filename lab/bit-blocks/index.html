@@ -1,0 +1,919 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bit Blocks — how a computer remembers letters, for kids</title>
+<meta name="description" content="A blocky 3D game for children: turn blocks into bits, make a printer print letters, and use two streams of water to flip exactly one block. The kids' version of Core Memory, in English and German.">
+<link rel="canonical" href="https://www.presker.at/lab/bit-blocks/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/bit-blocks/">
+<meta property="og:title" content="Bit Blocks">
+<meta property="og:description" content="How a computer remembers letters, told with blocks and water. For kids, in English and German.">
+<meta name="twitter:card" content="summary">
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, { bbFooter: '© 2026 Presker.at · runs in your browser' });
+Object.assign(window.PRESKER_I18N.de, { bbFooter: '© 2026 Presker.at · läuft in deinem Browser' });
+Object.assign(window.PRESKER_I18N.sl, { bbFooter: '© 2026 Presker.at · teče v tvojem brskalniku' });
+</script>
+<script src="/i18n.js?v=2"></script>
+<!--
+  Bit Blocks - the children's version of /lab/core-memory/.
+    block          = a magnetic core: dark stone is 0, glowing gold is 1, it turns over to flip
+    row of 8       = one byte = one letter, shown on the printer block at the end of the row
+    water stream   = current on a drive wire; one stream is half strength, so only the block
+                     where a row stream and a column stream cross gets enough to turn
+    water direction = current polarity: forwards makes 1, backwards makes 0
+    "look" + splash = destructive read with a sense pulse, followed by write-back
+  One HTML file plus a self-hosted copy of three.js r178 (MIT, see vendor/three-LICENSE.txt).
+  All textures are 16x16 pixel art drawn at start-up and shown with nearest-neighbour filtering.
+-->
+<style>
+:root {
+  --bg: #0e0e0e; --panel: rgba(18,18,18,.88); --solid: #161616; --ink: #f2f2f2; --muted: #9a9a9a;
+  --line: #2a2a2a; --accent: #b8f57a; --gold: #ffd23f; --water: #4aa8ff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  --kid: "Trebuchet MS", "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #8ec9ff; color: var(--ink); font: 16px/1.45 var(--kid); }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+a { color: var(--accent); }
+button { font: 600 15px var(--kid); color: var(--ink); background: var(--solid); border: 2px solid var(--line);
+  border-radius: 10px; padding: 9px 14px; cursor: pointer; }
+button:hover { border-color: #555; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+button.on { border-color: var(--accent); color: var(--accent); }
+button.big { background: var(--water); color: #04213d; border-color: #2c86d6; font-size: 17px; padding: 11px 18px; }
+button:disabled { opacity: .45; cursor: default; }
+
+.panel { background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; }
+.hud { position: fixed; top: 12px; left: 12px; width: 330px; max-width: calc(100% - 24px); }
+.topline { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.home { font: 12px var(--mono); color: var(--muted); text-decoration: none; }
+.home:hover { color: var(--accent); }
+.lang { display: flex; gap: 4px; }
+.lang button { font: 12px var(--mono); padding: 3px 8px; border-radius: 999px; }
+h1 { font: 800 22px var(--kid); margin: 6px 0 8px; letter-spacing: .01em; }
+h1 b { color: var(--gold); }
+.chips { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.chip { font: 13px var(--mono); padding: 3px 10px; border-radius: 999px; }
+.chip.cur { border-color: var(--accent); color: var(--accent); }
+.chip.done::after { content: " ★"; color: var(--gold); }
+.l-title { font: 800 17px var(--kid); }
+.l-goal { color: #dedede; margin: 4px 0 8px; font-size: 15px; }
+.card-target { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 6px 0 4px; }
+.pat { display: flex; align-items: center; gap: 6px; }
+.pat .ch { font: 800 18px var(--mono); width: 18px; text-align: center; color: var(--gold); }
+.pat .sq { display: flex; gap: 2px; }
+.pat .sq i { width: 11px; height: 11px; border-radius: 2px; background: #3a3d44; display: block; }
+.pat .sq i.on { background: var(--gold); }
+.small { font-size: 12.5px; color: var(--muted); }
+.word { font: 800 22px var(--mono); letter-spacing: .12em; color: var(--gold); margin-top: 6px; min-height: 28px; }
+.note { font-size: 14px; margin-top: 8px; color: #ffd68a; }
+.note:empty { display: none; }
+.hint { font-size: 14px; margin-top: 8px; padding: 8px 10px; border-radius: 10px; background: #1d2a12; color: #dcf7c2; }
+.links { margin-top: 10px; display: flex; justify-content: space-between; gap: 8px; font: 12px var(--mono); flex-wrap: wrap; }
+.links a { text-decoration: none; }
+.collapse { display: none; padding: 2px 9px; font-size: 13px; }
+
+.dock { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(14px, env(safe-area-inset-bottom));
+  width: min(640px, calc(100% - 24px)); }
+.dock .panel { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: center; padding: 10px 12px; }
+.dock .tip { width: 100%; text-align: center; font-size: 13px; color: var(--muted); }
+.dock input[type=text] { font: 700 18px var(--mono); letter-spacing: .1em; text-transform: uppercase; width: 9.5em;
+  background: #0f0f0f; color: var(--gold); border: 2px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.sel { font: 13px var(--mono); color: var(--muted); }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.modal[hidden] { display: none; }
+.card { background: var(--solid); border: 2px solid var(--line); border-radius: 16px; padding: 22px 22px 18px;
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+.card .eyebrow { font: 12px var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.card h2 { font: 800 23px var(--kid); margin: 6px 0 10px; }
+.card p { margin: 0 0 12px; color: #e2e2e2; font-size: 16px; }
+.card .opts { display: grid; gap: 8px; margin: 14px 0 6px; }
+.card .opts button { text-align: left; padding: 13px 16px; font-size: 16px; }
+.card .opts button:hover { border-color: var(--gold); }
+.card .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+.card .actions .go { background: var(--gold); color: #2a1e00; border-color: #e0b520; font-weight: 800; }
+.verdict { padding: 10px 12px; border-radius: 12px; margin: 0 0 12px; }
+.verdict.yes { background: #1d2a12; color: #dcf7c2; }
+.verdict.no { background: #2d200c; color: #ffdca8; }
+.takeaway { border-left: 4px solid var(--gold); padding: 4px 0 4px 12px; margin: 0 0 12px; font: 800 17px var(--kid); }
+.fact { font-size: 14.5px; color: #cfcfcf; background: #1b1b1b; border-radius: 12px; padding: 10px 12px; margin-bottom: 12px; }
+.think { background: #1b1b1b; border: 2px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.think .q { font-weight: 700; }
+.think .a { margin-top: 6px; color: #dedede; }
+.think button { margin-top: 8px; font-size: 13px; padding: 5px 10px; }
+.summary { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: 6px 0 12px; }
+.summary td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.site-foot { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); display: flex;
+  flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: #1b1b1b; border: 1px solid var(--line);
+  color: var(--muted); font: 12px var(--mono); padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: #3a3a3a; }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .hud { top: 8px; left: 8px; width: calc(100% - 16px); max-width: none; padding: 9px 11px; }
+  h1 { font-size: 18px; margin: 2px 0 6px; }
+  .collapse { display: inline-block; }
+  .hud.min .chips, .hud.min .l-goal, .hud.min .links, .hud.min .card-target { display: none; }
+  .dock { bottom: max(8px, env(safe-area-inset-bottom)); width: calc(100% - 16px); }
+  button.big { font-size: 16px; padding: 10px 14px; }
+}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="panel hud" id="hud">
+  <div class="topline">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="lang"><button id="btnSound" aria-label="Sound on or off">🔊</button><button data-lang="en">EN</button><button data-lang="de">DE</button><button data-lang="sl">SL</button>
+      <button class="collapse" id="btnCollapse" aria-label="Collapse">–</button></div>
+  </div>
+  <h1 id="title"></h1>
+  <div class="chips" id="chips"></div>
+  <div class="l-title" id="lTitle"></div>
+  <div class="l-goal" id="lGoal"></div>
+  <div class="card-target" id="target"></div>
+  <div class="word" id="word"></div>
+  <div class="note" id="note"></div>
+  <div class="hint" id="hint" hidden></div>
+  <div class="links"><a href="/lab/core-memory/" id="lnkReal"></a><a href="#" id="lnkGrown"></a></div>
+</div>
+
+<div class="dock" id="dock"></div>
+<div class="modal" id="modal" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+
+<script type="module">
+import * as THREE from './vendor/three.module.min.js';
+
+// ---------------------------------------------------------------- language
+const TXT = {
+  en: {
+    levelWord: 'Level',
+    title: 'Bit <b>Blocks</b>', real: 'Grown-up version: Core Memory →', grown: 'For grown-ups',
+    word: 'Printer', water: '💧 Water!', fwd: '➜ makes 1', back: '⬅ makes 0', look: '👀 Look', put: '↩ Put back',
+    write: '✍ Write', again: '↺ Start again', next: 'Next level', wrap: 'Finish', stay: 'Keep playing', free: 'free',
+    tapTip: 'Tap a block to turn it over.', pipeTip: 'Tap one pipe on the left and one at the back. Then press Water!',
+    noPipe: 'Open a pipe first: tap one of the grey pipes.', heavy: 'Too heavy! In this level only water can turn the blocks.',
+    sel: (r, c) => `pipes: ${r == null ? '–' : 'row ' + (r + 1)} · ${c == null ? '–' : 'column ' + (c + 1)}`,
+    predictEyebrow: n => `Level ${n} · what do you think?`, guess: 'Just guess! Being wrong is fine. That\'s how you find things out.',
+    yes: g => `You guessed "${g}". Right!`, no: (g, a) => `You guessed "${g}". It was "${a}". Surprised? Here's why:`,
+    think: 'Think about it:', show: 'Show answer', done: n => `Level ${n} done!`,
+    read: 'The computer read:', wrongBlock: 'Oops, that turned a different block. Press Start again.',
+    typeHere: 'type a word', summaryTitle: 'You built a computer memory!',
+    intro: `<p>Computers remember everything with tiny things that can only be <b>on</b> or <b>off</b>. Here they are blocks: dark is <b>0</b>, bright gold is <b>1</b>.</p>
+      <p>Turn the blocks, make the printer print letters, and find out how a computer uses <b>water</b> (really: electricity) to change exactly one block out of many.</p>`,
+    start: 'Let\'s go!',
+    grownText: `<p>Bit Blocks is the children's version of <a href="/lab/core-memory/">Core Memory</a>, a simulation of the magnetic core memory computers used from the 1950s to the 1970s.</p>
+      <p><b>What maps to what:</b> a block is a ferrite core, gold/dark are its two directions of magnetisation, a row of 8 is one byte (ASCII), the water streams are the X and Y drive currents (each only half the switching current), the water's direction is the current's polarity, and the splash is the pulse on the sense wire during a destructive read.</p>
+      <p>Each level starts with a prediction, then the child tries it, then a short explanation and a question to think about. Good for ages 7 and up, alone or with an adult.</p>`,
+    realFact: 'In the 1960s, real computers stored their memory just like this, only much smaller: tiny magnet rings, smaller than a grain of rice, threaded onto wires by hand. Instead of water they used electricity.',
+    seeReal: 'See the real thing: Core Memory',
+  },
+  de: {
+    levelWord: 'Level',
+    title: 'Bit-<b>Blöcke</b>', real: 'Für Große: Core Memory →', grown: 'Für Erwachsene',
+    word: 'Drucker', water: '💧 Wasser marsch!', fwd: '➜ macht 1', back: '⬅ macht 0', look: '👀 Nachschauen', put: '↩ Zurückschreiben',
+    write: '✍ Schreiben', again: '↺ Nochmal', next: 'Nächstes Level', wrap: 'Fertig', stay: 'Weiterspielen', free: 'frei',
+    tapTip: 'Tippe auf einen Block, um ihn umzudrehen.', pipeTip: 'Tippe ein Rohr links und ein Rohr hinten an. Dann drück auf Wasser marsch!',
+    noPipe: 'Mach zuerst ein Rohr auf: Tippe auf eines der grauen Rohre.', heavy: 'Zu schwer! In diesem Level kann nur Wasser die Blöcke drehen.',
+    sel: (r, c) => `Rohre: ${r == null ? '–' : 'Reihe ' + (r + 1)} · ${c == null ? '–' : 'Spalte ' + (c + 1)}`,
+    predictEyebrow: n => `Level ${n} · was glaubst du?`, guess: 'Einfach raten! Falsch liegen ist okay. So findet man Sachen heraus.',
+    yes: g => `Du hast „${g}" geraten. Richtig!`, no: (g, a) => `Du hast „${g}" geraten. Es war „${a}". Überrascht? Hier ist der Grund:`,
+    think: 'Denk mal nach:', show: 'Antwort zeigen', done: n => `Level ${n} geschafft!`,
+    read: 'Der Computer hat gelesen:', wrongBlock: 'Hoppla, da hat sich ein anderer Block gedreht. Drück auf Nochmal.',
+    typeHere: 'Wort eintippen', summaryTitle: 'Du hast einen Computerspeicher gebaut!',
+    intro: `<p>Computer merken sich alles mit winzigen Dingern, die nur <b>an</b> oder <b>aus</b> sein können. Hier sind es Blöcke: dunkel ist <b>0</b>, hell-gold ist <b>1</b>.</p>
+      <p>Dreh die Blöcke um, bring den Drucker dazu, Buchstaben zu drucken, und finde heraus, wie ein Computer mit <b>Wasser</b> (eigentlich: Strom) genau einen Block aus vielen umdreht.</p>`,
+    start: 'Los geht\'s!',
+    grownText: `<p>Bit-Blöcke ist die Kinderversion von <a href="/lab/core-memory/">Core Memory</a>, einer Simulation des Magnetkernspeichers, den Computer von den 1950ern bis in die 1970er benutzten.</p>
+      <p><b>Was wofür steht:</b> Ein Block ist ein Ferritkern, gold/dunkel sind seine zwei Magnetisierungsrichtungen, eine Reihe aus 8 ist ein Byte (ASCII), die Wasserstrahlen sind die X- und Y-Ströme (jeder nur halb so stark wie zum Umschalten nötig), die Fließrichtung ist die Polarität des Stroms, und das Platschen ist der Impuls auf dem Lesedraht beim zerstörenden Lesen.</p>
+      <p>Jedes Level beginnt mit einer Vermutung, dann probiert das Kind es aus, dann kommt eine kurze Erklärung und eine Frage zum Nachdenken. Geeignet ab etwa 7 Jahren, allein oder mit einem Erwachsenen.</p>`,
+    realFact: 'In den 1960ern haben echte Computer ihren Speicher genau so gebaut, nur viel kleiner: winzige Magnetringe, kleiner als ein Reiskorn, von Hand auf Drähte gefädelt. Statt Wasser nahmen sie Strom.',
+    seeReal: 'Das Original ansehen: Core Memory',
+  },
+  sl: {
+    levelWord: 'Stopnja',
+    title: 'Bitni <b>bloki</b>', real: 'Za velike: Core Memory →', grown: 'Za odrasle',
+    word: 'Tiskalnik', water: '💧 Voda!', fwd: '➜ naredi 1', back: '⬅ naredi 0', look: '👀 Poglej', put: '↩ Zapiši nazaj',
+    write: '✍ Zapiši', again: '↺ Začni znova', next: 'Naslednja stopnja', wrap: 'Konec', stay: 'Igraj naprej', free: 'prosto',
+    tapTip: 'Tapni blok, da ga obrneš.', pipeTip: 'Tapni eno cev levo in eno zadaj. Nato pritisni Voda!',
+    noPipe: 'Najprej odpri cev: tapni eno od sivih cevi.', heavy: 'Pretežko! Na tej stopnji lahko bloke obrne samo voda.',
+    sel: (r, c) => `cevi: ${r == null ? '–' : 'vrsta ' + (r + 1)} · ${c == null ? '–' : 'stolpec ' + (c + 1)}`,
+    predictEyebrow: n => `Stopnja ${n} · kaj misliš?`, guess: 'Kar ugibaj! Zmotiti se je čisto v redu. Tako stvari odkriješ.',
+    yes: g => `Ugibal si »${g}«. Pravilno!`, no: (g, a) => `Ugibal si »${g}«. Bilo je »${a}«. Presenečen? Evo zakaj:`,
+    think: 'Pomisli:', show: 'Pokaži odgovor', done: n => `Stopnja ${n} končana!`,
+    read: 'Računalnik je prebral:', wrongBlock: 'Ups, obrnil se je drug blok. Pritisni Začni znova.',
+    typeHere: 'vtipkaj besedo', summaryTitle: 'Zgradil si računalniški spomin!',
+    intro: `<p>Računalniki si vse zapomnijo z majhnimi stvarmi, ki so lahko samo <b>prižgane</b> ali <b>ugasnjene</b>. Tukaj so to bloki: temen je <b>0</b>, svetlo zlat je <b>1</b>.</p>
+      <p>Obrni bloke, pripravi tiskalnik, da natisne črke, in odkrij, kako računalnik z <b>vodo</b> (v resnici: z elektriko) obrne točno en blok med mnogimi.</p>`,
+    start: 'Gremo!',
+    grownText: `<p>Bitni bloki so otroška različica igre <a href="/lab/core-memory/">Core Memory</a>, simulacije magnetnega jedrnega pomnilnika, ki so ga računalniki uporabljali od petdesetih do sedemdesetih let.</p>
+      <p><b>Kaj pomeni kaj:</b> blok je feritno jedro, zlata in temna stran sta njegovi dve smeri magnetenja, vrsta osmih blokov je en bajt (ASCII), vodna curka sta tokova X in Y (vsak le polovica toka, potrebnega za preklop), smer vode je polariteta toka, pljusk pa je impulz na bralni žici med rušilnim branjem.</p>
+      <p>Vsaka stopnja se začne z napovedjo, nato otrok poskusi, sledita kratka razlaga in vprašanje za premislek. Primerno od približno 7. leta naprej, samostojno ali z odraslim.</p>`,
+    realFact: 'V šestdesetih letih so pravi računalniki svoj pomnilnik gradili prav tako, le veliko manjše: drobni magnetni obročki, manjši od zrna riža, ročno navlečeni na žice. Namesto vode so uporabljali elektriko.',
+    seeReal: 'Poglej original: Core Memory',
+  },
+};
+let lang = 'de';
+try {
+  const nav = (navigator.language || 'en').toLowerCase();
+  lang = localStorage.getItem('bit-blocks-lang') || (nav.startsWith('de') ? 'de' : nav.startsWith('sl') ? 'sl' : 'en');
+} catch (_) {}
+if (!TXT[lang]) lang = 'en';
+const t = k => TXT[lang][k];
+// Falls back to English when a language is still missing a string, so a
+// partially translated level set degrades to English instead of "undefined".
+const L = o => (o && typeof o === 'object' && 'en' in o) ? (o[lang] != null ? o[lang] : o.en) : o;
+
+// ---------------------------------------------------------------- levels
+const LEVELS = [
+  {
+    title: { en: 'Light and dark', de: 'Hell und dunkel', sl: 'Svetlo in temno' },
+    goal: { en: 'Tap the blocks to turn them over. Make the printer print the letter A. Copy the pattern on the card.',
+            de: 'Tippe auf die Blöcke, um sie umzudrehen. Bring den Drucker dazu, ein A zu drucken. Schau dir das Muster auf der Karte ab.',
+            sl: 'Tapni bloke, da jih obrneš. Pripravi tiskalnik, da natisne črko A. Prepiši vzorec s kartice.' },
+    start: { en: [0], de: [0], sl: [0] }, target: { en: 'A', de: 'A', sl: 'A' },
+    tools: { tap: true },
+    predict: {
+      q: { en: 'How many blocks does the computer need for one letter?', de: 'Wie viele Blöcke braucht der Computer für einen Buchstaben?', sl: 'Koliko blokov potrebuje računalnik za eno črko?' },
+      options: { en: ['1 block', '8 blocks', '26 blocks'], de: ['1 Block', '8 Blöcke', '26 Blöcke'], sl: ['1 blok', '8 blokov', '26 blokov'] }, correct: 1,
+    },
+    hint: { en: 'Look at the card: the gold squares show which blocks must be bright. Only the 2nd and the last block!',
+            de: 'Schau auf die Karte: Die goldenen Kästchen zeigen, welche Blöcke hell sein müssen. Nur der 2. und der letzte Block!',
+            sl: 'Poglej kartico: zlati kvadratki kažejo, kateri bloki morajo biti svetli. Samo 2. in zadnji blok!' },
+    debrief: {
+      takeaway: { en: '8 blocks make 1 letter.', de: '8 Blöcke ergeben 1 Buchstaben.', sl: '8 blokov da 1 črko.' },
+      text: { en: 'Each block is either dark or bright. The computer calls dark 0 and bright 1. That\'s all it knows! But 8 blocks in a row make a pattern, and every letter has its own pattern. Dark-bright-dark-dark-dark-dark-dark-bright means A.',
+              de: 'Jeder Block ist entweder dunkel oder hell. Der Computer sagt zu dunkel 0 und zu hell 1. Mehr kennt er nicht! Aber 8 Blöcke in einer Reihe ergeben ein Muster, und jeder Buchstabe hat sein eigenes Muster. Dunkel-hell-dunkel-dunkel-dunkel-dunkel-dunkel-hell bedeutet A.',
+              sl: 'Vsak blok je ali temen ali svetel. Računalnik temnemu reče 0 in svetlemu 1. Nič drugega ne pozna! Toda 8 blokov v vrsti sestavi vzorec in vsaka črka ima svoj vzorec. Temno-svetlo-temno-temno-temno-temno-temno-svetlo pomeni A.' },
+      fact: { en: 'One block is called a bit. 8 bits together are called a byte.', de: 'So ein Block heißt Bit. 8 Bits zusammen heißen Byte.', sl: 'Takemu bloku rečemo bit. 8 bitov skupaj je bajt.' },
+      q: { en: 'How many different patterns can 8 blocks make?', de: 'Wie viele verschiedene Muster können 8 Blöcke bilden?', sl: 'Koliko različnih vzorcev lahko sestavi 8 blokov?' },
+      a: { en: '256! Enough for all big and small letters, numbers and signs.', de: '256! Genug für alle großen und kleinen Buchstaben, Zahlen und Zeichen.', sl: '256! Dovolj za vse velike in male črke, števila in znake.' },
+    },
+  },
+  {
+    title: { en: 'Two streams', de: 'Zwei Bäche', sl: 'Dva curka' },
+    goal: { en: 'Now the blocks are too heavy to turn by hand. Use water! Change the word HAT into HIT.',
+            de: 'Jetzt sind die Blöcke zu schwer für die Hand. Nimm Wasser! Mach aus OMA das Wort OMI.',
+            sl: 'Zdaj so bloki pretežki za roko. Uporabi vodo! Iz besede LAK naredi LIK.' },
+    start: { en: 'HAT', de: 'OMA', sl: 'LAK' }, target: { en: 'HIT', de: 'OMI', sl: 'LIK' },
+    tools: { water: true },
+    predict: {
+      q: { en: 'One stream of water is only half as strong as it needs to be. What happens if only one pipe is open?',
+           de: 'Ein Wasserstrahl ist nur halb so stark wie nötig. Was passiert, wenn nur ein Rohr offen ist?',
+           sl: 'En curek vode je le pol tako močan, kot bi moral biti. Kaj se zgodi, če je odprta samo ena cev?' },
+      options: { en: ['Every block in its line turns', 'No block turns', 'Only the first block turns'],
+                 de: ['Jeder Block in seiner Reihe dreht sich', 'Kein Block dreht sich', 'Nur der erste Block dreht sich'],
+                 sl: ['Vsak blok v svoji vrsti se obrne', 'Noben blok se ne obrne', 'Obrne se samo prvi blok'] }, correct: 1,
+    },
+    hint: { en: 'Compare the middle row with the card: which block is different? Open the pipe of that row AND the pipe of that column.',
+            de: 'Vergleich die mittlere Reihe mit der Karte: Welcher Block ist anders? Mach das Rohr dieser Reihe UND das Rohr dieser Spalte auf.',
+            sl: 'Primerjaj srednjo vrsto s kartico: kateri blok je drugačen? Odpri cev te vrste IN cev tega stolpca.' },
+    debrief: {
+      takeaway: { en: 'Only where two streams meet is the water strong enough.', de: 'Nur wo sich zwei Bäche treffen, ist das Wasser stark genug.', sl: 'Voda je dovolj močna samo tam, kjer se curka srečata.' },
+      text: { en: 'Half a stream only makes the blocks wobble. But where a stream from the side and a stream from the back cross, they add up to a whole one, and that block turns. That\'s how the computer picks exactly one block out of many.',
+              de: 'Ein halber Bach lässt die Blöcke nur wackeln. Aber wo ein Bach von der Seite und einer von hinten sich kreuzen, ergeben sie zusammen einen ganzen, und dieser Block dreht sich. So sucht sich der Computer genau einen Block aus vielen aus.',
+              sl: 'Polovičen curek bloke samo zaziba. Toda tam, kjer se curek s strani in curek od zadaj križata, se sestavita v celega in tisti blok se obrne. Tako računalnik izbere točno en blok med mnogimi.' },
+      fact: { en: 'Real computers do this with electricity in thin wires: one wire for each row and one for each column.', de: 'Echte Computer machen das mit Strom in dünnen Drähten: ein Draht für jede Reihe und einer für jede Spalte.', sl: 'Pravi računalniki to delajo z elektriko v tankih žicah: ena žica za vsako vrsto in ena za vsak stolpec.' },
+      q: { en: 'A big memory has 64 rows and 64 columns: that\'s 4096 blocks. How many pipes does it need?',
+           de: 'Ein großer Speicher hat 64 Reihen und 64 Spalten, das sind 4096 Blöcke. Wie viele Rohre braucht er?',
+           sl: 'Velik pomnilnik ima 64 vrst in 64 stolpcev, to je 4096 blokov. Koliko cevi potrebuje?' },
+      a: { en: 'Only 128: 64 for the rows and 64 for the columns. Much less than one pipe for every block!',
+           de: 'Nur 128: 64 für die Reihen und 64 für die Spalten. Viel weniger als ein Rohr für jeden Block!',
+           sl: 'Samo 128: 64 za vrste in 64 za stolpce. Veliko manj kot ena cev za vsak blok!' },
+    },
+  },
+  {
+    title: { en: 'Water backwards', de: 'Wasser rückwärts', sl: 'Voda nazaj' },
+    goal: { en: 'Oops, the word should be FOLD, not GOLD. Turn one bright block dark again. Tip: switch the water to ⬅.',
+            de: 'Hoppla, da soll FELD stehen, nicht GELD. Mach einen hellen Block wieder dunkel. Tipp: Stell das Wasser auf ⬅.',
+            sl: 'Ups, pisati bi moralo LED, ne MED. Naredi en svetel blok spet temen. Namig: preklopi vodo na ⬅.' },
+    start: { en: 'GOLD', de: 'GELD', sl: 'MED' }, target: { en: 'FOLD', de: 'FELD', sl: 'LED' },
+    tools: { water: true, dir: true },
+    predict: {
+      q: { en: 'What happens when the water flows the other way over a bright block?', de: 'Was passiert, wenn das Wasser andersrum über einen hellen Block fließt?', sl: 'Kaj se zgodi, ko voda teče v drugo smer čez svetel blok?' },
+      options: { en: ['It gets even brighter', 'It turns dark (0)', 'Nothing at all'], de: ['Er wird noch heller', 'Er wird dunkel (0)', 'Gar nichts'], sl: ['Postane še svetlejši', 'Postane temen (0)', 'Sploh nič'] }, correct: 1,
+    },
+    hint: { en: 'G and F only differ in the very last block of the top row. Choose ⬅, open the top pipe and the last pipe at the back.',
+            de: 'G und F unterscheiden sich nur im allerletzten Block der obersten Reihe. Wähl ⬅, mach das oberste Rohr und das letzte Rohr hinten auf.',
+            sl: 'M in L se razlikujeta samo v čisto zadnjem bloku zgornje vrste. Izberi ⬅ ter odpri zgornjo cev in zadnjo cev zadaj.' },
+    debrief: {
+      takeaway: { en: 'Water one way makes 1. The other way makes 0.', de: 'Wasser in die eine Richtung macht 1. In die andere macht es 0.', sl: 'Voda v eno smer naredi 1. V drugo smer naredi 0.' },
+      text: { en: 'The direction of the water decides which way the block turns. In a real computer it\'s not water but electricity. It flows forwards or backwards through the wire, and grown-ups call that polarity.',
+              de: 'Die Richtung des Wassers entscheidet, wie sich der Block dreht. In einem echten Computer ist es kein Wasser, sondern Strom. Er fließt vorwärts oder rückwärts durch den Draht, und Erwachsene nennen das Polarität.',
+              sl: 'Smer vode odloči, kako se blok obrne. V pravem računalniku to ni voda, ampak elektrika. Teče naprej ali nazaj po žici in odrasli temu rečejo polariteta.' },
+      fact: { en: 'The real blocks were little magnets. Electricity one way makes the magnet point one way, the other way flips it around.', de: 'Die echten Blöcke waren kleine Magnete. Strom in die eine Richtung lässt den Magnet in die eine Richtung zeigen, andersrum dreht er ihn um.', sl: 'Pravi bloki so bili majhni magneti. Elektrika v eno smer obrne magnet v eno stran, v drugo smer pa ga zavrti nazaj.' },
+      q: { en: 'Can backwards water make a dark block even darker?', de: 'Kann Rückwärts-Wasser einen dunklen Block noch dunkler machen?', sl: 'Ali lahko voda nazaj naredi temen blok še temnejši?' },
+      a: { en: 'No. It\'s already dark, so nothing happens. Water only changes a block that points the other way.', de: 'Nein. Er ist schon dunkel, also passiert nichts. Wasser verändert nur einen Block, der andersrum steht.', sl: 'Ne. Že je temen, zato se nič ne zgodi. Voda spremeni samo blok, ki je obrnjen v drugo stran.' },
+    },
+  },
+  {
+    title: { en: 'Looking erases', de: 'Nachschauen löscht', sl: 'Gledanje briše' },
+    goal: { en: 'The computer wants to read the word. Press Look and watch carefully. Then make sure the word is still there!',
+            de: 'Der Computer will das Wort lesen. Drück auf Nachschauen und schau genau hin. Dann sorg dafür, dass das Wort noch da ist!',
+            sl: 'Računalnik hoče prebrati besedo. Pritisni Poglej in dobro opazuj. Nato poskrbi, da bo beseda še vedno tam!' },
+    start: { en: 'OK', de: 'OK', sl: 'OK' }, target: { en: 'OK', de: 'OK', sl: 'OK' },
+    tools: { look: true },
+    predict: {
+      q: { en: 'A block can\'t tell the computer which way it is. So the computer pushes every block towards dark and listens for a splash. What happens to the word?',
+           de: 'Ein Block kann dem Computer nicht sagen, wie er steht. Darum schubst der Computer jeden Block Richtung dunkel und horcht, ob es platscht. Was passiert mit dem Wort?',
+           sl: 'Blok računalniku ne more povedati, kako je obrnjen. Zato računalnik vsak blok potisne proti temnemu in posluša, ali pljusne. Kaj se zgodi z besedo?' },
+      options: { en: ['Nothing, it stays', 'It disappears', 'It turns into a different word'], de: ['Nichts, es bleibt', 'Es verschwindet', 'Es wird ein anderes Wort'], sl: ['Nič, ostane', 'Izgine', 'Spremeni se v drugo besedo'] }, correct: 1,
+    },
+    hint: { en: 'The word is gone, but the computer remembered the splashes. Press Put back!', de: 'Das Wort ist weg, aber der Computer hat sich das Platschen gemerkt. Drück auf Zurückschreiben!', sl: 'Beseda je izginila, a računalnik si je zapomnil pljuske. Pritisni Zapiši nazaj!' },
+    debrief: {
+      takeaway: { en: 'Reading erases, so the computer writes it back.', de: 'Lesen löscht, darum schreibt der Computer es zurück.', sl: 'Branje briše, zato računalnik zapiše nazaj.' },
+      text: { en: 'Every bright block that turned dark made a splash. Splash means 1, no splash means 0. Now the computer knows the word, but all the blocks are dark. So it quickly writes everything back. Old computers did this millions of times, so fast that nobody noticed.',
+              de: 'Jeder helle Block, der dunkel wurde, hat geplatscht. Platsch heißt 1, kein Platsch heißt 0. Jetzt kennt der Computer das Wort, aber alle Blöcke sind dunkel. Darum schreibt er alles schnell zurück. Alte Computer haben das millionenfach gemacht, so schnell, dass es niemand gemerkt hat.',
+              sl: 'Vsak svetel blok, ki je postal temen, je pljusnil. Pljusk pomeni 1, brez pljuska pomeni 0. Zdaj računalnik pozna besedo, a vsi bloki so temni. Zato vse hitro zapiše nazaj. Stari računalniki so to delali milijonkrat, tako hitro, da nihče ni opazil.' },
+      fact: { en: 'In a real computer, the "splash" is a tiny electric pulse in an extra wire that runs through every block.', de: 'In einem echten Computer ist das „Platschen" ein winziger Stromstoß in einem extra Draht, der durch alle Blöcke läuft.', sl: 'V pravem računalniku je »pljusk« drobcen električni sunek v dodatni žici, ki teče skozi vse bloke.' },
+      q: { en: 'What would happen if the computer forgot to write back?', de: 'Was wäre, wenn der Computer das Zurückschreiben vergisst?', sl: 'Kaj bi se zgodilo, če bi računalnik pozabil zapisati nazaj?' },
+      a: { en: 'After reading the word once, it would be gone! The computer would forget everything it looked at.', de: 'Nach einmal Lesen wäre das Wort weg! Der Computer würde alles vergessen, was er anschaut.', sl: 'Po enem samem branju bi bila beseda izgubljena! Računalnik bi pozabil vse, kar pogleda.' },
+    },
+  },
+  {
+    title: { en: 'Free building', de: 'Freies Bauen', sl: 'Prosto gradi' },
+    goal: { en: 'Type a word (up to 6 letters) and watch the water write it. You can also tap blocks, look and put back.',
+            de: 'Tipp ein Wort ein (bis zu 6 Buchstaben) und schau, wie das Wasser es schreibt. Du kannst auch Blöcke antippen, nachschauen und zurückschreiben.',
+            sl: 'Vtipkaj besedo (do 6 črk) in glej, kako jo voda zapiše. Lahko tudi tapneš bloke, pogledaš in zapišeš nazaj.' },
+    start: { en: 'HELLO', de: 'HALLO', sl: 'ZDRAVO' }, target: null, rows: 6,
+    tools: { tap: true, water: true, dir: true, look: true, write: true },
+  },
+];
+
+// ---------------------------------------------------------------- pixel textures
+const PX = 16;
+function rng(seed) { return () => ((seed = Math.imul(seed ^ (seed >>> 15), 2246822507) + 0x9e3779b9 | 0) >>> 0) / 4294967296; }
+function tex(draw, seed = 1) {
+  const c = document.createElement('canvas'); c.width = c.height = PX;
+  const g = c.getContext('2d'), r = rng(seed);
+  draw(g, r);
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestFilter; t.colorSpace = THREE.SRGBColorSpace;
+  t.generateMipmaps = false;
+  return t;
+}
+const shade = (rgb, k) => `rgb(${rgb.map(v => Math.max(0, Math.min(255, Math.round(v * k)))).join(',')})`;
+function noise(g, r, rgb, amt = 0.18) { for (let y = 0; y < PX; y++) for (let x = 0; x < PX; x++) { g.fillStyle = shade(rgb, 1 - amt + r() * amt * 2); g.fillRect(x, y, 1, 1); } }
+const GLYPH = {
+  0: ['.###.', '#...#', '#..##', '#.#.#', '##..#', '#...#', '.###.'],
+  1: ['..#..', '.##..', '..#..', '..#..', '..#..', '..#..', '.###.'],
+};
+function glyph(g, ch, color) { g.fillStyle = color; GLYPH[ch].forEach((row, y) => [...row].forEach((p, x) => { if (p === '#') g.fillRect(5 + x, 4 + y, 1, 1); })); }
+const T_GRASS = tex((g, r) => { noise(g, r, [94, 157, 52], 0.16); }, 3);
+const T_GRASS_SIDE = tex((g, r) => { noise(g, r, [134, 96, 67], 0.16); for (let x = 0; x < PX; x++) { const h = 3 + (r() < 0.4 ? 1 : 0); for (let y = 0; y < h; y++) { g.fillStyle = shade([94, 157, 52], 0.85 + r() * 0.3); g.fillRect(x, y, 1, 1); } } }, 4);
+const T_DIRT = tex((g, r) => noise(g, r, [134, 96, 67], 0.18), 5);
+const T_STONE0 = tex((g, r) => { noise(g, r, [92, 96, 104], 0.2); g.fillStyle = 'rgba(0,0,0,.35)'; g.fillRect(0, 0, PX, 1); g.fillRect(0, 0, 1, PX); glyph(g, 0, '#1d2026'); }, 6);
+const T_GOLD1 = tex((g, r) => { noise(g, r, [252, 205, 64], 0.14); g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, 0, PX, 1); g.fillRect(0, 0, 1, PX); g.fillStyle = 'rgba(150,90,0,.35)'; g.fillRect(0, PX - 1, PX, 1); g.fillRect(PX - 1, 0, 1, PX); glyph(g, 1, '#fff8d8'); }, 7);
+const T_SIDE = tex((g, r) => noise(g, r, [70, 72, 78], 0.2), 8);
+const T_PIPE = tex((g, r) => { noise(g, r, [150, 156, 164], 0.12); g.fillStyle = '#26303a'; g.fillRect(4, 4, 8, 8); g.fillStyle = '#3d6f9e'; g.fillRect(5, 5, 6, 6); }, 9);
+const T_PIPE_ON = tex((g, r) => { noise(g, r, [150, 156, 164], 0.12); g.fillStyle = '#26303a'; g.fillRect(4, 4, 8, 8); g.fillStyle = '#4aa8ff'; g.fillRect(5, 5, 6, 6); g.fillStyle = '#bfe3ff'; g.fillRect(6, 6, 2, 2); }, 9);
+const T_PIPE_SIDE = tex((g, r) => { noise(g, r, [150, 156, 164], 0.12); g.fillStyle = 'rgba(0,0,0,.25)'; for (let y = 3; y < PX; y += 5) g.fillRect(0, y, PX, 1); }, 10);
+const T_WATER = tex((g, r) => { noise(g, r, [52, 120, 220], 0.12); g.fillStyle = 'rgba(200,230,255,.55)'; for (let i = 0; i < 7; i++) g.fillRect(Math.floor(r() * 12), Math.floor(r() * PX), 3 + Math.floor(r() * 3), 1); }, 11);
+T_WATER.wrapS = T_WATER.wrapT = THREE.RepeatWrapping;
+const T_PRINTER = tex((g, r) => { noise(g, r, [215, 214, 205], 0.08); g.fillStyle = '#333'; g.fillRect(2, 12, 12, 2); }, 12);
+const charTex = new Map();
+function letterTex(code) {
+  const key = code;
+  if (charTex.has(key)) return charTex.get(key);
+  const S = 20, c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d');
+  g.fillStyle = '#10241a'; g.fillRect(0, 0, S, S);
+  const ch = code >= 32 && code < 127 ? String.fromCharCode(code) : (code === 0 ? '' : '?');
+  const m = document.createElement('canvas'); m.width = m.height = S;
+  const mg = m.getContext('2d'); mg.fillStyle = '#fff'; mg.font = 'bold 17px "Courier New", monospace'; mg.textAlign = 'center'; mg.textBaseline = 'middle';
+  mg.fillText(ch, S / 2, S / 2 + 1);
+  const d = mg.getImageData(0, 0, S, S).data;
+  for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) if (d[(y * S + x) * 4 + 3] > 120) { g.fillStyle = '#ffd23f'; g.fillRect(x, y, 1, 1); }
+  const t = new THREE.CanvasTexture(c);
+  t.magFilter = t.minFilter = THREE.NearestFilter; t.generateMipmaps = false; t.colorSpace = THREE.SRGBColorSpace;
+  charTex.set(key, t); return t;
+}
+
+// ---------------------------------------------------------------- scene
+const canvas = document.getElementById('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x8ec9ff);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 200);
+scene.add(new THREE.HemisphereLight(0xdff1ff, 0x6b5a3a, 1.5));
+const sunL = new THREE.DirectionalLight(0xffffff, 1.6);
+sunL.position.set(-6, 14, 8); sunL.castShadow = true; sunL.shadow.mapSize.set(1024, 1024);
+Object.assign(sunL.shadow.camera, { left: -12, right: 12, top: 12, bottom: -12, near: 1, far: 40 });
+sunL.shadow.camera.updateProjectionMatrix();
+scene.add(sunL);
+
+const lam = (map, extra = {}) => new THREE.MeshLambertMaterial({ map, ...extra });
+const M_GRASS = [lam(T_GRASS_SIDE), lam(T_GRASS_SIDE), lam(T_GRASS), lam(T_DIRT), lam(T_GRASS_SIDE), lam(T_GRASS_SIDE)];
+const M_BIT = [lam(T_SIDE), lam(T_SIDE), lam(T_GOLD1, { emissive: 0x6a4a00, emissiveMap: T_GOLD1 }), lam(T_STONE0), lam(T_GOLD1, { emissive: 0x6a4a00, emissiveMap: T_GOLD1 }), lam(T_STONE0)];
+const M_PIPE = lam(T_PIPE_SIDE), M_PIPE_END = lam(T_PIPE), M_PIPE_END_ON = lam(T_PIPE_ON, { emissive: 0x0a3050 });
+
+const world = new THREE.Group(); scene.add(world);
+const P = 1.12;                         // block pitch
+const ROW_GAP = 1.5;                    // rows are spaced so the row streams have room
+let R = 1, bits = [], blocks = [], rowPipes = [], colPipes = [], printers = [], ground = null;
+const colX = c => (c - 3.5) * P;
+const rowZ = r => (r - (R - 1) / 2) * ROW_GAP;
+const PIPE_X = colX(0) - 1.6, PRINT_X = colX(7) + 1.75;
+const backZ = () => rowZ(0) - 1.55;
+
+function buildWorld() {
+  world.clear(); blocks = []; rowPipes = []; colPipes = []; printers = [];
+  // floating grass island
+  const w = PRINT_X - PIPE_X + 2.4, d = (R - 1) * ROW_GAP + 4.2;
+  const geo = new THREE.BoxGeometry(w, 1, d);
+  const uvRepeat = (mat, rx, ry) => { const c = mat.map.clone(); c.wrapS = c.wrapT = THREE.RepeatWrapping; c.repeat.set(rx, ry); c.needsUpdate = true; return new THREE.MeshLambertMaterial({ map: c }); };
+  ground = new THREE.Mesh(geo, [uvRepeat(M_GRASS[0], d, 1), uvRepeat(M_GRASS[1], d, 1), uvRepeat(M_GRASS[2], w, d), uvRepeat(M_GRASS[3], w, d), uvRepeat(M_GRASS[4], w, 1), uvRepeat(M_GRASS[5], w, 1)]);
+  ground.position.set((PIPE_X + PRINT_X) / 2, -0.5, rowZ(0) - 0.55 + d / 2 - 1.55);
+  ground.receiveShadow = true; world.add(ground);
+  const under = new THREE.Mesh(new THREE.BoxGeometry(w - 2, 1, d - 2), uvRepeat(M_GRASS[3], w - 2, d - 2));
+  under.position.copy(ground.position); under.position.y = -1.5; world.add(under);
+
+  const boxGeo = new THREE.BoxGeometry(1, 1, 1);
+  for (let r = 0; r < R; r++) {
+    const row = [];
+    for (let c = 0; c < 8; c++) {
+      const holder = new THREE.Group(); holder.position.set(colX(c), 0.5, rowZ(r));
+      const m = new THREE.Mesh(boxGeo, M_BIT); m.castShadow = m.receiveShadow = true;
+      m.userData = { kind: 'bit', r, c };
+      holder.add(m); world.add(holder);
+      const ang = bits[r][c] ? 0 : Math.PI;
+      m.rotation.x = ang;
+      row.push({ holder, mesh: m, ang, target: ang, wob: 0, hop: 0 });
+    }
+    blocks.push(row);
+    rowPipes.push(pipe(PIPE_X, rowZ(r), 'x', { kind: 'rowPipe', r }));
+    printers.push(printer(PRINT_X, rowZ(r)));
+  }
+  for (let c = 0; c < 8; c++) colPipes.push(pipe(colX(c), backZ(), 'z', { kind: 'colPipe', c }));
+  const showPipes = !!(level.tools.water || level.tools.look);
+  for (const p of [...rowPipes, ...colPipes]) p.g.visible = showPipes;
+  refreshPrinters(); refreshPipes();
+}
+function pipe(x, z, axis, data) {
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const post = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.1, 0.5), M_PIPE); post.position.y = 0.55; post.castShadow = true;
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.62, 0.62), [M_PIPE, M_PIPE, M_PIPE, M_PIPE, M_PIPE, M_PIPE]);
+  head.position.y = 1.3; head.castShadow = true;
+  // the opening faces along the row (+x) or along the column (+z)
+  const endFace = axis === 'x' ? 0 : 4;
+  head.material[endFace] = M_PIPE_END;
+  for (const m of [post, head]) m.userData = data;
+  g.add(post, head); world.add(g);
+  return { g, head, endFace, axis };
+}
+function printer(x, z) {
+  // a low, wide block with the letter on its top face, so it reads from the camera above
+  const g = new THREE.Group(); g.position.set(x, 0, z);
+  const pm = lam(T_PRINTER);
+  const screen = lam(letterTex(0), { emissive: 0xffffff, emissiveMap: letterTex(0), emissiveIntensity: 0.8 });
+  const box = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.7, 1.3), [pm, pm, screen, pm, screen, pm]);
+  box.position.y = 0.35;
+  box.castShadow = true; g.add(box);
+  world.add(g);
+  return { g, screen };
+}
+const byteOf = r => bits[r].reduce((v, b) => (v << 1) | b, 0);
+const charOf = code => code >= 32 && code < 127 ? String.fromCharCode(code) : (code === 0 ? ' ' : '?');
+function refreshPrinters() {
+  for (let r = 0; r < R; r++) { const tx = letterTex(byteOf(r)); printers[r].screen.map = tx; printers[r].screen.emissiveMap = tx; printers[r].screen.needsUpdate = true; }
+  document.getElementById('word').textContent = t('word') + ': ' + Array.from({ length: R }, (_, r) => charOf(byteOf(r))).join('');
+}
+function refreshPipes() {
+  rowPipes.forEach((p, r) => { p.head.material[p.endFace] = r === sel.r ? M_PIPE_END_ON : M_PIPE_END; p.head.material = p.head.material.slice(); });
+  colPipes.forEach((p, c) => { p.head.material[p.endFace] = c === sel.c ? M_PIPE_END_ON : M_PIPE_END; p.head.material = p.head.material.slice(); });
+}
+
+// clouds drifting by
+const clouds = [];
+for (let i = 0; i < 7; i++) {
+  const cl = new THREE.Group(), m = new THREE.MeshLambertMaterial({ color: 0xffffff, emissive: 0x666666 });
+  const n = 2 + (i % 3);
+  for (let k = 0; k < n; k++) { const b = new THREE.Mesh(new THREE.BoxGeometry(2 + Math.random() * 2, 0.6, 1.5 + Math.random()), m); b.position.set(k * 1.6, Math.random() * 0.3, Math.random()); cl.add(b); }
+  cl.position.set(-30 + i * 9, 7 + Math.random() * 4, -16 - Math.random() * 10);
+  scene.add(cl); clouds.push(cl);
+}
+
+// ---------------------------------------------------------------- water, splashes, sound
+const streams = [];
+function makeStream(axis, from, to, fixed, full) {
+  const tex = T_WATER.clone(); tex.needsUpdate = true;
+  const mat = new THREE.MeshLambertMaterial({ map: tex, transparent: true, opacity: 0.85, emissive: 0x0b3a7a, depthWrite: false });
+  const m = new THREE.Mesh(new THREE.BoxGeometry(1, 0.14, 1), mat);
+  world.add(m);
+  return { m, tex, axis, from, to, fixed, width: full ? 0.62 : 0.34, len: Math.abs(to - from) };
+}
+function placeStream(s, f) {                // f = 0..1 how far the water has run
+  const L = Math.max(0.001, s.len * f), dir = Math.sign(s.to - s.from);
+  const mid = s.from + dir * L / 2;
+  if (s.axis === 'x') { s.m.position.set(mid, 1.08, s.fixed); s.m.scale.set(L, 1, s.width); s.tex.repeat.set(L, 0.5); }
+  else { s.m.position.set(s.fixed, 1.1, mid); s.m.scale.set(s.width, 1, L); s.tex.repeat.set(0.5, L); }
+}
+const parts = [];
+const partGeo = new THREE.BoxGeometry(0.12, 0.12, 0.12);
+function splash(x, z, color = 0xbfe3ff, n = 14) {
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.Mesh(partGeo, new THREE.MeshBasicMaterial({ color, transparent: true }));
+    m.position.set(x, 1.15, z); world.add(m);
+    parts.push({ m, v: new THREE.Vector3((Math.random() - 0.5) * 3, 2.5 + Math.random() * 2.5, (Math.random() - 0.5) * 3), life: 0.9 });
+  }
+}
+let audio = null, soundOn = true;
+try { soundOn = localStorage.getItem('bit-blocks-sound') !== 'off'; } catch (_) {}
+function beep(kind) {
+  if (!soundOn) return;
+  try {
+    audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+    const now = audio.currentTime, g = audio.createGain(); g.connect(audio.destination);
+    if (kind === 'splash') {
+      const len = 0.25, buf = audio.createBuffer(1, audio.sampleRate * len, audio.sampleRate), d = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 2;
+      const src = audio.createBufferSource(), f = audio.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 1400;
+      src.buffer = buf; src.connect(f); f.connect(g); g.gain.value = 0.35; src.start(now);
+    } else {
+      const o = audio.createOscillator(); o.type = 'square';
+      o.frequency.setValueAtTime(kind === 'one' ? 660 : kind === 'zero' ? 330 : 220, now);
+      if (kind === 'one') o.frequency.exponentialRampToValueAtTime(990, now + 0.08);
+      g.gain.setValueAtTime(kind === 'wobble' ? 0.03 : 0.08, now); g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+      o.connect(g); o.start(now); o.stop(now + 0.2);
+    }
+  } catch (_) {}
+}
+
+// ---------------------------------------------------------------- actions (queued, animated)
+let queue = [], current = null, speed = 1;
+const sel = { r: null, c: null };
+let dirFwd = true;
+// one water action: an optional row stream, any number of column streams, and a direction.
+// full = the row stream alone is strong enough (used for looking and for writing a whole row).
+function waterAction({ row = null, cols = [], fwd = true, full = false, onFlip = null, then = null }) {
+  queue.push({ type: 'water', row, cols, fwd, full, onFlip, then });
+  pump();
+}
+function pump() {
+  if (current || !queue.length) return;
+  const a = queue.shift();
+  const st = [];
+  const rowFrom = fwd => fwd ? PIPE_X + 0.4 : PRINT_X - 0.8, rowTo = fwd => fwd ? PRINT_X - 0.8 : PIPE_X + 0.4;
+  const colFrom = fwd => fwd ? backZ() + 0.4 : rowZ(R - 1) + 0.9, colTo = fwd => fwd ? rowZ(R - 1) + 0.9 : backZ() + 0.4;
+  if (a.row != null) st.push(makeStream('x', rowFrom(a.fwd), rowTo(a.fwd), rowZ(a.row), a.full));
+  for (const c of a.cols) st.push(makeStream('z', colFrom(a.fwd), colTo(a.fwd), colX(c), false));
+  for (const s of st) { s.tex.offset.set(0, 0); placeStream(s, 0); }
+  // when does the water reach each block? flips happen where enough water arrives
+  const events = [];
+  const RUN = 0.8;
+  const frac = (from, to, p) => (p - from) / (to - from);
+  for (let r = 0; r < R; r++) for (let c = 0; c < 8; c++) {
+    const onRow = a.row === r, onCol = a.cols.includes(c);
+    if (!onRow && !onCol) continue;
+    const tr = onRow ? frac(rowFrom(a.fwd), rowTo(a.fwd), colX(c)) * RUN : 0;
+    const tc = onCol ? frac(colFrom(a.fwd), colTo(a.fwd), rowZ(r)) * RUN : 0;
+    const strong = (onRow && onCol) || (onRow && a.full);
+    events.push({ time: Math.max(tr, tc), r, c, strong });
+  }
+  events.sort((x, y) => x.time - y.time);
+  current = { a, st, events, time: 0, RUN };
+}
+function tickAction(dt) {
+  if (!current) return;
+  const cur = current, a = cur.a;
+  cur.time += dt * speed;
+  const f = Math.min(1, cur.time / cur.RUN);
+  for (const s of cur.st) { placeStream(s, f); const k = (a.fwd ? -1 : 1) * dt * speed * 3; if (s.axis === 'x') s.tex.offset.x += k; else s.tex.offset.y += k; }
+  while (cur.events.length && cur.events[0].time <= cur.time) {
+    const e = cur.events.shift(), b = blocks[e.r][e.c];
+    const want = a.fwd ? 1 : 0;
+    if (e.strong && bits[e.r][e.c] !== want) {
+      bits[e.r][e.c] = want;
+      b.target += a.fwd ? Math.PI : -Math.PI; b.hop = 1;
+      beep(want ? 'one' : 'zero');
+      if (a.onFlip) a.onFlip(e.r, e.c, want);
+      else splash(colX(e.c), rowZ(e.r), want ? 0xffd23f : 0x9aa0aa, 8);   // sparkle; blue splashes are kept for reading
+      refreshPrinters();
+    } else { b.wob = 1; if (!e.strong) beep('wobble'); }
+  }
+  const END = cur.RUN + 0.55;
+  if (cur.time > cur.RUN + 0.25) for (const s of cur.st) s.m.material.opacity = Math.max(0, 0.85 * (1 - (cur.time - cur.RUN - 0.25) / 0.3));
+  if (cur.time >= END) {
+    for (const s of cur.st) { world.remove(s.m); s.m.geometry.dispose(); s.m.material.dispose(); s.tex.dispose(); }
+    current = null;
+    if (a.then) a.then();
+    afterChange();
+    pump();
+  }
+}
+const busy = () => !!current || queue.length > 0;
+
+// ---------------------------------------------------------------- level flow
+let li = 0, mode = 'intro', level = LEVELS[0];
+const predictions = {};
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem('bit-blocks-done') || '[]')); } catch (_) {}
+let clock = 0, hintShown = false, readMemory = null, readText = '', startBits = null;
+
+function bytesOf(word, rows) {
+  const out = [];
+  for (let r = 0; r < rows; r++) { const ch = typeof word === 'string' ? word.charCodeAt(r) || 0 : (word[r] || 0); out.push([...Array(8)].map((_, k) => (ch >> (7 - k)) & 1)); }
+  return out;
+}
+function startLevel(i, ask) {
+  li = i; level = LEVELS[i];
+  const startWord = L(level.start);
+  R = level.rows || (typeof startWord === 'string' ? startWord.length : startWord.length);
+  bits = bytesOf(startWord, R);
+  startBits = bits.map(r => r.slice());
+  queue = []; current = null; sel.r = sel.c = null; dirFwd = true; readMemory = null; readText = '';
+  clock = 0; hintShown = false; speed = 1;
+  buildWorld(); fitCamera();
+  renderHud(); buildDock();
+  if (ask && level.predict && predictions[i] == null) showPredict();
+  else { closeModal(); mode = 'play'; }
+}
+function renderHud() {
+  document.getElementById('title').innerHTML = t('title');
+  document.getElementById('lTitle').textContent = (li < 4 ? `${t('levelWord')} ${li + 1} · ` : '') + L(level.title);
+  document.getElementById('lGoal').textContent = L(level.goal);
+  document.getElementById('lnkReal').textContent = t('real');
+  document.getElementById('lnkGrown').textContent = t('grown');
+  document.getElementById('hint').hidden = true;
+  for (const b of document.querySelectorAll('[data-lang]')) b.classList.toggle('on', b.dataset.lang === lang);
+  document.documentElement.lang = lang;
+  const tg = document.getElementById('target'); tg.innerHTML = '';
+  const target = L(level.target);
+  if (target) for (const ch of target) {
+    const code = ch.charCodeAt(0);
+    tg.insertAdjacentHTML('beforeend', `<div class="pat"><span class="ch">${ch}</span><span class="sq">${[...Array(8)].map((_, k) => `<i class="${(code >> (7 - k)) & 1 ? 'on' : ''}"></i>`).join('')}</span></div>`);
+  }
+  renderChips(); refreshPrinters(); setNote('');
+}
+function renderChips() {
+  const host = document.getElementById('chips'); host.innerHTML = '';
+  LEVELS.forEach((lv, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === li ? ' cur' : '') + (done.has(i) ? ' done' : '');
+    b.textContent = i < 4 ? String(i + 1) : t('free');
+    b.title = L(lv.title);
+    b.addEventListener('click', () => startLevel(i, true));
+    host.appendChild(b);
+  });
+}
+let noteTimer = 0;
+function setNote(s, secs = 0) { document.getElementById('note').textContent = s; noteTimer = secs; }
+
+function buildDock() {
+  const d = document.getElementById('dock'); d.innerHTML = '';
+  const p = document.createElement('div'); p.className = 'panel'; d.appendChild(p);
+  const tl = level.tools;
+  const add = (html, fn) => { p.insertAdjacentHTML('beforeend', html); const el = p.lastElementChild; if (fn) el.addEventListener('click', fn); return el; };
+  if (tl.write) {
+    const inp = add(`<input type="text" id="txt" maxlength="6" value="${L(level.start)}" aria-label="${t('typeHere')}" placeholder="${t('typeHere')}" autocomplete="off" spellcheck="false">`);
+    inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') writeWord(inp.value); });
+    add(`<button class="big">${t('write')}</button>`, () => writeWord(inp.value));
+  }
+  if (tl.dir) {
+    const f = add(`<button class="${dirFwd ? 'on' : ''}" id="bFwd">${t('fwd')}</button>`, () => { dirFwd = true; f.classList.add('on'); b.classList.remove('on'); });
+    const b = add(`<button class="${dirFwd ? '' : 'on'}" id="bBack">${t('back')}</button>`, () => { dirFwd = false; b.classList.add('on'); f.classList.remove('on'); });
+  }
+  if (tl.water) add(`<button class="big" id="bWater">${t('water')}</button>`, pourWater);
+  if (tl.look) { add(`<button class="big" id="bLook">${t('look')}</button>`, lookAll); add(`<button id="bPut">${t('put')}</button>`, putBack); }
+  add(`<button id="bAgain">${t('again')}</button>`, () => startLevel(li, false));
+  if (tl.water) add(`<div class="sel" id="selTxt"></div>`);
+  add(`<div class="tip">${tl.water && !tl.tap ? t('pipeTip') : tl.tap ? t('tapTip') : ''}</div>`);
+  updateSel();
+}
+function updateSel() { const s = document.getElementById('selTxt'); if (s) s.textContent = t('sel')(sel.r, sel.c); }
+
+function pourWater() {
+  if (busy()) return;
+  if (sel.r == null && sel.c == null) { setNote(t('noPipe'), 3); return; }
+  const before = bits.map(r => r.slice());
+  waterAction({ row: sel.r, cols: sel.c == null ? [] : [sel.c], fwd: level.tools.dir ? dirFwd : true, then: () => checkWrong(before) });
+}
+function checkWrong(before) {
+  // in the puzzle levels a flip that moves away from the target earns a gentle note
+  const target = L(level.target); if (!target || li === 4) return;
+  const tb = bytesOf(target, R);
+  for (let r = 0; r < R; r++) for (let c = 0; c < 8; c++) if (before[r][c] !== bits[r][c] && bits[r][c] !== tb[r][c]) { setNote(t('wrongBlock'), 6); return; }
+}
+function lookAll() {
+  if (busy()) return;
+  readMemory = bits.map(r => r.slice()); readText = '';
+  for (let r = 0; r < R; r++) {
+    waterAction({
+      row: r, fwd: false, full: true,
+      onFlip: (rr, c) => { splash(colX(c), rowZ(rr)); beep('splash'); },
+      then: () => { readText += charOf(readMemory[r].reduce((v, b) => (v << 1) | b, 0)); setNote(`${t('read')} ${readText}`, 0); },
+    });
+  }
+}
+function putBack() {
+  if (busy() || !readMemory) return;
+  const mem = readMemory;
+  for (let r = 0; r < R; r++) {
+    const cols = mem[r].map((b, c) => b && !bits[r][c] ? c : -1).filter(c => c >= 0);
+    if (cols.length) waterAction({ row: r, cols, fwd: true });
+  }
+}
+function writeWord(raw) {
+  if (busy()) return;
+  const word = (raw || '').toUpperCase().slice(0, 6).padEnd(6, ' ');
+  const tb = bytesOf(word, R);
+  speed = 1.8;
+  for (let r = 0; r < R; r++) {
+    const clear = bits[r].some((b, c) => b && !tb[r][c]);
+    if (clear) waterAction({ row: r, fwd: false, full: true });
+    const ones = tb[r].map((b, c) => b ? c : -1).filter(c => c >= 0);
+    if (ones.length) waterAction({ row: r, cols: ones, fwd: true });
+  }
+  queue.push({ type: 'water', row: null, cols: [], fwd: true, then: () => (speed = 1) });
+  pump();
+}
+
+function afterChange() {
+  if (mode !== 'play') return;
+  const target = L(level.target);
+  if (li === 3) {
+    if (readMemory && !busy() && bits.every((row, r) => row.every((b, c) => b === startBits[r][c])) && readText.length === R) win();
+    else if (readMemory && !busy() && bits.flat().every(b => !b) && !hintShown) { hintShown = true; showHint(); }
+    return;
+  }
+  if (target && Array.from({ length: R }, (_, r) => charOf(byteOf(r))).join('') === target) win();
+}
+function win() {
+  mode = 'won';
+  const at = li;           // only show the card if the child is still on this level
+  setTimeout(() => { if (li === at && mode === 'won' && level.predict) showDebrief(); }, 700);
+}
+function showHint() { const h = document.getElementById('hint'); h.hidden = false; h.textContent = '💡 ' + L(level.hint); }
+
+// ---------------------------------------------------------------- modals
+const FOOTER = `<div class="site-foot"><span data-i18n="bbFooter">© 2026 Presker.at · runs in your browser</span>
+  <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a></div>`;
+function openModal(html) { document.getElementById('card').innerHTML = html; document.getElementById('modal').hidden = false; const f = document.querySelector('#card .go, #card .opts button'); if (f) f.focus({ preventScroll: true }); }
+function closeModal() { document.getElementById('modal').hidden = true; }
+function showIntro() {
+  mode = 'intro';
+  openModal(`<div class="eyebrow">presker.at / lab</div><h2>${t('title').replace(/<\/?b>/g, '')}</h2>${t('intro')}
+    <div class="actions"><button id="goGrown">${t('grown')}</button><button class="go" id="goStart">${t('start')}</button></div>${FOOTER}`);
+  document.getElementById('goStart').addEventListener('click', () => startLevel(0, true));
+  document.getElementById('goGrown').addEventListener('click', showGrown);
+}
+function showGrown() {
+  const was = mode;
+  openModal(`<div class="eyebrow">${t('grown')}</div><h2>${t('title').replace(/<\/?b>/g, '')}</h2>${t('grownText')}
+    <div class="actions"><button class="go" id="goBack">OK</button></div>`);
+  document.getElementById('goBack').addEventListener('click', () => { if (was === 'intro') showIntro(); else { closeModal(); mode = was === 'won' ? 'won' : 'play'; } });
+}
+function showPredict() {
+  mode = 'predict';
+  const p = level.predict, opts = L(p.options);
+  openModal(`<div class="eyebrow">${t('predictEyebrow')(li + 1)}</div><h2>${L(level.title)}</h2><p>${L(p.q)}</p>
+    <div class="opts">${opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div><p class="small">${t('guess')}</p>`);
+  for (const b of document.querySelectorAll('#card .opts button')) b.addEventListener('click', () => { predictions[li] = +b.dataset.k; closeModal(); mode = 'play'; });
+}
+function showDebrief() {
+  done.add(li); try { localStorage.setItem('bit-blocks-done', JSON.stringify([...done])); } catch (_) {}
+  renderChips();
+  const p = level.predict, d = level.debrief, opts = L(p.options), g = predictions[li];
+  const verdict = g == null ? '' : g === p.correct ? `<div class="verdict yes">${t('yes')(opts[g])}</div>` : `<div class="verdict no">${t('no')(opts[g], opts[p.correct])}</div>`;
+  openModal(`<div class="eyebrow">⭐ ${t('done')(li + 1)}</div><h2>${L(level.title)}</h2>${verdict}
+    <div class="takeaway">${L(d.takeaway)}</div><p>${L(d.text)}</p><div class="fact">💡 ${L(d.fact)}</div>
+    <div class="think"><div class="q">${t('think')} ${L(d.q)}</div><div class="a" hidden>${L(d.a)}</div><button id="goReveal">${t('show')}</button></div>
+    <div class="actions"><button id="goStay">${t('stay')}</button><button class="go" id="goNext">${li < 3 ? t('next') : t('wrap')}</button></div>`);
+  document.getElementById('goReveal').addEventListener('click', e => { document.querySelector('#card .think .a').hidden = false; e.target.remove(); });
+  document.getElementById('goStay').addEventListener('click', () => { closeModal(); mode = 'won'; });
+  document.getElementById('goNext').addEventListener('click', () => li < 3 ? startLevel(li + 1, true) : showSummary());
+}
+function showSummary() {
+  mode = 'summary';
+  const rows = LEVELS.slice(0, 4).map((lv, i) => `<tr><td>⭐ ${L(lv.title)}</td><td>${L(lv.debrief.takeaway)}</td></tr>`).join('');
+  openModal(`<div class="eyebrow">Bit Blocks</div><h2>${t('summaryTitle')}</h2><table class="summary">${rows}</table>
+    <div class="fact">🧲 ${t('realFact')}</div>
+    <div class="actions"><button onclick="location.href='/lab/core-memory/'">${t('seeReal')}</button><button class="go" id="goFree">${t('free')} →</button></div>${FOOTER}`);
+  document.getElementById('goFree').addEventListener('click', () => startLevel(4, false));
+}
+
+// ---------------------------------------------------------------- input: tap blocks and pipes, drag to look
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
+let down = null, camAz = 0, camEl = 0.95, zoom = 1;
+const pointers = new Map(); let pinch0 = 0, zoom0 = 1;
+canvas.addEventListener('pointerdown', e => {
+  canvas.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]);
+  down = pointers.size === 1 ? { x: e.clientX, y: e.clientY, moved: false } : null;
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom0 = zoom; }
+});
+canvas.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  const prev = pointers.get(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]);
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; zoom = Math.max(0.6, Math.min(1.5, zoom0 * pinch0 / (Math.hypot(a[0] - b[0], a[1] - b[1]) || 1))); return; }
+  if (down && Math.hypot(e.clientX - down.x, e.clientY - down.y) > 8) down.moved = true;
+  if (down && down.moved) { camAz = Math.max(-0.7, Math.min(0.7, camAz - (e.clientX - prev[0]) * 0.005)); camEl = Math.max(0.5, Math.min(1.3, camEl + (e.clientY - prev[1]) * 0.004)); }
+});
+canvas.addEventListener('pointerup', e => {
+  pointers.delete(e.pointerId);
+  if (down && !down.moved && mode === 'play' || down && !down.moved && mode === 'won') pick(e.clientX, e.clientY);
+  down = null;
+});
+canvas.addEventListener('pointercancel', e => { pointers.delete(e.pointerId); down = null; });
+canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(0.6, Math.min(1.5, zoom * Math.exp(e.deltaY * 0.001))); }, { passive: false });
+
+function pick(x, y) {
+  ndc.set(x / innerWidth * 2 - 1, -(y / innerHeight) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  const hit = ray.intersectObjects(world.children, true).find(h => h.object.userData.kind);
+  if (!hit) return;
+  const u = hit.object.userData;
+  if (u.kind === 'bit') {
+    if (!level.tools.tap) { setNote(t('heavy'), 3); blocks[u.r][u.c].wob = 1; beep('wobble'); return; }
+    if (busy()) return;
+    const b = blocks[u.r][u.c];
+    bits[u.r][u.c] ^= 1; b.target += bits[u.r][u.c] ? Math.PI : -Math.PI; b.hop = 1;
+    beep(bits[u.r][u.c] ? 'one' : 'zero'); refreshPrinters(); afterChange();
+  } else if ((u.kind === 'rowPipe' || u.kind === 'colPipe') && level.tools.water) {
+    if (u.kind === 'rowPipe') sel.r = sel.r === u.r ? null : u.r; else sel.c = sel.c === u.c ? null : u.c;
+    refreshPipes(); updateSel(); beep('wobble');
+  }
+}
+
+// ---------------------------------------------------------------- camera and loop
+let camBase = { dist: 14, look: new THREE.Vector3() };
+function fitCamera() {
+  const span = Math.max(PRINT_X - PIPE_X + 2, (R - 1) * ROW_GAP + 5);
+  const aspect = innerWidth / innerHeight;
+  camBase.dist = span * (aspect < 1 ? 1.3 / aspect : 1.05) + 2;
+  camBase.look.set((PIPE_X + PRINT_X) / 2, 0.3, (rowZ(0) + rowZ(R - 1)) / 2 - 0.6 + (aspect < 1 ? -0.2 : 0));
+}
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  update(dt);
+  requestAnimationFrame(frame);
+}
+function update(dt) {
+  tickAction(dt);
+  for (const row of blocks) for (const b of row) {
+    b.ang += (b.target - b.ang) * Math.min(1, dt * 12);
+    b.mesh.rotation.x = b.ang;
+    b.hop = Math.max(0, b.hop - dt * 3); b.wob = Math.max(0, b.wob - dt * 2.5);
+    b.holder.position.y = 0.5 + Math.sin(b.hop * Math.PI) * 0.45;
+    b.mesh.rotation.z = Math.sin(b.wob * 30) * 0.12 * b.wob;
+  }
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const p = parts[i]; p.life -= dt; p.v.y -= 9 * dt; p.m.position.addScaledVector(p.v, dt); p.m.material.opacity = Math.max(0, p.life);
+    if (p.life <= 0) { world.remove(p.m); p.m.material.dispose(); parts.splice(i, 1); }
+  }
+  for (const cl of clouds) { cl.position.x += dt * 0.4; if (cl.position.x > 34) cl.position.x = -34; }
+  if (mode === 'play') {
+    clock += dt;
+    if (!hintShown && level.hint && clock > 45 && li !== 3) { hintShown = true; showHint(); }
+  }
+  if (noteTimer > 0) { noteTimer -= dt; if (noteTimer <= 0) setNote(''); }
+  const d = camBase.dist * zoom;
+  camera.position.set(camBase.look.x + Math.sin(camAz) * Math.cos(camEl) * d, camBase.look.y + Math.sin(camEl) * d, camBase.look.z + Math.cos(camAz) * Math.cos(camEl) * d);
+  camera.lookAt(camBase.look);
+  renderer.render(scene, camera);
+}
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight;
+  // on wide screens, centre the island in the space right of the panel
+  const off = innerWidth > 760 ? Math.min(190, innerWidth * 0.2) : 0;
+  if (off) camera.setViewOffset(innerWidth, innerHeight, -off, 0, innerWidth, innerHeight); else camera.clearViewOffset();
+  camera.updateProjectionMatrix(); fitCamera();
+}
+addEventListener('resize', resize);
+
+// ---------------------------------------------------------------- chrome
+for (const b of document.querySelectorAll('[data-lang]')) b.addEventListener('click', () => {
+  lang = b.dataset.lang; try { localStorage.setItem('bit-blocks-lang', lang); } catch (_) {}
+  // buildDock too: the dock is already drawn behind the intro modal, so without
+  // it the reset button and the tip keep the previous language.
+  if (mode === 'intro') { renderHud(); buildDock(); showIntro(); } else startLevel(li, false);
+});
+document.getElementById('lnkGrown').addEventListener('click', e => { e.preventDefault(); showGrown(); });
+document.getElementById('btnCollapse').addEventListener('click', () => { const m = document.getElementById('hud').classList.toggle('min'); document.getElementById('btnCollapse').textContent = m ? '+' : '–'; });
+const sb = document.getElementById('btnSound');
+const paintSound = () => (sb.textContent = soundOn ? '🔊' : '🔇');
+paintSound();
+sb.addEventListener('click', () => { soundOn = !soundOn; try { localStorage.setItem('bit-blocks-sound', soundOn ? 'on' : 'off'); } catch (_) {} paintSound(); });
+
+window.__bb = { startLevel, sel, get bits() { return bits; }, get mode() { return mode; }, pourWater, lookAll, putBack, writeWord, refreshPipes,
+  setDir: v => (dirFwd = v), advance: sec => { for (let i = 0; i < sec * 60; i++) update(1 / 60); }, tap: (r, c) => { const b = blocks[r][c]; bits[r][c] ^= 1; b.target += Math.PI; refreshPrinters(); afterChange(); }, busy };
+
+resize();
+startLevel(0, false);
+showIntro();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

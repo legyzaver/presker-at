@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning — PRESKER.AT</title>
+  <meta name="description" content="Every teaching project on presker.at in one place: German and Slovenian language games for kids, and browser toys that explain computing, orbits, optics and installation art by letting you try them.">
+  <link rel="canonical" href="https://www.presker.at/learning/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.presker.at/learning/">
+  <meta property="og:title" content="Learning — PRESKER.AT">
+  <meta property="og:description" content="German and Slovenian language games for kids, plus browser toys that explain computing, orbits, optics and installation art.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      learnEyebrow: 'Teaching projects',
+      learnSub: 'Things built to teach something. Nothing here asks for a login, a download or a payment — each one runs in the browser and explains itself as you play.',
+      learnH2Lang: 'Language and words',
+      learnH2LangSub: 'German and Slovenian, mostly for my own kids first.',
+      learnH2World: 'How the world works',
+      learnH2WorldSub: 'Computing, orbits, optics and art, explained by letting you try them.',
+      learnH2Read: 'The thinking behind them',
+      learnH2ReadSub: 'Longer notes on why these are built the way they are.',
+      learnReadCta: 'All writing →',
+      slikovarLearnDesc: 'A picture dictionary for preschoolers: tap a picture and hear its name spoken in Slovenian by a real offline neural voice.',
+      wordSafariLearn2: 'Study whole German/Slovenian word pairs, then match them on a memory grid, spoken aloud in both languages.',
+      besedopadLearn2: 'Tetris-style falling letters that spell real Slovenian words for points.',
+      pitchLearn2: 'Sing higher or lower to climb a flower staircase and spell a word out loud, in German or Slovenian.',
+      uhrUraLearn2: 'A clock game for kids learning to tell the time in German and Slovenian.',
+      abcLearn2: 'The original German/Slovenian letter-door alphabet game.',
+      abc3dLearn2: 'ABC Quest turned into a first-person arcade game, 36 rooms deep.',
+      bitBlocksLearn2: "The kids' version of Core Memory: blocky graphics, water instead of current.",
+      coreMemoryLearn2: 'An 8×8 plane of ferrite rings, the way computers stored bits before chips.',
+      whiteCubeLearn2: 'A 3D gallery for learning installation art — anamorphosis, coloured shadows, a shadow sculpture.',
+      orbitLearn2: 'Predict a rocket burn, fly it, then find out why. Orbital mechanics by doing.',
+      cameraLearn2: 'A pinhole-camera cutaway: resize the hole, move the screen, watch the brightness/sharpness trade-off.',
+      abcNotesLearn2: 'The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, free mistakes.',
+      wcNotesLearn2: 'Why installation art is taught by standing inside it, not by naming it first.',
+      orbitNotesLearn2: 'Predict-observe-explain, and why a wrong guess you made yourself sticks.',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      learnEyebrow: 'Lernprojekte',
+      learnSub: 'Dinge, die etwas beibringen sollen. Nichts hier verlangt ein Konto, einen Download oder eine Zahlung — alles läuft im Browser und erklärt sich beim Spielen von selbst.',
+      learnH2Lang: 'Sprache und Wörter',
+      learnH2LangSub: 'Deutsch und Slowenisch, zuerst vor allem für meine eigenen Kinder.',
+      learnH2World: 'Wie die Welt funktioniert',
+      learnH2WorldSub: 'Computer, Umlaufbahnen, Optik und Kunst — erklärt, indem man sie ausprobiert.',
+      learnH2Read: 'Die Überlegungen dahinter',
+      learnH2ReadSub: 'Längere Notizen dazu, warum diese Sachen so gebaut sind, wie sie sind.',
+      learnReadCta: 'Alle Texte →',
+      slikovarLearnDesc: 'Ein Bildwörterbuch für Vorschulkinder: Tippe auf ein Bild und höre seinen Namen auf Slowenisch, gesprochen von einer echten, offline laufenden neuronalen Stimme.',
+      wordSafariLearn2: 'Lerne ganze deutsch-slowenische Wortpaare und ordne sie dann auf einem Memory-Raster zu — in beiden Sprachen vorgelesen.',
+      besedopadLearn2: 'Tetris-artig fallende Buchstaben, die echte slowenische Wörter bilden und Punkte bringen.',
+      pitchLearn2: 'Singe höher oder tiefer, um eine Blumentreppe hinaufzusteigen und ein Wort laut zu buchstabieren — auf Deutsch oder Slowenisch.',
+      uhrUraLearn2: 'Ein Uhrenspiel für Kinder, die auf Deutsch und Slowenisch die Uhrzeit lesen lernen.',
+      abcLearn2: 'Das ursprüngliche deutsch-slowenische Alphabetspiel mit den Buchstabentüren.',
+      abc3dLearn2: 'ABC Quest als Ego-Arcade-Spiel, 36 Räume tief.',
+      bitBlocksLearn2: 'Die Kinderversion von Core Memory: klobige Grafik, Wasser statt Strom.',
+      coreMemoryLearn2: 'Eine 8×8-Ebene aus Ferritringen — so speicherten Computer Bits vor den Chips.',
+      whiteCubeLearn2: 'Eine 3D-Galerie zum Erlernen von Installationskunst — Anamorphose, farbige Schatten, eine Schattenskulptur.',
+      orbitLearn2: 'Sage ein Raketenmanöver voraus, flieg es, und erfahre dann warum. Himmelsmechanik durch Ausprobieren.',
+      cameraLearn2: 'Eine Lochkamera im Schnitt: Loch vergrößern, Schirm verschieben, den Kompromiss zwischen Helligkeit und Schärfe beobachten.',
+      abcNotesLearn2: 'Die didaktischen Notizen hinter dem Alphabetspiel: eine wiederholte Schleife, neu gemischte Antworten, Fehler ohne Strafe.',
+      wcNotesLearn2: 'Warum man Installationskunst lernt, indem man darin steht — und nicht, indem man sie zuerst benennt.',
+      orbitNotesLearn2: 'Vorhersagen, beobachten, erklären — und warum eine selbst gemachte falsche Vermutung hängen bleibt.',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      learnEyebrow: 'Učni projekti',
+      learnSub: 'Stvari, narejene zato, da nekaj naučijo. Nič tukaj ne zahteva prijave, prenosa ali plačila — vse teče v brskalniku in se med igro razloži samo.',
+      learnH2Lang: 'Jezik in besede',
+      learnH2LangSub: 'Nemščina in slovenščina, najprej predvsem za moje otroke.',
+      learnH2World: 'Kako deluje svet',
+      learnH2WorldSub: 'Računalništvo, tirnice, optika in umetnost — razloženo tako, da jih preizkusiš.',
+      learnH2Read: 'Razmisleki za njimi',
+      learnH2ReadSub: 'Daljši zapiski o tem, zakaj so te stvari narejene tako, kot so.',
+      learnReadCta: 'Vsi zapisi →',
+      slikovarLearnDesc: 'Slikovni slovar za predšolske otroke: tapni na sliko in slišiš njeno ime v slovenščini, izgovorjeno s pravim glasom nevronske sinteze brez povezave.',
+      wordSafariLearn2: 'Preuči cele nemško-slovenske besedne pare, nato jih poveži na spominski mreži — izgovorjeno v obeh jezikih.',
+      besedopadLearn2: 'Tetrisu podobne padajoče črke, ki sestavljajo prave slovenske besede za točke.',
+      pitchLearn2: 'Poj višje ali nižje, da se povzpneš po cvetličnem stopnišču in na glas črkuješ besedo — v nemščini ali slovenščini.',
+      uhrUraLearn2: 'Igra z uro za otroke, ki se učijo brati čas v nemščini in slovenščini.',
+      abcLearn2: 'Izvirna nemško-slovenska abecedna igra z vrati za vsako črko.',
+      abc3dLearn2: 'ABC Quest kot arkadna igra iz prve osebe, 36 sob globoko.',
+      bitBlocksLearn2: 'Otroška različica Core Memory: kockasta grafika, voda namesto toka.',
+      coreMemoryLearn2: 'Ravnina 8×8 feritnih obročkov — tako so računalniki shranjevali bite pred čipi.',
+      whiteCubeLearn2: 'Tridimenzionalna galerija za učenje instalacijske umetnosti — anamorfoza, barvne sence, senčna skulptura.',
+      orbitLearn2: 'Napovej raketni manever, ga odleti, nato ugotovi zakaj. Nebesna mehanika z delom.',
+      cameraLearn2: 'Prerez camere obscure: povečaj luknjo, premakni zaslon in opazuj razmerje med svetlostjo in ostrino.',
+      abcNotesLearn2: 'Učni zapiski za abecedno igro: ena ponovljena zanka, premešani odgovori, napake brez kazni.',
+      wcNotesLearn2: 'Zakaj se instalacijske umetnosti učiš tako, da stojiš v njej, in ne tako, da jo najprej poimenuješ.',
+      orbitNotesLearn2: 'Napovej-opazuj-razloži in zakaj se napačna domneva, ki si jo naredil sam, zares prime.',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+  <style>
+    .nav-buttons { position: fixed; top: 2px; left: 1.5rem; display: flex; gap: 12px; z-index: 1000; font-family: var(--mono); font-size: 13px; }
+    .nav-toggles { position: fixed; top: 10px; right: 1.5rem; z-index: 1000; }
+    .nav-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .nav-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .lab-card-date { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .sec-sub { color: var(--muted); font-size: 0.95rem; margin: -0.4rem 0 1rem; }
+    .more-link { display: inline-block; margin-top: 0.4rem; font-family: var(--mono); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="nav-buttons">
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow" data-i18n="learnEyebrow">Teaching projects</p>
+    <h1>Learning</h1>
+    <p class="lab-sub" data-i18n="learnSub">Things built to teach something. Nothing here asks for a login, a download or a payment — each one runs in the browser and explains itself as you play.</p>
+
+    <h2 data-i18n="learnH2Lang">Language and words</h2>
+    <p class="sec-sub" data-i18n="learnH2LangSub">German and Slovenian, mostly for my own kids first.</p>
+    <div class="lab-grid">
+      <a href="/lab/slikovar/" class="lab-card">
+        <div class="lab-card-title">Slikovar</div>
+        <div class="lab-card-date">2026-10-30 · SL</div>
+        <div class="lab-card-desc" data-i18n="slikovarLearnDesc">A picture dictionary for preschoolers: tap a picture and hear its name spoken in Slovenian by a real offline neural voice.</div>
+      </a>
+      <a href="/lab/word-safari/" class="lab-card">
+        <div class="lab-card-title">Word Safari</div>
+        <div class="lab-card-date">2026-10-29 · DE / SL</div>
+        <div class="lab-card-desc" data-i18n="wordSafariLearn2">Study whole German/Slovenian word pairs, then match them on a memory grid, spoken aloud in both languages.</div>
+      </a>
+      <a href="/lab/besedopad/" class="lab-card">
+        <div class="lab-card-title">Besedopad</div>
+        <div class="lab-card-date">2026-10-29 · SL</div>
+        <div class="lab-card-desc" data-i18n="besedopadLearn2">Tetris-style falling letters that spell real Slovenian words for points.</div>
+      </a>
+      <a href="/lab/pitch-garden/" class="lab-card">
+        <div class="lab-card-title">Pitch Garden</div>
+        <div class="lab-card-date">2026-10-26 · DE / SL</div>
+        <div class="lab-card-desc" data-i18n="pitchLearn2">Sing higher or lower to climb a flower staircase and spell a word out loud, in German or Slovenian.</div>
+      </a>
+      <a href="/lab/uhr-ura/" class="lab-card">
+        <div class="lab-card-title">Uhr · Ura</div>
+        <div class="lab-card-date">2026-10-21 · DE / SL</div>
+        <div class="lab-card-desc" data-i18n="uhrUraLearn2">A clock game for kids learning to tell the time in German and Slovenian.</div>
+      </a>
+      <a href="/lab/abc-quest/" class="lab-card">
+        <div class="lab-card-title">ABC Quest</div>
+        <div class="lab-card-date">DE / SL</div>
+        <div class="lab-card-desc" data-i18n="abcLearn2">The original German/Slovenian letter-door alphabet game.</div>
+      </a>
+      <a href="/lab/abc-quest-3d/" class="lab-card">
+        <div class="lab-card-title">The 36th Chamber of Schooling</div>
+        <div class="lab-card-date">DE / SL · 3D</div>
+        <div class="lab-card-desc" data-i18n="abc3dLearn2">ABC Quest turned into a first-person arcade game, 36 rooms deep.</div>
+      </a>
+    </div>
+
+    <h2 data-i18n="learnH2World">How the world works</h2>
+    <p class="sec-sub" data-i18n="learnH2WorldSub">Computing, orbits, optics and art, explained by letting you try them.</p>
+    <div class="lab-grid">
+      <a href="/lab/camera-obscura/" class="lab-card">
+        <div class="lab-card-title">Camera Obscura Lab</div>
+        <div class="lab-card-date">2026-10-27</div>
+        <div class="lab-card-desc" data-i18n="cameraLearn2">A pinhole-camera cutaway: resize the hole, move the screen, watch the brightness/sharpness trade-off.</div>
+      </a>
+      <a href="/lab/bit-blocks/" class="lab-card">
+        <div class="lab-card-title">Bit Blocks</div>
+        <div class="lab-card-date">2026-10-22</div>
+        <div class="lab-card-desc" data-i18n="bitBlocksLearn2">The kids' version of Core Memory: blocky graphics, water instead of current.</div>
+      </a>
+      <a href="/lab/core-memory/" class="lab-card">
+        <div class="lab-card-title">Core Memory</div>
+        <div class="lab-card-date">2026-10-22</div>
+        <div class="lab-card-desc" data-i18n="coreMemoryLearn2">An 8×8 plane of ferrite rings, the way computers stored bits before chips.</div>
+      </a>
+      <a href="/lab/white-cube/" class="lab-card">
+        <div class="lab-card-title">White Cube</div>
+        <div class="lab-card-date">2026-10-19</div>
+        <div class="lab-card-desc" data-i18n="whiteCubeLearn2">A 3D gallery for learning installation art — anamorphosis, coloured shadows, a shadow sculpture.</div>
+      </a>
+      <a href="/lab/orbit-school/" class="lab-card">
+        <div class="lab-card-title">Orbit School</div>
+        <div class="lab-card-date">2026-10-18</div>
+        <div class="lab-card-desc" data-i18n="orbitLearn2">Predict a rocket burn, fly it, then find out why. Orbital mechanics by doing.</div>
+      </a>
+    </div>
+
+    <h2 data-i18n="learnH2Read">The thinking behind them</h2>
+    <p class="sec-sub" data-i18n="learnH2ReadSub">Longer notes on why these are built the way they are.</p>
+    <div class="lab-grid">
+      <a href="/lab/abc-quest-notes.html" class="lab-card">
+        <div class="lab-card-title">ABC Quest, the pedagogy</div>
+        <div class="lab-card-desc" data-i18n="abcNotesLearn2">The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, free mistakes.</div>
+      </a>
+      <a href="/lab/white-cube-notes.html" class="lab-card">
+        <div class="lab-card-title">Standing inside the work</div>
+        <div class="lab-card-desc" data-i18n="wcNotesLearn2">Why installation art is taught by standing inside it, not by naming it first.</div>
+      </a>
+      <a href="/lab/orbit-school-notes.html" class="lab-card">
+        <div class="lab-card-title">Orbit School, the method</div>
+        <div class="lab-card-desc" data-i18n="orbitNotesLearn2">Predict-observe-explain, and why a wrong guess you made yourself sticks.</div>
+      </a>
+    </div>
+    <a class="more-link" href="/writing/" data-i18n="learnReadCta">All writing →</a>
+
+  </main>
+</body>
+</html>

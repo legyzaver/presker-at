@@ -4,7 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Artist Statement — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      statementP1: 'My practice explores the distinctions between human and machine perception — the contrast between how a body and a sensor each come to understand space and movement. Neither human nor digital perception can simultaneously grasp all spatial perspectives and relationships; each view is partial, each instrument has a blind spot.',
+      statementP2: 'I use this gap as a starting point. Working across installation, light, photography and interactive media, I build situations in which a viewer becomes momentarily aware of the apparatus of their own seeing — projectors standing in for eyes, inflated forms standing in for lungs, a camera flash reversed into a beam that no longer captures anything. The work doesn\'t resolve the contrast between human and machine perspective; it stages it, so the gap itself becomes visible.',
+      statementP3: 'Much of this research has taken shape through long-term collaboration — most extensively with Luiza Margan, with whom many of the spatial and projection-based works on this site were developed between 2007 and 2010, and more recently with Maja Ozvaldic and Sasa Fabjan on <em>interActive Window</em> (2016).'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      statementP1: 'Meine künstlerische Praxis erforscht die Unterschiede zwischen menschlicher und maschineller Wahrnehmung — den Kontrast zwischen der Art, wie ein Körper und ein Sensor jeweils Raum und Bewegung begreifen. Weder die menschliche noch die digitale Wahrnehmung kann alle räumlichen Perspektiven und Beziehungen gleichzeitig erfassen; jeder Blick ist partiell, jedes Instrument hat einen blinden Fleck.',
+      statementP2: 'Diese Lücke nehme ich als Ausgangspunkt. In Arbeiten zwischen Installation, Licht, Fotografie und interaktiven Medien baue ich Situationen, in denen sich ein Betrachter für einen Moment des Apparats seines eigenen Sehens bewusst wird — Projektoren stehen für Augen, aufgeblasene Formen für Lungen, ein umgekehrter Kamerablitz wird zu einem Strahl, der nichts mehr festhält. Die Arbeit löst den Kontrast zwischen menschlicher und maschineller Perspektive nicht auf; sie inszeniert ihn, sodass die Lücke selbst sichtbar wird.',
+      statementP3: 'Ein Großteil dieser Recherche entstand in langjähriger Zusammenarbeit — am ausführlichsten mit Luiza Margan, mit der viele der räumlichen und projektionsbasierten Arbeiten auf dieser Seite zwischen 2007 und 2010 entstanden sind, und zuletzt mit Maja Ozvaldic und Saša Fabjan an <em>interActive Window</em> (2016).'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      statementP1: 'Moja praksa raziskuje razlike med človeško in strojno zaznavo — nasprotje med tem, kako telo in senzor vsak zase razumeta prostor in gibanje. Niti človeška niti digitalna zaznava ne moreta hkrati zajeti vseh prostorskih perspektiv in razmerij; vsak pogled je delen, vsak instrument ima slepo pego.',
+      statementP2: 'To vrzel uporabljam kot izhodišče. V delih med inštalacijo, svetlobo, fotografijo in interaktivnimi mediji ustvarjam situacije, v katerih se opazovalec za trenutek zave aparata lastnega gledanja — projektorji nadomeščajo očesa, napihnjene forme pljuča, obrnjen fotografski blic pa postane žarek, ki ne zajame več ničesar. Delo ne razreši nasprotja med človeško in strojno perspektivo; ga uprizori, tako da vrzel sama postane vidna.',
+      statementP3: 'Velik del tega raziskovanja je nastal skozi dolgoletno sodelovanje — najobsežneje z Luizo Margan, s katero je med letoma 2007 in 2010 nastalo veliko prostorskih in projekcijskih del na tej strani, in v zadnjem času z Majo Ozvaldic in Sašo Fabjanom pri delu <em>interActive Window</em> (2016).'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -14,21 +34,28 @@
 
       <div class="page-header">
         <div class="page-eyebrow">Miha Presker</div>
-        <h1 class="page-title">Artist Statement</h1>
+        <h1 class="page-title" data-i18n="artStatement">Artist Statement</h1>
       </div>
 
       <div class="page-body">
-        <p>My practice explores the distinctions between human and machine perception — the contrast between how a body and a sensor each come to understand space and movement. Neither human nor digital perception can simultaneously grasp all spatial perspectives and relationships; each view is partial, each instrument has a blind spot.</p>
+        <p data-i18n-html="statementP1">My practice explores the distinctions between human and machine perception — the contrast between how a body and a sensor each come to understand space and movement. Neither human nor digital perception can simultaneously grasp all spatial perspectives and relationships; each view is partial, each instrument has a blind spot.</p>
 
-        <p>I use this gap as a starting point. Working across installation, light, photography and interactive media, I build situations in which a viewer becomes momentarily aware of the apparatus of their own seeing — projectors standing in for eyes, inflated forms standing in for lungs, a camera flash reversed into a beam that no longer captures anything. The work doesn't resolve the contrast between human and machine perspective; it stages it, so the gap itself becomes visible.</p>
+        <p data-i18n-html="statementP2">I use this gap as a starting point. Working across installation, light, photography and interactive media, I build situations in which a viewer becomes momentarily aware of the apparatus of their own seeing — projectors standing in for eyes, inflated forms standing in for lungs, a camera flash reversed into a beam that no longer captures anything. The work doesn't resolve the contrast between human and machine perspective; it stages it, so the gap itself becomes visible.</p>
 
-        <p>Much of this research has taken shape through long-term collaboration — most extensively with Luiza Margan, with whom many of the spatial and projection-based works on this site were developed between 2007 and 2010, and more recently with Maja Ozvaldic and Sasa Fabjan on <em>interActive Window</em> (2016).</p>
+        <p data-i18n-html="statementP3">Much of this research has taken shape through long-term collaboration — most extensively with Luiza Margan, with whom many of the spatial and projection-based works on this site were developed between 2007 and 2010, and more recently with Maja Ozvaldic and Sasa Fabjan on <em>interActive Window</em> (2016).</p>
 
-        <p><em style="color: var(--dim); font-size: 13px;">[Add or revise further — this draws on the statement from my YVAA / OHO Award profile and can be expanded with more specific language per work.]</em></p>
       </div>
 
-    </main>
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

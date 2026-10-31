@@ -1,2 +1,6 @@
-Options +ExecCGI
 AddHandler cgi-script .py
+
+# Hide runtime data files (sessions, guestbook, counter) from the web — returns 404.
+# RedirectMatch is a FileInfo directive (same override class as AddHandler above),
+# so it parses on World4You. CGI scripts can still read/write these files on disk.
+RedirectMatch 404 (?i)\.(json|txt|log|db|dat)$

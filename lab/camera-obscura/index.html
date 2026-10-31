@@ -1,0 +1,488 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Camera Obscura Lab — why a pinhole flips the world upside down</title>
+<meta name="description" content="A room-sized pinhole camera, cut away and interactive. Resize the hole, move the object and the screen, add a second or third hole, and see exactly why the image is upside down — plus the brightness/sharpness trade-off that shaped the first cameras.">
+<link rel="canonical" href="https://www.presker.at/lab/camera-obscura/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/camera-obscura/">
+<meta property="og:title" content="Camera Obscura Lab">
+<meta property="og:description" content="A room-sized pinhole camera, cut away and interactive: resize the hole, move things around, and watch why the image flips upside down.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a;
+  --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #b5532a; --accent-ink: #ffffff;
+  --sense: #2a5fb0; --bad: #c23e1f;
+  --sky: #cfe3f2; --sun: #e8b23f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414;
+  --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #f0905e; --accent-ink: #0e0e0e;
+  --sense: #7ab8f5; --bad: #f58a7a;
+  --sky: #1c2733; --sun: #e8b23f;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414;
+    --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #f0905e; --accent-ink: #0e0e0e;
+    --sense: #7ab8f5; --bad: #f58a7a;
+    --sky: #1c2733; --sun: #e8b23f;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 18px 20px 40px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.home:hover { color: var(--accent); }
+header h1 { font: 600 24px var(--mono); margin: 0; letter-spacing: -.01em; }
+header h1 span { color: var(--accent); }
+header p { margin: 4px 0 16px; color: var(--muted); max-width: 70ch; }
+
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+.stage {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px; position: relative; touch-action: manipulation;
+}
+.stage canvas { display: block; width: 100%; height: auto; aspect-ratio: 900 / 440; margin: 0 auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font: 11px var(--mono); color: var(--muted); padding: 8px 4px 2px; }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; background: var(--accent); }
+
+aside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.box h2 { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; }
+.cap { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+
+button { font: 12.5px var(--mono); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button.on, button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.lbl { font: 11px var(--mono); color: var(--muted); margin: 10px 0 4px; display: flex; justify-content: space-between; }
+.lbl output { color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+
+.exp .q { margin: 0 0 10px; }
+.exp .opts { display: flex; flex-direction: column; gap: 6px; }
+.exp .opts button { text-align: left; font-family: inherit; font-size: 13.5px; width: 100%; }
+.exp .opts button.picked { border-color: var(--accent); }
+.exp .opts button.right { border-color: var(--accent); color: var(--accent); }
+.exp .opts button.wrong { border-color: var(--bad); color: var(--bad); }
+.exp .result { margin: 10px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--bg); border-radius: 0 8px 8px 0; }
+.exp .result p { margin: 0 0 6px; }
+.exp .result p:last-child { margin: 0; }
+
+.explain { margin-top: 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.explain h3 { font: 600 13px var(--mono); color: var(--accent); margin: 0 0 6px; }
+.explain p { margin: 0 0 8px; color: var(--muted); }
+
+.site-foot { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .explain { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .wrap { padding: 14px 16px 32px; }
+  header h1 { font-size: 20px; }
+  .stage { padding: 6px; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  coIntro: 'A room, a wall, and one small hole. Light from the world outside streams through the hole in straight lines and paints a real, upside-down image on the far wall — no lens required. This is the oldest camera there is. Drag the sliders and watch why it works the way it does.',
+  coLegObj: 'object (outside, in daylight)', coLegImg: 'image (on the screen, inside)',
+  coControlsH: 'Controls', coLblHole: 'Pinhole size', coLblObj: 'Object distance', coLblScr: 'Screen distance (room depth)', coLblHoles: 'Number of holes',
+  coH3Upside: "Why it's upside down",
+  coPUpside: 'Light leaves every point of the object in every direction, but only one ray from each point happens to be aimed exactly at the hole. A ray from the <em>top</em> of the object travels downward through the hole and lands on the <em>bottom</em> of the screen — and vice versa. Every point crosses through the same single hole, so the whole image flips.',
+  coH3Sharp: 'Sharp vs. bright',
+  coPSharp: 'A tiny hole only lets through one narrow ray bundle per object point, so each point stays a tight point on the screen — sharp, but dim. Widen the hole and many overlapping ray bundles get through, so the image brightens but each point smears into a disc, blurring the whole picture. Shrink it too far, past a few tenths of a millimetre, and diffraction blurs it again anyway.',
+  coH3Room: 'A room-sized idea',
+  coPRoom: 'The effect was described by Mozi in China around the 5th century BCE and by Aristotle not long after, studied rigorously by Ibn al-Haytham around 1000 CE, and later used by painters as a literal darkened room to trace a scene in correct perspective — <em>camera obscura</em> is Latin for exactly that: "dark room." Add a lens to sharpen and brighten the image at the same time, and a few centuries later you get a photographic camera — <em>camera</em> is the same word, just not dark anymore.',
+  coFooter: '© 2026 Presker.at · runs in your browser',
+  coAriaScene: 'Side view of a room with a pinhole: the object outside, the hole, and the projected image on the inner screen',
+  coSharp1: 'sharp', coSharp2: 'a little soft', coSharp3: 'very blurry',
+  coBright1: 'dim', coBright2: 'moderately bright', coBright3: 'bright',
+  coHoleSingular: '{n} hole', coHolePlural: '{n} holes', coOverlapNote: ' · the copies overlap',
+  coReadoutTemplate: '{holes} · image is {sharp} and {bright}{overlap}.',
+  coPredictHeader: 'Predict #{n}',
+  coExp1Q: 'Make the pinhole bigger. What happens to the image?',
+  coExp1Opt1: 'Brighter, but blurrier', coExp1Opt2: 'Dimmer, but sharper', coExp1Opt3: 'Nothing changes',
+  coExp1Body: '<p><b>Brighter, but blurrier.</b> A bigger hole lets through a wider bundle of rays from every point on the object, so more light reaches the screen — but those bundles now overlap each other, smearing each point into a disc instead of a pin-sharp spot.</p><p class="think">Try it: push the Pinhole size slider to the far right and watch the image lose its edges while the readout calls it brighter.</p>',
+  coExp2Q: 'Add a second pinhole. What shows up on the screen?',
+  coExp2Opt1: 'Two overlapping upside-down images', coExp2Opt2: 'The image turns right-side up', coExp2Opt3: 'Nothing — the second hole blocks the first',
+  coExp2Body: '<p><b>Two overlapping upside-down images.</b> Each hole works completely independently — it is its own tiny camera obscura, projecting its own full inverted image. With two holes you get two copies offset by the gap between them; with three, three copies.</p><p class="think">Switch "Number of holes" to 2 or 3 and watch the picture turn into overlapping ghosts.</p>',
+  coExp3Q: 'Move the object twice as close to the hole. What happens to the image on the screen?',
+  coExp3Opt1: 'It gets about twice as big', coExp3Opt2: 'It gets about twice as small', coExp3Opt3: 'It stays the same size',
+  coExp3Body: '<p><b>About twice as big.</b> The image size is set by similar triangles: image size ÷ object size = screen distance ÷ object distance. Halve the object distance with the screen distance unchanged, and the ratio — so the image — doubles.</p><p class="think">Drag Object distance down and watch the colour bands on the screen stretch taller.</p>',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  coIntro: 'Ein Raum, eine Wand und ein kleines Loch. Licht aus der Welt draußen strömt in geraden Linien durch das Loch und malt ein echtes, kopfstehendes Bild auf die gegenüberliegende Wand — ganz ohne Linse. Das ist die älteste Kamera, die es gibt. Zieh an den Reglern und sieh, warum sie so funktioniert.',
+  coLegObj: 'Objekt (draußen, im Tageslicht)', coLegImg: 'Bild (auf dem Schirm, drinnen)',
+  coControlsH: 'Regler', coLblHole: 'Lochgröße', coLblObj: 'Objektabstand', coLblScr: 'Schirmabstand (Raumtiefe)', coLblHoles: 'Anzahl der Löcher',
+  coH3Upside: 'Warum es kopfsteht',
+  coPUpside: 'Licht verlässt jeden Punkt des Objekts in alle Richtungen, aber von jedem Punkt ist nur ein einziger Strahl genau auf das Loch gerichtet. Ein Strahl von der <em>Oberseite</em> des Objekts läuft nach unten durch das Loch und landet am <em>unteren</em> Rand des Schirms — und umgekehrt. Jeder Punkt geht durch dasselbe eine Loch, also kippt das ganze Bild.',
+  coH3Sharp: 'Scharf vs. hell',
+  coPSharp: 'Ein winziges Loch lässt pro Objektpunkt nur ein schmales Strahlenbündel durch, sodass jeder Punkt auf dem Schirm ein enger Punkt bleibt — scharf, aber dunkel. Vergrößere das Loch, und viele überlappende Strahlenbündel kommen durch: Das Bild wird heller, aber jeder Punkt verschmiert zu einer Scheibe, was das ganze Bild unscharf macht. Verkleinere es zu weit, unter ein paar Zehntelmillimeter, verwischt Beugung es ohnehin wieder.',
+  coH3Room: 'Eine raumgroße Idee',
+  coPRoom: 'Der Effekt wurde um das 5. Jahrhundert v. Chr. von Mozi in China beschrieben und kurz danach von Aristoteles, um 1000 n. Chr. von Ibn al-Haitham gründlich untersucht, und später von Malern als buchstäblich verdunkelter Raum genutzt, um eine Szene perspektivisch korrekt zu übertragen — <em>camera obscura</em> ist Lateinisch für genau das: „dunkler Raum". Füge eine Linse hinzu, um das Bild zugleich zu schärfen und aufzuhellen, und einige Jahrhunderte später hast du eine fotografische Kamera — <em>camera</em> ist dasselbe Wort, nur nicht mehr dunkel.',
+  coFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  coAriaScene: 'Seitenansicht eines Raums mit Lochkamera: das Objekt draußen, das Loch und das projizierte Bild auf dem inneren Schirm',
+  coSharp1: 'scharf', coSharp2: 'etwas weich', coSharp3: 'sehr unscharf',
+  coBright1: 'dunkel', coBright2: 'mäßig hell', coBright3: 'hell',
+  coHoleSingular: '{n} Loch', coHolePlural: '{n} Löcher', coOverlapNote: ' · die Kopien überlappen sich',
+  coReadoutTemplate: '{holes} · Bild ist {sharp} und {bright}{overlap}.',
+  coPredictHeader: 'Vorhersage #{n}',
+  coExp1Q: 'Mach das Loch größer. Was passiert mit dem Bild?',
+  coExp1Opt1: 'Heller, aber unschärfer', coExp1Opt2: 'Dunkler, aber schärfer', coExp1Opt3: 'Nichts ändert sich',
+  coExp1Body: '<p><b>Heller, aber unschärfer.</b> Ein größeres Loch lässt von jedem Objektpunkt ein breiteres Strahlenbündel durch, sodass mehr Licht den Schirm erreicht — aber diese Bündel überlappen sich jetzt, wodurch jeder Punkt zu einer Scheibe verschmiert statt zu einem nadelscharfen Fleck.</p><p class="think">Probier es: Schiebe den Regler für die Lochgröße ganz nach rechts und sieh, wie das Bild seine Kanten verliert, während die Anzeige es als heller bezeichnet.</p>',
+  coExp2Q: 'Füge ein zweites Loch hinzu. Was erscheint auf dem Schirm?',
+  coExp2Opt1: 'Zwei überlappende kopfstehende Bilder', coExp2Opt2: 'Das Bild steht plötzlich richtig', coExp2Opt3: 'Nichts — das zweite Loch blockiert das erste',
+  coExp2Body: '<p><b>Zwei überlappende kopfstehende Bilder.</b> Jedes Loch funktioniert völlig unabhängig — es ist seine eigene winzige Camera obscura und projiziert sein eigenes vollständiges, umgekehrtes Bild. Mit zwei Löchern bekommst du zwei Kopien, versetzt um den Abstand zwischen ihnen; mit drei, drei Kopien.</p><p class="think">Stelle „Anzahl der Löcher" auf 2 oder 3 und sieh, wie das Bild zu überlappenden Geisterbildern wird.</p>',
+  coExp3Q: 'Bringe das Objekt doppelt so nah an das Loch. Was passiert mit dem Bild auf dem Schirm?',
+  coExp3Opt1: 'Es wird etwa doppelt so groß', coExp3Opt2: 'Es wird etwa doppelt so klein', coExp3Opt3: 'Es bleibt gleich groß',
+  coExp3Body: '<p><b>Etwa doppelt so groß.</b> Die Bildgröße ergibt sich aus ähnlichen Dreiecken: Bildgröße ÷ Objektgröße = Schirmabstand ÷ Objektabstand. Halbiere den Objektabstand bei gleichem Schirmabstand, und das Verhältnis — also das Bild — verdoppelt sich.</p><p class="think">Zieh den Objektabstand nach unten und beobachte, wie die Farbbänder auf dem Schirm höher werden.</p>',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  coIntro: 'Soba, stena in ena majhna luknja. Svetloba iz zunanjega sveta potuje v ravnih črtah skozi luknjo in na nasprotno steno nariše resnično, obrnjeno sliko — brez leče. To je najstarejša kamera, kar obstajajo. Povleci drsnike in poglej, zakaj deluje tako, kot deluje.',
+  coLegObj: 'predmet (zunaj, na dnevni svetlobi)', coLegImg: 'slika (na zaslonu, znotraj)',
+  coControlsH: 'Nastavitve', coLblHole: 'Velikost luknje', coLblObj: 'Razdalja predmeta', coLblScr: 'Razdalja zaslona (globina sobe)', coLblHoles: 'Število lukenj',
+  coH3Upside: 'Zakaj je slika obrnjena',
+  coPUpside: 'Svetloba zapušča vsako točko predmeta v vse smeri, a od vsake točke je le en žarek usmerjen natanko v luknjo. Žarek z <em>vrha</em> predmeta potuje navzdol skozi luknjo in pristane na <em>dnu</em> zaslona — in obratno. Vsaka točka gre skozi isto edino luknjo, zato se cela slika obrne.',
+  coH3Sharp: 'Ostro proti svetlo',
+  coPSharp: 'Majhna luknja spusti skozi le en ozek snop žarkov za vsako točko predmeta, zato vsaka točka na zaslonu ostane ozka pika — ostra, a temna. Povečaj luknjo, in skozi pride veliko prekrivajočih se snopov: slika postane svetlejša, a vsaka točka se razmaže v krog, kar zabriše celotno sliko. Če jo zmanjšaš preveč, pod nekaj desetink milimetra, uklon sliko spet zabriše.',
+  coH3Room: 'Ideja v velikosti sobe',
+  coPRoom: 'Pojav je okoli 5. stoletja pr. n. št. opisal Mozi na Kitajskem in kmalu zatem Aristotel, okoli leta 1000 n. št. ga je natančno preučil Ibn al-Haitham, pozneje pa so ga slikarji uporabljali kot dobesedno zatemnjeno sobo, da so prizor prerisali v pravilni perspektivi — <em>camera obscura</em> je latinsko natanko za to: "temna soba". Dodaj lečo, da sliko hkrati izostriš in osvetliš, in nekaj stoletij pozneje dobiš fotografski aparat — <em>camera</em> je ista beseda, le da ni več temna.',
+  coFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  coAriaScene: 'Stranski pogled na sobo z luknjico: predmet zunaj, luknja in projicirana slika na notranjem zaslonu',
+  coSharp1: 'ostra', coSharp2: 'malce mehka', coSharp3: 'zelo zabrisana',
+  coBright1: 'temna', coBright2: 'zmerno svetla', coBright3: 'svetla',
+  coHoleSingular: '{n} luknja', coHolePlural: '{n} lukenj', coOverlapNote: ' · kopije se prekrivajo',
+  coReadoutTemplate: '{holes} · slika je {sharp} in {bright}{overlap}.',
+  coPredictHeader: 'Napoved #{n}',
+  coExp1Q: 'Povečaj luknjico. Kaj se zgodi s sliko?',
+  coExp1Opt1: 'Svetlejša, a bolj zabrisana', coExp1Opt2: 'Temnejša, a ostrejša', coExp1Opt3: 'Nič se ne spremeni',
+  coExp1Body: '<p><b>Svetlejša, a bolj zabrisana.</b> Večja luknja spusti skozi širši snop žarkov iz vsake točke predmeta, zato do zaslona pride več svetlobe — a ti snopi se zdaj prekrivajo in vsako točko razmažejo v krog namesto v ostro piko.</p><p class="think">Poskusi: potisni drsnik za velikost luknjice skraj na desno in opazuj, kako slika izgublja robove, medtem ko jo odčitek označi kot svetlejšo.</p>',
+  coExp2Q: 'Dodaj drugo luknjico. Kaj se prikaže na zaslonu?',
+  coExp2Opt1: 'Dve prekrivajoči se obrnjeni sliki', coExp2Opt2: 'Slika se obrne pokonci', coExp2Opt3: 'Nič — druga luknja blokira prvo',
+  coExp2Body: '<p><b>Dve prekrivajoči se obrnjeni sliki.</b> Vsaka luknja deluje popolnoma neodvisno — je svoja majhna camera obscura, ki projicira svojo celotno obrnjeno sliko. Z dvema luknjama dobiš dve kopiji, zamaknjeni za razdaljo med njima; s tremi, tri kopije.</p><p class="think">Preklopi "Število lukenj" na 2 ali 3 in opazuj, kako slika postane prekrivajoči se duhovi.</p>',
+  coExp3Q: 'Premakni predmet dvakrat bliže luknji. Kaj se zgodi s sliko na zaslonu?',
+  coExp3Opt1: 'Postane približno dvakrat večja', coExp3Opt2: 'Postane približno dvakrat manjša', coExp3Opt3: 'Ostane enako velika',
+  coExp3Body: '<p><b>Približno dvakrat večja.</b> Velikost slike določajo podobni trikotniki: velikost slike ÷ velikost predmeta = razdalja zaslona ÷ razdalja predmeta. Razpolovi razdaljo predmeta ob nespremenjeni razdalji zaslona, in razmerje — torej slika — se podvoji.</p><p class="think">Povleci razdaljo predmeta navzdol in opazuj, kako se barvni pasovi na zaslonu raztegnejo više.</p>',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <header>
+    <h1>Camera <span>Obscura</span> Lab</h1>
+    <p data-i18n="coIntro">A room, a wall, and one small hole. Light from the world outside streams through the hole in straight lines and paints a real, upside-down image on the far wall — no lens required. This is the oldest camera there is. Drag the sliders and watch why it works the way it does.</p>
+  </header>
+
+  <div class="app">
+    <div class="stage">
+      <canvas id="scene" width="900" height="440" aria-label="Side view of a room with a pinhole: the object outside, the hole, and the projected image on the inner screen"></canvas>
+      <div class="legend">
+        <span><i></i><span data-i18n="coLegObj">object (outside, in daylight)</span></span>
+        <span><i style="background:var(--sense)"></i><span data-i18n="coLegImg">image (on the screen, inside)</span></span>
+      </div>
+    </div>
+
+    <aside>
+      <div class="box">
+        <h2 data-i18n="coControlsH">Controls</h2>
+        <div class="lbl"><span data-i18n="coLblHole">Pinhole size</span><output id="outHole">6 mm</output></div>
+        <input type="range" id="hole" min="2" max="40" value="6" step="1">
+        <div class="lbl"><span data-i18n="coLblObj">Object distance</span><output id="outObj">3.0 m</output></div>
+        <input type="range" id="objDist" min="150" max="900" value="300" step="10">
+        <div class="lbl"><span data-i18n="coLblScr">Screen distance (room depth)</span><output id="outScr">1.2 m</output></div>
+        <input type="range" id="scrDist" min="60" max="380" value="120" step="5">
+        <div class="lbl"><span data-i18n="coLblHoles">Number of holes</span></div>
+        <div class="seg" id="holeCountSeg">
+          <button class="pill-btn on" data-holes="1">1</button>
+          <button class="pill-btn" data-holes="2">2</button>
+          <button class="pill-btn" data-holes="3">3</button>
+        </div>
+        <p class="cap" id="readout"></p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="app" style="margin-top:18px; grid-template-columns: repeat(3, minmax(0,1fr));" id="exps"></div>
+
+  <div class="explain">
+    <div>
+      <h3 data-i18n="coH3Upside">Why it's upside down</h3>
+      <p data-i18n-html="coPUpside">Light leaves every point of the object in every direction, but only one ray from each point happens to be aimed exactly at the hole. A ray from the <em>top</em> of the object travels downward through the hole and lands on the <em>bottom</em> of the screen — and vice versa. Every point crosses through the same single hole, so the whole image flips.</p>
+    </div>
+    <div>
+      <h3 data-i18n="coH3Sharp">Sharp vs. bright</h3>
+      <p data-i18n="coPSharp">A tiny hole only lets through one narrow ray bundle per object point, so each point stays a tight point on the screen — sharp, but dim. Widen the hole and many overlapping ray bundles get through, so the image brightens but each point smears into a disc, blurring the whole picture. Shrink it too far, past a few tenths of a millimetre, and diffraction blurs it again anyway.</p>
+    </div>
+    <div>
+      <h3 data-i18n="coH3Room">A room-sized idea</h3>
+      <p data-i18n-html="coPRoom">The effect was described by Mozi in China around the 5th century BCE and by Aristotle not long after, studied rigorously by Ibn al-Haytham around 1000 CE, and later used by painters as a literal darkened room to trace a scene in correct perspective — <em>camera obscura</em> is Latin for exactly that: "dark room." Add a lens to sharpen and brighten the image at the same time, and a few centuries later you get a photographic camera — <em>camera</em> is the same word, just not dark anymore.</p>
+    </div>
+  </div>
+
+  <footer class="site-foot">
+    <span data-i18n="coFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  function t(key, vars) {
+    var lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+    var dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+    var fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+    var s = dict[key] != null ? dict[key] : fallback[key] || '';
+    if (vars) for (var k in vars) s = s.split('{' + k + '}').join(vars[k]);
+    return s;
+  }
+  function applyAria() {
+    var scene = document.getElementById('scene');
+    if (scene) scene.setAttribute('aria-label', t('coAriaScene'));
+  }
+  document.addEventListener('presker-lang-change', function () { applyAria(); draw(); renderExps(); });
+  var cv = document.getElementById('scene');
+  var ctx = cv.getContext('2d');
+  var W = 900, H = 440;
+  var midY = H * 0.5;
+  var wallX = W * 0.40;
+  var objHalf = 95; // half-height of the object, px, in scene space
+  var css = function (name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); };
+
+  var hole = document.getElementById('hole');
+  var objDist = document.getElementById('objDist');
+  var scrDist = document.getElementById('scrDist');
+  var outHole = document.getElementById('outHole');
+  var outObj = document.getElementById('outObj');
+  var outScr = document.getElementById('outScr');
+  var readout = document.getElementById('readout');
+  var holeCount = 1;
+
+  document.querySelectorAll('#holeCountSeg [data-holes]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      holeCount = +b.getAttribute('data-holes');
+      document.querySelectorAll('#holeCountSeg [data-holes]').forEach(function (x) { x.classList.toggle('on', x === b); });
+      draw();
+    });
+  });
+
+  function lerpColor(c1, c2, t) {
+    function hex(c) { c = c.replace('#', ''); return [parseInt(c.slice(0,2),16), parseInt(c.slice(2,4),16), parseInt(c.slice(4,6),16)]; }
+    function toHexColor(a) { return [0,0,0].map(function(_,i){ return Math.round(a[i]); }); }
+    var a = hex(c1), b = hex(c2);
+    var r = a.map(function (v, i) { return v + (b[i] - v) * t; });
+    return 'rgb(' + r.map(Math.round).join(',') + ')';
+  }
+
+  // sampled strips along the object's height, top (t=0) to bottom (t=1)
+  var N = 48;
+  function objColor(t) {
+    // warm (top) to cool (bottom) gradient, with a bright accent band near the very top so the flip is obvious
+    if (t < 0.12) return css('--sun') || '#e8b23f';
+    return lerpColor((css('--accent') || '#b5532a'), (css('--sense') || '#2a5fb0'), (t - 0.12) / 0.88);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    var objPx = +objDist.value;      // px distance outside -> wall
+    var scrPx = +scrDist.value;      // px distance wall -> screen
+    var holePx = +hole.value * 0.6;  // px half-visual-size per mm, just for drawing + blur scale
+    var mmToM = function (mm) { return (mm / 1000).toFixed(1); };
+    outHole.textContent = hole.value + ' mm';
+    outObj.textContent = (objPx / 100).toFixed(1) + ' m';
+    outScr.textContent = (scrPx / 100).toFixed(1) + ' m';
+
+    var objX = wallX - objPx;
+    var scrX = Math.min(wallX + scrPx, W - 14);
+
+    // outside (daylight) vs inside (dark room)
+    var g = ctx.createLinearGradient(0, 0, wallX, 0);
+    g.addColorStop(0, css('--sky') || '#cfe3f2');
+    g.addColorStop(1, css('--sky') || '#cfe3f2');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, wallX, H);
+    ctx.fillStyle = css('--paper') || '#0a0a0a';
+    ctx.fillRect(wallX, 0, W - wallX, H);
+
+    // sun
+    ctx.beginPath(); ctx.fillStyle = css('--sun') || '#e8b23f';
+    ctx.arc(46, 46, 16, 0, Math.PI * 2); ctx.fill();
+
+    // ground line outside
+    ctx.strokeStyle = 'rgba(128,128,128,.25)';
+    ctx.beginPath(); ctx.moveTo(0, midY + objHalf + 18); ctx.lineTo(wallX, midY + objHalf + 18); ctx.stroke();
+
+    // holes: vertical positions
+    var holeYs = [];
+    if (holeCount === 1) holeYs = [midY];
+    else if (holeCount === 2) holeYs = [midY - 46, midY + 46];
+    else holeYs = [midY - 70, midY, midY + 70];
+
+    // wall with gaps at the holes
+    ctx.fillStyle = css('--line') || '#e4e0d4';
+    ctx.fillRect(wallX - 4, 0, 8, H);
+    ctx.fillStyle = (document.documentElement.getAttribute('data-theme') === 'dark') ? '#000' : '#fff';
+    // punch the holes (draw small gaps)
+    holeYs.forEach(function (hy) {
+      ctx.clearRect(wallX - 5, hy - holePx, 10, holePx * 2);
+    });
+
+    // object: vertical gradient bar with a flag so "up" is obvious, drawn as N thin strips
+    var strips = [];
+    for (var i = 0; i < N; i++) {
+      var t = i / (N - 1);
+      var y = midY - objHalf + t * (objHalf * 2);
+      strips.push({ t: t, y: y, color: objColor(t) });
+    }
+    var objW = 14;
+    strips.forEach(function (s, i) {
+      var y0 = s.y, y1 = (i + 1 < N) ? strips[i + 1].y : s.y + 2;
+      ctx.fillStyle = s.color;
+      ctx.fillRect(objX - objW / 2, y0, objW, Math.max(2, y1 - y0 + 1));
+    });
+    // little flag / pole feel: a thin pole plus the bar already reads as an object; add a base dot
+    ctx.fillStyle = css('--ink') || '#1c1b18';
+    ctx.beginPath(); ctx.arc(objX, midY + objHalf + 6, 3, 0, Math.PI * 2); ctx.fill();
+
+    // screen plane marker (drawn first so the projected image paints on top of it)
+    ctx.fillStyle = css('--muted') || '#6b6a63';
+    ctx.fillRect(scrX - 1, 10, 2, H - 20);
+
+    // rays + projected image on the screen
+    ctx.save();
+    ctx.globalCompositeOperation = (document.documentElement.getAttribute('data-theme') === 'dark') ? 'lighter' : 'source-over';
+    strips.forEach(function (s) {
+      holeYs.forEach(function (hy) {
+        // project through the top and bottom edge of this hole to get the blur band on the screen
+        var mag = (scrX - wallX) / (wallX - objX);
+        var imgCenter = hy + (hy - s.y) * mag;
+        // blur-circle diameter grows with hole size and with how far the screen sits past the hole
+        var band = Math.max(1.6, holePx * (0.5 + mag));
+        ctx.fillStyle = s.color;
+        ctx.globalAlpha = 0.5;
+        ctx.fillRect(scrX - 2, imgCenter - band / 2, 5, Math.max(1.6, band));
+
+        // faint rays from object edges through hole edges (only draw for a few strips to avoid clutter)
+        if (s.t === 0 || s.t === 1 || Math.abs(s.t - 0.5) < 0.02) {
+          ctx.globalAlpha = 0.10;
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = 1;
+          [hy - holePx, hy + holePx].forEach(function (hEdge) {
+            ctx.beginPath();
+            ctx.moveTo(objX, s.y);
+            ctx.lineTo(wallX, hEdge);
+            var imgEdge = hEdge + (hEdge - s.y) * ((scrX - wallX) / (wallX - objX));
+            ctx.lineTo(scrX, imgEdge);
+            ctx.stroke();
+          });
+        }
+      });
+    });
+    ctx.restore();
+    ctx.globalAlpha = 1;
+
+    var sharp = holePx < 5 ? t('coSharp1') : (holePx < 14 ? t('coSharp2') : t('coSharp3'));
+    var bright = holePx < 5 ? t('coBright1') : (holePx < 14 ? t('coBright2') : t('coBright3'));
+    var holes = t(holeCount > 1 ? 'coHolePlural' : 'coHoleSingular', { n: holeCount });
+    var overlap = holeCount > 1 ? t('coOverlapNote') : '';
+    readout.textContent = t('coReadoutTemplate', { holes: holes, sharp: sharp, bright: bright, overlap: overlap });
+  }
+
+  [hole, objDist, scrDist].forEach(function (el) { el.addEventListener('input', draw); });
+  document.addEventListener('presker-theme-change', draw);
+  if (window.PreskerTheme) window.PreskerTheme.mountToggle();
+  if (window.PreskerI18n) window.PreskerI18n.mountToggle();
+  draw();
+
+  // ---------- predict / observe / explain ----------
+  function EXPS() {
+    return [
+      { q: t('coExp1Q'), opts: [t('coExp1Opt1'), t('coExp1Opt2'), t('coExp1Opt3')], right: 0, body: t('coExp1Body') },
+      { q: t('coExp2Q'), opts: [t('coExp2Opt1'), t('coExp2Opt2'), t('coExp2Opt3')], right: 0, body: t('coExp2Body') },
+      { q: t('coExp3Q'), opts: [t('coExp3Opt1'), t('coExp3Opt2'), t('coExp3Opt3')], right: 0, body: t('coExp3Body') },
+    ];
+  }
+
+  var host = document.getElementById('exps');
+  function renderExps() {
+    host.innerHTML = '';
+    EXPS().forEach(function (ex, idx) {
+      var div = document.createElement('div');
+      div.className = 'box exp';
+      var optsHtml = ex.opts.map(function (o, i) { return '<button data-i="' + i + '">' + o + '</button>'; }).join('');
+      div.innerHTML = '<h2>' + t('coPredictHeader', { n: idx + 1 }) + '</h2><p class="q">' + ex.q + '</p><div class="opts">' + optsHtml + '</div><div class="result" hidden></div>';
+      host.appendChild(div);
+      var buttons = div.querySelectorAll('.opts button');
+      var result = div.querySelector('.result');
+      buttons.forEach(function (b) {
+        b.addEventListener('click', function () {
+          if (div.dataset.answered) return;
+          div.dataset.answered = '1';
+          var i = +b.getAttribute('data-i');
+          buttons.forEach(function (x, xi) {
+            x.classList.add('picked');
+            if (xi === ex.right) x.classList.add('right');
+            else if (xi === i) x.classList.add('wrong');
+          });
+          result.hidden = false;
+          result.innerHTML = ex.body;
+        });
+      });
+    });
+  }
+  renderExps();
+  applyAria();
+})();
+</script>
+</body>
+</html>

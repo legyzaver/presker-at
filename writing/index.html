@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Writing — PRESKER.AT</title>
+  <meta name="description" content="Longer pieces: a scorecard on the AI predictions of 2015, and the design notes behind the teaching games — why they are built the way they are.">
+  <link rel="canonical" href="https://www.presker.at/writing/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.presker.at/writing/">
+  <meta property="og:title" content="Writing — PRESKER.AT">
+  <meta property="og:description" content="A scorecard on the AI predictions of 2015, plus the design notes behind the teaching games.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      wrEyebrow: 'Longer pieces',
+      wrSub: 'Not many, and not often. These are the ones where a project needed more explaining than a page of its own could hold.',
+      wrH2Essays: 'Essays',
+      wrH2Notes: 'Design notes',
+      wrH2NotesSub: 'Each one sits beside a game in the lab, and says why it works the way it does.',
+      wrLearnCta: 'All teaching projects →',
+      aiPredDesc: 'A plain-language check of the 2015 Wait But Why AI articles against what actually happened by 2026, with a scorecard, charts and linked sources.',
+      abcNotesWrDesc: 'The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, and mistakes that cost nothing.',
+      wcNotesWrDesc: 'Why installation art is taught by standing inside it, not by naming it first — experience before vocabulary.',
+      orbitNotesWrDesc: 'Predict-observe-explain, and why a wrong guess you made yourself sticks better than a correct one you were told.',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      wrEyebrow: 'Längere Texte',
+      wrSub: 'Nicht viele, und nicht oft. Es sind die Fälle, in denen ein Projekt mehr Erklärung brauchte, als auf seine eigene Seite passte.',
+      wrH2Essays: 'Essays',
+      wrH2Notes: 'Entwurfsnotizen',
+      wrH2NotesSub: 'Jede gehört zu einem Spiel im Lab und erklärt, warum es so funktioniert, wie es funktioniert.',
+      wrLearnCta: 'Alle Lernprojekte →',
+      aiPredDesc: 'Eine allgemein verständliche Überprüfung der KI-Artikel von Wait But Why aus 2015 anhand dessen, was bis 2026 tatsächlich passiert ist — mit Bewertung, Diagrammen und verlinkten Quellen.',
+      abcNotesWrDesc: 'Die didaktischen Notizen hinter dem Alphabetspiel: eine wiederholte Schleife, neu gemischte Antworten und Fehler, die nichts kosten.',
+      wcNotesWrDesc: 'Warum man Installationskunst lernt, indem man darin steht, und nicht, indem man sie zuerst benennt — Erfahrung vor Vokabular.',
+      orbitNotesWrDesc: 'Vorhersagen, beobachten, erklären — und warum eine selbst gemachte falsche Vermutung besser hängen bleibt als eine richtige, die man gesagt bekommt.',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      wrEyebrow: 'Daljši zapisi',
+      wrSub: 'Ni jih veliko in ne nastajajo pogosto. To so primeri, kjer je projekt potreboval več razlage, kot je je šlo na njegovo lastno stran.',
+      wrH2Essays: 'Eseji',
+      wrH2Notes: 'Zapiski o zasnovi',
+      wrH2NotesSub: 'Vsak sodi k eni igri v labu in pove, zakaj deluje tako, kot deluje.',
+      wrLearnCta: 'Vsi učni projekti →',
+      aiPredDesc: 'Poljuden pregled člankov o umetni inteligenci z Wait But Why iz leta 2015 glede na to, kaj se je do leta 2026 zares zgodilo — z oceno, grafi in povezanimi viri.',
+      abcNotesWrDesc: 'Učni zapiski za abecedno igro: ena ponovljena zanka, premešani odgovori in napake, ki nič ne stanejo.',
+      wcNotesWrDesc: 'Zakaj se instalacijske umetnosti učiš tako, da stojiš v njej, in ne tako, da jo najprej poimenuješ — izkušnja pred besediščem.',
+      orbitNotesWrDesc: 'Napovej-opazuj-razloži in zakaj se napačna domneva, ki si jo naredil sam, prime bolje kot pravilna, ki ti jo nekdo pove.',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+  <style>
+    .nav-buttons { position: fixed; top: 2px; left: 1.5rem; display: flex; gap: 12px; z-index: 1000; font-family: var(--mono); font-size: 13px; }
+    .nav-toggles { position: fixed; top: 10px; right: 1.5rem; z-index: 1000; }
+    .nav-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .nav-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .lab-card-date { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+    .sec-sub { color: var(--muted); font-size: 0.95rem; margin: -0.4rem 0 1rem; }
+    .more-link { display: inline-block; margin-top: 0.4rem; font-family: var(--mono); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="nav-buttons">
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow" data-i18n="wrEyebrow">Longer pieces</p>
+    <h1>Writing</h1>
+    <p class="lab-sub" data-i18n="wrSub">Not many, and not often. These are the ones where a project needed more explaining than a page of its own could hold.</p>
+
+    <h2 data-i18n="wrH2Essays">Essays</h2>
+    <div class="lab-grid">
+      <a href="/writing/ai-predictions-2015/" class="lab-card">
+        <div class="lab-card-title">What happened to the AI predictions of 2015?</div>
+        <div class="lab-card-date">2015 → 2026</div>
+        <div class="lab-card-desc" data-i18n="aiPredDesc">A plain-language check of the 2015 Wait But Why AI articles against what actually happened by 2026, with a scorecard, charts and linked sources.</div>
+      </a>
+    </div>
+
+    <h2 data-i18n="wrH2Notes">Design notes</h2>
+    <p class="sec-sub" data-i18n="wrH2NotesSub">Each one sits beside a game in the lab, and says why it works the way it does.</p>
+    <div class="lab-grid">
+      <a href="/lab/abc-quest-notes.html" class="lab-card">
+        <div class="lab-card-title">ABC Quest, the pedagogy</div>
+        <div class="lab-card-desc" data-i18n="abcNotesWrDesc">The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, and mistakes that cost nothing.</div>
+      </a>
+      <a href="/lab/white-cube-notes.html" class="lab-card">
+        <div class="lab-card-title">Standing inside the work</div>
+        <div class="lab-card-desc" data-i18n="wcNotesWrDesc">Why installation art is taught by standing inside it, not by naming it first — experience before vocabulary.</div>
+      </a>
+      <a href="/lab/orbit-school-notes.html" class="lab-card">
+        <div class="lab-card-title">Orbit School, the method</div>
+        <div class="lab-card-desc" data-i18n="orbitNotesWrDesc">Predict-observe-explain, and why a wrong guess you made yourself sticks better than a correct one you were told.</div>
+      </a>
+    </div>
+    <a class="more-link" href="/learning/" data-i18n="wrLearnCta">All teaching projects →</a>
+
+  </main>
+</body>
+</html>

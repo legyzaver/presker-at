@@ -1,0 +1,1194 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Orbit School — learn orbital mechanics by flying</title>
+<meta name="description" content="A 3D spaceflight game that teaches orbital mechanics. Predict what a rocket burn will do, fly it, then find out why: raise an orbit, circularise it, catch a space station by slowing down, and break free.">
+<link rel="canonical" href="https://www.presker.at/lab/orbit-school/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/orbit-school/">
+<meta property="og:title" content="Orbit School">
+<meta property="og:description" content="A 3D spaceflight game that teaches orbital mechanics: predict, fly, explain.">
+<meta name="twitter:card" content="summary">
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  osCollapseAria: 'Collapse mission panel', osHowTeaches: 'How this game teaches →', osControls: 'Controls',
+  osSpeed: 'Speed', osAltitude: 'Altitude', osHighestAp: 'Highest · AP', osLowestPe: 'Lowest · PE',
+  osGapStation: 'Gap to station', osFuelDv: 'Fuel (Δv)',
+  osLegendOrbit: 'your orbit if you stop firing', osLegendDirection: 'direction of travel · target', osLegendTrail: 'where you have been',
+  osTime: 'time', osFine: 'fine', osFineTitle: 'Gentler engine for small corrections (Shift)', osRetry: '↺ retry',
+  osBackward: '◀ Backward', osToward: '↓ Toward planet', osAway: '↑ Away', osForward: 'Forward ▶',
+  osM0Title: 'Reach higher',
+  osM0Goal: 'Stretch your orbit until its highest point touches the dashed green ring.',
+  osM0PredQ: 'You are circling the planet. You want to reach the dashed ring higher up. Which way should you fire your engine?',
+  osM0PredOpt1: 'Away from the planet, straight up', osM0PredOpt2: 'Forward, in the direction I am flying', osM0PredOpt3: 'Backward, against my motion',
+  osM0Note1: 'Pushing up or down mostly tilts the orbit sideways. Watch the AP number: it hardly moves.',
+  osM0Note2: 'Your orbit is shrinking. Going backward lowers the far side.',
+  osM0Hint: 'Hold Forward and watch the far side of the orange line, not your ship. That is where the height appears.',
+  osM0DebriefText: 'Firing forward makes you faster, and a faster ship swings out further before gravity pulls it back. But the extra height appears on the opposite side of the planet, half an orbit later, not where you fired. Pushing straight up spends fuel mostly on bending the orbit, not stretching it.',
+  osM0Takeaway: 'In orbit, height comes from speed.',
+  osM0Q: 'On your new stretched orbit, where are you fastest: at the high point or the low point?',
+  osM0A: 'At the low point (PE). Falling inward trades height for speed, like a skateboarder in a half-pipe. Use time warp and watch the speed readout to check.',
+  osM1Title: 'Round it out',
+  osM1Goal: 'Your orbit reaches the ring at its top but dips back down. Make it a circle at the ring height.',
+  osM1PredQ: 'To turn this oval into a circle at the ring, you will fire forward. Where on the orbit should you do it?',
+  osM1PredOpt1: 'Right now, at the lowest point', osM1PredOpt2: 'At the highest point, when I reach the ring', osM1PredOpt3: 'It does not matter where',
+  osM1Note: 'Your high point went above the ring. A burn changes the opposite side of the orbit, so this one was in the wrong place.',
+  osM1Hint: 'Switch to 4× to coast up to the AP marker, go back to 1×, and fire forward there.',
+  osM1DebriefText: 'A burn changes the height of the opposite side of your orbit. Fire at the high point and you lift the low point up to meet it. Two burns like this, one low and one high, make a Hohmann transfer. It is the standard, fuel-cheapest way to climb from one circular orbit to another, and how satellites reach geostationary orbit.',
+  osM1Takeaway: 'Burn at one end of the orbit to move the other end.',
+  osM1Q: 'Your new circular orbit is slower than the one you started on, although you only ever fired forward. How?',
+  osM1A: 'Each burn added speed, but climbing away from the planet cost more speed than you added. Higher circular orbits are slower: v = √(GM/r).',
+  osM2Title: 'Catch the station',
+  osM2Goal: 'The space station is ahead of you on the same orbit. Get within 640 km of it.',
+  osM2PredQ: 'The station is ahead of you on exactly the same orbit. How do you catch up with it?',
+  osM2PredOpt1: 'Fire forward, to speed up', osM2PredOpt2: 'Fire backward, to slow down', osM2PredOpt3: 'Fire toward the planet',
+  osM2Note: 'You are on a bigger orbit than the station now. Bigger orbits take longer, so you are falling behind.',
+  osM2Hint: 'Tap Backward briefly (about 0.2 km/s of fuel), then switch to 4× and watch one full lap. You will pass under the station.',
+  osM2DebriefText: 'Speeding up raises your orbit, and a bigger orbit takes longer to go round, so you fall further behind. Slowing down drops you into a smaller, quicker orbit and you overtake the station from below. Real spacecraft plan dockings exactly like this.',
+  osM2Takeaway: 'To catch up in orbit, slow down.',
+  osM2Q: 'Now that you are next to the station, how would you stay next to it instead of drifting past?',
+  osM2A: "Fire forward by about the same amount you slowed down, at the moment you meet. That lifts you back onto the station's orbit.",
+  osM3Title: 'Break free',
+  osM3Goal: 'Go fast enough to leave the planet for good. Your orbit line opens up when you do.',
+  osM3PredQ: 'You orbit at about 7.1 km/s. How fast must you go to escape the planet for good?',
+  osM3PredOpt1: 'About twice as fast, 14 km/s', osM3PredOpt2: 'About 1.4 times as fast, 10 km/s', osM3PredOpt3: 'Any speed works if I point straight up',
+  osM3Note: 'Pushing sideways adds less speed than pushing forward. Escape is all about speed.',
+  osM3Hint: 'Hold Forward until the orange line stops closing into a loop.',
+  osM3DebriefText: "Escape speed is exactly √2 ≈ 1.41 times the circular orbit speed at the same height. Kinetic energy grows with the square of speed, so 41% more speed doubles your kinetic energy, and that is precisely enough to climb all the way out of the planet's gravity well.",
+  osM3Takeaway: 'Escape speed = √2 × orbit speed.',
+  osM3Q: 'Does it matter which direction you point when you escape?',
+  osM3A: 'For the energy, no: escape depends only on your speed and height. In practice you fire forward because then all of the thrust becomes extra speed, and you will not accidentally aim at the planet.',
+  osM4Title: 'Free flight',
+  osM4Goal: 'Unlimited fuel. Try an orbit that skims the surface, a figure that loops the station, or escape backwards.',
+  osProgressGap: 'gap',
+  osMissionPrefix: 'Mission {n} · ', osYourPrediction: 'Your prediction: {opt}', osHintPrefix: 'Hint: {hint}', osFree: 'free',
+  osIntroH2: 'Learn to fly in orbit',
+  osIntroP1: 'Four short missions and a free-flight mode. Before each mission you make a prediction. Then you fly it and find out.',
+  osIntroP2: "Most people's first guesses about orbits are wrong. That's on purpose: those surprises are where orbital mechanics gets interesting.",
+  osIntroP3: "The orange line always shows where you'd go if you stopped firing. Watch it change while you hold a button.",
+  osIntroKeys: '<kbd>W</kbd>/<kbd>↑</kbd> forward · <kbd>S</kbd>/<kbd>↓</kbd> backward · <kbd>A</kbd> <kbd>D</kbd> toward / away from planet<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> time warp · <kbd>Space</kbd> pause · <kbd>Shift</kbd> fine control · drag to look around',
+  osTeacherNotes: 'Teacher notes', osStartMission1: 'Start mission 1', osFooter: '© 2026 Presker.at · runs in your browser',
+  osHelpH2: 'How to fly',
+  osHelpP1: "Your engine can push four ways: <b>forward</b> (the way you're moving), <b>backward</b>, <b>toward the planet</b> and <b>away</b> from it. Hold a button to burn; the fuel bar shows how much speed change (Δv) you have left.",
+  osHelpP2: '<b>AP</b> marks the highest point of your orbit and <b>PE</b> the lowest. If the orange line turns red, your orbit hits the planet.',
+  osHelpKeys: '<kbd>W</kbd>/<kbd>↑</kbd> forward · <kbd>S</kbd>/<kbd>↓</kbd> backward · <kbd>A</kbd>/<kbd>←</kbd> toward planet · <kbd>D</kbd>/<kbd>→</kbd> away<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> time 1× 4× 16× · <kbd>Space</kbd> pause · <kbd>Shift</kbd> fine · <kbd>R</kbd> retry<br>drag to look around · wheel or pinch to zoom',
+  osBackToFlying: 'Back to flying',
+  osPredictEyebrow: 'Mission {n} · predict first', osPredictSmall: "Just guess. You won't lose anything if you're wrong.",
+  osVerdictYes: 'You predicted "{opt}", and it held up.',
+  osVerdictNo: 'You predicted "{opt}". The answer was "{correct}". That surprise is the lesson, so here\'s why.',
+  osEffUsed: 'You used {used} km/s of Δv. An efficient flight uses about {ideal} km/s.{nicely}', osNicelyDone: ' Nicely done.',
+  osMissionComplete: 'Mission {n} complete', osThinkAbout: 'Think about it: {q}', osShowAnswer: 'Show answer',
+  osFlyAgain: 'Fly it again', osMissionN: 'Mission {n}', osWrapUp: 'Wrap up',
+  osCrashH2: 'You hit the planet',
+  osCrashP: 'Your lowest point dropped below the surface. When that is about to happen, the orange line turns red. Slowing down lowers the far side of your orbit, so a long backward burn makes it dip into the ground half an orbit later.',
+  osTryAgain: 'Try again',
+  osSummaryH2: 'What you found out', osPredictedMark: '✓ predicted', osSurprisedMark: '✗ surprised',
+  osSummarySurprised: "{n} of your predictions were wrong. That's normal: orbital intuition is backwards from everyday intuition, and getting surprised is what makes it stick.",
+  osSummaryAllCorrect: 'You predicted everything correctly. Did you already know orbital mechanics, or did you reason it out?',
+  osTryFreeFlight: 'Try free flight next: unlimited fuel, a second station, and no goals.', osFreeFlightBtn: 'Free flight',
+  osEscaping: 'escaping', osBelowSurface: 'below surface', osUnlimited: 'unlimited',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  osCollapseAria: 'Missionspanel einklappen', osHowTeaches: 'Wie dieses Spiel unterrichtet →', osControls: 'Steuerung',
+  osSpeed: 'Geschwindigkeit', osAltitude: 'Höhe', osHighestAp: 'Höchster Punkt · AP', osLowestPe: 'Niedrigster Punkt · PE',
+  osGapStation: 'Abstand zur Station', osFuelDv: 'Treibstoff (Δv)',
+  osLegendOrbit: 'deine Umlaufbahn, wenn du aufhörst zu zünden', osLegendDirection: 'Flugrichtung · Ziel', osLegendTrail: 'wo du schon warst',
+  osTime: 'Zeit', osFine: 'fein', osFineTitle: 'Sanfteres Triebwerk für kleine Korrekturen (Shift)', osRetry: '↺ neu versuchen',
+  osBackward: '◀ Rückwärts', osToward: '↓ Zum Planeten', osAway: '↑ Weg davon', osForward: 'Vorwärts ▶',
+  osM0Title: 'Höher kommen',
+  osM0Goal: 'Strecke deine Umlaufbahn, bis ihr höchster Punkt den gestrichelten grünen Ring berührt.',
+  osM0PredQ: 'Du umkreist den Planeten. Du willst den gestrichelten Ring weiter oben erreichen. In welche Richtung solltest du dein Triebwerk zünden?',
+  osM0PredOpt1: 'Weg vom Planeten, direkt nach oben', osM0PredOpt2: 'Vorwärts, in Flugrichtung', osM0PredOpt3: 'Rückwärts, gegen meine Bewegung',
+  osM0Note1: 'Nach oben oder unten drücken verkippt die Bahn vor allem seitlich. Beobachte die AP-Zahl: Sie bewegt sich kaum.',
+  osM0Note2: 'Deine Bahn schrumpft. Rückwärts fliegen senkt die ferne Seite.',
+  osM0Hint: 'Halte Vorwärts und beobachte die ferne Seite der orangen Linie, nicht dein Schiff. Dort erscheint die Höhe.',
+  osM0DebriefText: 'Vorwärts zünden macht dich schneller, und ein schnelleres Schiff schwingt weiter hinaus, bevor die Schwerkraft es zurückzieht. Aber die zusätzliche Höhe erscheint auf der gegenüberliegenden Seite des Planeten, eine halbe Umlaufbahn später, nicht dort, wo du gezündet hast. Gerade nach oben drücken verbraucht den Treibstoff vor allem für das Verbiegen der Bahn, nicht für ihre Streckung.',
+  osM0Takeaway: 'Im Orbit kommt Höhe aus Geschwindigkeit.',
+  osM0Q: 'Auf deiner neuen, gestreckten Umlaufbahn: Wo bist du am schnellsten — am höchsten oder am niedrigsten Punkt?',
+  osM0A: 'Am niedrigsten Punkt (PE). Nach innen zu fallen tauscht Höhe gegen Geschwindigkeit, wie ein Skater in einer Halfpipe. Nutze den Zeitraffer und beobachte die Geschwindigkeitsanzeige zur Kontrolle.',
+  osM1Title: 'Rund machen',
+  osM1Goal: 'Deine Bahn erreicht den Ring an ihrem höchsten Punkt, sinkt aber wieder ab. Mach sie zu einem Kreis in Ringhöhe.',
+  osM1PredQ: 'Um dieses Oval am Ring zu einem Kreis zu machen, zündest du vorwärts. Wo auf der Bahn solltest du das tun?',
+  osM1PredOpt1: 'Genau jetzt, am niedrigsten Punkt', osM1PredOpt2: 'Am höchsten Punkt, wenn ich den Ring erreiche', osM1PredOpt3: 'Es ist egal, wo',
+  osM1Note: 'Dein höchster Punkt ging über den Ring hinaus. Eine Zündung ändert die gegenüberliegende Seite der Bahn, also war diese am falschen Ort.',
+  osM1Hint: 'Wechsle auf 4×, um zur AP-Markierung zu gleiten, geh zurück auf 1× und zünde dort vorwärts.',
+  osM1DebriefText: 'Eine Zündung ändert die Höhe der gegenüberliegenden Seite deiner Bahn. Zünde am höchsten Punkt, und du hebst den niedrigsten Punkt an, bis er ihn erreicht. Zwei solche Zündungen, eine tief und eine hoch, ergeben einen Hohmann-Transfer — der übliche, treibstoffsparendste Weg, von einer Kreisbahn zur nächsten zu klettern, und wie Satelliten den geostationären Orbit erreichen.',
+  osM1Takeaway: 'Zünde an einem Ende der Bahn, um das andere Ende zu bewegen.',
+  osM1Q: 'Deine neue Kreisbahn ist langsamer als die, auf der du gestartet bist, obwohl du nur vorwärts gezündet hast. Wie kann das sein?',
+  osM1A: 'Jede Zündung hat Geschwindigkeit hinzugefügt, aber das Klettern vom Planeten weg hat mehr Geschwindigkeit gekostet, als du hinzugefügt hast. Höhere Kreisbahnen sind langsamer: v = √(GM/r).',
+  osM2Title: 'Die Station einholen',
+  osM2Goal: 'Die Raumstation ist vor dir auf derselben Bahn. Komm ihr bis auf 640 km nahe.',
+  osM2PredQ: 'Die Station ist genau auf derselben Bahn vor dir. Wie holst du sie ein?',
+  osM2PredOpt1: 'Vorwärts zünden, um schneller zu werden', osM2PredOpt2: 'Rückwärts zünden, um langsamer zu werden', osM2PredOpt3: 'Zum Planeten hin zünden',
+  osM2Note: 'Du bist jetzt auf einer größeren Bahn als die Station. Größere Bahnen brauchen länger, also fällst du zurück.',
+  osM2Hint: 'Tippe kurz Rückwärts (etwa 0,2 km/s Treibstoff), wechsle dann auf 4× und beobachte eine volle Runde. Du ziehst unter der Station vorbei.',
+  osM2DebriefText: 'Schneller werden hebt deine Bahn an, und eine größere Bahn braucht länger für eine Runde, also fällst du weiter zurück. Langsamer werden lässt dich in eine kleinere, schnellere Bahn fallen, und du überholst die Station von unten. Echte Raumfahrzeuge planen Kopplungen genau so.',
+  osM2Takeaway: 'Um im Orbit einzuholen, wirst du langsamer.',
+  osM2Q: 'Jetzt, wo du neben der Station bist: Wie würdest du dort bleiben, statt vorbeizuziehen?',
+  osM2A: 'Zünde vorwärts um etwa so viel, wie du zuvor gebremst hast, genau im Moment des Treffens. Das hebt dich zurück auf die Bahn der Station.',
+  osM3Title: 'Ausbrechen',
+  osM3Goal: 'Werde schnell genug, um den Planeten endgültig zu verlassen. Deine Bahnlinie öffnet sich dabei.',
+  osM3PredQ: 'Du umkreist mit etwa 7,1 km/s. Wie schnell musst du werden, um dem Planeten endgültig zu entkommen?',
+  osM3PredOpt1: 'Etwa doppelt so schnell, 14 km/s', osM3PredOpt2: 'Etwa 1,4-mal so schnell, 10 km/s', osM3PredOpt3: 'Jede Geschwindigkeit reicht, wenn ich direkt nach oben ziele',
+  osM3Note: 'Seitlich drücken fügt weniger Geschwindigkeit hinzu als vorwärts drücken. Beim Entkommen geht es nur um Geschwindigkeit.',
+  osM3Hint: 'Halte Vorwärts, bis die orange Linie sich nicht mehr zu einer Schlaufe schließt.',
+  osM3DebriefText: 'Die Fluchtgeschwindigkeit ist genau √2 ≈ das 1,41-Fache der Kreisbahngeschwindigkeit auf derselben Höhe. Kinetische Energie wächst mit dem Quadrat der Geschwindigkeit, also verdoppelt 41 % mehr Geschwindigkeit deine kinetische Energie — und das reicht genau, um ganz aus dem Gravitationstopf des Planeten herauszuklettern.',
+  osM3Takeaway: 'Fluchtgeschwindigkeit = √2 × Bahngeschwindigkeit.',
+  osM3Q: 'Spielt es eine Rolle, in welche Richtung du zielst, wenn du entkommst?',
+  osM3A: 'Für die Energie nicht: Das Entkommen hängt nur von deiner Geschwindigkeit und Höhe ab. In der Praxis zündest du vorwärts, weil dann der ganze Schub zu zusätzlicher Geschwindigkeit wird und du nicht versehentlich auf den Planeten zielst.',
+  osM4Title: 'Freier Flug',
+  osM4Goal: 'Unbegrenzter Treibstoff. Probiere eine Bahn, die die Oberfläche streift, eine Figur, die die Station umschlingt, oder entkomme rückwärts.',
+  osProgressGap: 'Abstand',
+  osMissionPrefix: 'Mission {n} · ', osYourPrediction: 'Deine Vorhersage: {opt}', osHintPrefix: 'Hinweis: {hint}', osFree: 'frei',
+  osIntroH2: 'Lerne, im Orbit zu fliegen',
+  osIntroP1: 'Vier kurze Missionen und ein Freiflug-Modus. Vor jeder Mission machst du eine Vorhersage. Dann fliegst du sie und findest es heraus.',
+  osIntroP2: 'Die ersten Vermutungen der meisten Leute über Umlaufbahnen sind falsch. Das ist Absicht: Genau diese Überraschungen machen die Orbitalmechanik interessant.',
+  osIntroP3: 'Die orange Linie zeigt immer, wohin du fliegen würdest, wenn du aufhörst zu zünden. Beobachte, wie sie sich ändert, während du einen Knopf hältst.',
+  osIntroKeys: '<kbd>W</kbd>/<kbd>↑</kbd> vorwärts · <kbd>S</kbd>/<kbd>↓</kbd> rückwärts · <kbd>A</kbd> <kbd>D</kbd> zum / weg vom Planeten<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Zeitraffer · <kbd>Leertaste</kbd> Pause · <kbd>Shift</kbd> Feinsteuerung · ziehen, um sich umzusehen',
+  osTeacherNotes: 'Lehrerhinweise', osStartMission1: 'Mission 1 starten', osFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  osHelpH2: 'Wie man fliegt',
+  osHelpP1: 'Dein Triebwerk kann in vier Richtungen schieben: <b>vorwärts</b> (in Flugrichtung), <b>rückwärts</b>, <b>zum Planeten hin</b> und <b>davon weg</b>. Halte einen Knopf zum Zünden; die Treibstoffanzeige zeigt, wie viel Geschwindigkeitsänderung (Δv) dir noch bleibt.',
+  osHelpP2: '<b>AP</b> markiert den höchsten Punkt deiner Bahn, <b>PE</b> den niedrigsten. Wird die orange Linie rot, trifft deine Bahn den Planeten.',
+  osHelpKeys: '<kbd>W</kbd>/<kbd>↑</kbd> vorwärts · <kbd>S</kbd>/<kbd>↓</kbd> rückwärts · <kbd>A</kbd>/<kbd>←</kbd> zum Planeten · <kbd>D</kbd>/<kbd>→</kbd> weg<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> Zeit 1× 4× 16× · <kbd>Leertaste</kbd> Pause · <kbd>Shift</kbd> fein · <kbd>R</kbd> neu versuchen<br>ziehen, um sich umzusehen · Rad oder Pinch zum Zoomen',
+  osBackToFlying: 'Zurück zum Fliegen',
+  osPredictEyebrow: 'Mission {n} · zuerst vorhersagen', osPredictSmall: 'Rate einfach. Du verlierst nichts, wenn du falsch liegst.',
+  osVerdictYes: 'Du hast „{opt}" vorhergesagt, und das hat sich bestätigt.',
+  osVerdictNo: 'Du hast „{opt}" vorhergesagt. Die Antwort war „{correct}". Diese Überraschung ist die Lektion, also hier der Grund:',
+  osEffUsed: 'Du hast {used} km/s Δv verbraucht. Ein effizienter Flug braucht etwa {ideal} km/s.{nicely}', osNicelyDone: ' Gut gemacht.',
+  osMissionComplete: 'Mission {n} abgeschlossen', osThinkAbout: 'Denk mal nach: {q}', osShowAnswer: 'Antwort zeigen',
+  osFlyAgain: 'Noch einmal fliegen', osMissionN: 'Mission {n}', osWrapUp: 'Abschließen',
+  osCrashH2: 'Du bist auf den Planeten geprallt',
+  osCrashP: 'Dein niedrigster Punkt sank unter die Oberfläche. Kurz bevor das passiert, wird die orange Linie rot. Langsamer werden senkt die ferne Seite deiner Bahn, sodass eine lange Rückwärtszündung sie eine halbe Umlaufbahn später in den Boden eintauchen lässt.',
+  osTryAgain: 'Noch einmal versuchen',
+  osSummaryH2: 'Was du herausgefunden hast', osPredictedMark: '✓ vorhergesagt', osSurprisedMark: '✗ überrascht',
+  osSummarySurprised: '{n} deiner Vorhersagen waren falsch. Das ist normal: Orbitale Intuition läuft der Alltagsintuition entgegen, und überrascht zu werden ist genau das, was es einprägt.',
+  osSummaryAllCorrect: 'Du hast alles richtig vorhergesagt. Kanntest du die Orbitalmechanik schon, oder hast du es dir erschlossen?',
+  osTryFreeFlight: 'Probiere als Nächstes den Freiflug: unbegrenzter Treibstoff, eine zweite Station und keine Ziele.', osFreeFlightBtn: 'Freier Flug',
+  osEscaping: 'entkommt', osBelowSurface: 'unter der Oberfläche', osUnlimited: 'unbegrenzt',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  osCollapseAria: 'Skrči ploščo misije', osHowTeaches: 'Kako ta igra uči →', osControls: 'Upravljanje',
+  osSpeed: 'Hitrost', osAltitude: 'Višina', osHighestAp: 'Najvišja točka · AP', osLowestPe: 'Najnižja točka · PE',
+  osGapStation: 'Razdalja do postaje', osFuelDv: 'Gorivo (Δv)',
+  osLegendOrbit: 'tvoja tirnica, če nehaš prižigati motor', osLegendDirection: 'smer leta · cilj', osLegendTrail: 'kje si že bil',
+  osTime: 'čas', osFine: 'fino', osFineTitle: 'Nežnejši motor za majhne popravke (Shift)', osRetry: '↺ poskusi znova',
+  osBackward: '◀ Nazaj', osToward: '↓ Proti planetu', osAway: '↑ Stran', osForward: 'Naprej ▶',
+  osM0Title: 'Višje',
+  osM0Goal: 'Raztegni svojo tirnico, dokler se njena najvišja točka ne dotakne črtkanega zelenega obroča.',
+  osM0PredQ: 'Krožiš okoli planeta. Želiš doseči črtkani obroč višje gor. V katero smer naj zažgeš motor?',
+  osM0PredOpt1: 'Stran od planeta, naravnost navzgor', osM0PredOpt2: 'Naprej, v smeri, v kateri letim', osM0PredOpt3: 'Nazaj, proti svojemu gibanju',
+  osM0Note1: 'Potiskanje navzgor ali navzdol predvsem nagne tirnico postrani. Opazuj številko AP: skoraj se ne premika.',
+  osM0Note2: 'Tvoja tirnica se krči. Leteti nazaj znižuje daljno stran.',
+  osM0Hint: 'Držite Naprej in opazuj daljno stran oranžne črte, ne svoje ladje. Tam se pojavi višina.',
+  osM0DebriefText: 'Zažig naprej te pohitri, hitrejša ladja pa zaniha dlje navzven, preden jo gravitacija potegne nazaj. Toda dodatna višina se pojavi na nasprotni strani planeta, pol tirnice pozneje, ne tam, kjer si zažgal. Potiskanje naravnost navzgor porabi gorivo predvsem za upogibanje tirnice, ne za njeno raztezanje.',
+  osM0Takeaway: 'V orbiti višina prihaja iz hitrosti.',
+  osM0Q: 'Na svoji novi, raztegnjeni tirnici: kje si najhitrejši — na najvišji ali najnižji točki?',
+  osM0A: 'Na najnižji točki (PE). Padanje navznoter menja višino za hitrost, kot rolkar v polcevi. Uporabi pospešitev časa in opazuj hitrost za preverjanje.',
+  osM1Title: 'Zokroži',
+  osM1Goal: 'Tvoja tirnica doseže obroč na vrhu, nato pa spet pade. Naredi iz nje krog na višini obroča.',
+  osM1PredQ: 'Da ta oval na obroču spremeniš v krog, boš zažgal naprej. Kje na tirnici naj to storiš?',
+  osM1PredOpt1: 'Zdaj takoj, na najnižji točki', osM1PredOpt2: 'Na najvišji točki, ko dosežem obroč', osM1PredOpt3: 'Ni pomembno, kje',
+  osM1Note: 'Tvoja najvišja točka je šla nad obroč. Zažig spremeni nasprotno stran tirnice, zato je bil ta na napačnem mestu.',
+  osM1Hint: 'Preklopi na 4×, da zdrsiš do oznake AP, pojdi nazaj na 1× in tam zažgi naprej.',
+  osM1DebriefText: 'Zažig spremeni višino nasprotne strani tvoje tirnice. Zažgi na najvišji točki in dvigneš najnižjo točko, da jo doseže. Dva taka zažiga, en nizek in en visok, naredita Hohmannov prehod — standardni, goriva najcenejši način za vzpon z ene krožne tirnice na drugo, in kako sateliti dosežejo geostacionarno orbito.',
+  osM1Takeaway: 'Zažgi na enem koncu tirnice, da premakneš drugega.',
+  osM1Q: 'Tvoja nova krožna tirnica je počasnejša od tiste, s katero si začel, čeprav si zažigal samo naprej. Kako je to mogoče?',
+  osM1A: 'Vsak zažig je dodal hitrost, a vzpenjanje stran od planeta je stalo več hitrosti, kot si je dodal. Višje krožne tirnice so počasnejše: v = √(GM/r).',
+  osM2Title: 'Ujemi postajo',
+  osM2Goal: 'Vesoljska postaja je pred teboj na isti tirnici. Približaj se ji na 640 km.',
+  osM2PredQ: 'Postaja je pred teboj na natanko isti tirnici. Kako jo ujameš?',
+  osM2PredOpt1: 'Zažgi naprej, da pohitriš', osM2PredOpt2: 'Zažgi nazaj, da upočasniš', osM2PredOpt3: 'Zažgi proti planetu',
+  osM2Note: 'Zdaj si na večji tirnici kot postaja. Večje tirnice trajajo dlje, zato zaostajaš.',
+  osM2Hint: 'Na kratko tapni Nazaj (približno 0,2 km/s goriva), nato preklopi na 4× in opazuj en celoten obhod. Postajo boš prehitel od spodaj.',
+  osM2DebriefText: 'Pohitritev dvigne tvojo tirnico, večja tirnica pa potrebuje dlje za en obhod, zato zaostajaš še bolj. Upočasnitev te spusti na manjšo, hitrejšo tirnico in postajo prehiti od spodaj. Prava vesoljska plovila tako natančno načrtujejo sidranja.',
+  osM2Takeaway: 'Da v orbiti ujameš nekoga, upočasni.',
+  osM2Q: 'Zdaj, ko si tik ob postaji: kako bi ostal ob njej, namesto da zdrsneš mimo?',
+  osM2A: 'Zažgi naprej za približno toliko, kot si prej upočasnil, točno v trenutku srečanja. To te dvigne nazaj na tirnico postaje.',
+  osM3Title: 'Pobegni',
+  osM3Goal: 'Pohitri dovolj, da za vedno zapustiš planet. Tvoja tirnica se takrat odpre.',
+  osM3PredQ: 'Krožiš s približno 7,1 km/s. Kako hitro moraš iti, da za vedno ubežiš planetu?',
+  osM3PredOpt1: 'Približno dvakrat hitreje, 14 km/s', osM3PredOpt2: 'Približno 1,4-krat hitreje, 10 km/s', osM3PredOpt3: 'Katera koli hitrost deluje, če merim naravnost navzgor',
+  osM3Note: 'Potiskanje postrani doda manj hitrosti kot potiskanje naprej. Pri ubegu gre samo za hitrost.',
+  osM3Hint: 'Držite Naprej, dokler se oranžna črta ne neha zapirati v zanko.',
+  osM3DebriefText: 'Hitrost ubega je natanko √2 ≈ 1,41-krat hitrost krožne tirnice na isti višini. Kinetična energija narašča s kvadratom hitrosti, zato 41 % več hitrosti podvoji tvojo kinetično energijo — in to je ravno dovolj, da splezaš ven iz gravitacijske jame planeta.',
+  osM3Takeaway: 'Hitrost ubega = √2 × hitrost tirnice.',
+  osM3Q: 'Je pomembno, v katero smer meriš, ko pobegneš?',
+  osM3A: 'Za energijo ne: ubeg je odvisen samo od tvoje hitrosti in višine. V praksi zažigaš naprej, ker takrat ves potisk postane dodatna hitrost in po nesreči ne meriš v planet.',
+  osM4Title: 'Prosti let',
+  osM4Goal: 'Neomejeno gorivo. Poskusi tirnico, ki drsi tik nad površino, obliko, ki zavije okoli postaje, ali pobegni vzvratno.',
+  osProgressGap: 'razdalja',
+  osMissionPrefix: 'Misija {n} · ', osYourPrediction: 'Tvoja napoved: {opt}', osHintPrefix: 'Namig: {hint}', osFree: 'prosto',
+  osIntroH2: 'Nauči se leteti v orbiti',
+  osIntroP1: 'Štiri kratke misije in način prostega leta. Pred vsako misijo postaviš napoved. Nato jo odletiš in ugotoviš.',
+  osIntroP2: 'Prve uganke večine ljudi o tirnicah so napačne. To je namerno: prav ta presenečenja so tisto, kar naredi orbitalno mehaniko zanimivo.',
+  osIntroP3: 'Oranžna črta vedno kaže, kam bi šel, če bi nehal zažigati. Opazuj, kako se spremeni, ko držiš gumb.',
+  osIntroKeys: '<kbd>W</kbd>/<kbd>↑</kbd> naprej · <kbd>S</kbd>/<kbd>↓</kbd> nazaj · <kbd>A</kbd> <kbd>D</kbd> proti / stran od planeta<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> pospešitev časa · <kbd>Presledek</kbd> premor · <kbd>Shift</kbd> fino upravljanje · povleci, da se ozreš okoli',
+  osTeacherNotes: 'Opombe za učitelje', osStartMission1: 'Začni misijo 1', osFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  osHelpH2: 'Kako leteti',
+  osHelpP1: 'Tvoj motor lahko potiska v štiri smeri: <b>naprej</b> (smer gibanja), <b>nazaj</b>, <b>proti planetu</b> in <b>stran</b> od njega. Držite gumb za zažig; črtica goriva kaže, koliko spremembe hitrosti (Δv) ti je še ostalo.',
+  osHelpP2: '<b>AP</b> označuje najvišjo točko tvoje tirnice, <b>PE</b> pa najnižjo. Če oranžna črta postane rdeča, tvoja tirnica zadane planet.',
+  osHelpKeys: '<kbd>W</kbd>/<kbd>↑</kbd> naprej · <kbd>S</kbd>/<kbd>↓</kbd> nazaj · <kbd>A</kbd>/<kbd>←</kbd> proti planetu · <kbd>D</kbd>/<kbd>→</kbd> stran<br>\n      <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> čas 1× 4× 16× · <kbd>Presledek</kbd> premor · <kbd>Shift</kbd> fino · <kbd>R</kbd> poskusi znova<br>povleci, da se ozreš okoli · kolešček ali približanje s prsti za povečavo',
+  osBackToFlying: 'Nazaj k letenju',
+  osPredictEyebrow: 'Misija {n} · najprej napovej', osPredictSmall: 'Samo ugibaj. Nič ne izgubiš, če se zmotiš.',
+  osVerdictYes: 'Napovedal/-a si "{opt}" in to se je izkazalo za res.',
+  osVerdictNo: 'Napovedal/-a si "{opt}". Odgovor je bil "{correct}". To presenečenje je lekcija, torej tu je razlog:',
+  osEffUsed: 'Porabil/-a si {used} km/s Δv. Učinkovit let porabi približno {ideal} km/s.{nicely}', osNicelyDone: ' Lepo opravljeno.',
+  osMissionComplete: 'Misija {n} opravljena', osThinkAbout: 'Pomisli: {q}', osShowAnswer: 'Pokaži odgovor',
+  osFlyAgain: 'Odleti še enkrat', osMissionN: 'Misija {n}', osWrapUp: 'Zaključek',
+  osCrashH2: 'Trčil/-a si v planet',
+  osCrashP: 'Tvoja najnižja točka je padla pod površino. Tik preden se to zgodi, oranžna črta postane rdeča. Upočasnitev zniža daljno stran tvoje tirnice, zato dolg zažig nazaj povzroči, da se pol tirnice pozneje zarije v tla.',
+  osTryAgain: 'Poskusi znova',
+  osSummaryH2: 'Kaj si ugotovil/-a', osPredictedMark: '✓ napovedano', osSurprisedMark: '✗ presenečenje',
+  osSummarySurprised: '{n} tvojih napovedi je bilo napačnih. To je normalno: orbitalna intuicija je nasprotna vsakdanji intuiciji, in presenečenje je prav to, kar se zasidra.',
+  osSummaryAllCorrect: 'Vse si napovedal/-a pravilno. Si orbitalno mehaniko že poznal/-a, ali si to razbral/-a sam/-a?',
+  osTryFreeFlight: 'Naslednjič poskusi prosti let: neomejeno gorivo, druga postaja in brez ciljev.', osFreeFlightBtn: 'Prosti let',
+  osEscaping: 'ubega', osBelowSurface: 'pod površino', osUnlimited: 'neomejeno',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+<!--
+  Orbit School - a predict / observe / explain game about orbital mechanics.
+  One HTML file plus a self-hosted copy of three.js r178 (MIT, see vendor/three-LICENSE.txt).
+  Physics: point-mass gravity, GM = 1, planet radius = 1, symplectic Euler with small substeps.
+  The orange orbit line is computed analytically from the current position and velocity
+  (Kepler elements), so it answers "what happens if I coast from here?" in real time.
+-->
+<style>
+:root {
+  --bg: #0e0e0e; --panel: rgba(16,16,16,.82); --solid: #141414; --ink: #e8e8e8; --muted: #8a8a8a;
+  --line: #262626; --accent: #b8f57a; --orbit: #ffb547; --danger: #ff6b5b; --sky: #6cc4ff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 system-ui, "Segoe UI", Roboto, sans-serif; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+a { color: var(--accent); }
+button { font: inherit; color: var(--ink); background: var(--solid); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+button:hover { border-color: #444; }
+button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.on { border-color: var(--accent); color: var(--accent); }
+
+.top { position: fixed; top: 12px; left: 12px; right: 12px; display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 12px; pointer-events: none; }
+.top > * { pointer-events: auto; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.hud-left { width: 340px; max-width: 100%; }
+.home { font: 12px var(--mono); color: var(--muted); text-decoration: none; }
+.home:hover { color: var(--accent); }
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--solid); border: 1px solid var(--line); border-radius: 7px; padding: 2px; margin-top: 6px; width: fit-content; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { border: 1px solid var(--accent); color: var(--accent); font-weight: 700; }
+h1 { font: 700 18px var(--mono); margin: 4px 0 8px; letter-spacing: -.01em; }
+.chips { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.chip { font: 12px var(--mono); padding: 3px 9px; border-radius: 999px; }
+.chip.cur { border-color: var(--accent); color: var(--accent); }
+.chip.done::after { content: " ✓"; color: var(--accent); }
+.m-title { font: 600 15px var(--mono); }
+.m-goal { color: #cfcfcf; margin: 4px 0 8px; }
+.m-progress { display: flex; align-items: center; gap: 10px; font: 12px var(--mono); color: var(--muted); }
+.bar { flex: 1; height: 6px; background: #222; border-radius: 3px; overflow: hidden; min-width: 60px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+.m-note { font-size: 12.5px; margin-top: 8px; color: var(--orbit); }
+.m-note:empty { display: none; }
+.m-pred { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.m-pred:empty { display: none; }
+.m-hint { font-size: 12.5px; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #1b2412; color: #d9f5bd; }
+.m-links { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  font: 12px var(--mono); }
+.m-links a { text-decoration: none; }
+.collapse { display: none; padding: 2px 8px; font-size: 12px; }
+
+.tele { font: 12.5px var(--mono); min-width: 210px; }
+.tele .row { display: flex; justify-content: space-between; gap: 14px; padding: 2px 0; }
+.tele .row[hidden] { display: none; }
+.tele .k { color: var(--muted); }
+.tele .v { font-variant-numeric: tabular-nums; }
+.tele .fuel { margin-top: 6px; }
+.tele .fuel .bar i { background: var(--sky); }
+
+.controls { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(14px, env(safe-area-inset-bottom));
+  display: flex; flex-direction: column; align-items: center; gap: 8px; width: min(640px, calc(100% - 24px)); }
+.thrust { display: grid; grid-template-columns: 1fr .8fr .8fr 1fr; gap: 8px; width: 100%; }
+.hold { padding: 12px 8px; font: 600 14px var(--mono); user-select: none; -webkit-user-select: none;
+  touch-action: none; display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: var(--panel); backdrop-filter: blur(6px); }
+.hold small { font-weight: 400; color: var(--muted); font-size: 11px; }
+.hold.fwd { border-color: #3c5426; }
+.hold.active { background: #2a3a18; border-color: var(--accent); color: var(--accent); }
+.hold.side { font-size: 12.5px; }
+.timebar { display: flex; gap: 6px; align-items: center; font: 12px var(--mono); flex-wrap: wrap; justify-content: center; }
+.timebar button { padding: 5px 10px; font: 12px var(--mono); background: var(--panel); }
+.legend { position: fixed; left: 14px; bottom: 14px; font: 11.5px var(--mono); color: var(--muted); line-height: 1.7; pointer-events: none; }
+.legend b { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center;
+  justify-content: center; padding: 16px; z-index: 10; }
+.modal[hidden] { display: none; }
+.card { background: var(--solid); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px;
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.card .eyebrow { font: 12px var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.card h2 { font: 700 20px var(--mono); margin: 6px 0 10px; }
+.card p { margin: 0 0 12px; color: #d6d6d6; }
+.card .opts { display: grid; gap: 8px; margin: 14px 0 6px; }
+.card .opts button { text-align: left; padding: 12px 14px; font-size: 14.5px; }
+.card .opts button:hover { border-color: var(--accent); }
+.card .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+.card .actions .go { background: var(--accent); color: #0e0e0e; border-color: var(--accent); font-weight: 700; }
+.verdict { padding: 10px 12px; border-radius: 10px; margin: 0 0 12px; font-size: 14px; }
+.verdict.yes { background: #1b2412; color: #d9f5bd; }
+.verdict.no { background: #2a1d0c; color: #ffd9a3; }
+.takeaway { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; margin: 0 0 12px; font: 600 14px var(--mono); }
+.reflect { background: #181818; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; }
+.reflect .q { font-weight: 600; }
+.reflect .a { margin-top: 6px; color: #cfcfcf; }
+.reflect button { margin-top: 8px; font-size: 12.5px; padding: 5px 10px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.keys { font: 12px var(--mono); color: var(--muted); line-height: 1.8; }
+kbd { font: 11px var(--mono); border: 1px solid #333; border-radius: 4px; padding: 0 5px; color: #ccc; }
+.summary { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 6px 0 12px; }
+.summary td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.site-foot { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); display: flex;
+  flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: #181818; border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: #3a3a3a; }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .top { flex-direction: column; top: 8px; left: 8px; right: 8px; gap: 6px; }
+  .hud-left, .tele { width: 100%; }
+  .panel { padding: 9px 11px; }
+  h1 { font-size: 15px; margin: 2px 0 6px; }
+  .collapse { display: inline-block; }
+  .hud-left.min .chips, .hud-left.min .m-goal, .hud-left.min .m-pred, .hud-left.min .m-links { display: none; }
+  .tele { display: grid; grid-template-columns: 1fr 1fr; column-gap: 14px; font-size: 11.5px; min-width: 0; }
+  .tele .fuel { grid-column: span 2; margin-top: 2px; }
+  .legend { display: none; }
+  .controls { bottom: max(8px, env(safe-area-inset-bottom)); width: calc(100% - 16px); }
+  .hold { padding: 12px 4px; font-size: 13px; }
+  .hold small { display: none; }
+}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+
+<div class="top">
+  <div class="panel hud-left" id="hud">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+      <button class="collapse" id="btnCollapse" aria-label="Collapse mission panel">–</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <h1>Orbit School</h1>
+    <div class="chips" id="chips"></div>
+    <div class="m-title" id="mTitle"></div>
+    <div class="m-goal" id="mGoal"></div>
+    <div class="m-progress"><div class="bar"><i id="mBar"></i></div><span id="mProg"></span></div>
+    <div class="m-note" id="mNote"></div>
+    <div class="m-hint" id="mHint" hidden></div>
+    <div class="m-pred" id="mPred"></div>
+    <div class="m-links">
+      <a href="/lab/orbit-school-notes.html" data-i18n="osHowTeaches">How this game teaches →</a>
+      <button id="btnHelp" style="padding:3px 9px;font-size:12px" data-i18n="osControls">Controls</button>
+    </div>
+  </div>
+  <div class="panel tele" id="tele">
+    <div class="row"><span class="k" data-i18n="osSpeed">Speed</span><span class="v" id="tSpeed"></span></div>
+    <div class="row"><span class="k" data-i18n="osAltitude">Altitude</span><span class="v" id="tAlt"></span></div>
+    <div class="row"><span class="k" data-i18n="osHighestAp">Highest · AP</span><span class="v" id="tAp"></span></div>
+    <div class="row"><span class="k" data-i18n="osLowestPe">Lowest · PE</span><span class="v" id="tPe"></span></div>
+    <div class="row" id="rowGap" hidden><span class="k" data-i18n="osGapStation">Gap to station</span><span class="v" id="tGap"></span></div>
+    <div class="fuel">
+      <div class="row"><span class="k" data-i18n="osFuelDv">Fuel (Δv)</span><span class="v" id="tFuel"></span></div>
+      <div class="bar"><i id="fuelBar"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <div><b style="background:var(--orbit)"></b><span data-i18n="osLegendOrbit">your orbit if you stop firing</span></div>
+  <div><b style="background:var(--accent)"></b><span data-i18n="osLegendDirection">direction of travel · target</span></div>
+  <div><b style="background:#5a5a5a"></b><span data-i18n="osLegendTrail">where you have been</span></div>
+</div>
+
+<div class="controls">
+  <div class="timebar">
+    <span data-i18n="osTime">time</span>
+    <button data-warp="0">❚❚</button>
+    <button data-warp="1">1×</button>
+    <button data-warp="4">4×</button>
+    <button data-warp="16">16×</button>
+    <button id="btnFine" title="Gentler engine for small corrections (Shift)" data-i18n="osFine">fine</button>
+    <button id="btnRetry" data-i18n="osRetry">↺ retry</button>
+  </div>
+  <div class="thrust">
+    <button class="hold" data-dir="retro"><span data-i18n="osBackward">◀ Backward</span><small>S · ↓</small></button>
+    <button class="hold side" data-dir="in"><span data-i18n="osToward">↓ Toward planet</span><small>A · ←</small></button>
+    <button class="hold side" data-dir="out"><span data-i18n="osAway">↑ Away</span><small>D · →</small></button>
+    <button class="hold fwd" data-dir="pro"><span data-i18n="osForward">Forward ▶</span><small>W · ↑</small></button>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+
+<script type="module">
+import * as THREE from './vendor/three.module.min.js';
+
+// ---------- units ----------
+// One length unit = one planet radius, GM = 1. With Earth's numbers that makes
+// one length unit 6371 km and one speed unit 7.905 km/s, so the readouts are realistic.
+const KM = 6371, KMS = 7.905;
+const RATE = 0.4;                       // sim time units per real second at 1×
+const THRUST = 0.18, THRUST_FINE = 0.04;
+const R0 = 1.25;                        // starting orbit radius (about 1600 km up)
+const RING = 2.2;                       // target ring for missions 1 and 2
+
+const $ = id => document.getElementById(id);
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function updateAriaLabels() {
+  $('btnCollapse').setAttribute('aria-label', t('osCollapseAria'));
+  $('btnFine').setAttribute('title', t('osFineTitle'));
+}
+document.addEventListener('presker-lang-change', () => { updateAriaLabels(); renderChips(); });
+const fmtKm = u => (u * KM).toLocaleString('en', { maximumFractionDigits: 0 }) + ' km';
+const altKm = r => fmtKm(r - 1);
+const kms = u => (u * KMS).toFixed(2) + ' km/s';
+const clamp01 = v => Math.max(0, Math.min(1, v));
+
+// circular orbit at radius r, at angle deg, moving counter-clockwise
+function circ(r, deg) {
+  const a = deg * Math.PI / 180, v = Math.sqrt(1 / r);
+  return { x: r * Math.cos(a), y: r * Math.sin(a), vx: -v * Math.sin(a), vy: v * Math.cos(a) };
+}
+
+// ---------- missions ----------
+// Each mission is Predict -> Observe -> Explain: a question before flying, live feedback
+// while flying, and a debrief that compares the prediction with what happened.
+const MISSIONS = [
+  {
+    titleKey: 'osM0Title',
+    goalKey: 'osM0Goal',
+    budget: 2.0,
+    ideal: 0.88,
+    setup: () => ({ ship: circ(R0, 200), ring: RING }),
+    predict: {
+      qKey: 'osM0PredQ',
+      optionKeys: ['osM0PredOpt1', 'osM0PredOpt2', 'osM0PredOpt3'],
+      correct: 1,
+    },
+    check: s => s.ra >= RING - 0.05 && s.rp >= 1.05,
+    progress: s => [clamp01((Math.min(s.ra, 9) - R0) / (RING - 0.05 - R0)), 'AP ' + (isFinite(s.ra) ? altKm(s.ra) : '∞') + ' / ' + altKm(RING - 0.05)],
+    note: (s, held) => (held.out || held.in)
+      ? t('osM0Note1')
+      : s.ra < R0 - 0.02 ? t('osM0Note2') : '',
+    hintKey: 'osM0Hint',
+    debrief: {
+      textKey: 'osM0DebriefText',
+      takeawayKey: 'osM0Takeaway',
+      qKey: 'osM0Q',
+      aKey: 'osM0A',
+    },
+  },
+  {
+    titleKey: 'osM1Title',
+    goalKey: 'osM1Goal',
+    budget: 1.5,
+    ideal: 0.70,
+    setup: () => {
+      const a = (R0 + RING) / 2, v = Math.sqrt(2 / R0 - 1 / a), t = 200 * Math.PI / 180;
+      return { ship: { x: R0 * Math.cos(t), y: R0 * Math.sin(t), vx: -v * Math.sin(t), vy: v * Math.cos(t) }, ring: RING };
+    },
+    predict: {
+      qKey: 'osM1PredQ',
+      optionKeys: ['osM1PredOpt1', 'osM1PredOpt2', 'osM1PredOpt3'],
+      correct: 1,
+    },
+    check: s => s.rp >= 2.05 && s.ra <= 2.4,
+    progress: s => [clamp01((s.rp - R0) / (2.05 - R0)), 'PE ' + altKm(s.rp) + ' / ' + altKm(2.05)],
+    note: s => s.ra > 2.4 && s.e < 1 ? t('osM1Note') : '',
+    hintKey: 'osM1Hint',
+    debrief: {
+      textKey: 'osM1DebriefText',
+      takeawayKey: 'osM1Takeaway',
+      qKey: 'osM1Q',
+      aKey: 'osM1A',
+    },
+  },
+  {
+    titleKey: 'osM2Title',
+    goalKey: 'osM2Goal',
+    budget: 1.0,
+    ideal: 0.20,
+    setup: () => ({ ship: circ(R0, 200), station: circ(R0, 230) }),
+    predict: {
+      qKey: 'osM2PredQ',
+      optionKeys: ['osM2PredOpt1', 'osM2PredOpt2', 'osM2PredOpt3'],
+      correct: 1,
+    },
+    check: s => s.gap < 0.1,
+    progress: s => [clamp01(1 - (s.gap - 0.1) / (s.gap0 - 0.1)), t('osProgressGap') + ' ' + fmtKm(s.gap)],
+    note: s => s.a > R0 + 0.02 && s.e < 1 ? t('osM2Note') : '',
+    hintKey: 'osM2Hint',
+    debrief: {
+      textKey: 'osM2DebriefText',
+      takeawayKey: 'osM2Takeaway',
+      qKey: 'osM2Q',
+      aKey: 'osM2A',
+    },
+  },
+  {
+    titleKey: 'osM3Title',
+    goalKey: 'osM3Goal',
+    budget: 4.5,
+    ideal: 2.93,
+    setup: () => ({ ship: circ(R0, 200) }),
+    predict: {
+      qKey: 'osM3PredQ',
+      optionKeys: ['osM3PredOpt1', 'osM3PredOpt2', 'osM3PredOpt3'],
+      correct: 1,
+    },
+    check: s => s.E >= 0,
+    progress: s => [clamp01(s.v / s.vesc), kms(s.v) + ' / ' + kms(s.vesc)],
+    note: (s, held) => (held.out || held.in) ? t('osM3Note') : '',
+    hintKey: 'osM3Hint',
+    debrief: {
+      textKey: 'osM3DebriefText',
+      takeawayKey: 'osM3Takeaway',
+      qKey: 'osM3Q',
+      aKey: 'osM3A',
+    },
+  },
+  {
+    titleKey: 'osM4Title',
+    goalKey: 'osM4Goal',
+    budget: Infinity,
+    setup: () => ({ ship: circ(R0, 200), station: circ(1.6, 260) }),
+    check: () => false,
+    progress: s => [0, ''],
+    note: () => '',
+  },
+];
+
+// ---------- renderer and scene ----------
+const canvas = $('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x050608);
+const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 2000);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+const sun = new THREE.DirectionalLight(0xffffff, 2.6);
+sun.position.set(6, 3, 2);
+scene.add(sun);
+
+// value noise on the sphere, so the texture has no seam
+function hash(x, y, z, s) {
+  let h = Math.imul(x, 374761393) + Math.imul(y, 668265263) + Math.imul(z, 1274126177) + Math.imul(s, 144665);
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function vnoise(x, y, z, s) {
+  const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z);
+  const f = t => t * t * (3 - 2 * t);
+  const u = f(x - xi), v = f(y - yi), w = f(z - zi);
+  const L = (a, b, t) => a + (b - a) * t;
+  const c = (dx, dy, dz) => hash(xi + dx, yi + dy, zi + dz, s);
+  return L(L(L(c(0,0,0), c(1,0,0), u), L(c(0,1,0), c(1,1,0), u), v),
+           L(L(c(0,0,1), c(1,0,1), u), L(c(0,1,1), c(1,1,1), u), v), w);
+}
+function fbm(x, y, z, s) {
+  let a = 0.5, t = 0, n = 0;
+  for (let o = 0; o < 5; o++) { t += a * vnoise(x, y, z, s + o); n += a; x *= 2.03; y *= 2.03; z *= 2.03; a *= 0.5; }
+  return t / n;
+}
+function sphereTexture(w, h, paint) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const g = c.getContext('2d'), img = g.createImageData(w, h), d = img.data;
+  for (let j = 0; j < h; j++) {
+    const lat = Math.PI / 2 - (j + 0.5) / h * Math.PI;
+    for (let i = 0; i < w; i++) {
+      const lon = (i + 0.5) / w * Math.PI * 2;
+      const x = Math.cos(lat) * Math.cos(lon), y = Math.sin(lat), z = Math.cos(lat) * Math.sin(lon);
+      const col = paint(x, y, z, lat), k = (j * w + i) * 4;
+      d[k] = col[0]; d[k + 1] = col[1]; d[k + 2] = col[2]; d[k + 3] = col[3] ?? 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 4;
+  return t;
+}
+const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+const planetTex = sphereTexture(768, 384, (x, y, z, lat) => {
+  const n = fbm(x * 1.9 + 7, y * 1.9, z * 1.9, 11);
+  const ice = Math.abs(lat) > 1.18 + (n - 0.5) * 0.5;
+  if (ice) return [232, 240, 246];
+  if (n < 0.52) return mix([10, 38, 74], [34, 98, 140], clamp01((n - 0.32) / 0.2));
+  const m = fbm(x * 5, y * 5, z * 5, 40);
+  const dry = clamp01((0.6 - Math.abs(lat)) * 1.2) * m;
+  return mix(mix([52, 98, 50], [126, 112, 72], dry), [150, 150, 140], clamp01((n - 0.66) * 4));
+});
+const cloudTex = sphereTexture(512, 256, (x, y, z) => {
+  const n = fbm(x * 3 + 3, y * 3.6, z * 3, 77);
+  return [255, 255, 255, Math.round(clamp01((n - 0.52) * 3.2) * 220)];
+});
+
+const planet = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64),
+  new THREE.MeshStandardMaterial({ map: planetTex, roughness: 0.92, metalness: 0 }));
+scene.add(planet);
+const clouds = new THREE.Mesh(new THREE.SphereGeometry(1.012, 96, 64),
+  new THREE.MeshStandardMaterial({ map: cloudTex, transparent: true, depthWrite: false, roughness: 1 }));
+scene.add(clouds);
+// thin atmosphere: a fresnel rim, brighter towards the edge of the disc
+const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.05, 64, 48), new THREE.ShaderMaterial({
+  transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `varying vec3 vN; varying vec3 vP;
+    void main(){ vN = normalize(normalMatrix * normal); vec4 mv = modelViewMatrix * vec4(position,1.); vP = mv.xyz; gl_Position = projectionMatrix * mv; }`,
+  fragmentShader: `varying vec3 vN; varying vec3 vP;
+    void main(){ float f = pow(1.0 - abs(dot(normalize(-vP), vN)), 3.0); gl_FragColor = vec4(0.35, 0.65, 1.0, 1.0) * f * 1.3; }`,
+}));
+scene.add(atmo);
+
+{ // stars
+  const n = 2600, p = new Float32Array(n * 3), c = new Float32Array(n * 3);
+  for (let i = 0; i < n; i++) {
+    const u = Math.random() * 2 - 1, t = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u);
+    p.set([s * Math.cos(t) * 400, u * 400, s * Math.sin(t) * 400], i * 3);
+    const b = 0.35 + Math.random() ** 3 * 0.65; c.set([b, b, b * (0.9 + Math.random() * 0.2)], i * 3);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(p, 3));
+  g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+  scene.add(new THREE.Points(g, new THREE.PointsMaterial({ size: 1.6, sizeAttenuation: false, vertexColors: true })));
+}
+
+// Flat ribbons in the orbital plane: WebGL lines are always 1 px, ribbons can be any width.
+class Ribbon {
+  constructor(max, color, opacity, y) {
+    this.max = max; this.y = y;
+    this.pts = new Float32Array(max * 2);
+    this.pos = new Float32Array(max * 6);
+    this.idx = new Uint32Array((max - 1) * 6);
+    this.geo = new THREE.BufferGeometry();
+    this.geo.setAttribute('position', new THREE.BufferAttribute(this.pos, 3).setUsage(THREE.DynamicDrawUsage));
+    this.geo.setIndex(new THREE.BufferAttribute(this.idx, 1).setUsage(THREE.DynamicDrawUsage));
+    this.mat = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false });
+    this.mesh = new THREE.Mesh(this.geo, this.mat);
+    this.mesh.frustumCulled = false;
+    scene.add(this.mesh);
+  }
+  update(n, width, closed = false, dash = 0) {
+    const P = this.pts, A = this.pos, I = this.idx;
+    for (let i = 0; i < n; i++) {
+      const x = P[2 * i], y = P[2 * i + 1];
+      if (Number.isNaN(x)) { A.fill(0, 6 * i, 6 * i + 6); continue; }
+      let i0 = i - 1, i1 = i + 1;
+      if (closed) { if (i0 < 0) i0 = n - 2; if (i1 >= n) i1 = 1; }
+      else { i0 = Math.max(0, i0); i1 = Math.min(n - 1, i1); }
+      let x0 = P[2 * i0], y0 = P[2 * i0 + 1], x1 = P[2 * i1], y1 = P[2 * i1 + 1];
+      if (Number.isNaN(x0)) { x0 = x; y0 = y; }
+      if (Number.isNaN(x1)) { x1 = x; y1 = y; }
+      const tx = x1 - x0, ty = y1 - y0, L = Math.hypot(tx, ty) || 1;
+      const nx = -ty / L * width / 2, ny = tx / L * width / 2;
+      A[6 * i] = x + nx; A[6 * i + 1] = this.y; A[6 * i + 2] = y + ny;
+      A[6 * i + 3] = x - nx; A[6 * i + 4] = this.y; A[6 * i + 5] = y - ny;
+    }
+    let k = 0;
+    for (let i = 0; i < n - 1; i++) {
+      if (Number.isNaN(P[2 * i]) || Number.isNaN(P[2 * i + 2])) continue;
+      if (dash && Math.floor(i / dash) % 2) continue;
+      const a = 2 * i;
+      I[k++] = a; I[k++] = a + 1; I[k++] = a + 2; I[k++] = a + 1; I[k++] = a + 3; I[k++] = a + 2;
+    }
+    this.geo.setDrawRange(0, k);
+    this.geo.attributes.position.needsUpdate = true;
+    this.geo.index.needsUpdate = true;
+  }
+}
+const ORBIT_N = 361;
+const orbitLine = new Ribbon(ORBIT_N, 0xffb547, 0.95, 0.004);
+const ringLine = new Ribbon(ORBIT_N, 0xb8f57a, 0.7, -0.002);
+const stationLine = new Ribbon(ORBIT_N, 0x6cc4ff, 0.35, -0.001);
+const TRAIL_N = 700;
+const trailLine = new Ribbon(TRAIL_N, 0x8a8a8a, 0.45, 0.001);
+
+function label(text, color) {
+  const c = document.createElement('canvas'); c.width = 160; c.height = 56;
+  const g = c.getContext('2d');
+  g.font = 'bold 30px ui-monospace, Consolas, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.8)'; g.strokeText(text, 80, 28);
+  g.fillStyle = color; g.fillText(text, 80, 28);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, depthTest: false, transparent: true, sizeAttenuation: false }));
+  s.scale.set(0.09, 0.0315, 1); s.renderOrder = 10; s.center.set(0.5, -0.4);
+  scene.add(s);
+  return s;
+}
+function dot(color) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(1, 16, 12), new THREE.MeshBasicMaterial({ color }));
+  scene.add(m); return m;
+}
+const apDot = dot(0xffb547), peDot = dot(0xffb547);
+const apLabel = label('AP', '#ffb547'), peLabel = label('PE', '#ffb547');
+
+// the ship: built along +Y, rotated to face the direction of travel
+const ship = new THREE.Group();
+{
+  const white = new THREE.MeshStandardMaterial({ color: 0xe8e8e8, roughness: 0.5, metalness: 0.2 });
+  const green = new THREE.MeshStandardMaterial({ color: 0xb8f57a, roughness: 0.6, emissive: 0x1d2a10 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.34, 1.0, 20), white);
+  const nose = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.6, 20), green); nose.position.y = 0.8;
+  const bell = new THREE.Mesh(new THREE.ConeGeometry(0.26, 0.3, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0x555555, side: THREE.DoubleSide }));
+  bell.position.y = -0.62; bell.rotation.x = Math.PI;
+  ship.add(body, nose, bell);
+  for (let i = 0; i < 3; i++) {
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.45, 0.35), green);
+    const a = i / 3 * Math.PI * 2; fin.position.set(Math.cos(a) * 0.36, -0.3, Math.sin(a) * 0.36); fin.rotation.y = -a;
+    ship.add(fin);
+  }
+}
+scene.add(ship);
+const flameGeo = new THREE.ConeGeometry(0.22, 1, 14); flameGeo.translate(0, 0.5, 0);
+const flame = new THREE.Mesh(flameGeo, new THREE.MeshBasicMaterial({ color: 0xffa040, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending, depthWrite: false }));
+scene.add(flame);
+const velArrow = new THREE.ArrowHelper(new THREE.Vector3(1, 0, 0), new THREE.Vector3(), 1, 0xb8f57a);
+scene.add(velArrow);
+
+const station = new THREE.Group();
+{
+  const metal = new THREE.MeshStandardMaterial({ color: 0xd0d4da, roughness: 0.45, metalness: 0.4 });
+  const panel = new THREE.MeshStandardMaterial({ color: 0x2a5aa8, roughness: 0.3, metalness: 0.6, emissive: 0x081830 });
+  const core = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 1.3, 16), metal); core.rotation.z = Math.PI / 2;
+  const hub = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 12), metal);
+  const p1 = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.02, 1.6), panel); p1.position.x = 0.55;
+  const p2 = p1.clone(); p2.position.x = -0.55;
+  station.add(core, hub, p1, p2);
+}
+scene.add(station);
+const stationLabel = label('station', '#6cc4ff');
+
+// ---------- simulation state ----------
+let mi = 0, mission = MISSIONS[0];
+let S = null;                 // { x, y, vx, vy }
+let ST = null;                // station state or null
+let ring = 0, used = 0, budget = 0, warp = 1, fine = false;
+let mode = 'intro';           // intro | predict | fly | debrief | crash | summary
+let gap0 = 1, flyClock = 0, hintShown = false;
+const trail = [];             // [x, y] samples
+let trailClock = 0;
+const held = { pro: false, retro: false, out: false, in: false };
+const predictions = {};
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem('orbit-school-done') || '[]')); } catch (_) {}
+
+function elements(x, y, vx, vy) {
+  const r = Math.hypot(x, y), v2 = vx * vx + vy * vy, E = v2 / 2 - 1 / r, h = x * vy - y * vx;
+  const rv = x * vx + y * vy, k = v2 - 1 / r;
+  const ex = k * x - rv * vx, ey = k * y - rv * vy, e = Math.hypot(ex, ey);
+  const p = h * h;
+  return { r, v: Math.sqrt(v2), E, h, e, w: Math.atan2(ey, ex), p,
+    a: E < 0 ? -1 / (2 * E) : Infinity, rp: p / (1 + e), ra: e < 1 ? p / (1 - e) : Infinity,
+    vesc: Math.sqrt(2 / r) };
+}
+
+// Points of the conic through the current state: ellipse closed, hyperbola clipped.
+function conicInto(rib, el, maxR = 40) {
+  const P = rib.pts, N = ORBIT_N - 1;
+  let n = 0;
+  if (el.e < 1) {
+    for (let i = 0; i <= N; i++) {
+      const th = el.w + i / N * Math.PI * 2, r = el.p / (1 + el.e * Math.cos(th - el.w));
+      P[2 * n] = r * Math.cos(th); P[2 * n + 1] = r * Math.sin(th); n++;
+    }
+    return { n, closed: true };
+  }
+  const tmax = Math.acos(-1 / el.e) - 0.01;
+  for (let i = 0; i <= N; i++) {
+    const th = el.w - tmax + i / N * 2 * tmax, r = el.p / (1 + el.e * Math.cos(th - el.w));
+    if (r > maxR || r < 0) { P[2 * n] = NaN; P[2 * n + 1] = NaN; }
+    else { P[2 * n] = r * Math.cos(th); P[2 * n + 1] = r * Math.sin(th); }
+    n++;
+  }
+  return { n, closed: false };
+}
+function circleInto(rib, r) {
+  const N = ORBIT_N - 1;
+  for (let i = 0; i <= N; i++) { const t = i / N * Math.PI * 2; rib.pts[2 * i] = r * Math.cos(t); rib.pts[2 * i + 1] = r * Math.sin(t); }
+  return N + 1;
+}
+
+function thrustDir(s) {
+  let tx = 0, ty = 0;
+  const v = Math.hypot(s.vx, s.vy) || 1, r = Math.hypot(s.x, s.y);
+  if (held.pro) { tx += s.vx / v; ty += s.vy / v; }
+  if (held.retro) { tx -= s.vx / v; ty -= s.vy / v; }
+  if (held.out) { tx += s.x / r; ty += s.y / r; }
+  if (held.in) { tx -= s.x / r; ty -= s.y / r; }
+  const L = Math.hypot(tx, ty);
+  return L > 1e-6 ? [tx / L, ty / L] : null;
+}
+
+function gravityStep(o, dt) {
+  const r2 = o.x * o.x + o.y * o.y, g = -1 / (r2 * Math.sqrt(r2));
+  o.vx += o.x * g * dt; o.vy += o.y * g * dt;
+  o.x += o.vx * dt; o.y += o.vy * dt;
+}
+
+function simulate(dt) {
+  const n = Math.max(1, Math.ceil(dt / 0.004)), h = dt / n;
+  const acc = fine ? THRUST_FINE : THRUST;
+  for (let i = 0; i < n; i++) {
+    const d = budget - used > 0 ? thrustDir(S) : null;
+    if (d) {
+      const dv = Math.min(acc * h, budget - used);
+      S.vx += d[0] * dv; S.vy += d[1] * dv; used += dv;
+    }
+    gravityStep(S, h);
+    if (ST) gravityStep(ST, h);
+    if (S.x * S.x + S.y * S.y < 1) return 'crash';
+  }
+  trailClock += dt;
+  if (trailClock > 0.04) {
+    trailClock = 0; trail.push([S.x, S.y]);
+    if (trail.length > TRAIL_N) trail.shift();
+  }
+  return null;
+}
+
+// ---------- camera: drag to orbit, wheel or pinch to zoom ----------
+let camTheta = 0.9, camPhi = 1.0, camDist = 6, zoom = 1;
+const pointers = new Map();
+let pinch0 = 0, zoom0 = 1;
+canvas.addEventListener('pointerdown', e => { canvas.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]); if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom0 = zoom; } });
+canvas.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  const prev = pointers.get(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]);
+  if (pointers.size === 1) {
+    camTheta -= (e.clientX - prev[0]) * 0.006;
+    camPhi = Math.max(0.15, Math.min(1.5, camPhi - (e.clientY - prev[1]) * 0.006));
+  } else if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    zoom = Math.max(0.3, Math.min(4, zoom0 * pinch0 / (Math.hypot(a[0] - b[0], a[1] - b[1]) || 1)));
+  }
+});
+const endPointer = e => pointers.delete(e.pointerId);
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('wheel', e => { e.preventDefault(); zoom = Math.max(0.3, Math.min(4, zoom * Math.exp(e.deltaY * 0.001))); }, { passive: false });
+
+// ---------- input ----------
+function setHeld(dir, on) {
+  held[dir] = on;
+  document.querySelector(`.hold[data-dir="${dir}"]`).classList.toggle('active', on);
+}
+for (const b of document.querySelectorAll('.hold')) {
+  const dir = b.dataset.dir;
+  b.addEventListener('pointerdown', e => { e.preventDefault(); b.setPointerCapture(e.pointerId); setHeld(dir, true); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) b.addEventListener(ev, () => setHeld(dir, false));
+  b.addEventListener('contextmenu', e => e.preventDefault());
+}
+const KEYS = { w: 'pro', arrowup: 'pro', s: 'retro', arrowdown: 'retro', a: 'in', arrowleft: 'in', d: 'out', arrowright: 'out' };
+addEventListener('keydown', e => {
+  if (mode !== 'fly') return;
+  const k = e.key.toLowerCase();
+  if (KEYS[k]) { e.preventDefault(); setHeld(KEYS[k], true); }
+  else if (k === 'shift') setFine(true);
+  else if (k === '1') setWarp(1); else if (k === '2') setWarp(4); else if (k === '3') setWarp(16);
+  else if (k === ' ') { e.preventDefault(); setWarp(warp ? 0 : 1); }
+  else if (k === 'r') startMission(mi, false);
+});
+addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  if (KEYS[k]) setHeld(KEYS[k], false);
+  else if (k === 'shift') setFine(false);
+});
+addEventListener('blur', () => { for (const d in held) setHeld(d, false); });
+
+function setWarp(w) {
+  warp = w;
+  for (const b of document.querySelectorAll('[data-warp]')) b.classList.toggle('on', +b.dataset.warp === w);
+}
+function setFine(on) { fine = on; $('btnFine').classList.toggle('on', on); }
+for (const b of document.querySelectorAll('[data-warp]')) b.addEventListener('click', () => setWarp(+b.dataset.warp));
+$('btnFine').addEventListener('click', () => setFine(!fine));
+$('btnRetry').addEventListener('click', () => startMission(mi, false));
+$('btnHelp').addEventListener('click', () => showHelp());
+$('btnCollapse').addEventListener('click', () => {
+  const min = $('hud').classList.toggle('min');
+  $('btnCollapse').textContent = min ? '+' : '–';
+});
+
+// ---------- missions flow ----------
+function renderChips() {
+  const host = $('chips'); host.innerHTML = '';
+  MISSIONS.forEach((m, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === mi ? ' cur' : '') + (done.has(i) ? ' done' : '');
+    b.textContent = i < 4 ? String(i + 1) : t('osFree');
+    b.title = t(m.titleKey);
+    b.addEventListener('click', () => startMission(i, true));
+    host.appendChild(b);
+  });
+}
+
+function startMission(i, ask) {
+  mi = i; mission = MISSIONS[i];
+  const set = mission.setup();
+  S = { ...set.ship };
+  ST = set.station ? { ...set.station } : null;
+  ring = set.ring || 0;
+  used = 0; budget = mission.budget / KMS; trail.length = 0;   // budgets are written in km/s flyClock = 0; hintShown = false;
+  gap0 = ST ? Math.hypot(S.x - ST.x, S.y - ST.y) : 1;
+  for (const d in held) setHeld(d, false);
+  setFine(false);
+  $('mTitle').textContent = (i < 4 ? t('osMissionPrefix', { n: i + 1 }) : '') + t(mission.titleKey);
+  $('mGoal').textContent = t(mission.goalKey);
+  $('mHint').hidden = true;
+  $('rowGap').hidden = !ST || i === 4;
+  const pred = predictions[i];
+  $('mPred').textContent = pred != null ? t('osYourPrediction', { opt: t(mission.predict.optionKeys[pred]) }) : '';
+  renderChips();
+  if (ask && mission.predict && predictions[i] == null) { showPredict(); }
+  else { closeModal(); mode = 'fly'; setWarp(1); }
+}
+
+function openModal(html) {
+  $('card').innerHTML = html;
+  $('modal').hidden = false;
+  setWarp(0);
+  const first = $('card').querySelector('.go, .opts button, button');
+  if (first) first.focus({ preventScroll: true });
+}
+function closeModal() { $('modal').hidden = true; }
+
+const FOOTER = () => `<div class="site-foot"><span>${t('osFooter')}</span>
+  <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a></div>`;
+
+function showIntro() {
+  mode = 'intro';
+  openModal(`<div class="eyebrow">Orbit School</div>
+    <h2>${t('osIntroH2')}</h2>
+    <p>${t('osIntroP1')}</p>
+    <p>${t('osIntroP2')}</p>
+    <p class="small">${t('osIntroP3')}</p>
+    <div class="keys">${t('osIntroKeys')}</div>
+    <div class="actions"><button onclick="location.href='/lab/orbit-school-notes.html'">${t('osTeacherNotes')}</button>
+      <button class="go" id="goStart">${t('osStartMission1')}</button></div>${FOOTER()}`);
+  $('goStart').addEventListener('click', () => startMission(0, true));
+}
+
+function showHelp() {
+  const wasFly = mode === 'fly';
+  openModal(`<div class="eyebrow">${t('osControls')}</div><h2>${t('osHelpH2')}</h2>
+    <p>${t('osHelpP1')}</p>
+    <p>${t('osHelpP2')}</p>
+    <div class="keys">${t('osHelpKeys')}</div>
+    <div class="actions"><button class="go" id="goBack">${t('osBackToFlying')}</button></div>`);
+  $('goBack').addEventListener('click', () => { closeModal(); if (wasFly) setWarp(1); });
+}
+
+function showPredict() {
+  mode = 'predict';
+  const p = mission.predict;
+  openModal(`<div class="eyebrow">${t('osPredictEyebrow', { n: mi + 1 })}</div>
+    <h2>${t(mission.titleKey)}</h2>
+    <p>${t(p.qKey)}</p>
+    <div class="opts">${p.optionKeys.map((k, i) => `<button data-k="${i}">${t(k)}</button>`).join('')}</div>
+    <p class="small">${t('osPredictSmall')}</p>`);
+  for (const b of $('card').querySelectorAll('.opts button')) b.addEventListener('click', () => {
+    predictions[mi] = +b.dataset.k;
+    $('mPred').textContent = t('osYourPrediction', { opt: t(p.optionKeys[predictions[mi]]) });
+    closeModal(); mode = 'fly'; setWarp(1);
+  });
+}
+
+function showDebrief() {
+  mode = 'debrief';
+  done.add(mi);
+  try { localStorage.setItem('orbit-school-done', JSON.stringify([...done])); } catch (_) {}
+  renderChips();
+  const p = mission.predict, d = mission.debrief, guess = predictions[mi];
+  const right = guess === p.correct;
+  const verdict = guess == null ? '' : right
+    ? `<div class="verdict yes">${t('osVerdictYes', { opt: t(p.optionKeys[guess]) })}</div>`
+    : `<div class="verdict no">${t('osVerdictNo', { opt: t(p.optionKeys[guess]), correct: t(p.optionKeys[p.correct]) })}</div>`;
+  const eff = isFinite(budget) ? `<p class="small">${t('osEffUsed', { used: (used * KMS).toFixed(2), ideal: mission.ideal.toFixed(2), nicely: used * KMS <= mission.ideal * 1.1 ? t('osNicelyDone') : '' })}</p>` : '';
+  const next = mi < 3 ? t('osMissionN', { n: mi + 2 }) : t('osWrapUp');
+  openModal(`<div class="eyebrow">${t('osMissionComplete', { n: mi + 1 })}</div>
+    <h2>${t(mission.titleKey)}</h2>${verdict}
+    <div class="takeaway">${t(d.takeawayKey)}</div>
+    <p>${t(d.textKey)}</p>${eff}
+    <div class="reflect"><div class="q">${t('osThinkAbout', { q: t(d.qKey) })}</div>
+      <div class="a" hidden>${t(d.aKey)}</div><button id="goReveal">${t('osShowAnswer')}</button></div>
+    <div class="actions"><button id="goAgain">${t('osFlyAgain')}</button><button class="go" id="goNext">${next}</button></div>`);
+  $('goReveal').addEventListener('click', e => { $('card').querySelector('.reflect .a').hidden = false; e.target.remove(); });
+  $('goAgain').addEventListener('click', () => startMission(mi, false));
+  $('goNext').addEventListener('click', () => mi < 3 ? startMission(mi + 1, true) : showSummary());
+}
+
+function showCrash() {
+  mode = 'crash';
+  openModal(`<div class="eyebrow">${mi < 4 ? t('osMissionN', { n: mi + 1 }) : t('osM4Title')}</div><h2>${t('osCrashH2')}</h2>
+    <p>${t('osCrashP')}</p>
+    <div class="actions"><button class="go" id="goRetry">${t('osTryAgain')}</button></div>`);
+  $('goRetry').addEventListener('click', () => startMission(mi, false));
+}
+
+function showSummary() {
+  mode = 'summary';
+  const rows = MISSIONS.slice(0, 4).map((m, i) => {
+    const g = predictions[i];
+    const res = g == null ? '–' : g === m.predict.correct ? t('osPredictedMark') : t('osSurprisedMark');
+    return `<tr><td>${i + 1}. ${t(m.titleKey)}</td><td>${t(m.debrief.takeawayKey)}</td><td style="white-space:nowrap">${res}</td></tr>`;
+  }).join('');
+  const surprised = MISSIONS.slice(0, 4).filter((m, i) => predictions[i] != null && predictions[i] !== m.predict.correct).length;
+  openModal(`<div class="eyebrow">Orbit School</div><h2>${t('osSummaryH2')}</h2>
+    <table class="summary">${rows}</table>
+    <p>${surprised ? t('osSummarySurprised', { n: surprised }) : t('osSummaryAllCorrect')}</p>
+    <p class="small">${t('osTryFreeFlight')}</p>
+    <div class="actions"><button onclick="location.href='/lab/orbit-school-notes.html'">${t('osHowTeaches').replace(' →', '')}</button>
+      <button class="go" id="goFree">${t('osFreeFlightBtn')}</button></div>${FOOTER()}`);
+  $('goFree').addEventListener('click', () => startMission(4, false));
+}
+
+// ---------- frame loop ----------
+const v3 = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+const toW = (x, y, h = 0) => v3.set(x, h, y);
+let last = performance.now(), uiClock = 0, el = null;
+
+function frame(now) {
+  const dtReal = Math.min(0.05, (now - last) / 1000); last = now;
+  const dtSim = mode === 'fly' ? dtReal * RATE * warp : 0;
+
+  if (dtSim > 0) {
+    const r = simulate(dtSim);
+    flyClock += dtReal;
+    if (r === 'crash') showCrash();
+  }
+  el = elements(S.x, S.y, S.vx, S.vy);
+  const s = { ...el, gap: ST ? Math.hypot(S.x - ST.x, S.y - ST.y) : Infinity, gap0 };
+  if (mode === 'fly' && mission.check(s)) showDebrief();
+  if (mode === 'fly' && !hintShown && mission.hintKey && (flyClock > 30 || used >= budget - 1e-6)) {
+    hintShown = true; $('mHint').hidden = false; $('mHint').textContent = t('osHintPrefix', { hint: t(mission.hintKey) });
+  }
+
+  planet.rotation.y += dtSim * 0.06; clouds.rotation.y += dtSim * 0.075;
+
+  // camera fits the orbit unless the player zoomed
+  const reach = Math.max(el.r, Math.min(isFinite(el.ra) ? el.ra : el.r * 1.6, 8), ring, ST ? Math.hypot(ST.x, ST.y) : 0);
+  const aspect = innerWidth / innerHeight;
+  const want = (reach * 3.1 + 0.6) * (aspect < 1 ? 1.25 / aspect : 1) * zoom;
+  camDist += (want - camDist) * Math.min(1, dtReal * 2.5);
+  camera.position.set(camDist * Math.cos(camPhi) * Math.cos(camTheta), camDist * Math.sin(camPhi), camDist * Math.cos(camPhi) * Math.sin(camTheta));
+  camera.lookAt(0, aspect < 1 ? -camDist * 0.08 : 0, 0);
+  const W = camDist * 0.0035, size = camDist * 0.016;
+
+  // orbit, ring, trail
+  const o = conicInto(orbitLine, el);
+  orbitLine.mat.color.set(el.rp < 1 ? 0xff6b5b : 0xffb547);
+  orbitLine.update(o.n, W, o.closed);
+  ringLine.mesh.visible = !!ring;
+  if (ring) ringLine.update(circleInto(ringLine, ring), W * 0.8, true, 6);
+  stationLine.mesh.visible = !!ST;
+  if (ST) { const so = conicInto(stationLine, elements(ST.x, ST.y, ST.vx, ST.vy)); stationLine.update(so.n, W * 0.6, so.closed); }
+  for (let i = 0; i < trail.length; i++) { trailLine.pts[2 * i] = trail[i][0]; trailLine.pts[2 * i + 1] = trail[i][1]; }
+  trailLine.mesh.visible = trail.length > 1;
+  if (trail.length > 1) trailLine.update(trail.length, W * 0.7);
+
+  // AP / PE markers along the eccentricity vector
+  const showAp = el.e > 0.02 && el.e < 1 && el.ra < 40, showPe = el.e > 0.02;
+  for (const [m, l, r, ang, vis] of [[apDot, apLabel, el.ra, el.w + Math.PI, showAp], [peDot, peLabel, el.rp, el.w, showPe]]) {
+    m.visible = l.visible = vis;
+    if (!vis) continue;
+    m.position.copy(toW(r * Math.cos(ang), r * Math.sin(ang), 0.004)); m.scale.setScalar(size * 0.18);
+    l.position.copy(m.position);
+  }
+
+  // ship, flame, velocity arrow
+  ship.position.copy(toW(S.x, S.y));
+  ship.scale.setScalar(size);
+  const vdir = new THREE.Vector3(S.vx, 0, S.vy).normalize();
+  ship.quaternion.setFromUnitVectors(up, vdir);
+  const td = budget - used > 0 && mode === 'fly' ? thrustDir(S) : null;
+  flame.visible = !!td;
+  if (td) {
+    const back = new THREE.Vector3(-td[0], 0, -td[1]);
+    flame.quaternion.setFromUnitVectors(up, back);
+    flame.position.copy(ship.position).addScaledVector(back, size * 0.55);
+    flame.scale.set(size * 1.1, size * (1.2 + Math.random() * 0.5), size * 1.1);
+  }
+  velArrow.position.copy(ship.position);
+  velArrow.setDirection(vdir);
+  velArrow.setLength(size * 4.5, size * 1.2, size * 0.7);
+
+  station.visible = stationLabel.visible = !!ST;
+  if (ST) {
+    station.position.copy(toW(ST.x, ST.y)); station.scale.setScalar(size * 0.9);
+    station.rotation.y += dtSim * 0.8;
+    stationLabel.position.copy(station.position);
+  }
+
+  // telemetry (a few times a second is plenty)
+  uiClock += dtReal;
+  if (uiClock > 0.08) {
+    uiClock = 0;
+    $('tSpeed').textContent = kms(el.v);
+    $('tAlt').textContent = altKm(el.r);
+    $('tAp').textContent = el.e >= 1 ? t('osEscaping') : altKm(el.ra);
+    $('tPe').textContent = el.rp < 1 ? t('osBelowSurface') : altKm(el.rp);
+    $('tPe').style.color = el.rp < 1 ? 'var(--danger)' : '';
+    if (ST) $('tGap').textContent = fmtKm(s.gap);
+    const left = budget - used;
+    $('tFuel').textContent = isFinite(budget) ? (left * KMS).toFixed(2) + ' km/s' : t('osUnlimited');
+    $('fuelBar').style.width = (isFinite(budget) ? clamp01(left / budget) : 1) * 100 + '%';
+    const [pr, txt] = mission.progress(s);
+    $('mBar').style.width = pr * 100 + '%';
+    $('mBar').parentElement.style.visibility = mi === 4 ? 'hidden' : '';
+    $('mProg').textContent = txt;
+    $('mNote').textContent = mode === 'fly' ? mission.note(s, held) : '';
+  }
+
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+updateAriaLabels();
+startMission(0, false);
+mode = 'intro';
+showIntro();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

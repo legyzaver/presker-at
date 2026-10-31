@@ -1,0 +1,2440 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FP Disk Burner — Fisher Price Disc Designer</title>
+<!--
+  Fisher Price Record Designer - web edition.
+
+  A self-contained port of the desktop tool: no build step, no backend, no
+  dependencies. Drop this one file onto a static host and it works.
+
+  What it does NOT do, on purpose: render an STL. That needs OpenSCAD as a
+  subprocess. Everything else - the pin/note tables, absolute-pitch mapping,
+  auto-transposition, the music-box repeat rule, accompaniment, and the
+  concentric G-code writer - is ported from the Python app and produces
+  byte-comparable output.
+
+  Song JSON is interchangeable with the desktop app in both directions.
+-->
+<style>
+:root{
+  --bg:#faf8f3; --panel:#fffefb; --line:#e4e0d4; --ink:#1c1b18; --dim:#6b6a63;
+  --accent:#0d7d6b; --accent-dim:#9ad8cc; --pin:#2a5fb0; --pin-hi:#5a8ad0;
+  --warn:#a2461f; --bad:#c23e1f; --grid:#1d242c;
+  color-scheme:light;
+}
+html[data-theme="dark"]{
+  --bg:#0f1216; --panel:#161b21; --line:#28313b; --ink:#e9eef3; --dim:#94a3b1;
+  --accent:#4ec9b0; --accent-dim:#2b7f6f; --pin:#4a90d9; --pin-hi:#7fb8ef;
+  --warn:#f0a05a; --bad:#e06c75;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]){
+    --bg:#0f1216; --panel:#161b21; --line:#28313b; --ink:#e9eef3; --dim:#94a3b1;
+    --accent:#4ec9b0; --accent-dim:#2b7f6f; --pin:#4a90d9; --pin-hi:#7fb8ef;
+    --warn:#f0a05a; --bad:#e06c75;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);
+  font:14px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+h1{font-size:16px;margin:0;font-weight:650;letter-spacing:.2px}
+h2{font-size:11px;margin:0 0 10px;color:var(--dim);text-transform:uppercase;
+   letter-spacing:.09em;font-weight:650}
+header{display:flex;gap:14px;align-items:center;flex-wrap:wrap;
+  padding:12px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+header .sp{flex:1}
+main{display:flex;gap:16px;padding:16px;align-items:flex-start;flex-wrap:wrap}
+#left{flex:3;min-width:520px;display:flex;flex-direction:column;gap:16px}
+#right{flex:1;min-width:300px;display:flex;flex-direction:column;gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+button{background:#232c36;color:var(--ink);border:1px solid var(--line);
+  border-radius:7px;padding:7px 12px;font:inherit;cursor:pointer}
+button:hover{background:#2c3742;border-color:#3a4756}
+button.primary{background:var(--accent-dim);border-color:#3aa08c;color:#eafff9}
+button.primary:hover{background:#35917f}
+button:disabled{opacity:.45;cursor:not-allowed}
+select,input[type=number],input[type=text]{background:#0e1318;color:var(--ink);
+  border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
+input[type=range]{width:100%;accent-color:var(--accent)}
+label{display:block;font-size:12px;color:var(--dim);margin:9px 0 3px}
+label.inline{display:flex;align-items:center;gap:8px;color:var(--ink);font-size:13px;
+  margin:6px 0;cursor:pointer}
+.row{display:flex;gap:10px}.row>*{flex:1}
+.hint{font-size:12px;color:var(--dim);margin-top:7px;line-height:1.45}
+.hint.warn{color:var(--warn)}
+#gridwrap{overflow:auto;border:1px solid var(--line);border-radius:8px;background:#0c1015}
+table.grid{border-collapse:collapse;font-size:11px}
+table.grid th{position:sticky;left:0;background:#131920;color:var(--dim);
+  text-align:right;padding:0 8px;white-space:nowrap;font-weight:500;z-index:2;
+  border-right:1px solid var(--line)}
+table.grid td{width:16px;height:16px;padding:0;border:1px solid var(--grid);
+  cursor:pointer}
+table.grid td.on{background:var(--pin);border-color:var(--pin-hi)}
+table.grid tr.alt td{background:#11161c}
+table.grid tr.alt td.on{background:var(--pin)}
+table.grid td.beat{border-left:1px solid #384552}
+canvas{display:block;background:#0a0d11;border-radius:8px;width:100%;height:auto}
+.stat{display:flex;justify-content:space-between;padding:2px 0;font-size:13px}
+.stat span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
+#log{white-space:pre-wrap;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--dim);max-height:190px;overflow:auto}
+.drop{border:1px dashed #3a4756;border-radius:8px;padding:14px;text-align:center;
+  color:var(--dim);font-size:13px;cursor:pointer}
+.drop.over{border-color:var(--accent);color:var(--ink);background:#16211f}
+.tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.tabs button{padding:5px 11px;font-size:13px}
+.tabs button[aria-selected=true]{background:var(--accent-dim);border-color:#3aa08c;color:#eafff9}
+.pane{display:none}.pane.on{display:block}
+footer{padding:12px 18px 74px;color:var(--dim);font-size:12px;border-top:1px solid var(--line)}
+a{color:var(--accent)}
+#topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
+  gap:8px;padding:10px 18px 0}
+.home{font:12px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--dim);text-decoration:none}
+.home:hover{color:var(--accent)}
+.pill-group{display:flex;align-items:center;gap:2px;background:var(--panel);
+  border:1px solid var(--line);border-radius:7px;padding:2px}
+.pill-btn{font:11px ui-monospace,SFMono-Regular,Menlo,monospace;border:none;
+  background:transparent;color:var(--dim);padding:5px 8px;border-radius:5px;
+  cursor:pointer;line-height:1}
+.pill-btn:hover{color:var(--ink)}
+.pill-btn.on{background:var(--accent-dim);color:#eafff9;font-weight:700}
+/* donate widget */
+#donate{position:fixed;right:16px;bottom:16px;z-index:50;display:flex;
+  flex-direction:column;align-items:flex-end;gap:8px}
+/* an explicit display: rule beats the browser's own [hidden] rule, so these
+   two have to opt back out by name or the card is never actually hidden */
+#donate[hidden],#donate-card[hidden]{display:none}
+#donate-toggle{padding:5px;line-height:0;border-radius:9px;background:#f4f7fa;
+  border:1px solid #cbd5df;box-shadow:0 4px 14px rgba(0,0,0,.45)}
+#donate-toggle:hover{background:#fff;border-color:var(--accent)}
+#donate-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.5);text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:9px;max-width:230px}
+#donate-title{font-size:13px;font-weight:600}
+#donate-qr{background:#fff;border-radius:8px;padding:8px;width:180px;height:180px}
+#donate-link{font-size:12px;word-break:break-all}
+#donate-note{font-size:11px;color:var(--dim)}
+@media (max-width:640px){ #donate-card{max-width:180px} #donate-qr{width:140px;height:140px} }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  fpbBuildLabel: 'build {v}',
+  fpbPlayBtn: 'Play', fpbStopBtn: 'Stop',
+  fpbPianoRoll: 'Piano roll', fpbPianoRollHint: 'click a cell to place a pin',
+  fpbStepsLower: 'steps', fpbResizeBtn: 'Resize', fpbClearBtn: 'Clear',
+  fpbDiscPreviewH2: 'Disc preview',
+  fpbTabDisc: 'Disc', fpbTabPrint: 'Print', fpbTabFile: 'File',
+  fpbDropHint: 'Drop a <b>.mid</b> here, or click to choose',
+  fpbTrackLabel: 'Track', fpbVoiceLabel: 'Voice',
+  fpbVoiceTop: 'Top voice (melody)', fpbVoiceBottom: 'Bottom voice (bass)',
+  fpbVoiceChords: 'Merge all notes',
+  fpbSimplifyLabel: 'Simplify melody',
+  fpbSimplifyNone: 'None &mdash; every note as written',
+  fpbSimplifyLight: 'Light &mdash; drop the fastest ornaments',
+  fpbSimplifyMedium: 'Medium &mdash; music-box arrangement',
+  fpbSimplifyStrong: 'Strong &mdash; bare skeleton of the tune',
+  fpbPitchMappingLabel: 'Pitch mapping',
+  fpbPitchMusical: 'Musical &mdash; keep intervals, transpose',
+  fpbPitchProportional: 'Proportional &mdash; squeeze range',
+  fpbAccompLabel: 'Accompaniment',
+  fpbAccompNone: 'None &mdash; melody only', fpbAccompLight: 'Light',
+  fpbAccompMedium: 'Medium &mdash; like the factory discs',
+  fpbAccompFull: 'Full &mdash; fill the disc',
+  fpbBeatsBarLabel: 'Beats/bar', fpbClearanceLabel: 'Clearance mm',
+  fpbStartSLabel: 'Start s', fpbEndSLabel: 'End s',
+  fpbConvertBtn: 'Convert to disc',
+  fpbConvertHint: 'A melody alone gives ~10 pins. A real Fisher Price disc carries 125+ over 96 steps, a third of them chords &mdash; the tune was never the hard part, filling the disc was.',
+  fpbTrackWidthLabel: 'Track width', fpbStepsCap: 'Steps',
+  fpbTriggerLabel: 'Trigger mm', fpbGrooveWallLabel: 'Groove wall mm',
+  fpbDriveHoleLabel: 'Drive hole dia mm',
+  fpbGeomHintNarrow: "Only {mm}mm of groove left - too narrow for the player's head.",
+  fpbGeomHintOk: 'Leaves a {mm}mm groove channel (the original measures 2.19mm).',
+  fpbCheckBtn: 'Check playability',
+  fpbPrinterLabel: 'Printer',
+  fpbPrinterSrcReal: 'Start/end G-code from {source}. {flavor} flavour, {retract}mm retract at {speed}mm/s.',
+  fpbPrinterSrcFallback: 'No vendor profile for this machine - {source}. Bed size and temperatures are right; the start G-code is a conservative generic one. Check it before printing.',
+  fpbFilamentLabel: 'Filament',
+  fpbBedXLabel: 'Bed X mm', fpbBedYLabel: 'Bed Y mm',
+  fpbNozzleLabel: 'Nozzle mm', fpbLineWidthLabel: 'Line width mm',
+  fpbLayerLabel: 'Layer mm', fpbFirstLayerLabel: 'First layer mm',
+  fpbNozzleTempLabel: 'Nozzle &deg;C', fpbBedTempLabel: 'Bed &deg;C',
+  fpbSpeedLabel: 'Speed mm/s', fpbFilamentMmLabel: 'Filament mm',
+  fpbArcsLabel: 'use G2/G3 arcs (needs ARC_SUPPORT)',
+  fpbDlGcodeBtn: 'Download .gcode', fpbDlStlBtn: 'Download .stl (slice this)',
+  fpbDlScadBtn: 'Download .scad', fpbResetPrintBtn: 'Reset to printer defaults',
+  fpbPrintWarnHint: 'Generated directly from the disc geometry, not sliced. Preview it before printing.',
+  fpbPrintRememberHint: 'Your printer, filament and any changes here are remembered in this browser.',
+  fpbSaveJsonBtn: 'Save song (.json)', fpbLoadJsonBtn: 'Load song (.json)',
+  fpbCalibBtn: 'Load calibration sweep',
+  fpbSongFilesHint: 'Song files are interchangeable with the desktop app.',
+  fpbDiscStatsH2: 'Disc', fpbLogH2: 'Log', fpbLogReady: 'Ready.',
+  fpbStatSteps: 'steps', fpbStatPins: 'pins', fpbStatStepsUsed: 'steps used',
+  fpbStatChords: 'chords', fpbStatDistinctPitches: 'distinct pitches',
+  fpbStatGrooveChannel: 'groove channel', fpbStatOfPins: '{n} of 22 pins',
+  fpbFooterText: "The arm is diatonic &mdash; 22 pins but only 16 distinct pitches and 7 note letters. Chromatic music is approximated by construction, not by accident.",
+  fpbDonateTitle: 'Support this project',
+  fpbDonateNote: 'Scan with your phone, or tap the link.',
+  fpbLogEndAfterStart: 'End time must be after start time.',
+  fpbLogSimplifiedTo: 'Simplified to {mapped} step-events on {steps} rotation steps.',
+  fpbLogSimplifyOff: 'Simplify: off.',
+  fpbLogSimplifyApplied: 'Simplify ({level}): {thinned} ornament or repeated notes removed.',
+  fpbLogProportional: "Proportional: range squeezed onto the player's {n} levels.",
+  fpbLogTransposed: 'Transposed {shift} semitones; {exact}/{mapped} ({pct}%) landed on an exact pitch.',
+  fpbLogSpacing: 'Music-box spacing: {swapped} moved to a twin, {dropped} dropped.',
+  fpbLogAccompAdded: 'Accompaniment: {n} harmony pins added under the melody.',
+  fpbLogAccompOff: 'Accompaniment: off.',
+  fpbLogPlayable: 'No repeat lands too close on the same tooth. Playable.',
+  fpbLogCollisionsHeader: '{n} repeat(s) too close to sound:',
+  fpbLogCollisionLine: '  pin {pin} ({note}): steps {a} and {b} are {gap} apart, needs {need}',
+  fpbLogCollisionFooter: 'Move one further round the disc, add steps, or use a doubled twin.',
+  fpbLogStlError: 'Could not build the STL: {msg}',
+  fpbLogStlExported: 'Exported {name}.stl',
+  fpbLogStlStats: '{tris} triangles, {mb} MB, {pins} pins, built in {ms} ms.',
+  fpbLogStlFooter: 'Drop it straight into your slicer - OpenSCAD is not needed.',
+  fpbLogScadExported: 'Exported {name}.scad - self-contained, the geometry module is inlined; nothing else needs to sit beside it.',
+  fpbLogGcodeExported: 'Exported {name}.gcode',
+  fpbLogGcodeStats: '{layers} layers, {m} m filament, ~{min} min.',
+  fpbLogGcodeTravels: '{long} retracting travels of {total} total.',
+  fpbLogGcodeFooter: 'Generated in {ms} ms. Preview before printing.',
+  fpbLogLoadedSong: 'Loaded {name} - {n} steps.',
+  fpbLogSongReadError: 'Could not read that song file: {msg}',
+  fpbLogCalibSweep: 'Calibration sweep: every pin struck once, in order, with a silent gap marking each pass. Print it, play it, record it - that tells you what each pin really sounds like.',
+  fpbLogLoadedMidi: 'Loaded {name}. Pick a track and convert.',
+  fpbLogMidiReadError: 'Could not read that MIDI file: {msg}',
+  fpbLogResetPrinter: 'Reset to {model} defaults.',
+  fpbLogBoot: 'Fisher Price Disc Designer, build {build}. If an export looks wrong, check this matches the newest build - browsers cache this page hard; a shift-reload fixes it.',
+  fpbLogPrintersLoaded: 'Loaded {n} printer profiles',
+  fpbLogRestoredSettings: '; restored your saved settings.',
+  fpbLogDefaultingTo: ', defaulting to {model}.',
+  fpbLogPrintersJsonMissing: 'printers.json not found - using the built-in profile only. Upload printers.json next to this page for the full list.',
+  fpbLogPlaying: 'Playing {n} steps at {spb} steps/sec. Pitches are the real per-pin values; the timbre is an approximation.',
+  fpbAllTracksMerged: 'All tracks merged',
+  fpbTrackOptionLabel: '{name} ({n} notes, {lo}-{hi})',
+  fpbTrackFallbackName: 'Track {n}',
+  fpbMidiMeta: '{name} - {n} tracks with notes, {dur}s',
+  fpbGridHintBase: 'Trigger {w}mm = {lines} lines at a {nozzle}mm nozzle',
+  fpbGridHintGapfill: ' - not a whole number, the slicer will gap-fill.',
+  fpbGridHintHollow: ' - prints hollow and snaps off.',
+  fpbGridHintSolid: '. Solid.',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  fpbBuildLabel: 'Build {v}',
+  fpbPlayBtn: 'Abspielen', fpbStopBtn: 'Stopp',
+  fpbPianoRoll: 'Klavierrolle', fpbPianoRollHint: 'Klicke auf eine Zelle, um einen Stift zu setzen',
+  fpbStepsLower: 'Schritte', fpbResizeBtn: 'Größe ändern', fpbClearBtn: 'Leeren',
+  fpbDiscPreviewH2: 'Scheibenvorschau',
+  fpbTabDisc: 'Scheibe', fpbTabPrint: 'Drucken', fpbTabFile: 'Datei',
+  fpbDropHint: '<b>.mid</b>-Datei hier ablegen oder klicken, um eine auszuwählen',
+  fpbTrackLabel: 'Spur', fpbVoiceLabel: 'Stimme',
+  fpbVoiceTop: 'Oberstimme (Melodie)', fpbVoiceBottom: 'Unterstimme (Bass)',
+  fpbVoiceChords: 'Alle Noten zusammenführen',
+  fpbSimplifyLabel: 'Melodie vereinfachen',
+  fpbSimplifyNone: 'Keine &mdash; jede Note wie notiert',
+  fpbSimplifyLight: 'Leicht &mdash; schnellste Verzierungen weglassen',
+  fpbSimplifyMedium: 'Mittel &mdash; Spieldosen-Arrangement',
+  fpbSimplifyStrong: 'Stark &mdash; bloßes Skelett der Melodie',
+  fpbPitchMappingLabel: 'Tonhöhen-Zuordnung',
+  fpbPitchMusical: 'Musikalisch &mdash; Intervalle beibehalten, transponieren',
+  fpbPitchProportional: 'Proportional &mdash; Tonumfang zusammenpressen',
+  fpbAccompLabel: 'Begleitung',
+  fpbAccompNone: 'Keine &mdash; nur Melodie', fpbAccompLight: 'Leicht',
+  fpbAccompMedium: 'Mittel &mdash; wie die Werksscheiben',
+  fpbAccompFull: 'Voll &mdash; die Scheibe ausfüllen',
+  fpbBeatsBarLabel: 'Schläge/Takt', fpbClearanceLabel: 'Abstand mm',
+  fpbStartSLabel: 'Start s', fpbEndSLabel: 'Ende s',
+  fpbConvertBtn: 'In Scheibe umwandeln',
+  fpbConvertHint: 'Eine Melodie allein ergibt ~10 Stifte. Eine echte Fisher-Price-Scheibe trägt 125+ über 96 Schritte, ein Drittel davon Akkorde &mdash; die Melodie war nie das Schwierige, das Füllen der Scheibe war es.',
+  fpbTrackWidthLabel: 'Spurbreite', fpbStepsCap: 'Schritte',
+  fpbTriggerLabel: 'Auslöser mm', fpbGrooveWallLabel: 'Rillenwand mm',
+  fpbDriveHoleLabel: 'Antriebsloch-Ø mm',
+  fpbGeomHintNarrow: "Nur noch {mm}mm Rille übrig - zu schmal für den Tonkopf des Spielers.",
+  fpbGeomHintOk: 'Lässt einen {mm}mm breiten Rillenkanal (das Original misst 2,19mm).',
+  fpbCheckBtn: 'Spielbarkeit prüfen',
+  fpbPrinterLabel: 'Drucker',
+  fpbPrinterSrcReal: 'Start-/End-G-Code von {source}. {flavor}-Variante, {retract}mm Rückzug bei {speed}mm/s.',
+  fpbPrinterSrcFallback: 'Kein Herstellerprofil für dieses Gerät - {source}. Bettgröße und Temperaturen stimmen; der Start-G-Code ist ein vorsichtiger generischer. Vor dem Drucken prüfen.',
+  fpbFilamentLabel: 'Filament',
+  fpbBedXLabel: 'Bett X mm', fpbBedYLabel: 'Bett Y mm',
+  fpbNozzleLabel: 'Düse mm', fpbLineWidthLabel: 'Linienbreite mm',
+  fpbLayerLabel: 'Schicht mm', fpbFirstLayerLabel: 'Erste Schicht mm',
+  fpbNozzleTempLabel: 'Düse &deg;C', fpbBedTempLabel: 'Bett &deg;C',
+  fpbSpeedLabel: 'Geschwindigkeit mm/s', fpbFilamentMmLabel: 'Filament mm',
+  fpbArcsLabel: 'G2/G3-Bögen verwenden (benötigt ARC_SUPPORT)',
+  fpbDlGcodeBtn: '.gcode herunterladen', fpbDlStlBtn: '.stl herunterladen (dieses slicen)',
+  fpbDlScadBtn: '.scad herunterladen', fpbResetPrintBtn: 'Auf Druckervorgaben zurücksetzen',
+  fpbPrintWarnHint: 'Direkt aus der Scheibengeometrie erzeugt, nicht gesliced. Vor dem Drucken in der Vorschau prüfen.',
+  fpbPrintRememberHint: 'Dein Drucker, Filament und alle Änderungen hier werden in diesem Browser gespeichert.',
+  fpbSaveJsonBtn: 'Lied speichern (.json)', fpbLoadJsonBtn: 'Lied laden (.json)',
+  fpbCalibBtn: 'Kalibrierlauf laden',
+  fpbSongFilesHint: 'Liedateien sind mit der Desktop-App austauschbar.',
+  fpbDiscStatsH2: 'Scheibe', fpbLogH2: 'Protokoll', fpbLogReady: 'Bereit.',
+  fpbStatSteps: 'Schritte', fpbStatPins: 'Stifte', fpbStatStepsUsed: 'genutzte Schritte',
+  fpbStatChords: 'Akkorde', fpbStatDistinctPitches: 'unterschiedliche Tonhöhen',
+  fpbStatGrooveChannel: 'Rillenkanal', fpbStatOfPins: '{n} von 22 Stiften',
+  fpbFooterText: "Der Arm ist diatonisch &mdash; 22 Stifte, aber nur 16 unterschiedliche Tonhöhen und 7 Notenbuchstaben. Chromatische Musik wird durch die Bauweise angenähert, nicht aus Versehen.",
+  fpbDonateTitle: 'Dieses Projekt unterstützen',
+  fpbDonateNote: 'Mit dem Handy scannen oder auf den Link tippen.',
+  fpbLogEndAfterStart: 'Die Endzeit muss nach der Startzeit liegen.',
+  fpbLogSimplifiedTo: 'Vereinfacht auf {mapped} Schrittereignisse bei {steps} Umdrehungsschritten.',
+  fpbLogSimplifyOff: 'Vereinfachung: aus.',
+  fpbLogSimplifyApplied: 'Vereinfachung ({level}): {thinned} Verzierungen oder wiederholte Noten entfernt.',
+  fpbLogProportional: 'Proportional: Tonumfang auf die {n} Stufen des Spielers zusammengepresst.',
+  fpbLogTransposed: 'Um {shift} Halbtöne transponiert; {exact}/{mapped} ({pct}%) trafen genau eine Tonhöhe.',
+  fpbLogSpacing: 'Spieldosen-Abstand: {swapped} auf einen Zwilling verschoben, {dropped} verworfen.',
+  fpbLogAccompAdded: 'Begleitung: {n} Harmoniestifte unter der Melodie hinzugefügt.',
+  fpbLogAccompOff: 'Begleitung: aus.',
+  fpbLogPlayable: 'Keine Wiederholung landet zu nah auf demselben Zahn. Spielbar.',
+  fpbLogCollisionsHeader: '{n} Wiederholung(en) zu nah, um zu klingen:',
+  fpbLogCollisionLine: '  Stift {pin} ({note}): Schritte {a} und {b} sind {gap} auseinander, benötigt {need}',
+  fpbLogCollisionFooter: 'Einen weiter um die Scheibe verschieben, Schritte hinzufügen oder einen doppelten Zwilling verwenden.',
+  fpbLogStlError: 'STL konnte nicht erstellt werden: {msg}',
+  fpbLogStlExported: '{name}.stl exportiert',
+  fpbLogStlStats: '{tris} Dreiecke, {mb} MB, {pins} Stifte, erstellt in {ms} ms.',
+  fpbLogStlFooter: 'Direkt in deinen Slicer ziehen - OpenSCAD wird nicht benötigt.',
+  fpbLogScadExported: '{name}.scad exportiert - eigenständig, das Geometriemodul ist eingebettet; es muss nichts weiter danebenliegen.',
+  fpbLogGcodeExported: '{name}.gcode exportiert',
+  fpbLogGcodeStats: '{layers} Schichten, {m} m Filament, ~{min} Min.',
+  fpbLogGcodeTravels: '{long} Rückzugsfahrten von insgesamt {total}.',
+  fpbLogGcodeFooter: 'Erstellt in {ms} ms. Vor dem Drucken in der Vorschau prüfen.',
+  fpbLogLoadedSong: '{name} geladen - {n} Schritte.',
+  fpbLogSongReadError: 'Diese Liedatei konnte nicht gelesen werden: {msg}',
+  fpbLogCalibSweep: 'Kalibrierlauf: jeder Stift wird einmal in Reihenfolge angeschlagen, mit einer stillen Lücke zur Markierung jedes Durchlaufs. Drucken, abspielen, aufnehmen - das zeigt dir, wie jeder Stift wirklich klingt.',
+  fpbLogLoadedMidi: '{name} geladen. Spur auswählen und umwandeln.',
+  fpbLogMidiReadError: 'Diese MIDI-Datei konnte nicht gelesen werden: {msg}',
+  fpbLogResetPrinter: 'Auf {model}-Vorgaben zurückgesetzt.',
+  fpbLogBoot: 'Fisher Price Disc Designer, Build {build}. Wenn ein Export falsch aussieht, prüfe, ob dies dem neuesten Build entspricht - Browser cachen diese Seite hartnäckig; ein Shift-Reload behebt das.',
+  fpbLogPrintersLoaded: '{n} Druckerprofile geladen',
+  fpbLogRestoredSettings: '; deine gespeicherten Einstellungen wurden wiederhergestellt.',
+  fpbLogDefaultingTo: ', Standard ist {model}.',
+  fpbLogPrintersJsonMissing: 'printers.json nicht gefunden - nur das eingebaute Profil wird verwendet. Lade printers.json neben diese Seite hoch, um die vollständige Liste zu erhalten.',
+  fpbLogPlaying: 'Spiele {n} Schritte bei {spb} Schritten/Sek. Die Tonhöhen sind die echten Werte pro Stift; die Klangfarbe ist eine Annäherung.',
+  fpbAllTracksMerged: 'Alle Spuren zusammengeführt',
+  fpbTrackOptionLabel: '{name} ({n} Noten, {lo}-{hi})',
+  fpbTrackFallbackName: 'Spur {n}',
+  fpbMidiMeta: '{name} - {n} Spuren mit Noten, {dur}s',
+  fpbGridHintBase: 'Auslöser {w}mm = {lines} Linien bei einer {nozzle}mm-Düse',
+  fpbGridHintGapfill: ' - keine ganze Zahl, der Slicer füllt die Lücke auf.',
+  fpbGridHintHollow: ' - druckt hohl und bricht ab.',
+  fpbGridHintSolid: '. Massiv.',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  fpbBuildLabel: 'Build {v}',
+  fpbPlayBtn: 'Predvajaj', fpbStopBtn: 'Ustavi',
+  fpbPianoRoll: 'Klavirski trak', fpbPianoRollHint: 'Klikni celico, da postaviš zatič',
+  fpbStepsLower: 'korakov', fpbResizeBtn: 'Spremeni velikost', fpbClearBtn: 'Počisti',
+  fpbDiscPreviewH2: 'Predogled plošče',
+  fpbTabDisc: 'Plošča', fpbTabPrint: 'Tiskanje', fpbTabFile: 'Datoteka',
+  fpbDropHint: 'Spusti datoteko <b>.mid</b> sem ali klikni za izbiro',
+  fpbTrackLabel: 'Sled', fpbVoiceLabel: 'Glas',
+  fpbVoiceTop: 'Zgornji glas (melodija)', fpbVoiceBottom: 'Spodnji glas (bas)',
+  fpbVoiceChords: 'Združi vse note',
+  fpbSimplifyLabel: 'Poenostavi melodijo',
+  fpbSimplifyNone: 'Brez &mdash; vsaka nota tako, kot je zapisana',
+  fpbSimplifyLight: 'Rahlo &mdash; izpusti najhitrejše okraske',
+  fpbSimplifyMedium: 'Srednje &mdash; priredba za glasbeno skrinjico',
+  fpbSimplifyStrong: 'Močno &mdash; golo ogrodje melodije',
+  fpbPitchMappingLabel: 'Preslikava višine tona',
+  fpbPitchMusical: 'Glasbeno &mdash; ohrani intervale, transponiraj',
+  fpbPitchProportional: 'Sorazmerno &mdash; stisni razpon',
+  fpbAccompLabel: 'Spremljava',
+  fpbAccompNone: 'Brez &mdash; samo melodija', fpbAccompLight: 'Rahla',
+  fpbAccompMedium: 'Srednja &mdash; kot tovarniške plošče',
+  fpbAccompFull: 'Polna &mdash; zapolni ploščo',
+  fpbBeatsBarLabel: 'Udarci/takt', fpbClearanceLabel: 'Razmik mm',
+  fpbStartSLabel: 'Začetek s', fpbEndSLabel: 'Konec s',
+  fpbConvertBtn: 'Pretvori v ploščo',
+  fpbConvertHint: 'Sama melodija dá ~10 zatičev. Prava Fisher-Price plošča nosi 125+ čez 96 korakov, tretjina od tega akordi &mdash; melodija nikoli ni bila težka naloga, zapolniti ploščo pa je bila.',
+  fpbTrackWidthLabel: 'Širina sledi', fpbStepsCap: 'Koraki',
+  fpbTriggerLabel: 'Prožilec mm', fpbGrooveWallLabel: 'Stena utora mm',
+  fpbDriveHoleLabel: 'Premer pogonske luknje mm',
+  fpbGeomHintNarrow: "Samo še {mm}mm utora - preozko za glavo predvajalnika.",
+  fpbGeomHintOk: 'Ostane {mm}mm širok kanal utora (original meri 2,19mm).',
+  fpbCheckBtn: 'Preveri igralnost',
+  fpbPrinterLabel: 'Tiskalnik',
+  fpbPrinterSrcReal: 'Začetna/končna G-koda iz {source}. Različica {flavor}, umik {retract}mm pri {speed}mm/s.',
+  fpbPrinterSrcFallback: 'Ni profila proizvajalca za ta tiskalnik - {source}. Velikost mize in temperature so pravilne; začetna G-koda je previdna splošna različica. Preveri jo pred tiskanjem.',
+  fpbFilamentLabel: 'Filament',
+  fpbBedXLabel: 'Miza X mm', fpbBedYLabel: 'Miza Y mm',
+  fpbNozzleLabel: 'Šoba mm', fpbLineWidthLabel: 'Širina linije mm',
+  fpbLayerLabel: 'Plast mm', fpbFirstLayerLabel: 'Prva plast mm',
+  fpbNozzleTempLabel: 'Šoba &deg;C', fpbBedTempLabel: 'Miza &deg;C',
+  fpbSpeedLabel: 'Hitrost mm/s', fpbFilamentMmLabel: 'Filament mm',
+  fpbArcsLabel: 'uporabi loke G2/G3 (potrebuje ARC_SUPPORT)',
+  fpbDlGcodeBtn: 'Prenesi .gcode', fpbDlStlBtn: 'Prenesi .stl (narezati to)',
+  fpbDlScadBtn: 'Prenesi .scad', fpbResetPrintBtn: 'Ponastavi na privzete nastavitve tiskalnika',
+  fpbPrintWarnHint: 'Ustvarjeno neposredno iz geometrije plošče, ne razrezano (sliced). Pred tiskanjem preglej v predogledu.',
+  fpbPrintRememberHint: 'Tvoj tiskalnik, filament in vse spremembe tukaj so shranjene v tem brskalniku.',
+  fpbSaveJsonBtn: 'Shrani pesem (.json)', fpbLoadJsonBtn: 'Naloži pesem (.json)',
+  fpbCalibBtn: 'Naloži kalibracijski test',
+  fpbSongFilesHint: 'Datoteke s pesmimi so izmenljive z namizno aplikacijo.',
+  fpbDiscStatsH2: 'Plošča', fpbLogH2: 'Dnevnik', fpbLogReady: 'Pripravljeno.',
+  fpbStatSteps: 'korakov', fpbStatPins: 'zatičev', fpbStatStepsUsed: 'uporabljenih korakov',
+  fpbStatChords: 'akordov', fpbStatDistinctPitches: 'razločnih tonskih višin',
+  fpbStatGrooveChannel: 'kanal utora', fpbStatOfPins: '{n} od 22 zatičev',
+  fpbFooterText: "Ročica je diatonična &mdash; 22 zatičev, a le 16 razločnih tonskih višin in 7 črk not. Kromatična glasba je približana zaradi zasnove, ne po naključju.",
+  fpbDonateTitle: 'Podpri ta projekt',
+  fpbDonateNote: 'Skeniraj s telefonom ali tapni povezavo.',
+  fpbLogEndAfterStart: 'Končni čas mora biti za začetnim časom.',
+  fpbLogSimplifiedTo: 'Poenostavljeno na {mapped} korakovnih dogodkov od {steps} korakov vrtenja.',
+  fpbLogSimplifyOff: 'Poenostavitev: izklopljena.',
+  fpbLogSimplifyApplied: 'Poenostavitev ({level}): odstranjenih {thinned} okraskov ali ponovljenih not.',
+  fpbLogProportional: 'Sorazmerno: razpon stisnjen na {n} stopenj predvajalnika.',
+  fpbLogTransposed: 'Transponirano za {shift} polton(ov); {exact}/{mapped} ({pct}%) je pristalo na natančni višini.',
+  fpbLogSpacing: 'Razmik glasbene skrinjice: {swapped} premaknjenih na dvojnika, {dropped} izpuščenih.',
+  fpbLogAccompAdded: 'Spremljava: pod melodijo dodanih {n} harmonskih zatičev.',
+  fpbLogAccompOff: 'Spremljava: izklopljena.',
+  fpbLogPlayable: 'Nobena ponovitev ne pade preblizu na isti zob. Igralno.',
+  fpbLogCollisionsHeader: '{n} ponovitev(e) preblizu, da bi zazvenele:',
+  fpbLogCollisionLine: '  zatič {pin} ({note}): koraka {a} in {b} sta {gap} narazen, potrebno {need}',
+  fpbLogCollisionFooter: 'Premakni enega dlje po plošči, dodaj korake ali uporabi podvojenega dvojnika.',
+  fpbLogStlError: 'STL-ja ni bilo mogoče izdelati: {msg}',
+  fpbLogStlExported: 'Izvoženo {name}.stl',
+  fpbLogStlStats: '{tris} trikotnikov, {mb} MB, {pins} zatičev, izdelano v {ms} ms.',
+  fpbLogStlFooter: 'Spusti jo kar v svoj slicer - OpenSCAD ni potreben.',
+  fpbLogScadExported: 'Izvoženo {name}.scad - samostojno, modul geometrije je vključen; poleg ni potrebno nič drugega.',
+  fpbLogGcodeExported: 'Izvoženo {name}.gcode',
+  fpbLogGcodeStats: '{layers} plasti, {m} m filamenta, ~{min} min.',
+  fpbLogGcodeTravels: '{long} potovanj z umikom od skupno {total}.',
+  fpbLogGcodeFooter: 'Ustvarjeno v {ms} ms. Pred tiskanjem preglej v predogledu.',
+  fpbLogLoadedSong: 'Naloženo {name} - {n} korakov.',
+  fpbLogSongReadError: 'Te datoteke s pesmijo ni bilo mogoče prebrati: {msg}',
+  fpbLogCalibSweep: 'Kalibracijski test: vsak zatič udari enkrat, po vrsti, s tiho vrzelo, ki označi vsak prehod. Natisni, predvajaj, posnemi - to pokaže, kako vsak zatič dejansko zveni.',
+  fpbLogLoadedMidi: 'Naloženo {name}. Izberi sled in pretvori.',
+  fpbLogMidiReadError: 'Te MIDI datoteke ni bilo mogoče prebrati: {msg}',
+  fpbLogResetPrinter: 'Ponastavljeno na privzete nastavitve {model}.',
+  fpbLogBoot: 'Fisher Price Disc Designer, build {build}. Če je izvoz videti napačen, preveri, da se to ujema z najnovejšim build-om - brskalniki to stran trdovratno predpomnijo; shift-reload to popravi.',
+  fpbLogPrintersLoaded: 'Naloženih {n} profilov tiskalnikov',
+  fpbLogRestoredSettings: '; tvoje shranjene nastavitve so bile obnovljene.',
+  fpbLogDefaultingTo: ', privzeto {model}.',
+  fpbLogPrintersJsonMissing: 'printers.json ni najdena - uporabljen je samo vgrajeni profil. Naloži printers.json poleg te strani za celoten seznam.',
+  fpbLogPlaying: 'Predvajanje {n} korakov pri {spb} korakih/sek. Višine so resnične vrednosti za vsak zatič; zvočna barva je približek.',
+  fpbAllTracksMerged: 'Vse sledi združene',
+  fpbTrackOptionLabel: '{name} ({n} not, {lo}-{hi})',
+  fpbTrackFallbackName: 'Sled {n}',
+  fpbMidiMeta: '{name} - {n} sledi z notami, {dur}s',
+  fpbGridHintBase: 'Prožilec {w}mm = {lines} linij pri šobi {nozzle}mm',
+  fpbGridHintGapfill: ' - ni celo število, slicer bo zapolnil vrzel.',
+  fpbGridHintHollow: ' - natisne votlo in se odlomi.',
+  fpbGridHintSolid: '. Polno.',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div id="topbar">
+  <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+</div>
+<header>
+  <h1>FP Disk Burner</h1>
+  <span id="build" class="hint" style="align-self:center"></span>
+  <input type="text" id="title" value="My Song" style="width:220px;flex:0 0 auto">
+  <div class="sp"></div>
+  <button id="play" class="primary" data-i18n="fpbPlayBtn">Play</button>
+  <button id="stop" data-i18n="fpbStopBtn">Stop</button>
+</header>
+
+<main>
+<div id="left">
+  <div class="card">
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+      <strong style="font-size:13px" data-i18n="fpbPianoRoll">Piano roll</strong>
+      <span class="hint" style="margin:0" data-i18n="fpbPianoRollHint">click a cell to place a pin</span>
+      <div class="sp" style="flex:1"></div>
+      <label style="margin:0" data-i18n="fpbStepsLower">steps</label>
+      <input type="number" id="steps" value="92" min="4" max="400" style="width:80px">
+      <button id="resize" data-i18n="fpbResizeBtn">Resize</button>
+      <button id="clear" data-i18n="fpbClearBtn">Clear</button>
+    </div>
+    <div id="gridwrap"></div>
+    <div class="hint" id="gridhint"></div>
+  </div>
+
+  <div class="card">
+    <h2 data-i18n="fpbDiscPreviewH2">Disc preview</h2>
+    <canvas id="disc" width="760" height="760"></canvas>
+  </div>
+</div>
+
+<div id="right">
+  <div class="card">
+    <div class="tabs" role="tablist">
+      <button role="tab" data-pane="p-midi" aria-selected="true">MIDI</button>
+      <button role="tab" data-pane="p-geom" aria-selected="false" data-i18n="fpbTabDisc">Disc</button>
+      <button role="tab" data-pane="p-print" aria-selected="false" data-i18n="fpbTabPrint">Print</button>
+      <button role="tab" data-pane="p-file" aria-selected="false" data-i18n="fpbTabFile">File</button>
+    </div>
+
+    <div class="pane on" id="p-midi">
+      <div class="drop" id="drop" data-i18n-html="fpbDropHint">Drop a <b>.mid</b> here, or click to choose</div>
+      <input type="file" id="midifile" accept=".mid,.midi" hidden>
+      <div id="midimeta" class="hint"></div>
+      <label data-i18n="fpbTrackLabel">Track</label>
+      <select id="track"></select>
+      <label data-i18n="fpbVoiceLabel">Voice</label>
+      <select id="voice">
+        <option value="top" data-i18n="fpbVoiceTop">Top voice (melody)</option>
+        <option value="bottom" data-i18n="fpbVoiceBottom">Bottom voice (bass)</option>
+        <option value="chords" data-i18n="fpbVoiceChords">Merge all notes</option>
+      </select>
+      <label data-i18n="fpbSimplifyLabel">Simplify melody</label>
+      <select id="simplify">
+        <option value="none" data-i18n-html="fpbSimplifyNone">None &mdash; every note as written</option>
+        <option value="light" data-i18n-html="fpbSimplifyLight">Light &mdash; drop the fastest ornaments</option>
+        <option value="medium" selected data-i18n-html="fpbSimplifyMedium">Medium &mdash; music-box arrangement</option>
+        <option value="strong" data-i18n-html="fpbSimplifyStrong">Strong &mdash; bare skeleton of the tune</option>
+      </select>
+      <label data-i18n="fpbPitchMappingLabel">Pitch mapping</label>
+      <select id="pitchmode">
+        <option value="musical" data-i18n-html="fpbPitchMusical">Musical &mdash; keep intervals, transpose</option>
+        <option value="proportional" data-i18n-html="fpbPitchProportional">Proportional &mdash; squeeze range</option>
+      </select>
+      <label data-i18n="fpbAccompLabel">Accompaniment</label>
+      <select id="accomp">
+        <option value="none" data-i18n-html="fpbAccompNone">None &mdash; melody only</option>
+        <option value="light" data-i18n="fpbAccompLight">Light</option>
+        <option value="medium" selected data-i18n-html="fpbAccompMedium">Medium &mdash; like the factory discs</option>
+        <option value="full" data-i18n-html="fpbAccompFull">Full &mdash; fill the disc</option>
+      </select>
+      <div class="row">
+        <div><label data-i18n="fpbBeatsBarLabel">Beats/bar</label><input type="number" id="beats" value="3" min="2" max="8"></div>
+        <div><label data-i18n="fpbClearanceLabel">Clearance mm</label><input type="number" id="clear_mm" value="5" min="0" max="30" step="0.5"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n="fpbStartSLabel">Start s</label><input type="number" id="t0" value="0" min="0" step="0.5"></div>
+        <div><label data-i18n="fpbEndSLabel">End s</label><input type="number" id="t1" value="20" min="0" step="0.5"></div>
+      </div>
+      <button id="convert" class="primary" style="width:100%;margin-top:12px" disabled data-i18n="fpbConvertBtn">Convert to disc</button>
+      <div class="hint" data-i18n-html="fpbConvertHint">A melody alone gives ~10 pins. A real Fisher Price disc
+        carries 125+ over 96 steps, a third of them chords &mdash; the tune was
+        never the hard part, filling the disc was.</div>
+    </div>
+
+    <div class="pane" id="p-geom">
+      <div class="row">
+        <div><label data-i18n="fpbTrackWidthLabel">Track width</label>
+          <select id="trackwidth"><option value="1">1</option><option value="2" selected>2</option></select></div>
+        <div><label data-i18n="fpbStepsCap">Steps</label><input type="number" id="steps2" value="92" min="4" max="400"></div>
+      </div>
+      <div class="row">
+        <div><label>hStock mm</label><input type="number" id="hstock" value="1.2" step="0.1"></div>
+        <div><label>hGroove mm</label><input type="number" id="hgroove" value="2.0" step="0.1"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n="fpbTriggerLabel">Trigger mm</label><input type="number" id="pinwidth" value="1.2" step="0.1"></div>
+        <div><label data-i18n="fpbGrooveWallLabel">Groove wall mm</label><input type="number" id="ringwidth" value="0.8" step="0.1"></div>
+      </div>
+      <label data-i18n="fpbDriveHoleLabel">Drive hole dia mm</label>
+      <input type="number" id="drivedia" value="4.3" step="0.1">
+      <div class="hint" id="geomhint"></div>
+      <button id="check" style="width:100%;margin-top:10px" data-i18n="fpbCheckBtn">Check playability</button>
+    </div>
+
+    <div class="pane" id="p-print">
+      <label data-i18n="fpbPrinterLabel">Printer</label>
+      <select id="vendor"></select>
+      <select id="model" style="margin-top:6px"></select>
+      <div class="hint" id="printersrc"></div>
+      <label data-i18n="fpbFilamentLabel">Filament</label>
+      <select id="filament"></select>
+      <div class="row" style="margin-top:10px">
+        <div><label data-i18n="fpbBedXLabel">Bed X mm</label><input type="number" id="bedx" value="220"></div>
+        <div><label data-i18n="fpbBedYLabel">Bed Y mm</label><input type="number" id="bedy" value="220"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n="fpbNozzleLabel">Nozzle mm</label><input type="number" id="nozzle" value="0.4" step="0.05"></div>
+        <div><label data-i18n="fpbLineWidthLabel">Line width mm</label><input type="number" id="ewidth" value="0.42" step="0.02"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n="fpbLayerLabel">Layer mm</label><input type="number" id="layerh" value="0.2" step="0.02"></div>
+        <div><label data-i18n="fpbFirstLayerLabel">First layer mm</label><input type="number" id="firsth" value="0.25" step="0.02"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n-html="fpbNozzleTempLabel">Nozzle &deg;C</label><input type="number" id="tnoz" value="220"></div>
+        <div><label data-i18n-html="fpbBedTempLabel">Bed &deg;C</label><input type="number" id="tbed" value="60"></div>
+      </div>
+      <div class="row">
+        <div><label data-i18n="fpbSpeedLabel">Speed mm/s</label><input type="number" id="speed" value="60"></div>
+        <div><label data-i18n="fpbFilamentMmLabel">Filament mm</label><input type="number" id="fdia" value="1.75" step="0.05"></div>
+      </div>
+      <label class="inline"><input type="checkbox" id="arcs"> <span data-i18n="fpbArcsLabel">use G2/G3 arcs (needs ARC_SUPPORT)</span></label>
+      <button id="dl-gcode" class="primary" style="width:100%;margin-top:10px" data-i18n="fpbDlGcodeBtn">Download .gcode</button>
+      <button id="dl-stl" style="width:100%;margin-top:8px" data-i18n="fpbDlStlBtn">Download .stl (slice this)</button>
+      <button id="dl-scad" style="width:100%;margin-top:6px" data-i18n="fpbDlScadBtn">Download .scad</button>
+      <button id="reset-print" style="width:100%;margin-top:8px" data-i18n="fpbResetPrintBtn">Reset to printer defaults</button>
+      <div class="hint warn" data-i18n="fpbPrintWarnHint">Generated directly from the disc geometry, not
+        sliced. Preview it before printing.</div>
+      <div class="hint" data-i18n="fpbPrintRememberHint">Your printer, filament and any changes here are
+        remembered in this browser.</div>
+    </div>
+
+    <div class="pane" id="p-file">
+      <button id="dl-json" style="width:100%" data-i18n="fpbSaveJsonBtn">Save song (.json)</button>
+      <button id="ld-json" style="width:100%;margin-top:8px" data-i18n="fpbLoadJsonBtn">Load song (.json)</button>
+      <input type="file" id="jsonfile" accept=".json" hidden>
+      <button id="calib" style="width:100%;margin-top:8px" data-i18n="fpbCalibBtn">Load calibration sweep</button>
+      <div class="hint" data-i18n="fpbSongFilesHint">Song files are interchangeable with the desktop app.</div>
+    </div>
+  </div>
+
+  <div class="card"><h2 data-i18n="fpbDiscStatsH2">Disc</h2><div id="stats"></div></div>
+  <div class="card"><h2 data-i18n="fpbLogH2">Log</h2><div id="log" data-i18n="fpbLogReady">Ready.</div></div>
+</div>
+</main>
+
+<footer data-i18n-html="fpbFooterText">
+  The arm is diatonic &mdash; 22 pins but only 16 distinct pitches and 7 note
+  letters. Chromatic music is approximated by construction, not by accident.
+</footer>
+
+<!-- Donate widget, bottom right. Set DONATE_URL below to change or disable it. -->
+<div id="donate" hidden>
+  <button id="donate-toggle" title="Support this project">
+    <canvas id="donate-mini" width="34" height="34"></canvas>
+  </button>
+  <div id="donate-card" hidden>
+    <div id="donate-title" data-i18n="fpbDonateTitle">Support this project</div>
+    <canvas id="donate-qr" width="180" height="180"></canvas>
+    <a id="donate-link" target="_blank" rel="noopener noreferrer"></a>
+    <div id="donate-note" data-i18n="fpbDonateNote">Scan with your phone, or tap the link.</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* i18n helper for strings built up in JS (log lines, stat labels, dynamic
+   hints). Named trx rather than t/tr: both of those are already taken as
+   short-lived local variables elsewhere in this file (table rows, loop
+   vars), and this avoids any shadowing confusion with the global helper. */
+function trx(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+/* ---------------------------------------------------------------------------
+   Player data. Ported verbatim from the desktop app.
+
+   PIN_MIDI is Fred Murphy's stored tone table expanded across the 22 physical
+   tracks and transposed down one semitone to match bbernstone's tuner
+   readings. Note the doubled pairs share a pitch - that is what they are for:
+   a fast repeat alternates across the pair so each tooth has time to settle.
+--------------------------------------------------------------------------- */
+/* Stamped into the page, the log, and every exported file. A browser will
+   happily serve a months-old copy of this page from its cache, and a
+   stale copy is otherwise indistinguishable from a broken one - a bug
+   report can be pinned to a build with this. */
+const BUILD = "2026-09-04";
+const NUM_PINS = 22;
+const PIN_MIDI = [66,71,73,75,78,80,82,83,83,85,85,87,87,88,88,90,90,92,92,94,95,97];
+const PIN_NOTE = ["Gb","B","Db","Eb","Gb","Ab","Bb","B","B","Db","Db","Eb","Eb",
+                  "E","E","Gb","Gb","Ab","Ab","Bb","B","Db"];
+const DOUBLED_PAIRS = [[8,9],[10,11],[12,13],[14,15],[16,17],[18,19]];
+const TRACK_RADIUS = [28.65,29.65,31.39,32.39,34.21,35.21,36.925,37.925,39.725,
+  40.725,42.5,43.5,45.325,46.325,48.055,49.055,50.815,51.815,53.61,54.61,56.4,57.4];
+const TRACK_PITCH = 1.39, PIN_BASE_R = 26.5, PIN_TANGENTIAL = 0.7;
+const RIM_OUTER_R = 59.8, RIM_OUTER_W = 2.0, RIM_INNER_OUTER = 27.6, RIM_INNER_W = 0.9;
+const CENTRE_HOLE_R = 3.3, DRIVE_OFFSET = 21.8;
+const NOTE_NAMES = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+
+const PITCH_SET = [...new Set(PIN_MIDI)].sort((a,b)=>a-b);
+const pinsAtPitch = p => PIN_MIDI.map((m,i)=>m===p?i+1:0).filter(Boolean);
+const midiHz = m => 440 * Math.pow(2, (m-69)/12);
+const noteName = m => NOTE_NAMES[((m%12)+12)%12] + (Math.floor(m/12)-1);
+
+/* --------------------------------------------------------------- app state */
+const S = {
+  steps: 92,
+  grid: [],                 // grid[pin-1][step-1] = bool
+  midi: null,               // {tracks:[{name,notes:[[s,e,pitch]]}], duration}
+};
+const $ = id => document.getElementById(id);
+const log = (m,cls) => { const l=$("log"); l.textContent = m; l.className = cls||""; };
+
+function blankGrid(steps){
+  return Array.from({length:NUM_PINS}, ()=>new Array(steps).fill(false));
+}
+function composition(){                       // [[pins...], step] like the app
+  const by = new Map();
+  for(let p=0;p<NUM_PINS;p++)
+    for(let s=0;s<S.steps;s++)
+      if(S.grid[p][s]){ if(!by.has(s+1)) by.set(s+1,[]); by.get(s+1).push(p+1); }
+  return [...by.entries()].sort((a,b)=>a[0]-b[0]).map(([s,pins])=>[pins.sort((a,b)=>a-b), s]);
+}
+function loadComposition(comp, steps){
+  if(steps) S.steps = steps;
+  S.grid = blankGrid(S.steps);
+  for(const [pins, step] of comp)
+    for(const p of pins)
+      if(p>=1 && p<=NUM_PINS && step>=1 && step<=S.steps) S.grid[p-1][step-1] = true;
+}
+
+/* ------------------------------------------------------------- the grid UI */
+function drawGrid(){
+  const t = document.createElement("table");
+  t.className = "grid";
+  for(let p=NUM_PINS; p>=1; p--){          // high pins at the top
+    const tr = document.createElement("tr");
+    if(p%2===0) tr.className = "alt";
+    const th = document.createElement("th");
+    th.textContent = String(p).padStart(2,"0") + "  " + PIN_NOTE[p-1] +
+                     noteOctave(PIN_MIDI[p-1]);
+    tr.appendChild(th);
+    for(let s=1; s<=S.steps; s++){
+      const td = document.createElement("td");
+      if(S.grid[p-1][s-1]) td.className = "on";
+      if((s-1)%4===0) td.classList.add("beat");
+      td.dataset.p = p; td.dataset.s = s;
+      tr.appendChild(td);
+    }
+    t.appendChild(tr);
+  }
+  const w = $("gridwrap"); w.innerHTML = ""; w.appendChild(t);
+  refreshStats();
+}
+const noteOctave = m => Math.floor(m/12)-1;
+
+$("gridwrap").addEventListener("click", e => {
+  const td = e.target.closest("td"); if(!td) return;
+  const p = +td.dataset.p, s = +td.dataset.s;
+  S.grid[p-1][s-1] = !S.grid[p-1][s-1];
+  td.className = (S.grid[p-1][s-1] ? "on" : "") + ((s-1)%4===0 ? " beat" : "");
+  refreshStats(); drawDisc();
+});
+
+/* ------------------------------------------- music-box mechanics (ported) */
+function trackStepMm(pin, steps){ return 2*Math.PI*TRACK_RADIUS[pin-1]/Math.max(1,steps); }
+function minRepeatSteps(pin, steps, mm){
+  if(mm<=0) return 1;
+  return Math.max(1, Math.ceil(mm/trackStepMm(pin,steps)));
+}
+function circularGap(a,b,steps){ const d=Math.abs(a-b)%steps; return Math.min(d, steps-d); }
+
+/* Place (step,pin) events, honouring the rule that a tooth still ringing
+   cannot be plucked again. Runs in waves: pass `strikes` back in so a second,
+   lower-priority set (the accompaniment) can only take teeth still free. */
+function placeEvents(events, steps, mm, strikes){
+  strikes = strikes || new Map();
+  const placed = []; let swapped = 0, dropped = 0;
+  const byPitch = new Map();
+  for(let p=1;p<=NUM_PINS;p++){
+    const k = PIN_MIDI[p-1];
+    if(!byPitch.has(k)) byPitch.set(k,[]);
+    byPitch.get(k).push(p);
+  }
+  for(const [step,pin] of [...events].sort((a,b)=>a[0]-b[0]||a[1]-b[1])){
+    const twins = byPitch.get(PIN_MIDI[pin-1]) || [pin];
+    const order = [pin, ...twins.filter(q=>q!==pin)];
+    let chosen = null;
+    for(const c of order){
+      const need = minRepeatSteps(c, steps, mm);
+      const prev = strikes.get(c) || [];
+      if(prev.every(q => circularGap(step,q,steps) >= need)){ chosen = c; break; }
+    }
+    if(chosen === null){ dropped++; continue; }
+    if(chosen !== pin) swapped++;
+    if(!strikes.has(chosen)) strikes.set(chosen,[]);
+    strikes.get(chosen).push(step);
+    placed.push([step,chosen]);
+  }
+  return {placed, swapped, dropped, strikes};
+}
+function findCollisions(comp, steps, mm){
+  const strikes = new Map();
+  for(const [pins,step] of comp) for(const p of pins){
+    if(!strikes.has(p)) strikes.set(p,[]); strikes.get(p).push(step);
+  }
+  const out = [];
+  for(const [pin, list] of strikes){
+    const need = minRepeatSteps(pin, steps, mm);
+    const srt = [...list].sort((a,b)=>a-b);
+    for(let i=0;i<srt.length;i++) for(let j=i+1;j<srt.length;j++){
+      const g = circularGap(srt[i],srt[j],steps);
+      if(g < need) out.push({pin, a:srt[i], b:srt[j], gap:g, need});
+    }
+  }
+  return out.sort((x,y)=>(x.gap-x.need)-(y.gap-y.need));
+}
+
+/* ------------------------------------------------- pitch mapping (ported) */
+function nearestPin(pitch){
+  let best = 1, bd = Infinity;
+  for(let p=1;p<=NUM_PINS;p++){
+    const d = Math.abs(PIN_MIDI[p-1]-pitch);
+    if(d < bd){ bd = d; best = p; }
+  }
+  return best;
+}
+function chooseTransposition(pitches, limit){
+  limit = limit || 48;
+  if(!pitches.length) return 0;
+  const counts = new Map();
+  for(const n of pitches) counts.set(n,(counts.get(n)||0)+1);
+  const lo = PITCH_SET[0], hi = PITCH_SET[PITCH_SET.length-1];
+  const first = Math.max(-limit, lo - Math.max(...counts.keys()));
+  const last  = Math.min( limit, hi - Math.min(...counts.keys()));
+  let bestKey = null, bestShift = 0;
+  for(let sh=first; sh<=last; sh++){
+    let exact = 0, err = 0;
+    for(const [pitch,n] of counts){
+      let d = Infinity;
+      for(const t of PITCH_SET) d = Math.min(d, Math.abs(pitch+sh-t));
+      if(d===0) exact += n;
+      err += d*n;
+    }
+    const key = [-exact, err, Math.abs(sh)];
+    if(bestKey===null || key[0]<bestKey[0] ||
+      (key[0]===bestKey[0] && (key[1]<bestKey[1] ||
+      (key[1]===bestKey[1] && key[2]<bestKey[2])))){ bestKey = key; bestShift = sh; }
+  }
+  return bestShift;
+}
+/* Squeeze the melody's own range onto the player's - contour survives,
+   intervals are compressed, the result is in no key. */
+function proportionalTargets(pitches){
+  const out = new Map();
+  if(!pitches.length) return out;
+  const lo = Math.min(...pitches), hi = Math.max(...pitches);
+  const top = PITCH_SET.length-1;
+  for(const p of new Set(pitches)){
+    const idx = hi<=lo ? (top>>1) : Math.round((p-lo)*top/(hi-lo));
+    out.set(p, PITCH_SET[Math.max(0,Math.min(top,idx))]);
+  }
+  return out;
+}
+
+/* --------------------------------------------------- melody from raw MIDI */
+function extractMelody(notes, mode){
+  if(mode === "chords") return notes.map((n,i)=>[n[0],n[1],n[2],i]);
+  const pts = new Set();
+  for(const [s,e] of notes){ pts.add(s); pts.add(e); }
+  const t = [...pts].sort((a,b)=>a-b);
+  const out = [];
+  for(let i=0;i<t.length-1;i++){
+    const a = t[i], b = t[i+1];
+    if(b-a < 1e-9) continue;
+    // Test the interval's MIDPOINT for containment, not full coverage of the
+    // interval by the note. Rounding the boundaries even to 6dp was enough to
+    // push a note fractionally past its own start, so it failed a coverage
+    // test and disappeared - the flute line lost two thirds of its notes.
+    const mid = (a + b) / 2;
+    let winner = -1;
+    for(let k=0;k<notes.length;k++){
+      const n = notes[k];
+      if(n[0] > mid || n[1] <= mid) continue;
+      if(winner < 0) { winner = k; continue; }
+      const better = mode === "bottom" ? n[2] < notes[winner][2] : n[2] > notes[winner][2];
+      if(better) winner = k;
+    }
+    if(winner < 0) continue;
+    // Merge only when it is literally the SAME source note continuing. An
+    // earlier version merged on pitch alone, which silently fused two
+    // repeated notes into one and cost the melody a strike every time.
+    const last = out[out.length-1];
+    if(last && last[3] === winner && Math.abs(last[1]-a) < 1e-6) last[1] = b;
+    else out.push([a, b, notes[winner][2], winner]);
+  }
+  return out;
+}
+/* Thin a melody down to what a music box can actually say. A MIDI file is
+   written for an instrument with sustain, dynamics and a player who can
+   articulate a run of thirty-second notes; this player plucks a tooth once
+   and lets it ring, so a fast ornament arrives as a smear and a re-struck
+   note is indistinguishable from a held one. The factory discs are
+   arrangements for exactly that reason.
+   Thresholds are fractions of the melody's OWN median note length, so a slow
+   ballad and a fast jig are thinned by the same MUSICAL amount rather than
+   the fast one being gutted by an absolute time limit.
+     [dropFrac, mergeFrac] - shorter than dropFrac x median is ornament and
+     goes; two same-pitch notes closer than mergeFrac x median are one note
+     re-articulated and become one. */
+const SIMPLIFY = {none:[0,0], light:[0.30,0.15], medium:[0.55,0.30], strong:[0.85,0.50]};
+function simplifyMelody(melody, level){
+  const [dropFrac, mergeFrac] = SIMPLIFY[level] || SIMPLIFY.medium;
+  if(!melody.length || dropFrac <= 0) return {melody, removed:0};
+  const dur = melody.map(n => n[1]-n[0]).sort((a,b)=>a-b);
+  const med = dur[dur.length>>1];
+  if(!(med > 0)) return {melody, removed:0};
+  const minDur = med*dropFrac, maxGap = med*mergeFrac;
+
+  let kept = melody.filter(n => (n[1]-n[0]) >= minDur);
+  if(!kept.length) kept = [melody.reduce((a,b)=>(b[1]-b[0] > a[1]-a[0] ? b : a))];
+
+  // Close the hole a dropped ornament left, so the surviving note just lasts
+  // longer. A hole wider than one median note was a real rest - leave it, or
+  // the tune loses its phrasing.
+  const out = [];
+  for(let i=0;i<kept.length;i++){
+    const n = kept[i].slice();
+    if(i+1 < kept.length){
+      const nxt = kept[i+1][0];
+      if(n[1] < nxt && nxt <= n[1]+med) n[1] = nxt;
+    }
+    const last = out[out.length-1];
+    if(last && last[2] === n[2] && (n[0]-last[1]) <= maxGap) last[1] = n[1];
+    else out.push(n);
+  }
+  return {melody: out, removed: melody.length - out.length};
+}
+
+/* A music box has no sustain: one strike per note, at the first step it
+   covers - not one strike per step. */
+function resampleToSteps(melody, start, end, steps){
+  if(!melody.length || end<=start) return [];
+  const span = end-start, out = []; let prev = null;
+  for(let s=1;s<=steps;s++){
+    const t = start + ((s-0.5)/steps)*span;
+    let idx = -1;
+    for(let i=0;i<melody.length;i++)
+      if(melody[i][0] <= t && t < melody[i][1]) { idx = i; break; }
+    if(idx < 0){ prev = null; continue; }
+    if(idx === prev) continue;
+    prev = idx;
+    out.push([melody[idx][2], s]);
+  }
+  return out;
+}
+
+/* ------------------------------------------------------ accompaniment */
+const ACCOMP = {none:null, light:[4,1], medium:[2,2], full:[1,2]};
+function soundingByStep(notes, start, end, steps, shift){
+  const span = end-start, out = new Map();
+  if(span<=0) return out;
+  for(const [s,e,p] of notes){
+    const a = Math.max(s,start), b = Math.min(e,end);
+    if(b<=a) continue;
+    const s0 = Math.floor((a-start)/span*steps)+1, s1 = Math.floor((b-start)/span*steps)+1;
+    const pc = (((p+shift)%12)+12)%12;
+    for(let st=Math.max(1,s0); st<=Math.min(steps,s1); st++){
+      if(!out.has(st)) out.set(st,new Map());
+      const d = out.get(st); d.set(pc,(d.get(pc)||0)+1);
+    }
+  }
+  return out;
+}
+function buildAccompaniment(notes,start,end,steps,shift,melodyByStep,level,beatsPerBar){
+  const spec = ACCOMP[level]; if(!spec) return [];
+  const [every, maxPer] = spec;
+  const avail = new Set(PITCH_SET.map(p=>((p%12)+12)%12));
+  const by = soundingByStep(notes,start,end,steps,shift);
+  const slots = []; for(let s=1;s<=steps;s++) if((s-1)%every===0) slots.push(s);
+  beatsPerBar = Math.max(1, beatsPerBar|0);
+  const ev = [];
+  for(let i=0;i<slots.length;i++){
+    const st = slots[i];
+    const barStart = i - (i % beatsPerBar);
+    const tally = new Map();
+    for(const w of slots.slice(barStart, barStart+beatsPerBar))
+      for(let k=w; k<=Math.min(steps, w+every-1); k++)
+        for(const [pc,n] of (by.get(k)||new Map()))
+          if(avail.has(pc)) tally.set(pc,(tally.get(pc)||0)+n);
+    if(!tally.size) continue;
+    const chord = [...tally.entries()].sort((a,b)=>b[1]-a[1]||a[0]-b[0])
+                    .slice(0,3).map(e=>e[0]);
+    let ceiling = melodyByStep.get(st);
+    if(ceiling === undefined){
+      const later = [...melodyByStep.entries()].filter(([k])=>k>=st).map(e=>e[1]);
+      const earlier = [...melodyByStep.entries()].filter(([k])=>k<=st).map(e=>e[1]);
+      ceiling = later.length ? Math.min(...later)
+              : (earlier.length ? Math.max(...earlier) : PITCH_SET[PITCH_SET.length-1]);
+    }
+    const usable = PITCH_SET.filter(p => chord.includes(((p%12)+12)%12) && p < ceiling);
+    if(!usable.length) continue;
+    let chosen;
+    if(i % beatsPerBar === 0){
+      const low = usable.filter(p => ((p%12)+12)%12 === chord[0]);
+      chosen = [Math.min(...(low.length?low:usable))];
+    }else{
+      const upper = usable.slice(Math.floor(usable.length/3)) ;
+      chosen = [];
+      for(const p of [...(upper.length?upper:usable)].reverse()){
+        if(chosen.length >= maxPer) break;
+        if(chosen.every(q => Math.abs(p-q) >= 3)) chosen.push(p);
+      }
+    }
+    for(const pitch of chosen){
+      const tw = pinsAtPitch(pitch);
+      if(tw.length) ev.push([st, tw[0]]);
+    }
+  }
+  return ev;
+}
+
+/* ------------------------------------------------------- minimal SMF parser
+   No mido in a browser, so this reads Standard MIDI Files directly: header,
+   per-track delta times, note on/off pairing, and the tempo map (without
+   which every timing in the app would be wrong on any file that isn't 120bpm).
+--------------------------------------------------------------------------- */
+function parseMidi(buf){
+  const d = new DataView(buf); let o = 0;
+  const str = n => { let s=""; for(let i=0;i<n;i++) s += String.fromCharCode(d.getUint8(o++)); return s; };
+  if(str(4) !== "MThd") throw new Error("not a MIDI file");
+  const hlen = d.getUint32(o); o += 4;
+  d.getUint16(o); const ntrk = d.getUint16(o+2); const div = d.getUint16(o+4);
+  o += hlen;
+  if(div & 0x8000) throw new Error("SMPTE time division is not supported");
+
+  const rawTracks = [], tempoEvents = [];
+  for(let t=0; t<ntrk; t++){
+    if(o >= d.byteLength) break;
+    if(str(4) !== "MTrk"){ break; }
+    const len = d.getUint32(o); o += 4;
+    const end = o + len;
+    let tick = 0, running = 0, name = "", ev = [];
+    while(o < end){
+      let v = 0, b;
+      do { b = d.getUint8(o++); v = (v<<7) | (b & 0x7f); } while(b & 0x80);
+      tick += v;
+      let st = d.getUint8(o);
+      if(st & 0x80){ o++; running = st; } else { st = running; }
+      const type = st & 0xf0;
+      if(st === 0xff){
+        const meta = d.getUint8(o++);
+        let l = 0; do { b = d.getUint8(o++); l = (l<<7)|(b&0x7f); } while(b & 0x80);
+        if(meta === 0x51 && l === 3)
+          tempoEvents.push([tick, (d.getUint8(o)<<16)|(d.getUint8(o+1)<<8)|d.getUint8(o+2)]);
+        if(meta === 0x03){ let s=""; for(let i=0;i<l;i++) s += String.fromCharCode(d.getUint8(o+i)); name = s.trim(); }
+        o += l;
+      }else if(st === 0xf0 || st === 0xf7){
+        let l = 0; do { b = d.getUint8(o++); l = (l<<7)|(b&0x7f); } while(b & 0x80);
+        o += l;
+      }else if(type === 0x80 || type === 0x90 || type === 0xa0 ||
+               type === 0xb0 || type === 0xe0){
+        const a = d.getUint8(o++), bb = d.getUint8(o++);
+        if(type === 0x90 && bb > 0) ev.push([tick, 1, a]);
+        else if(type === 0x80 || (type === 0x90 && bb === 0)) ev.push([tick, 0, a]);
+      }else if(type === 0xc0 || type === 0xd0){ o++; }
+      else { o = end; }
+    }
+    o = end;
+    rawTracks.push({name, ev});
+  }
+
+  tempoEvents.sort((a,b)=>a[0]-b[0]);
+  const tickToSec = tick => {                    // walk the tempo map
+    let sec = 0, last = 0, us = 500000;
+    for(const [t, v] of tempoEvents){
+      if(t >= tick) break;
+      sec += (t-last)/div * (us/1e6); last = t; us = v;
+    }
+    return sec + (tick-last)/div * (us/1e6);
+  };
+
+  let duration = 0;
+  const tracks = rawTracks.map((tr,i) => {
+    const open = new Map(), notes = [];
+    for(const [tick, on, pitch] of tr.ev){
+      if(on){ if(!open.has(pitch)) open.set(pitch,[]); open.get(pitch).push(tick); }
+      else if(open.get(pitch) && open.get(pitch).length){
+        const st = open.get(pitch).shift();
+        notes.push([tickToSec(st), tickToSec(tick), pitch]);
+      }
+    }
+    notes.sort((a,b)=>a[0]-b[0]);
+    if(notes.length) duration = Math.max(duration, notes[notes.length-1][1]);
+    return {name: tr.name || trx("fpbTrackFallbackName", {n:i}), notes};
+  }).filter(t => t.notes.length);
+  return {tracks, duration};
+}
+
+/* --------------------------------------------------------- MIDI -> disc */
+function convertMidi(){
+  const m = S.midi; if(!m) return;
+  const sel = +$("track").value;
+  const melodySrc = sel === -1 ? m.tracks.flatMap(t=>t.notes).sort((a,b)=>a[0]-b[0])
+                               : m.tracks[sel].notes;
+  const whole = m.tracks.flatMap(t=>t.notes).sort((a,b)=>a[0]-b[0]);
+  const steps = S.steps;
+  const t0 = +$("t0").value, t1 = +$("t1").value;
+  if(t1 <= t0){ log(trx("fpbLogEndAfterStart"),"hint warn"); return; }
+  const mode = $("voice").value, pmode = $("pitchmode").value;
+  const mm = +$("clear_mm").value;
+
+  let sampled, mapped, thinned = 0;
+  if(mode === "chords"){
+    sampled = melodySrc.filter(n => n[0]>=t0 && n[0]<=t1)
+      .map(n => [n[2], Math.min(steps, Math.max(1, Math.floor((n[0]-t0)/(t1-t0)*steps)+1))]);
+  }else{
+    const simp = simplifyMelody(extractMelody(melodySrc, mode), $("simplify").value);
+    thinned = simp.removed;
+    sampled = resampleToSteps(simp.melody, t0, t1, steps);
+  }
+  mapped = sampled.length;
+  const pitches = sampled.map(x=>x[0]);
+  let shift = 0, targets = null, exact = 0;
+  if(pmode === "proportional"){ targets = proportionalTargets(pitches); exact = pitches.length; }
+  else{
+    shift = chooseTransposition(pitches);
+    exact = pitches.filter(p => PITCH_SET.includes(p+shift)).length;
+  }
+
+  let approx = 0;
+  const events = sampled.map(([pitch, step]) => {
+    const want = targets ? targets.get(pitch) : pitch + shift;
+    const pin = nearestPin(want);
+    if(PIN_MIDI[pin-1] !== want) approx++;
+    return [step, pin];
+  });
+
+  let r = placeEvents(events, steps, mm);
+  let accompCount = 0;
+  const level = $("accomp").value;
+  if(level !== "none"){
+    const melodyByStep = new Map();
+    for(const [st,pin] of r.placed)
+      melodyByStep.set(st, Math.max(melodyByStep.get(st)||0, PIN_MIDI[pin-1]));
+    const want = buildAccompaniment(whole, t0, t1, steps, shift, melodyByStep,
+                                    level, +$("beats").value);
+    const r2 = placeEvents(want, steps, mm, r.strikes);
+    accompCount = r2.placed.length;
+    r = {placed: r.placed.concat(r2.placed), swapped:r.swapped, dropped:r.dropped};
+  }
+
+  const by = new Map();
+  for(const [st,pin] of r.placed){ if(!by.has(st)) by.set(st,[]); by.get(st).push(pin); }
+  loadComposition([...by.entries()].map(([s,p])=>[p,s]), steps);
+  drawGrid(); drawDisc();
+
+  const pct = mapped ? Math.round(100*exact/mapped) : 0;
+  log(
+    trx("fpbLogSimplifiedTo", {mapped:mapped, steps:steps}) + "\n" +
+    ($("simplify").value === "none" || mode === "chords"
+      ? trx("fpbLogSimplifyOff") + "\n"
+      : trx("fpbLogSimplifyApplied", {level:$("simplify").value, thinned:thinned}) + "\n") +
+    (pmode === "proportional"
+      ? trx("fpbLogProportional", {n:PITCH_SET.length})
+      : trx("fpbLogTransposed", {shift:(shift>=0?"+":"")+shift, exact:exact, mapped:mapped, pct:pct})) + "\n" +
+    trx("fpbLogSpacing", {swapped:r.swapped, dropped:r.dropped}) + "\n" +
+    (accompCount ? trx("fpbLogAccompAdded", {n:accompCount}) : trx("fpbLogAccompOff")));
+}
+
+/* ------------------------------------------------------- SCAD generation */
+/* bbernstone's geometry module, verbatim from thing:4484452 and byte-identical
+   to the copy the desktop app ships. It is INLINED into every exported .scad
+   rather than referenced with include<>, because a browser download cannot put
+   a second file next to the first - OpenSCAD then reports
+   "Can't open include file" and, as a knock-on, "unknown module 'writeText'",
+   and renders nothing but the bare pins. */
+const MODULE_SCAD = "// Configuration\n\n$fn = 360; // Roundness. 360 is a absurd high number but the record needs to be very round.\n\nhStock = 1.2; // Height of the flat record\nrStock = 59; // Radius of the record\noDrive = 21.8; // offset of the small holes from the center\nrDrive = 1.65; // radius of the four small holes (was 1.65)\n\nhGroove = 2; // Height of the groove (is added to hStock)\npinwidth = 1.3; //  Could be something between 1.3 and 1.6 depending on how much the pins get rounded by the printer.\n\ntrackwidth=2; // [1,2] // how many pins should live in one track? 1 or 2?\nbaseheight = hStock;\ngrooveheight =hGroove;\nringwidth= 0.5; // Width of the rings that make the groves. Give your nozzle size and exaggerate a bit.\n\n\n// Usable notes and their corresponding pinnumbers in the musicbox\n// System is [\"Note\", pinnumber], so you could add your own notes if you often call them differently.\nnotelist = [\n\t[\"01\", 1],\n\t[\"02\", 2],\n\t[\"03\", 3],\n\t[\"04\", 4],\n\t[\"05\", 5],\n\t[\"06\", 6],\n\t[\"07\", 7],\n\t[\"08\", 8],\n\t[\"09\", 9],\n\t[\"10\", 10],\n\t[\"11\", 11],\n\t[\"12\", 12],\n\t[\"13\", 13],\n\t[\"14\", 14],\n\t[\"15\", 15],\n\t[\"16\", 16],\n\t[\"17\", 17],\n\t[\"18\", 18],\n\t[\"19\", 19],\n\t[\"20\", 20],\n\t[\"21\", 21],\n\t[\"22\", 22],\n];\n\n\nmodule createBlank() {\n\tdifference() {\n\t\t// stock\n\t\tcircle(r=rStock, center=true);\n\t\t// Centre hole\n\t\tcircle(r=3.3, center=true);\n\t\t// Drive holes\n\t\tfor(i=[0:90:360]){rotate(i)translate([0,oDrive,0]) { circle(r=rDrive, center=true); }\n    \n        }\n    }\n}\nmodule track(outer_radius, width=1.1){\n    difference(){\n        circle(r=outer_radius);\n        circle(r=outer_radius-width);\n    }\n}\n\nmodule pin(angle, row){\n    note = row * 1.39;\n    rotate([0,0,angle]){\n        // the pin is first moved out from the middle plus moved according to the note. The first movement is 1mm less than the first groovewall. This seems to be a nice place the stay within the rounding of the groove.\n    translate([26.5+note,0,0]){\n        // The actual pin [width, length]. A length of 2+ gives a better visual indication of pins to close to each other but pins of 1.2 look more like te original records.\n        square([pinwidth,0.7], center=true);\n    }\n}\n}\n\nmodule createMusic(){\n    \n    musicsteps = max([for(i = composition) i[1]]);\n    rotationfactor = 360/musicsteps;\n    \n    \n        // Create 22 tracks, double second number for 11 tracks\n        // 1.39 or 2.78\n        for (a =[27.5:1.39*trackwidth:59]) track(a, ringwidth);\n       \n            \n        // Layout the pins\n        for(chord = composition, i = search(chord[0], notelist)){\n            echo(str(\"Notenumber: \", notelist[i][1], \n                    \" Notename: \", notelist[i][0], \n                    \" Position: \", chord[1] ));\n            if (notelist[i])    // If there is a tuple with notenumber and pinnumber\n                pin(chord[1]*rotationfactor, notelist[i][1]);\n            else                // The note is not in de notelist, so not playable\n                echo(str(\"<b>Warning!</b> Unknown note in: \", chord ));\n       }\n    \n};\n\nmodule writeText(title,y=5,size=8, font=\":style=Italic\"){\n    linear_extrude(height=hStock+1){\n        translate([0,y,0]){\n            text(title, halign=\"center\", font=font, size=size);\n        }\n    }\n}\n\n\nunion(){\n        linear_extrude(height=hStock){\n            createBlank();\n        }\n        \n        linear_extrude(height=hStock+hGroove){\n            createMusic();\n       \n        }\n        linear_extrude(height=hStock+hGroove+0.4){ // Lift the side 0.4 mm\n          track(27.6-ringwidth,0.9);\n          track(59.8,2);\n        }\n                \n}\n\n//\n//}}\n";
+
+function buildScad(){
+  const comp = composition(), steps = S.steps;
+  const tw = +$("trackwidth").value, rw = +$("ringwidth").value;
+  const lines = comp.map(([pins,pos]) =>
+    "    [[" + pins.map(p=>'"'+String(p).padStart(2,"0")+'"').join(", ") + "], " + pos + "],");
+  lines.push("    [[], " + steps + "]");
+  const channel = (TRACK_PITCH*tw - rw).toFixed(2);
+  return [
+    "// Auto-generated by Fisher Price Disc Designer (web) build " + BUILD + ",",
+    "//",
+    "// Self-contained: the geometry module below is bbernstone's, from",
+    "// https://www.thingiverse.com/thing:4484452, included verbatim so this",
+    "// file opens in OpenSCAD on its own with no other downloads needed.",
+    "",
+    "// ===================== geometry module (unmodified) =====================",
+    MODULE_SCAD.trimEnd(),
+    "// =================== end of geometry module =============================",
+    "",
+    "// ----- settings below override the module's defaults --------------------",
+    "hStock = " + (+$("hstock").value) + ";",
+    "hGroove = " + (+$("hgroove").value) + ";",
+    "$fn = 200;",
+    "trackwidth = " + tw + ";",
+    "",
+    "// Trigger width. " + (+$("pinwidth").value) + "mm is " +
+      Math.round((+$("pinwidth").value)/(+$("nozzle").value)) +
+      " extrusion lines at a " + (+$("nozzle").value) + "mm nozzle.",
+    "pinwidth = " + (+$("pinwidth").value) + ";",
+    "",
+    "// Four drive holes, " + (+$("drivedia").value) + "mm across.",
+    "rDrive = " + ((+$("drivedia").value)/2).toFixed(4) + ";",
+    "",
+    "// Groove wall; leaves a " + channel + "mm channel for the player's head.",
+    "ringwidth = " + rw + ";",
+    "",
+    "composition = [", lines.join("\n"), "];",
+    "",
+    'writeText("' + $("title").value.replace(/"/g,"'") + '", font=":style=Bold", y=10, size=4);',
+    ""].join("\n");
+}
+
+/* ---------------------------------------------------- G-code generation
+   Everything on this disc is a circle about its centre, so the toolpath is
+   generated analytically as concentric passes rather than letting a slicer
+   segment each ring and retract at every seam. The envelope mirrors real
+   slicer output because printer firmware parses it.
+--------------------------------------------------------------------------- */
+function printableArcs(radius, holeR){
+  if(holeR <= 0 || radius <= 0) return [[0, 2*Math.PI]];
+  const blocked = [];
+  for(let k=0;k<4;k++){
+    const phi = k*Math.PI/2, dd = DRIVE_OFFSET;
+    const c = (radius*radius + dd*dd - holeR*holeR)/(2*radius*dd);
+    if(c >= 1) continue;
+    if(c <= -1) return [];
+    const del = Math.acos(c);
+    blocked.push([phi-del, phi+del]);
+  }
+  if(!blocked.length) return [[0, 2*Math.PI]];
+  const TAU = 2*Math.PI, spans = [];
+  for(let [a,b] of blocked){
+    a = ((a%TAU)+TAU)%TAU; b = ((b%TAU)+TAU)%TAU;
+    if(b < a){ spans.push([a,TAU]); spans.push([0,b]); } else spans.push([a,b]);
+  }
+  spans.sort((x,y)=>x[0]-y[0]);
+  const merged = [];
+  for(const [a,b] of spans){
+    if(merged.length && a <= merged[merged.length-1][1] + 1e-9)
+      merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], b);
+    else merged.push([a,b]);
+  }
+  const arcs = []; let cur = 0;
+  for(const [a,b] of merged){
+    if(a > cur + 1e-9) arcs.push([cur, a-cur]);
+    cur = Math.max(cur, b);
+  }
+  if(cur < TAU - 1e-9) arcs.push([cur, TAU-cur]);
+  return arcs;
+}
+
+/* A preview image for the printer's screen, in the PrusaSlicer/Orca comment
+   format the Anycubic firmware also reads. Cosmetic, so it never throws. */
+function thumbnailLines(){
+  try{
+    const W = 230, H = 110;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const g = cv.getContext("2d");
+    g.fillStyle = "#101418"; g.fillRect(0, 0, W, H);
+    const sc = (H*0.46)/RIM_OUTER_R;
+    g.save(); g.translate(W/2, H/2);
+    g.fillStyle = "#1d2b27";
+    g.beginPath(); g.arc(0, 0, RIM_OUTER_R*sc, 0, 7); g.fill();
+    const tw = +$("trackwidth").value, rw = +$("ringwidth").value;
+    g.strokeStyle = "#33574e"; g.lineWidth = Math.max(0.6, rw*sc);
+    for(let a = 27.5; a <= 59; a += TRACK_PITCH*tw){
+      g.beginPath(); g.arc(0, 0, (a-rw/2)*sc, 0, 7); g.stroke();
+    }
+    g.fillStyle = "#101418";
+    g.beginPath(); g.arc(0, 0, CENTRE_HOLE_R*sc, 0, 7); g.fill();
+    for(let k = 0; k < 4; k++){
+      const ang = k*Math.PI/2;
+      g.beginPath();
+      g.arc(DRIVE_OFFSET*sc*Math.cos(ang), DRIVE_OFFSET*sc*Math.sin(ang),
+            (+$("drivedia").value)/2*sc, 0, 7);
+      g.fill();
+    }
+    g.fillStyle = "#ffd166";
+    for(const c of composition()){
+      const ang = 2*Math.PI*(c[1]-1)/S.steps - Math.PI/2;
+      for(const pn of c[0]){
+        const r = (PIN_BASE_R + pn*TRACK_PITCH)*sc;
+        g.save(); g.rotate(ang); g.translate(r, 0);
+        g.fillRect(-0.8, -0.5, 1.6, 1.0);
+        g.restore();
+      }
+    }
+    g.restore();
+    const b64 = cv.toDataURL("image/png").split(",")[1];
+    const out = ["; thumbnail begin "+W+" "+H+" "+b64.length];
+    for(let i = 0; i < b64.length; i += 78) out.push("; "+b64.slice(i, i+78));
+    out.push("; thumbnail end", ";");
+    return out;
+  }catch(e){ return []; }
+}
+
+function buildGcode(){
+  const M = currentPrinter();
+  const P = {
+    bedX:+$("bedx").value, bedY:+$("bedy").value, nozzle:+$("nozzle").value,
+    w:+$("ewidth").value, lh:+$("layerh").value, fh:+$("firsth").value,
+    tn:+$("tnoz").value, tb:+$("tbed").value, sp:+$("speed").value,
+    fd:+$("fdia").value, arcs:$("arcs").checked
+  };
+  const flow = 0.98, travelSpeed = 200, firstSpeed = Math.max(5, P.sp*0.5);
+  const retract = M.retract, retractF = Math.round(M.retract_speed*60);
+  const minTravel = M.min_travel, tol = 0.05, segMax = 6;
+  const hstock = +$("hstock").value, hgroove = +$("hgroove").value;
+  const tw = +$("trackwidth").value, rw = +$("ringwidth").value;
+  const pinw = +$("pinwidth").value, holeR = (+$("drivedia").value)/2;
+  const steps = S.steps, comp = composition();
+  const ox = P.bedX/2, oy = P.bedY/2;
+
+  const beadArea = h => (P.w - h)*h + Math.PI*(h/2)*(h/2);
+  const ePerMm = h => beadArea(h)*flow/(Math.PI*(P.fd/2)*(P.fd/2));
+
+  const L = []; let x=null, y=null, z=0, retracted=false, feature=null;
+  let extruded=0, travelled=0, filament=0, travels=0, longTravels=0;
+  // The first layer's real footprint, in MACHINE coordinates. Slicer-made
+  // files carry this, and a printer that has it draws the job where it will
+  // actually be printed; without it the preview falls back to the origin and
+  // shows the disc sitting in the front-left corner even though every move
+  // in the file is centred on the bed.
+  let onFirst = false, fx0 = 1e9, fy0 = 1e9, fx1 = -1e9, fy1 = -1e9;
+  const seen = (nx, ny) => {
+    if(!onFirst) return;
+    const mx = nx + ox, my = ny + oy;
+    if(mx < fx0) fx0 = mx; if(mx > fx1) fx1 = mx;
+    if(my < fy0) fy0 = my; if(my > fy1) fy1 = my;
+  };
+  const raw = s => L.push(s);
+  const setFeature = f => { if(feature!==f){ feature=f; raw(";TYPE:"+f); } };
+  const doRetract = () => { if(!retracted){ raw("G1 E-"+retract.toFixed(5)+" F"+retractF); retracted=true; } };
+  const unRetract = () => { if(retracted){ raw("G1 E"+retract.toFixed(5)+" F"+retractF); retracted=false; } };
+  function travelTo(nx,ny){
+    const dist = x===null ? 0 : Math.hypot(nx-x, ny-y);
+    if(x!==null && dist < 1e-6) return;
+    const far = x===null || dist >= minTravel;
+    if(far) doRetract();
+    raw("G0 X"+(nx+ox).toFixed(4)+" Y"+(ny+oy).toFixed(4)+" F"+(travelSpeed*60));
+    x=nx; y=ny; travelled+=dist; travels++; if(far) longTravels++;
+  }
+  function extrudeTo(nx,ny,h,speed){
+    unRetract(); seen(x,y); seen(nx,ny);
+    const dist = Math.hypot(nx-x, ny-y), de = dist*ePerMm(h);
+    filament += de; extruded += dist;
+    raw("G1 X"+(nx+ox).toFixed(4)+" Y"+(ny+oy).toFixed(4)+
+        " E"+de.toFixed(5)+" F"+Math.round(speed*60));
+    x=nx; y=ny;
+  }
+  function arcTo(nx,ny,len,h,speed){
+    unRetract(); seen(x,y); seen(nx,ny);
+    const de = len*ePerMm(h); filament += de; extruded += len;
+    raw("G3 X"+(nx+ox).toFixed(4)+" Y"+(ny+oy).toFixed(4)+
+        " I"+(-x).toFixed(4)+" J"+(-y).toFixed(4)+
+        " E"+de.toFixed(5)+" F"+Math.round(speed*60));
+    x=nx; y=ny;
+  }
+  function circleArc(r, start, sweep, h, speed){
+    if(r<=0 || sweep<=0) return;
+    travelTo(r*Math.cos(start), r*Math.sin(start));
+    if(P.arcs){
+      const step = Math.PI/2; let done = 0;
+      while(done < sweep - 1e-9){
+        const piece = Math.min(step, sweep-done); done += piece;
+        const a = start+done;
+        arcTo(r*Math.cos(a), r*Math.sin(a), r*piece, h, speed);
+      }
+    }else{
+      let dth = r > tol ? 2*Math.acos(Math.max(-1,Math.min(1,1-tol/r))) : sweep;
+      dth = Math.min(dth, segMax/Math.max(r,1e-6));
+      const n = Math.max(2, Math.ceil(sweep/Math.max(dth,1e-6)));
+      for(let i=1;i<=n;i++){
+        const a = start + sweep*i/n;
+        extrudeTo(r*Math.cos(a), r*Math.sin(a), h, speed);
+      }
+    }
+  }
+  function band(rIn, rOut, h, speed, hr){
+    if(rOut - rIn < P.w*0.5) return;
+    for(let r = rOut - P.w/2; r >= rIn + P.w/2 - 1e-9; r -= P.w)
+      for(const [st,sw] of printableArcs(r, hr||0)) circleArc(r, st, sw, h, speed);
+  }
+  function pins(h, speed){
+    const lines = Math.max(1, Math.round(pinw/P.w));
+    const byStep = new Map();
+    for(const [ps,st] of comp){ if(!byStep.has(st)) byStep.set(st,[]); byStep.get(st).push(...ps); }
+    for(const st of [...byStep.keys()].sort((a,b)=>a-b)){
+      const ang = 2*Math.PI*st/steps;
+      for(const row of byStep.get(st).sort((a,b)=>a-b)){
+        const cr = PIN_BASE_R + row*TRACK_PITCH;
+        for(let i=0;i<lines;i++){
+          const r = lines===1 ? cr
+            : cr - pinw/2 + P.w/2 + i*((pinw-P.w)/(lines-1));
+          const sweep = PIN_TANGENTIAL/r;
+          circleArc(r, ang - sweep/2, sweep, h, speed);
+        }
+      }
+    }
+  }
+
+  const ringR = []; for(let a=27.5; a<=59+1e-9; a+=TRACK_PITCH*tw) ringR.push(a);
+  const rimInner = RIM_INNER_OUTER - rw;
+  const topBase = hstock, topGroove = hstock+hgroove, topAll = topGroove+0.4;
+
+  const headerAt = L.length; raw("");
+  raw("; EXECUTABLE_BLOCK_START");
+  raw("M201 X20000 Y20000 Z5000 E20000");
+  raw("M203 X500 Y500 Z16 E80");
+  raw("M204 P20000 R20000 T9000");
+  raw("M205 X20.00 Y20.00 Z8.00 E20.00");
+  setFeature("Custom");
+  // The machine's own start G-code when we have it, otherwise a conservative
+  // generic one. We never invent machine-specific moves for a printer whose
+  // profile we haven't actually read.
+  for(const l of expandGcode(M.start || DB.generic_start, P, topAll).split("\n"))
+    if(l.trim()) raw(l.trim());
+  raw("G90"); raw("G21"); raw(M.relative_e === false ? "M82" : "M83");
+
+  let layer = 0, zz = 0, fanOn = false;
+  while(zz < topAll - 1e-6){
+    const h = layer === 0 ? P.fh : P.lh;
+    zz = Math.min(zz + h, topAll);
+    const speed = layer === 0 ? firstSpeed : P.sp;
+    raw(";LAYER_CHANGE"); raw(";Z:"+zz.toFixed(2)); raw(";HEIGHT:"+h.toFixed(2));
+    raw("; layer num/total_layer_count: "+(layer+1)+"/{TOTAL}");
+    feature = null;
+    onFirst = (layer === 0);
+    raw("G1 Z"+zz.toFixed(3)+" F600"); z = zz;
+    if(layer === 1 && !fanOn){ raw("M106 S255"); fanOn = true; }
+
+    if(zz <= topBase + 1e-9){
+      setFeature("Bottom surface");
+      band(CENTRE_HOLE_R, RIM_OUTER_R, h, speed, holeR);
+    }else if(zz <= topGroove + 1e-9){
+      setFeature("Outer wall");
+      band(RIM_OUTER_R - RIM_OUTER_W, RIM_OUTER_R, h, speed);
+      for(const r of ringR) band(r - rw, r, h, speed);
+      band(rimInner - RIM_INNER_W, rimInner, h, speed);
+      setFeature("Inner wall");
+      pins(h, speed);
+    }else{
+      setFeature("Outer wall");
+      band(RIM_OUTER_R - RIM_OUTER_W, RIM_OUTER_R, h, speed);
+      band(rimInner - RIM_INNER_W, rimInner, h, speed);
+    }
+    layer++;
+  }
+  doRetract();
+  for(const l of expandGcode(M.end || DB.generic_end, P, topAll).split("\n"))
+    if(l.trim()) raw(l.trim());
+  raw("; EXECUTABLE_BLOCK_END");
+
+  const estS = extruded/Math.max(1,P.sp) + travelled/travelSpeed + layer*1.5;
+  const mins = Math.floor(estS/60);
+  raw(""); raw("; CONFIG_BLOCK_START = begin");
+  raw("; nozzle_diameter = "+P.nozzle.toFixed(2));
+  raw("; layer_height = "+P.lh.toFixed(2));
+  raw("; first_layer_height = "+P.fh.toFixed(3));
+  raw("; first_layer_temperature = "+P.tn);
+  raw("; bed_temperature = "+P.tb);
+  raw("; bed_shape = 0x0,"+P.bedX+"x0,"+P.bedX+"x"+P.bedY+",0x"+P.bedY);
+  raw("; retraction_length = "+retract.toFixed(2));
+  raw("; z_hop = 0");
+  raw("; CONFIG_BLOCK_END = end");
+  raw(""); raw("; statistics = begin");
+  raw("; used_filament = "+(filament/1000*2.98).toFixed(2));
+  raw("; print_time = "+mins+"m "+Math.round(estS-mins*60)+"s");
+  raw("; model_size = "+(RIM_OUTER_R*2).toFixed(2)+","+(RIM_OUTER_R*2).toFixed(2)+
+      ","+topAll.toFixed(2));
+  raw("; total_layers = "+layer);
+  raw("; statistics = end");
+
+  const box = fx1 > fx0
+    ? ["; first_layer_print_min = "+fx0.toFixed(2)+","+fy0.toFixed(2),
+       "; first_layer_print_max = "+fx1.toFixed(2)+","+fy1.toFixed(2),
+       "; first_layer_print_size = "+(fx1-fx0).toFixed(2)+","+(fy1-fy0).toFixed(2)]
+    : [];
+  const hdr = ["; HEADER_BLOCK_START"]
+    .concat(thumbnailLines(), [
+    "; generated by Fisher Price Disc Designer (web) build "+BUILD,
+    "; total layer number: "+layer,
+    "; filament_density: 1.24",
+    "; filament_diameter: "+P.fd.toFixed(2),
+    "; max_z_height: "+topAll.toFixed(2)],
+    box, [
+    "; exclude_object: 0","; model_instances: 1",
+    "; title: "+$("title").value,
+    "; NOTE: generated from the disc geometry, not sliced",
+    "; HEADER_BLOCK_END",""]);
+  L.splice(headerAt, 1, ...hdr);
+  return {text: L.join("\n").replace(/\{TOTAL\}/g, String(layer)) + "\n",
+          stats:{layers:layer, filament, estS, travels, longTravels}};
+}
+
+/* ------------------------------------------------------------ disc canvas */
+function drawDisc(){
+  const c = $("disc"), g = c.getContext("2d");
+  const W = c.width, H = c.height, cx = W/2, cy = H/2;
+  const sc = (Math.min(W,H)*0.46)/RIM_OUTER_R;
+  g.clearRect(0,0,W,H);
+  g.fillStyle = "#0a0d11"; g.fillRect(0,0,W,H);
+  g.save(); g.translate(cx,cy);
+  g.fillStyle = "#16221f"; g.beginPath(); g.arc(0,0,RIM_OUTER_R*sc,0,7); g.fill();
+  const tw = +$("trackwidth").value, rw = +$("ringwidth").value;
+  g.strokeStyle = "#2b4f47";
+  for(let a=27.5; a<=59; a+=TRACK_PITCH*tw){
+    g.lineWidth = Math.max(1, rw*sc);
+    g.beginPath(); g.arc(0,0,(a-rw/2)*sc,0,7); g.stroke();
+  }
+  g.fillStyle = "#0a0d11";
+  g.beginPath(); g.arc(0,0,CENTRE_HOLE_R*sc,0,7); g.fill();
+  for(let k=0;k<4;k++){
+    const ang = k*Math.PI/2;
+    g.beginPath();
+    g.arc(DRIVE_OFFSET*sc*Math.cos(ang), DRIVE_OFFSET*sc*Math.sin(ang),
+          (+$("drivedia").value)/2*sc, 0, 7);
+    g.fill();
+  }
+  g.fillStyle = "#ffd166";
+  for(const [pins, step] of composition()){
+    const ang = 2*Math.PI*(step-1)/S.steps - Math.PI/2;
+    for(const p of pins){
+      const r = (PIN_BASE_R + p*TRACK_PITCH)*sc;
+      g.save(); g.rotate(ang); g.translate(r,0);
+      g.fillRect(-(+$("pinwidth").value)*sc/2, -PIN_TANGENTIAL*sc/2,
+                 (+$("pinwidth").value)*sc, PIN_TANGENTIAL*sc);
+      g.restore();
+    }
+  }
+  g.restore();
+}
+
+/* ------------------------------------------------------------ audio (Web Audio)
+   The desktop app writes a sine WAV; here we can do better - a struck tine is
+   a fast attack and a long exponential decay, so that is what we synthesise.
+--------------------------------------------------------------------------- */
+let AC = null, playTimer = null;
+function play(){
+  stop();
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+  if(AC.state === "suspended") AC.resume();
+  const comp = composition(), spb = 8;             // steps per second
+  const t0 = AC.currentTime + 0.08;
+  for(const [pins, step] of comp){
+    const t = t0 + (step-1)/spb;
+    for(const p of pins) pluck(midiHz(PIN_MIDI[p-1]), t, 1/pins.length);
+  }
+  const total = S.steps/spb;
+  playTimer = setTimeout(()=>{ playTimer = null; }, total*1000+200);
+  log(trx("fpbLogPlaying", {n:comp.length, spb:spb}));
+}
+function pluck(hz, when, gain){
+  const o = AC.createOscillator(), g = AC.createGain(), o2 = AC.createOscillator(),
+        g2 = AC.createGain();
+  o.type = "triangle"; o.frequency.value = hz;
+  o2.type = "sine"; o2.frequency.value = hz*2.76;   // inharmonic partial
+  const a = 0.35*gain;
+  g.gain.setValueAtTime(0, when);
+  g.gain.linearRampToValueAtTime(a, when+0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, when+1.4);
+  g2.gain.setValueAtTime(0, when);
+  g2.gain.linearRampToValueAtTime(a*0.18, when+0.003);
+  g2.gain.exponentialRampToValueAtTime(0.0001, when+0.35);
+  o.connect(g).connect(AC.destination); o2.connect(g2).connect(AC.destination);
+  o.start(when); o.stop(when+1.5); o2.start(when); o2.stop(when+0.4);
+}
+function stop(){
+  if(playTimer){ clearTimeout(playTimer); playTimer = null; }
+  if(AC){ AC.close(); AC = null; }
+}
+
+/* ------------------------------------------------------- printers & filament
+   The database is built once by tools/build_printer_db.py and shipped
+   alongside this page. It is NOT fetched live: no public API will tell a web
+   page a printer's bed size and start G-code, and a static page cannot call
+   one anyway without running into the browser's cross-origin rules. Baking it
+   in means the tool works offline and can't break when a service moves.
+
+   Entries taken from an installed slicer carry that vendor's real start/end
+   G-code. Entries we only know the published specification for get a
+   conservative generic preamble, and the UI says which is which.
+--------------------------------------------------------------------------- */
+const FALLBACK_DB = {
+  generic_start:["G90","M83","M140 S{bed}","M190 S{bed}","M104 S{noz}","M109 S{noz}",
+    "G28","G92 E0","G1 Z0.3 F600","G1 X{px0} Y2 F3000",
+    "G1 X{px1} Y2 E18 F900 ;prime line","G92 E0","G1 E-0.4 F1800"].join("\n"),
+  generic_end:["G1 Z{zup} F600","M140 S0","M104 S0","M107","G90",
+    "G1 X5 Y{ypark} F6000","M84"].join("\n"),
+  printers:[{vendor:"Anycubic",model:"Anycubic Kobra 2 Pro",nozzle:0.4,
+    bed:[220,220],height:250,flavor:"klipper",relative_e:true,retract:1.5,
+    retract_speed:30,z_hop:0,min_travel:1,temp_nozzle:220,temp_bed:60,
+    start:["G90 ;Use absolute coordinates","M83 ;Extruder relative mode",
+      "M140 S{bed}","M190 S{bed}","M104 S{noz}","M109 S{noz}","G28",
+      "G1 Z0.28","G92 E0","G1 Y222 F1800 ;purge point",
+      "G1 X180 E25 F500 ;purge line","G92 E0","G1 E-0.2 F500",
+      "G1 X181 F4000 ;wipe","M117","M900 K0.07"].join("\n"),
+    end:["G1 Z{zup} F600","G1 X5 Y209 F12000 ;present print","M140 S0",
+      "M104 S0","M107","M84"].join("\n"),
+    source:"built in"}]
+};
+/* PLA/PETG/ABS/TPU nozzle+bed, the ordinary starting points. */
+const FILAMENTS = {
+  "PLA":       {noz:210, bed:60},
+  "PLA (Anycubic)": {noz:220, bed:60},
+  "PETG":      {noz:240, bed:80},
+  "ABS":       {noz:250, bed:100},
+  "ASA":       {noz:255, bed:100},
+  "TPU":       {noz:225, bed:50}
+};
+let DB = FALLBACK_DB;
+
+/* Slicer profiles use [placeholder] / {placeholder} for values it fills in.
+   Substitute the ones we know and drop any line still carrying an unresolved
+   one - shipping "M104 S[first_layer_temperature]" to a printer is worse than
+   shipping nothing. */
+function expandGcode(src, P, topAll){
+  const map = {
+    bed:String(P.tb), noz:String(P.tn),
+    first_layer_bed_temperature:String(P.tb), bed_temperature:String(P.tb),
+    first_layer_temperature:String(P.tn), nozzle_temperature:String(P.tn),
+    zup:Math.min(topAll+30, 240).toFixed(2),
+    ypark:(P.bedY*0.95).toFixed(0),
+    px0:"5", px1:String(Math.round(P.bedX*0.8)),
+    max_layer_z:topAll.toFixed(2), z_offset:"0", travel_speed:"200",
+    initial_extruder:"0", filament_type:"PLA"
+  };
+  const sub = s => s.replace(/[\[{]([a-zA-Z0-9_]+)[\]}]/g,
+                             (m,k) => (k in map) ? map[k] : m);
+  return src.split("\n").map(sub)
+    .filter(l => !/[\[{][a-zA-Z0-9_]+[\]}]/.test(l))   // unresolved -> drop
+    .filter(l => !/^\s*\{if/.test(l))                  // conditional blocks
+    .join("\n");
+}
+
+function currentPrinter(){
+  const i = +$("model").value;
+  return DB.printers[i] || DB.printers[0];
+}
+function fillPrinters(){
+  const vendors = [...new Set(DB.printers.map(p=>p.vendor))].sort();
+  $("vendor").innerHTML = vendors.map(v=>'<option>'+v+'</option>').join("");
+  fillModels();
+}
+function fillModels(){
+  const v = $("vendor").value;
+  const opts = DB.printers.map((p,i)=>({p,i})).filter(x=>x.p.vendor===v);
+  $("model").innerHTML = opts.map(({p,i}) =>
+    '<option value="'+i+'">'+p.model.replace(p.vendor+" ","") +
+    ' &mdash; ' + p.nozzle + 'mm</option>').join("");
+  applyPrinter();
+}
+/* setDefaults=false only refreshes the description - used when the user's own
+   saved values have just been restored and must not be clobbered. */
+function applyPrinter(setDefaults){
+  const m = currentPrinter(); if(!m) return;
+  if(setDefaults !== false){
+    $("bedx").value = m.bed[0]; $("bedy").value = m.bed[1];
+    $("nozzle").value = m.nozzle;
+    $("ewidth").value = (m.nozzle * 1.05).toFixed(2);
+    $("tnoz").value = m.temp_nozzle; $("tbed").value = m.temp_bed;
+    // A machine's default temperatures are its PLA numbers, so say PLA -
+    // otherwise the filament label and the temperatures quietly disagree.
+    if($("filament").value !== "PLA") $("filament").value = "PLA";
+  }
+  const real = !!m.start;
+  $("printersrc").textContent = real
+    ? trx("fpbPrinterSrcReal", {source:m.source, flavor:m.flavor,
+        retract:m.retract, speed:m.retract_speed})
+    : trx("fpbPrinterSrcFallback", {source:m.source});
+  $("printersrc").className = "hint" + (real ? "" : " warn");
+  refreshStats(); saveSettings();
+}
+function applyFilament(){
+  const f = FILAMENTS[$("filament").value]; if(!f) return;
+  $("tnoz").value = f.noz; $("tbed").value = f.bed;
+  saveSettings();
+}
+
+/* ---------------------------------------------------- settings persistence */
+const SETTINGS_KEY = "fp-disc-designer/settings";
+const PERSIST = ["vendor","model","filament","bedx","bedy","nozzle","ewidth",
+  "layerh","firsth","tnoz","tbed","speed","fdia","trackwidth","hstock","hgroove",
+  "pinwidth","ringwidth","drivedia","clear_mm","beats","accomp","pitchmode","voice","simplify"];
+/* Nothing is written until boot finishes. Setting up the pickers calls
+   applyPrinter(), which would otherwise save a default set of settings before
+   we have had a chance to read the user's real ones back - so every visit
+   would look like a returning visit and the chosen default never applied. */
+let settingsReady = false;
+function saveSettings(){
+  if(!settingsReady) return;
+  try{
+    const d = {};
+    for(const id of PERSIST){ const el = $(id); if(el) d[id] = el.value; }
+    d.arcs = $("arcs").checked;
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(d));
+  }catch(e){ /* private mode, blocked storage - not worth failing over */ }
+}
+function loadSettings(){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(SETTINGS_KEY) || "null"); }catch(e){}
+  if(!d) return false;
+  if(d.vendor && [...$("vendor").options].some(o=>o.value===d.vendor)){
+    $("vendor").value = d.vendor; fillModels();
+  }
+  for(const id of PERSIST){
+    const el = $(id);
+    if(el && d[id] !== undefined && d[id] !== "") el.value = d[id];
+  }
+  if(d.arcs !== undefined) $("arcs").checked = !!d.arcs;
+  return true;
+}
+
+/* --------------------------------------------------------------- QR encoder
+   Byte mode, error-correction level M, versions 1-6 - enough for a donate URL.
+   Written out rather than pulled from a CDN so the page stays self-contained
+   and makes no third-party requests: a donate link is exactly the thing you
+   don't want someone else's script sitting in front of.
+--------------------------------------------------------------------------- */
+const QR = (() => {
+  const EXP = new Uint8Array(512), LOG = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) {
+    EXP[i] = x; LOG[x] = i;
+    x <<= 1; if (x & 0x100) x ^= 0x11d;
+  }
+  for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
+  const mul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+
+  function rsGenerator(n) {
+    let p = [1];
+    for (let i = 0; i < n; i++) {
+      const q = [1, EXP[i]], r = new Array(p.length + 1).fill(0);
+      for (let j = 0; j < p.length; j++)
+        for (let k = 0; k < 2; k++) r[j + k] ^= mul(p[j], q[k]);
+      p = r;
+    }
+    return p;
+  }
+  function rsEncode(data, ecLen) {
+    const gen = rsGenerator(ecLen), res = new Uint8Array(data.length + ecLen);
+    res.set(data);
+    for (let i = 0; i < data.length; i++) {
+      const c = res[i]; if (!c) continue;
+      for (let j = 0; j < gen.length; j++) res[i + j] ^= mul(gen[j], c);
+    }
+    return res.slice(data.length);
+  }
+
+  const SPEC = {
+    1: [26, 10, [[1, 16]]],
+    2: [44, 16, [[1, 28]]],
+    3: [70, 26, [[1, 44]]],
+    4: [100, 18, [[2, 32]]],
+    5: [134, 24, [[2, 43]]],
+    6: [172, 16, [[4, 27]]]
+  };
+  const ALIGN = {1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26], 5: [6, 30], 6: [6, 34]};
+
+  function encode(text) {
+    const bytes = new TextEncoder().encode(text);
+    let ver = 0;
+    for (let v = 1; v <= 6; v++) {
+      const cap = SPEC[v][2].reduce((n, g) => n + g[0] * g[1], 0);
+      if (bytes.length + 2 <= cap) { ver = v; break; }
+    }
+    if (!ver) throw new Error("too long for this encoder");
+    const ecLen = SPEC[ver][1], groups = SPEC[ver][2];
+    const dataCap = groups.reduce((n, g) => n + g[0] * g[1], 0);
+
+    const bits = [];
+    const push = (val, len) => { for (let i = len - 1; i >= 0; i--) bits.push((val >> i) & 1); };
+    push(4, 4); push(bytes.length, 8);
+    for (const b of bytes) push(b, 8);
+    for (let i = 0; i < 4 && bits.length < dataCap * 8; i++) bits.push(0);
+    while (bits.length % 8) bits.push(0);
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8)
+      data.push(parseInt(bits.slice(i, i + 8).join(""), 2));
+    const PAD = [0xec, 0x11];
+    for (let i = 0; data.length < dataCap; i++) data.push(PAD[i % 2]);
+
+    const dBlocks = [], eBlocks = [];
+    let p = 0;
+    for (const g of groups)
+      for (let b = 0; b < g[0]; b++) {
+        const blk = Uint8Array.from(data.slice(p, p + g[1])); p += g[1];
+        dBlocks.push(blk); eBlocks.push(rsEncode(blk, ecLen));
+      }
+    const out = [];
+    const maxD = Math.max.apply(null, dBlocks.map(b => b.length));
+    for (let i = 0; i < maxD; i++)
+      for (const b of dBlocks) if (i < b.length) out.push(b[i]);
+    for (let i = 0; i < ecLen; i++) for (const b of eBlocks) out.push(b[i]);
+
+    const size = ver * 4 + 17;
+    const m = Array.from({length: size}, () => new Array(size).fill(null));
+    const put = (r, c, v) => { if (r >= 0 && c >= 0 && r < size && c < size) m[r][c] = v; };
+    const finder = (r, c) => {
+      for (let i = -1; i <= 7; i++) for (let j = -1; j <= 7; j++) {
+        const on = (i >= 0 && i <= 6 && (j === 0 || j === 6)) ||
+                   (j >= 0 && j <= 6 && (i === 0 || i === 6)) ||
+                   (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+        put(r + i, c + j, on ? 1 : 0);
+      }
+    };
+    finder(0, 0); finder(0, size - 7); finder(size - 7, 0);
+    for (let i = 8; i < size - 8; i++) {
+      put(6, i, i % 2 === 0 ? 1 : 0);
+      put(i, 6, i % 2 === 0 ? 1 : 0);
+    }
+    for (const r of ALIGN[ver]) for (const c of ALIGN[ver]) {
+      if ((r <= 8 && c <= 8) || (r <= 8 && c >= size - 9) || (r >= size - 9 && c <= 8)) continue;
+      for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++)
+        put(r + i, c + j, (Math.abs(i) === 2 || Math.abs(j) === 2 || (i === 0 && j === 0)) ? 1 : 0);
+    }
+    for (let i = 0; i <= 8; i++) {
+      if (m[8][i] === null) put(8, i, 0);
+      if (m[i][8] === null) put(i, 8, 0);
+    }
+    for (let i = 0; i < 8; i++) {
+      if (m[8][size - 1 - i] === null) put(8, size - 1 - i, 0);
+      if (m[size - 1 - i][8] === null) put(size - 1 - i, 8, 0);
+    }
+    put(size - 8, 8, 1);
+
+    const reserved = m.map(row => row.map(v => v !== null));
+    let bi = 0, up = true;
+    const bitAt = i => (i >> 3) < out.length ? (out[i >> 3] >> (7 - (i & 7))) & 1 : 0;
+    for (let col = size - 1; col > 0; col -= 2) {
+      if (col === 6) col--;
+      for (let n = 0; n < size; n++) {
+        const row = up ? size - 1 - n : n;
+        for (let k = 0; k < 2; k++) {
+          const c = col - k;
+          if (reserved[row][c]) continue;
+          m[row][c] = bitAt(bi++);
+        }
+      }
+      up = !up;
+    }
+
+    const MASK = [
+      (r, c) => (r + c) % 2 === 0,
+      (r, c) => r % 2 === 0,
+      (r, c) => c % 3 === 0,
+      (r, c) => (r + c) % 3 === 0,
+      (r, c) => (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0,
+      (r, c) => ((r * c) % 2) + ((r * c) % 3) === 0,
+      (r, c) => (((r * c) % 2) + ((r * c) % 3)) % 2 === 0,
+      (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0
+    ];
+    function penalty(g) {
+      let s = 0;
+      for (let r = 0; r < size; r++) {
+        let run = 1;
+        for (let c = 1; c < size; c++) {
+          if (g[r][c] === g[r][c - 1]) run++;
+          else { if (run >= 5) s += 3 + run - 5; run = 1; }
+        }
+        if (run >= 5) s += 3 + run - 5;
+      }
+      for (let c = 0; c < size; c++) {
+        let run = 1;
+        for (let r = 1; r < size; r++) {
+          if (g[r][c] === g[r - 1][c]) run++;
+          else { if (run >= 5) s += 3 + run - 5; run = 1; }
+        }
+        if (run >= 5) s += 3 + run - 5;
+      }
+      for (let r = 0; r < size - 1; r++) for (let c = 0; c < size - 1; c++)
+        if (g[r][c] === g[r][c + 1] && g[r][c] === g[r + 1][c] && g[r][c] === g[r + 1][c + 1]) s += 3;
+      let dark = 0;
+      for (const row of g) for (const v of row) dark += v;
+      s += Math.floor(Math.abs(dark * 100 / (size * size) - 50) / 5) * 10;
+      return s;
+    }
+    const FMT_M = [0x5412, 0x5125, 0x5e7c, 0x5b4b, 0x45f9, 0x40ce, 0x4f97, 0x4aa0];
+    let best = null, bestScore = Infinity;
+    for (let mk = 0; mk < 8; mk++) {
+      const g = m.map((row, r) => row.map((v, c) =>
+        reserved[r][c] ? v : (MASK[mk](r, c) ? v ^ 1 : v)));
+      const f = FMT_M[mk];
+      // Format information, both copies. Indices here are [row][col]; the
+      // spec's own diagrams are drawn (x, y), and writing them out in that
+      // order transposes the whole 15-bit strip - which still LOOKS like a
+      // QR code and still scans as version 3, but reports the wrong error
+      // level and the wrong mask, so nothing downstream can read it. Bit i
+      // is the i-th least significant.
+      for (let i = 0; i < 15; i++) {
+        const b = (f >> i) & 1;
+        if (i < 6) g[i][8] = b;            // copy 1: up the left of col 8
+        else if (i === 6) g[7][8] = b;
+        else if (i === 7) g[8][8] = b;
+        else if (i === 8) g[8][7] = b;
+        else g[8][14 - i] = b;             // ...then left along row 8
+        if (i < 8) g[8][size - 1 - i] = b; // copy 2: row 8, right edge in
+        else g[size - 15 + i][8] = b;      // ...then col 8, bottom edge up
+      }
+      g[size - 8][8] = 1;                  // the always-dark module
+      const sc = penalty(g);
+      if (sc < bestScore) { bestScore = sc; best = g; }
+    }
+    return {size: size, version: ver, matrix: best};
+  }
+  return {encode: encode};
+})();
+
+/* ------------------------------------------------------------- STL export
+   OpenSCAD is a separate program and a web page cannot run it, so this
+   builds the mesh itself and hands the slicer a finished solid.
+
+   That is only reasonable because every part of this disc is analytic:
+   circles, annuli, and little rotated boxes. The one place a real CSG
+   kernel would normally be needed is the base plate, which has five holes
+   in it - and that is sidestepped by cutting the plate into four sectors
+   along the radial lines THROUGH the drive-hole centres. Each drive hole
+   is then split in half, and each half lies ON the boundary of a sector
+   rather than inside it, so every piece is a simple polygon with no holes
+   and plain ear clipping is enough. Adjacent sectors are built from a
+   shared vertex table, so they meet exactly instead of leaving cracks.
+
+   Everything above the plate - rings, rims, pins, lettering - is emitted
+   as its own closed solid overlapping the plate. That is exactly what
+   OpenSCAD's union() does, and slicers union overlapping closed volumes
+   the same way, so no boolean operation is ever performed here.
+--------------------------------------------------------------------------- */
+const STL_SEG = 200;        // segments on a full circle (0.007mm sagitta at r=59)
+const STL_SEG_IN = 48;      // ...on the centre hole
+const STL_SEG_HOLE = 32;    // ...on each drive hole
+const TEXT_PPMM = 12;       // lettering raster resolution, px per mm
+
+function Mesh(){ this.t = []; }
+Mesh.prototype.tri = function(a, b, c){ this.t.push(a, b, c); };
+Mesh.prototype.quad = function(a, b, c, d){ this.tri(a, b, c); this.tri(a, c, d); };
+
+/* Ear clipping for a SIMPLE polygon (no holes), given counter-clockwise.
+   Returns index triples into `pts`; `loop` is a list of indices into it. */
+function earClip(pts, loop){
+  const area = (a, b, c) =>
+    (pts[b][0]-pts[a][0])*(pts[c][1]-pts[a][1]) -
+    (pts[b][1]-pts[a][1])*(pts[c][0]-pts[a][0]);
+  const inside = (a, b, c, p) =>
+    area(a, b, p) >= -1e-11 && area(b, c, p) >= -1e-11 && area(c, a, p) >= -1e-11;
+  const idx = loop.slice(), out = [];
+  let stuck = 0;
+  while(idx.length > 3 && stuck < idx.length){
+    let cut = false;
+    for(let i = 0; i < idx.length; i++){
+      const a = idx[(i-1+idx.length) % idx.length], b = idx[i],
+            c = idx[(i+1) % idx.length];
+      if(area(a, b, c) <= 1e-11) continue;          // reflex or collinear
+      let clear = true;
+      for(const j of idx){
+        if(j === a || j === b || j === c) continue;
+        if(inside(a, b, c, j)){ clear = false; break; }
+      }
+      if(!clear) continue;
+      out.push([a, b, c]); idx.splice(i, 1); cut = true; stuck = 0; break;
+    }
+    if(!cut) stuck++;
+  }
+  if(idx.length === 3) out.push([idx[0], idx[1], idx[2]]);
+  return out;
+}
+
+/* A closed vertical wall around one loop. For a counter-clockwise loop the
+   normals point outward; pass flip for a hole, where "away from the
+   material" means inward to the circle. */
+function wall(m, pts, loop, z0, z1, flip){
+  const n = loop.length;
+  for(let i = 0; i < n; i++){
+    const p = pts[loop[i]], q = pts[loop[(i+1) % n]];
+    const a = [p[0], p[1], z0], b = [q[0], q[1], z0],
+          c = [q[0], q[1], z1], d = [p[0], p[1], z1];
+    if(flip) m.quad(a, d, c, b); else m.quad(a, b, c, d);
+  }
+}
+
+function circleLoop(r, n, phase){
+  const out = [];
+  for(let i = 0; i < n; i++){
+    const a = (phase || 0) + 2*Math.PI*i/n;
+    out.push([r*Math.cos(a), r*Math.sin(a)]);
+  }
+  return out;
+}
+
+/* The base plate: a disc with a centre hole and four drive holes.
+
+   Every boundary circle is generated ONCE, up front, and both the sector
+   caps and the walls are built by indexing into those arrays. Recomputing
+   the same point from two different expressions gives two answers that
+   differ in the last bit, which leaves the cap and the wall standing on
+   almost-but-not-quite the same vertex - a hairline crack a slicer will
+   later report as a non-manifold edge. */
+function plate(m, rOut, rIn, holeR, holeOff, z0, z1){
+  const pts = [];
+  const V = p => { pts.push(p); return pts.length - 1; };
+  const at = (r, a) => [r*Math.cos(a), r*Math.sin(a)];
+  // A point on drive hole k, psi measured from the outward radial direction:
+  // psi = 0 is the point furthest from the disc centre, psi = PI the nearest.
+  const holePt = (k, psi) => {
+    const a = k*Math.PI/2, ca = Math.cos(a), sa = Math.sin(a);
+    const cp = Math.cos(psi), sp = Math.sin(psi);
+    return [holeOff*ca + holeR*(cp*ca - sp*sa),
+            holeOff*sa + holeR*(cp*sa + sp*ca)];
+  };
+
+  const outer = [], inner = [], holes = [];
+  for(let i = 0; i < STL_SEG; i++) outer.push(V(at(rOut, 2*Math.PI*i/STL_SEG)));
+  for(let i = 0; i < STL_SEG_IN; i++) inner.push(V(at(rIn, 2*Math.PI*i/STL_SEG_IN)));
+  for(let k = 0; k < 4; k++){
+    const h = [];
+    for(let j = 0; j < STL_SEG_HOLE; j++)
+      h.push(V(holePt(k, 2*Math.PI*j/STL_SEG_HOLE)));
+    holes.push(h);
+  }
+
+  const nOut = STL_SEG/4, nInn = STL_SEG_IN/4, nH = STL_SEG_HOLE/2;
+  for(let k = 0; k < 4; k++){
+    const loop = [];
+    const add = i => { if(!loop.length || loop[loop.length-1] !== i) loop.push(i); };
+    // outward rim, this quadrant, counter-clockwise
+    for(let i = 0; i <= nOut; i++) add(outer[(k*nOut + i) % STL_SEG]);
+    // down the far radial edge and around the near half of the hole sitting
+    // on it (psi running 0 -> -PI keeps the interior on the left)
+    const hb = holes[(k+1) % 4];
+    for(let i = 0; i <= nH; i++) add(hb[(STL_SEG_HOLE - i) % STL_SEG_HOLE]);
+    // back along the centre hole
+    for(let i = 0; i <= nInn; i++)
+      add(inner[(((k+1)*nInn - i) % STL_SEG_IN + STL_SEG_IN) % STL_SEG_IN]);
+    // and out again past the other half hole (psi running PI -> 0)
+    const ha = holes[k];
+    for(let i = 0; i <= nH; i++) add(ha[nH - i]);
+    if(loop.length > 1 && loop[0] === loop[loop.length-1]) loop.pop();
+
+    for(const t of earClip(pts, loop)){
+      const a = pts[t[0]], b = pts[t[1]], c = pts[t[2]];
+      m.tri([a[0], a[1], z1], [b[0], b[1], z1], [c[0], c[1], z1]);
+      m.tri([c[0], c[1], z0], [b[0], b[1], z0], [a[0], a[1], z0]);
+    }
+  }
+
+  wall(m, pts, outer, z0, z1, false);
+  wall(m, pts, inner, z0, z1, true);
+  for(const h of holes) wall(m, pts, h, z0, z1, true);
+}
+
+/* A closed ring - the groove walls and the two rims. */
+function annulus(m, rIn, rOut, z0, z1){
+  if(rOut - rIn < 1e-6 || rIn < 0) return;
+  const n = STL_SEG, A = circleLoop(rIn, n, 0), B = circleLoop(rOut, n, 0);
+  for(let i = 0; i < n; i++){
+    const j = (i+1) % n;
+    m.quad([A[i][0], A[i][1], z1], [B[i][0], B[i][1], z1],
+           [B[j][0], B[j][1], z1], [A[j][0], A[j][1], z1]);
+    m.quad([A[j][0], A[j][1], z0], [B[j][0], B[j][1], z0],
+           [B[i][0], B[i][1], z0], [A[i][0], A[i][1], z0]);
+    m.quad([B[i][0], B[i][1], z0], [B[j][0], B[j][1], z0],
+           [B[j][0], B[j][1], z1], [B[i][0], B[i][1], z1]);
+    m.quad([A[i][0], A[i][1], z0], [A[i][0], A[i][1], z1],
+           [A[j][0], A[j][1], z1], [A[j][0], A[j][1], z0]);
+  }
+}
+
+/* A solid standing on the bed, from corners given counter-clockwise. */
+function prism(m, corners, z0, z1){
+  const n = corners.length;
+  for(let i = 0; i < n; i++){
+    const p = corners[i], q = corners[(i+1) % n];
+    m.quad([p[0], p[1], z0], [q[0], q[1], z0],
+           [q[0], q[1], z1], [p[0], p[1], z1]);
+  }
+  for(let i = 1; i < n-1; i++){
+    m.tri([corners[0][0], corners[0][1], z1], [corners[i][0], corners[i][1], z1],
+          [corners[i+1][0], corners[i+1][1], z1]);
+    m.tri([corners[i+1][0], corners[i+1][1], z0], [corners[i][0], corners[i][1], z0],
+          [corners[0][0], corners[0][1], z0]);
+  }
+}
+
+/* One trigger pin: the module's square([pinwidth, 0.7]) at radius R,
+   rotated into place. */
+function pinBox(m, R, ang, w, len, z0, z1){
+  const ca = Math.cos(ang), sa = Math.sin(ang);
+  const local = [[R - w/2, -len/2], [R + w/2, -len/2],
+                 [R + w/2,  len/2], [R - w/2,  len/2]];
+  prism(m, local.map(p => [p[0]*ca - p[1]*sa, p[0]*sa + p[1]*ca]), z0, z1);
+}
+
+/* The disc title. OpenSCAD reads glyph outlines from a font file; a browser
+   will not hand those over, so the text is rasterised with the system font
+   and the lit pixels are covered with as few rectangles as possible - runs
+   along each row, merged downward while the run stays identical. At 12 px/mm
+   the stair-stepping is 0.08mm, well under what a 0.4mm nozzle resolves, and
+   it prints as ordinary raised lettering. */
+function textSolids(m, text, sizeMm, yMm, z0, z1){
+  if(!text) return 0;
+  const px = Math.max(8, Math.round(sizeMm*TEXT_PPMM));
+  const font = "bold " + px + "px sans-serif";
+  const probe = document.createElement("canvas").getContext("2d");
+  probe.font = font;
+  const w = Math.ceil(probe.measureText(text).width) + 8;
+  const h = Math.ceil(px*1.7), base = Math.round(px*1.2);
+  if(w < 2 || w > 8000) return 0;
+  const cv = document.createElement("canvas");
+  cv.width = w; cv.height = h;
+  const g = cv.getContext("2d");
+  g.font = font; g.textAlign = "center"; g.textBaseline = "alphabetic";
+  g.fillStyle = "#fff"; g.fillText(text, w/2, base);
+  const data = g.getImageData(0, 0, w, h).data;
+  const on = (x, y) => data[(y*w + x)*4 + 3] > 110;
+
+  let open = [], rects = [];
+  for(let y = 0; y < h; y++){
+    const runs = [];
+    let x = 0;
+    while(x < w){
+      while(x < w && !on(x, y)) x++;
+      if(x >= w) break;
+      const s = x;
+      while(x < w && on(x, y)) x++;
+      runs.push([s, x]);
+    }
+    const next = [];
+    for(const r of runs){
+      const cont = open.find(o => o.x0 === r[0] && o.x1 === r[1] && !o.used);
+      if(cont){ cont.y1 = y + 1; cont.used = true; next.push(cont); }
+      else next.push({x0: r[0], x1: r[1], y0: y, y1: y + 1, used: true});
+    }
+    for(const o of open) if(!o.used) rects.push(o);
+    for(const o of next) o.used = false;
+    open = next;
+  }
+  rects = rects.concat(open);
+
+  const X = p => (p - w/2)/TEXT_PPMM;
+  const Y = p => yMm + (base - p)/TEXT_PPMM;
+  // Grown by a hair so neighbouring rectangles OVERLAP rather than meet on a
+  // shared face. Coincident faces are the one thing that makes a union of
+  // separate solids ambiguous; a 4-micron overlap is unambiguous and is far
+  // below anything the printer can resolve.
+  const EPS = 0.004;
+  for(const r of rects){
+    const x0 = X(r.x0) - EPS, x1 = X(r.x1) + EPS,
+          y0 = Y(r.y1) - EPS, y1 = Y(r.y0) + EPS;
+    prism(m, [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], z0, z1);
+  }
+  return rects.length;
+}
+
+function stlBinary(tris, name){
+  const n = tris.length/3;
+  const buf = new ArrayBuffer(84 + n*50), dv = new DataView(buf);
+  const hdr = new Uint8Array(buf, 0, 80), label = "Fisher Price disc: " + name;
+  for(let i = 0; i < Math.min(79, label.length); i++)
+    hdr[i] = label.charCodeAt(i) & 0x7f;
+  dv.setUint32(80, n, true);
+  let o = 84;
+  for(let i = 0; i < n; i++){
+    const a = tris[3*i], b = tris[3*i+1], c = tris[3*i+2];
+    const ux = b[0]-a[0], uy = b[1]-a[1], uz = b[2]-a[2];
+    const vx = c[0]-a[0], vy = c[1]-a[1], vz = c[2]-a[2];
+    let nx = uy*vz - uz*vy, ny = uz*vx - ux*vz, nz = ux*vy - uy*vx;
+    const L = Math.sqrt(nx*nx + ny*ny + nz*nz) || 1;
+    dv.setFloat32(o, nx/L, true); dv.setFloat32(o+4, ny/L, true);
+    dv.setFloat32(o+8, nz/L, true); o += 12;
+    for(const p of [a, b, c]){
+      dv.setFloat32(o, p[0], true); dv.setFloat32(o+4, p[1], true);
+      dv.setFloat32(o+8, p[2], true); o += 12;
+    }
+    dv.setUint16(o, 0, true); o += 2;
+  }
+  return new Blob([buf], {type: "model/stl"});
+}
+
+function buildStl(){
+  const m = new Mesh();
+  const hstock = +$("hstock").value, hgroove = +$("hgroove").value;
+  const tw = +$("trackwidth").value, rw = +$("ringwidth").value;
+  const pinw = +$("pinwidth").value, holeR = (+$("drivedia").value)/2;
+  const zBase = hstock, zGroove = hstock + hgroove, zAll = zGroove + 0.4;
+
+  plate(m, 59, CENTRE_HOLE_R, holeR, DRIVE_OFFSET, 0, zBase);
+  for(let a = 27.5; a <= 59 + 1e-9; a += TRACK_PITCH*tw)
+    annulus(m, a - rw, a, 0, zGroove);
+  annulus(m, RIM_INNER_OUTER - rw - RIM_INNER_W, RIM_INNER_OUTER - rw, 0, zAll);
+  annulus(m, RIM_OUTER_R - RIM_OUTER_W, RIM_OUTER_R, 0, zAll);
+
+  const comp = composition(), steps = S.steps;
+  let pinCount = 0;
+  for(const c of comp){
+    const ang = 2*Math.PI*c[1]/steps;
+    for(const p of c[0]){
+      pinBox(m, PIN_BASE_R + p*TRACK_PITCH, ang, pinw, PIN_TANGENTIAL, 0, zGroove);
+      pinCount++;
+    }
+  }
+  const letters = textSolids(m, ($("title").value || "").trim(), 4, 10, 0, hstock + 1);
+  return {blob: stlBinary(m.t, baseName()), tris: m.t.length/3,
+          pins: pinCount, letters: letters};
+}
+
+function downloadBlob(name, blob){
+  const u = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  a.remove(); setTimeout(() => URL.revokeObjectURL(u), 1000);
+}
+
+/* ------------------------------------------------------------------- misc */
+function download(name, text, mime){
+  const b = new Blob([text], {type: mime || "text/plain"});
+  const u = URL.createObjectURL(b), a = document.createElement("a");
+  a.href = u; a.download = name; document.body.appendChild(a); a.click();
+  a.remove(); setTimeout(()=>URL.revokeObjectURL(u), 1000);
+}
+function baseName(){
+  let t = ($("title").value || "My Song").trim();
+  t = t.replace(/[<>:"/\\|?*]/g,"").replace(/\s+/g," ").trim().replace(/\.+$/,"");
+  return (t.replace(/ /g,"_") || "Disc") + "_Disk";
+}
+function refreshStats(){
+  const comp = composition();
+  const pins = comp.reduce((n,c)=>n+c[0].length, 0);
+  const chords = comp.filter(c=>c[0].length>1).length;
+  const rw = +$("ringwidth").value, tw = +$("trackwidth").value;
+  const channel = TRACK_PITCH*tw - rw;
+  $("stats").innerHTML = [
+    [trx("fpbStatSteps"), S.steps], [trx("fpbStatPins"), pins],
+    [trx("fpbStatStepsUsed"), comp.length],
+    [trx("fpbStatChords"), chords],
+    [trx("fpbStatDistinctPitches"), trx("fpbStatOfPins", {n:PITCH_SET.length})],
+    [trx("fpbStatGrooveChannel"), channel.toFixed(2) + " mm"]
+  ].map(r=>'<div class="stat"><span>'+r[0]+'</span><span>'+r[1]+'</span></div>').join("");
+  $("geomhint").textContent = channel < 0.9
+    ? trx("fpbGeomHintNarrow", {mm:channel.toFixed(2)})
+    : trx("fpbGeomHintOk", {mm:channel.toFixed(2)});
+  $("geomhint").className = "hint" + (channel < 0.9 ? " warn" : "");
+  const lines = (+$("pinwidth").value)/(+$("nozzle").value);
+  $("gridhint").textContent = trx("fpbGridHintBase",
+      {w:(+$("pinwidth").value), lines:lines.toFixed(2), nozzle:(+$("nozzle").value)}) +
+    (Math.abs(lines-Math.round(lines))>0.05 ? trx("fpbGridHintGapfill")
+     : (Math.round(lines) < 3 ? trx("fpbGridHintHollow") : trx("fpbGridHintSolid")));
+}
+
+/* ------------------------------------------------------------- wire it up */
+document.querySelectorAll('[role=tab]').forEach(b => b.addEventListener("click", () => {
+  document.querySelectorAll('[role=tab]').forEach(x => x.setAttribute("aria-selected", x===b));
+  document.querySelectorAll(".pane").forEach(p => p.classList.toggle("on", p.id===b.dataset.pane));
+}));
+$("resize").onclick = () => {
+  const n = Math.max(4, Math.min(400, +$("steps").value|0));
+  const old = composition();
+  S.steps = n; $("steps2").value = n;
+  loadComposition(old.filter(c=>c[1]<=n), n);
+  drawGrid(); drawDisc();
+};
+$("steps2").onchange = () => { $("steps").value = $("steps2").value; $("resize").click(); };
+$("clear").onclick = () => { S.grid = blankGrid(S.steps); drawGrid(); drawDisc(); };
+$("play").onclick = play;
+$("stop").onclick = stop;
+$("check").onclick = () => {
+  const bad = findCollisions(composition(), S.steps, +$("clear_mm").value);
+  if(!bad.length){ log(trx("fpbLogPlayable")); return; }
+  log(trx("fpbLogCollisionsHeader", {n:bad.length}) + "\n" +
+    bad.slice(0,12).map(b => trx("fpbLogCollisionLine",
+      {pin:b.pin, note:PIN_NOTE[b.pin-1], a:b.a, b:b.b, gap:b.gap, need:b.need})).join("\n") +
+    "\n" + trx("fpbLogCollisionFooter"), "hint warn");
+};
+["trackwidth","ringwidth","pinwidth","nozzle","drivedia","hstock","hgroove"]
+  .forEach(id => $(id).addEventListener("input", ()=>{ refreshStats(); drawDisc(); }));
+
+$("dl-stl").onclick = () => {
+  const t0 = performance.now();
+  let r;
+  try{ r = buildStl(); }
+  catch(e){ log(trx("fpbLogStlError", {msg:e.message}), "hint warn"); return; }
+  downloadBlob(baseName()+".stl", r.blob);
+  log(trx("fpbLogStlExported", {name:baseName()}) + "\n" +
+      trx("fpbLogStlStats", {tris:r.tris, mb:(r.blob.size/1048576).toFixed(2),
+        pins:r.pins, ms:Math.round(performance.now()-t0)}) + "\n" +
+      trx("fpbLogStlFooter"));
+};
+$("dl-scad").onclick = () => { download(baseName()+".scad", buildScad());
+  log(trx("fpbLogScadExported", {name:baseName()})); };
+$("dl-gcode").onclick = () => {
+  const t0 = performance.now();
+  const {text, stats} = buildGcode();
+  download(baseName()+".gcode", text);
+  log(trx("fpbLogGcodeExported", {name:baseName()}) + "\n" +
+      trx("fpbLogGcodeStats", {layers:stats.layers, m:(stats.filament/1000).toFixed(2),
+        min:Math.round(stats.estS/60)}) + "\n" +
+      trx("fpbLogGcodeTravels", {long:stats.longTravels, total:stats.travels}) + "\n" +
+      trx("fpbLogGcodeFooter", {ms:Math.round(performance.now()-t0)}));
+};
+$("dl-json").onclick = () => download(baseName()+".json", JSON.stringify({
+  title:$("title").value, num_steps:S.steps,
+  trackwidth:+$("trackwidth").value, hstock:+$("hstock").value,
+  hgroove:+$("hgroove").value, pinwidth:+$("pinwidth").value,
+  ringwidth:+$("ringwidth").value, drive_hole_dia:+$("drivedia").value,
+  composition: composition()
+}, null, 2), "application/json");
+$("ld-json").onclick = () => $("jsonfile").click();
+$("jsonfile").onchange = e => {
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      const d = JSON.parse(r.result);
+      $("title").value = d.title || "My Song";
+      S.steps = d.num_steps || 92; $("steps").value = $("steps2").value = S.steps;
+      if(d.trackwidth) $("trackwidth").value = d.trackwidth;
+      if(d.hstock) $("hstock").value = d.hstock;
+      if(d.hgroove) $("hgroove").value = d.hgroove;
+      if(d.pinwidth) $("pinwidth").value = d.pinwidth;
+      if(d.ringwidth) $("ringwidth").value = d.ringwidth;
+      if(d.drive_hole_dia) $("drivedia").value = d.drive_hole_dia;
+      loadComposition(d.composition || [], S.steps);
+      drawGrid(); drawDisc();
+      log(trx("fpbLogLoadedSong", {name:f.name, n:(d.composition||[]).length}));
+    }catch(err){ log(trx("fpbLogSongReadError", {msg:err.message}), "hint warn"); }
+  };
+  r.readAsText(f);
+};
+$("calib").onclick = () => {
+  const spacing = 2, repeats = 2, gap = 6;
+  const total = (NUM_PINS*spacing + gap)*repeats;
+  const comp = []; let st = 1;
+  for(let r=0;r<repeats;r++){
+    for(let p=1;p<=NUM_PINS;p++){ comp.push([[p], st]); st += spacing; }
+    st += gap;
+  }
+  $("title").value = "Pin calibration sweep";
+  S.steps = total; $("steps").value = $("steps2").value = total;
+  loadComposition(comp, total); drawGrid(); drawDisc();
+  log(trx("fpbLogCalibSweep"));
+};
+
+/* MIDI drop / pick */
+const drop = $("drop");
+drop.onclick = () => $("midifile").click();
+drop.ondragover = e => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = e => { e.preventDefault(); drop.classList.remove("over");
+  if(e.dataTransfer.files[0]) readMidi(e.dataTransfer.files[0]); };
+$("midifile").onchange = e => { if(e.target.files[0]) readMidi(e.target.files[0]); };
+
+function readMidi(file){
+  const r = new FileReader();
+  r.onload = () => {
+    try{
+      S.midi = parseMidi(r.result);
+      const sel = $("track"); sel.innerHTML = "";
+      S.midi.tracks.forEach((t,i)=>{
+        const o = document.createElement("option");
+        o.value = i;
+        const lo = Math.min(...t.notes.map(n=>n[2])), hi = Math.max(...t.notes.map(n=>n[2]));
+        o.textContent = trx("fpbTrackOptionLabel",
+          {name:t.name, n:t.notes.length, lo:noteName(lo), hi:noteName(hi)});
+        sel.appendChild(o);
+      });
+      const all = document.createElement("option");
+      all.value = -1; all.textContent = trx("fpbAllTracksMerged");
+      sel.appendChild(all);
+      $("midimeta").textContent = trx("fpbMidiMeta",
+        {name:file.name, n:S.midi.tracks.length, dur:S.midi.duration.toFixed(1)});
+      $("t1").value = Math.min(20, +S.midi.duration.toFixed(1));
+      $("convert").disabled = false;
+      // name the disc after the file, cleaned up
+      let t = file.name.replace(/\.midi?$/i,"")
+        .replace(/musicboxmaniacs\.?com/ig,"")
+        .replace(/[-_](?=[a-z0-9]*[0-9])(?=[a-z0-9]*[a-z])[a-z0-9]{4,}$/,"")
+        .replace(/^(\d{2}|\d{5,})[-_]/,"")
+        .replace(/[-_]+/g," ").trim();
+      if(t) $("title").value = t.charAt(0).toUpperCase()+t.slice(1);
+      log(trx("fpbLogLoadedMidi", {name:file.name}));
+    }catch(err){ log(trx("fpbLogMidiReadError", {msg:err.message}), "hint warn"); }
+  };
+  r.readAsArrayBuffer(file);
+}
+$("convert").onclick = convertMidi;
+
+/* ------------------------------------------------------------ donate widget
+   Taken from the footer of presker.at. Change this one line to point somewhere
+   else, or set it to "" to remove the widget entirely - it hides itself when
+   empty, so nothing is left dangling. */
+const DONATE_URL = "https://revolut.me/mihadxmro";
+
+function paintQR(canvas, url, dark, light){
+  const q = QR.encode(url);
+  const g = canvas.getContext("2d");
+  const px = Math.floor(canvas.width / (q.size + 2));      // 1-module quiet zone
+  const off = Math.floor((canvas.width - px * q.size) / 2);
+  g.fillStyle = light; g.fillRect(0, 0, canvas.width, canvas.height);
+  g.fillStyle = dark;
+  for(let r = 0; r < q.size; r++)
+    for(let c = 0; c < q.size; c++)
+      if(q.matrix[r][c]) g.fillRect(off + c*px, off + r*px, px, px);
+  return q;
+}
+function initDonate(){
+  if(!DONATE_URL) return;                       // no link, no widget
+  try{
+    paintQR($("donate-qr"), DONATE_URL, "#000", "#fff");
+    paintQR($("donate-mini"), DONATE_URL, "#111", "#fff");
+  }catch(e){ return; }                          // never break the tool over this
+  const a = $("donate-link");
+  a.href = DONATE_URL;
+  a.textContent = DONATE_URL.replace(/^https?:\/\//, "");
+  $("donate").hidden = false;
+  $("donate-toggle").onclick = () => {
+    const c = $("donate-card"); c.hidden = !c.hidden;
+  };
+  document.addEventListener("keydown", e => {
+    if(e.key === "Escape") $("donate-card").hidden = true;
+  });
+  // The title attribute isn't one i18n.js retranslates on its own (it only
+  // handles data-i18n/-html/-placeholder), so keep it in step by hand.
+  const syncDonateTitle = () => { $("donate-toggle").title = trx("fpbDonateTitle"); };
+  syncDonateTitle();
+  document.addEventListener("presker-lang-change", syncDonateTitle);
+}
+
+/* printer / filament / settings wiring */
+$("vendor").onchange = fillModels;
+$("model").onchange = applyPrinter;
+$("filament").onchange = applyFilament;
+$("reset-print").onclick = () => {
+  applyPrinter(); applyFilament();
+  log(trx("fpbLogResetPrinter", {model:currentPrinter().model}));
+};
+PERSIST.forEach(id => { const el = $(id); if(el) el.addEventListener("change", saveSettings); });
+$("arcs").addEventListener("change", saveSettings);
+
+/* boot */
+S.grid = blankGrid(S.steps);
+$("build").textContent = trx("fpbBuildLabel", {v:BUILD});
+drawGrid(); drawDisc(); refreshStats(); initDonate();
+log(trx("fpbLogBoot", {build:BUILD}));
+
+$("filament").innerHTML = Object.keys(FILAMENTS)
+  .map(k=>'<option'+(k==="PLA"?" selected":"")+'>'+k+'</option>').join("");
+
+// Load the bundled printer database; fall back to the built-in entry if the
+// companion file isn't there (opened straight off disk, say).
+fetch("printers.json").then(r => r.ok ? r.json() : Promise.reject(r.status))
+  .then(db => {
+    if(db && db.printers && db.printers.length) DB = db;
+    fillPrinters();
+    const restored = loadSettings();
+    if(!restored){
+      const kobra = DB.printers.findIndex(p => /Kobra 2 Pro/.test(p.model));
+      if(kobra >= 0){ $("vendor").value = DB.printers[kobra].vendor; fillModels();
+                      $("model").value = kobra; }
+    }
+    applyPrinter(!restored);          // keep the user's own values on a revisit
+    settingsReady = true; saveSettings();
+    log(trx("fpbLogPrintersLoaded", {n:DB.printers.length}) +
+        (restored ? trx("fpbLogRestoredSettings")
+                  : trx("fpbLogDefaultingTo", {model:currentPrinter().model})));
+  })
+  .catch(() => {
+    fillPrinters(); const r2 = loadSettings(); applyPrinter(!r2);
+    settingsReady = true;
+    log(trx("fpbLogPrintersJsonMissing"));
+  });
+</script>
+</body>
+</html>

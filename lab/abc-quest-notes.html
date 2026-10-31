@@ -3,8 +3,85 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABC Quest — E-Learning Lab — PRESKER.AT</title>
-  <link rel="stylesheet" href="/lab/lab.css">
+  <title>ABC Quest — Bilingual Alphabet Game — PRESKER.AT</title>
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      abcqEyebrow: 'Digital Lab',
+      abcqH1: 'ABC Quest — an alphabet game I built for my kid.',
+      abcqSub: "A bilingual German/Slovenian alphabet game for preschool kids in Carinthia — and a look at why it's built the way it is, not just how.",
+      abcqFullscreen: '⛶ Fullscreen',
+      abcqNew3d: '<strong>New: <a href="/lab/abc-quest-3d/">ABC Quest 3D</a></strong> — the same game in first person. There is no text in the rooms, only the spoken word (recorded Austrian German and Slovenian voices) and a 3D object floating above three small doors. Each door carries a letter, and only the right one opens. The rooms come in a new random order every time, so the next letter can\'t be guessed from the alphabet. It is also an arcade game now, <em>The 36th Chamber of Schooling</em>: five lives, a wrong door costs one, every 36 rooms is a chamber worth a 100-point bonus, and at the end you enter five letters for the high-score table.',
+      abcqPedagogyH: 'The pedagogical brief',
+      abcqPedagogyP1: 'Carinthia (southern Austria) has a recognized Slovenian-speaking minority — kids there often grow up genuinely bilingual, or are being raised that way by choice. Learning the alphabet is usually a monolingual exercise: one set of letters, one set of words. ABC Quest treats the alphabet itself as the place where the two languages need to be reconciled, not bolted together afterward.',
+      abcqPedagogyP2: 'Concretely: German has <strong>Ä Ö Ü</strong> with no Slovenian equivalent; Slovenian has <strong>Č Š Ž</strong> with no German equivalent. Most letters overlap (<em>A</em>, <em>B</em>, <em>D</em>...) but the word behind each letter usually doesn\'t (<em>Banane</em> / <em>Banana</em>). The game\'s data model encodes this directly — each alphabet entry carries a <code>lang</code> field (<code>"de"</code>, <code>"sl"</code>, or <code>"both"</code>) and separate <code>de</code> / <code>sl</code> word fields, so a German-only letter simply has no Slovenian word to show, rather than a wrong or invented one.',
+      abcqDoorH: 'Why a "door" loop, specifically',
+      abcqDoorP: 'The whole game is one repeated four-beat loop: walk → see a picture and hear its word → pick the matching starting letter → door opens, walk through. For a preschool attention span, this matters more than it might look:',
+      abcqDoorLi1: "<strong>The reward is the same shape every time.</strong> A door that opens is unambiguous — there's no scoreboard to interpret, no paragraph of feedback to read. Right answer, door opens, walk through, immediately next picture.",
+      abcqDoorLi2: '<strong>Three signals arrive together, not in sequence.</strong> The sign shows the picture, narrates the word out loud (<code>SpeechSynthesisUtterance</code>, locale-correct: <code>de-DE</code> or <code>sl-SI</code>), and the child has to map that to a written letter. Image, sound, and grapheme land in the same few seconds — that simultaneity is the actual mechanism for building the sound-to-letter association, not the game wrapper around it.',
+      abcqDoorLi3: "<strong>Wrong answers don't stop anything.</strong> A wrong pick shakes the scene and clears after 600ms with no penalty, no life lost, no game-over. The cost of guessing wrong is kept close to zero on purpose, so guessing remains a reasonable strategy for a four-year-old rather than something to be afraid of.",
+      abcqReshuffleH: 'Why the options are reshuffled every round',
+      abcqReshuffleP: '<code>buildOptions()</code> picks three random wrong letters and inserts the correct one at a random position, every single round. This is a small but deliberate anti-pattern fix: if the correct answer always appeared in the same screen position, a child could "solve" the game by memorizing position-to-reward instead of learning the letter-sound mapping. Reshuffling forces the only reliable strategy to be the real one.',
+      abcqSceneH: 'How the scene is actually drawn',
+      abcqSceneP1: 'The background scene — sky, ground, trees, door — is a single inline <code>&lt;svg&gt;</code> redrawn on every animation frame. The sky palette cycles through five colour schemes keyed to the current letter index; the tree and bush positions are seeded from <code>stepIdx</code> so they look different each round but stay deterministic (the same letter always shows the same landscape). The character is also SVG, walking via <code>requestAnimationFrame</code> that nudges an x-coordinate by 3px per frame — a deliberately two-frame walk cycle, because at 16px scale more frames wouldn\'t read as smoother, just heavier.',
+      abcqSceneP2: 'The alphabet pictures on the sign are real PNG files in an <code>images/</code> directory — one image per letter, drawn and named by convention (<code>a_ananas.png</code>, <code>ae_aepfel.png</code>, etc.). Using real image files means the pictures can be illustrated properly at any resolution, at the cost of 33 HTTP requests on first load. The tradeoff from the SVG-emoji approach in the earlier version: more visual fidelity, slightly heavier initial load.',
+      abcqSceneP3: 'The whole game runs from a single HTML file with React and Babel loaded via CDN — no build step, no <code>node_modules</code>. Babel transpiles the JSX in the browser on first visit. This makes the source completely readable as-is and trivially hostable anywhere, but it does mean a few hundred milliseconds of client-side compilation on cold load.',
+      abcqBorrowH: "What's worth borrowing from this for other lessons",
+      abcqBorrowP: 'None of the techniques above are specific to the alphabet. The same loop shape (show stimulus → multisensory presentation → low-stakes multiple choice → unambiguous reward → repeat) works for number recognition, shape/color vocabulary, or a second language\'s basic vocabulary — anything where the actual learning is a fast stimulus-response mapping rather than reasoning. The single-HTML-file deployment approach (React + Babel via CDN, no build step) is also worth keeping in mind for small teaching tools: the entire game logic is human-readable in one file, deployable anywhere that can serve static files, and forkable without a development environment.',
+      abcqBack: '← back to presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      abcqEyebrow: 'Digitales Lab',
+      abcqH1: 'ABC Quest — ein Alphabet-Spiel, das ich für mein Kind gebaut habe.',
+      abcqSub: 'Ein zweisprachiges deutsch-slowenisches Alphabet-Spiel für Vorschulkinder in Kärnten — und ein Blick darauf, warum es so gebaut ist, wie es ist, nicht nur wie.',
+      abcqFullscreen: '⛶ Vollbild',
+      abcqNew3d: '<strong>Neu: <a href="/lab/abc-quest-3d/">ABC Quest 3D</a></strong> — dasselbe Spiel in der Ich-Perspektive. In den Räumen gibt es keinen Text, nur das gesprochene Wort (aufgenommene österreichisch-deutsche und slowenische Stimmen) und ein 3D-Objekt, das über drei kleinen Türen schwebt. Jede Tür trägt einen Buchstaben, und nur die richtige öffnet sich. Die Räume kommen jedes Mal in neuer zufälliger Reihenfolge, sodass der nächste Buchstabe nicht aus dem Alphabet erraten werden kann. Es ist jetzt auch ein Arcade-Spiel, <em>The 36th Chamber of Schooling</em>: fünf Leben, eine falsche Tür kostet eines, alle 36 Räume bilden eine Kammer, die 100 Bonuspunkte wert ist, und am Ende gibst du fünf Buchstaben für die Bestenliste ein.',
+      abcqPedagogyH: 'Der pädagogische Auftrag',
+      abcqPedagogyP1: 'Kärnten (Südösterreich) hat eine anerkannte slowenischsprachige Minderheit — Kinder dort wachsen oft wirklich zweisprachig auf, oder werden bewusst so erzogen. Das Alphabet zu lernen ist normalerweise eine einsprachige Übung: ein Satz Buchstaben, ein Satz Wörter. ABC Quest behandelt das Alphabet selbst als den Ort, an dem die beiden Sprachen zusammengeführt werden müssen, nicht nachträglich aneinandergeklebt.',
+      abcqPedagogyP2: 'Konkret: Deutsch hat <strong>Ä Ö Ü</strong> ohne slowenische Entsprechung; Slowenisch hat <strong>Č Š Ž</strong> ohne deutsche Entsprechung. Die meisten Buchstaben überlappen sich (<em>A</em>, <em>B</em>, <em>D</em> …), aber das Wort hinter jedem Buchstaben meist nicht (<em>Banane</em> / <em>Banana</em>). Das Datenmodell des Spiels kodiert das direkt — jeder Alphabet-Eintrag trägt ein Feld <code>lang</code> (<code>"de"</code>, <code>"sl"</code> oder <code>"both"</code>) und getrennte Wortfelder <code>de</code> / <code>sl</code>, sodass ein rein deutscher Buchstabe einfach kein slowenisches Wort zum Anzeigen hat, statt ein falsches oder erfundenes.',
+      abcqDoorH: 'Warum ausgerechnet eine „Tür"-Schleife',
+      abcqDoorP: 'Das ganze Spiel ist eine einzige, sich wiederholende Vierschritt-Schleife: gehen → ein Bild sehen und sein Wort hören → den passenden Anfangsbuchstaben wählen → Tür öffnet sich, durchgehen. Für die Aufmerksamkeitsspanne im Vorschulalter zählt das mehr, als es aussieht:',
+      abcqDoorLi1: '<strong>Die Belohnung hat jedes Mal die gleiche Form.</strong> Eine sich öffnende Tür ist eindeutig — kein Punktestand zum Deuten, kein Absatz Feedback zum Lesen. Richtige Antwort, Tür öffnet sich, durchgehen, sofort das nächste Bild.',
+      abcqDoorLi2: '<strong>Drei Signale kommen gleichzeitig, nicht nacheinander.</strong> Das Schild zeigt das Bild, spricht das Wort laut (<code>SpeechSynthesisUtterance</code>, mit korrektem Gebietsschema: <code>de-DE</code> oder <code>sl-SI</code>), und das Kind muss das einem geschriebenen Buchstaben zuordnen. Bild, Ton und Schriftzeichen landen in denselben wenigen Sekunden — diese Gleichzeitigkeit ist der eigentliche Mechanismus, der die Laut-Buchstaben-Verbindung aufbaut, nicht die Spielhülle darum.',
+      abcqDoorLi3: '<strong>Falsche Antworten stoppen nichts.</strong> Eine falsche Wahl lässt die Szene wackeln und setzt sich nach 600ms zurück, ohne Strafe, ohne verlorenes Leben, kein Game-over. Die Kosten einer falschen Vermutung werden absichtlich nahe null gehalten, damit Raten für ein vierjähriges Kind eine vernünftige Strategie bleibt, statt etwas, vor dem man sich fürchten muss.',
+      abcqReshuffleH: 'Warum die Optionen jede Runde neu gemischt werden',
+      abcqReshuffleP: '<code>buildOptions()</code> wählt jede einzelne Runde drei zufällige falsche Buchstaben aus und fügt den richtigen an einer zufälligen Position ein. Das ist eine kleine, aber bewusste Korrektur eines Anti-Patterns: Würde die richtige Antwort immer an derselben Bildschirmposition erscheinen, könnte ein Kind das Spiel „lösen", indem es sich Position-zu-Belohnung merkt, statt die Laut-Buchstaben-Zuordnung zu lernen. Das Neumischen erzwingt, dass die einzig verlässliche Strategie auch die richtige ist.',
+      abcqSceneH: 'Wie die Szene tatsächlich gezeichnet wird',
+      abcqSceneP1: 'Die Hintergrundszene — Himmel, Boden, Bäume, Tür — ist ein einziges inline <code>&lt;svg&gt;</code>, das bei jedem Animationsframe neu gezeichnet wird. Die Himmelspalette durchläuft fünf Farbschemata, verknüpft mit dem aktuellen Buchstabenindex; die Positionen von Bäumen und Büschen werden aus <code>stepIdx</code> ausgesät, sodass sie jede Runde anders aussehen, aber deterministisch bleiben (derselbe Buchstabe zeigt immer dieselbe Landschaft). Die Figur ist ebenfalls SVG und läuft über <code>requestAnimationFrame</code>, das die x-Koordinate um 3px pro Frame verschiebt — ein bewusst zweiphasiger Gehzyklus, weil bei 16px Maßstab mehr Frames nicht flüssiger wirken würden, nur schwerer.',
+      abcqSceneP2: 'Die Alphabet-Bilder auf dem Schild sind echte PNG-Dateien in einem <code>images/</code>-Verzeichnis — ein Bild pro Buchstabe, nach Konvention gezeichnet und benannt (<code>a_ananas.png</code>, <code>ae_aepfel.png</code> usw.). Echte Bilddateien zu verwenden bedeutet, dass die Bilder bei jeder Auflösung ordentlich illustriert werden können, zum Preis von 33 HTTP-Anfragen beim ersten Laden. Der Tradeoff gegenüber dem SVG-Emoji-Ansatz der früheren Version: mehr visuelle Genauigkeit, etwas schwereres anfängliches Laden.',
+      abcqSceneP3: 'Das gesamte Spiel läuft aus einer einzigen HTML-Datei mit React und Babel, die per CDN geladen werden — kein Build-Schritt, kein <code>node_modules</code>. Babel transpiliert das JSX beim ersten Besuch im Browser. Das macht den Quelltext so, wie er ist, vollständig lesbar und trivial überall hostbar, bedeutet aber ein paar hundert Millisekunden clientseitige Kompilierung beim Kaltstart.',
+      abcqBorrowH: 'Was sich davon für andere Lektionen übernehmen lässt',
+      abcqBorrowP: 'Keine der oben beschriebenen Techniken ist spezifisch für das Alphabet. Dieselbe Schleifenform (Reiz zeigen → multisensorische Darstellung → risikoarme Mehrfachauswahl → eindeutige Belohnung → wiederholen) funktioniert für Zahlenerkennung, Formen-/Farbwortschatz oder den Grundwortschatz einer zweiten Sprache — überall dort, wo das eigentliche Lernen eine schnelle Reiz-Reaktions-Zuordnung ist statt Nachdenken. Der Ansatz der Ein-Datei-HTML-Bereitstellung (React + Babel per CDN, kein Build-Schritt) ist ebenfalls einen Gedanken wert für kleine Lehrwerkzeuge: die gesamte Spiellogik ist in einer Datei menschenlesbar, überall dort hostbar, wo statische Dateien ausgeliefert werden können, und forkbar ohne Entwicklungsumgebung.',
+      abcqBack: '← zurück zu presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      abcqEyebrow: 'Digitalni lab',
+      abcqH1: 'ABC Quest — abecedna igra, ki sem jo zgradil za svojega otroka.',
+      abcqSub: 'Dvojezična nemško-slovenska abecedna igra za predšolske otroke na Koroškem — in pogled na to, zakaj je zgrajena tako, kot je, ne le kako.',
+      abcqFullscreen: '⛶ Celozaslonsko',
+      abcqNew3d: '<strong>Novo: <a href="/lab/abc-quest-3d/">ABC Quest 3D</a></strong> — ista igra v prvi osebi. V prostorih ni besedila, le izgovorjena beseda (posneti avstrijsko-nemški in slovenski glasovi) ter 3D predmet, ki lebdi nad tremi majhnimi vrati. Vsaka vrata nosijo črko in odprejo se le pravilna. Prostori pridejo vsakič v novem naključnem vrstnem redu, zato naslednje črke ni mogoče uganiti iz abecede. Zdaj je tudi arkadna igra, <em>The 36th Chamber of Schooling</em>: pet življenj, napačna vrata stanejo eno, vsakih 36 prostorov je komora, vredna 100 bonus točk, na koncu pa vpišeš pet črk za lestvico najboljših.',
+      abcqPedagogyH: 'Pedagoško izhodišče',
+      abcqPedagogyP1: 'Koroška (južna Avstrija) ima priznano slovensko govorečo manjšino — otroci tam pogosto odraščajo resnično dvojezično ali pa jih tako vzgajajo po izbiri. Učenje abecede je običajno enojezična vaja: en nabor črk, en nabor besed. ABC Quest obravnava abecedo samo kot mesto, kjer je treba oba jezika uskladiti, ne pa naknadno zlepiti skupaj.',
+      abcqPedagogyP2: 'Konkretno: nemščina ima <strong>Ä Ö Ü</strong> brez slovenske ustreznice; slovenščina ima <strong>Č Š Ž</strong> brez nemške ustreznice. Večina črk se prekriva (<em>A</em>, <em>B</em>, <em>D</em> …), beseda za vsako črko pa običajno ne (<em>Banane</em> / <em>Banana</em>). Podatkovni model igre to kodira neposredno — vsak abecedni vnos nosi polje <code>lang</code> (<code>"de"</code>, <code>"sl"</code> ali <code>"both"</code>) ter ločeni besedni polji <code>de</code> / <code>sl</code>, tako da ima izključno nemška črka preprosto brez slovenske besede za prikaz, namesto napačne ali izmišljene.',
+      abcqDoorH: 'Zakaj ravno zanka z „vrati"',
+      abcqDoorP: 'Celotna igra je ena ponavljajoča se štiritaktna zanka: hoja → ogled slike in poslušanje njene besede → izbira ustrezne začetne črke → vrata se odprejo, prehod skoznje. Za pozornost predšolskega otroka to pomeni več, kot je videti na prvi pogled:',
+      abcqDoorLi1: "<strong>Nagrada je vsakič enake oblike.</strong> Vrata, ki se odprejo, so nedvoumna — ni lestvice za razlaganje, ni odstavka povratnih informacij za branje. Pravilen odgovor, vrata se odprejo, prehod skoznje, takoj naslednja slika.",
+      abcqDoorLi2: '<strong>Trije signali pridejo skupaj, ne zaporedno.</strong> Znak prikaže sliko, besedo izgovori na glas (<code>SpeechSynthesisUtterance</code>, pravilno glede na jezikovno regijo: <code>de-DE</code> ali <code>sl-SI</code>), otrok pa to mora povezati z zapisano črko. Slika, zvok in črka pristanejo v istih nekaj sekundah — ta sočasnost je dejanski mehanizem, ki zgradi povezavo med glasom in črko, ne igralni ovoj okoli nje.',
+      abcqDoorLi3: '<strong>Napačni odgovori ne ustavijo ničesar.</strong> Napačna izbira strese prizor in se po 600ms počisti brez kazni, brez izgube življenja, brez konca igre. Cena napačnega ugibanja je namenoma skoraj nična, da ugibanje za štiriletnika ostane smiselna strategija, ne pa nekaj, česar se je treba bati.',
+      abcqReshuffleH: 'Zakaj se možnosti vsako rundo premešajo',
+      abcqReshuffleP: '<code>buildOptions()</code> v vsaki rundi izbere tri naključne napačne črke in pravilno vstavi na naključno mesto. To je majhen, a premišljen popravek protivzorca: če bi se pravilen odgovor vedno pojavil na istem mestu zaslona, bi lahko otrok igro „rešil" tako, da si zapomni mesto nagrade, namesto da se uči povezave med glasom in črko. Premešavanje prisili, da je edina zanesljiva strategija tudi pravilna.',
+      abcqSceneH: 'Kako je prizor dejansko narisan',
+      abcqSceneP1: 'Ozadje prizora — nebo, tla, drevesa, vrata — je en sam vgrajen <code>&lt;svg&gt;</code>, ponovno narisan ob vsakem animacijskem okvirju. Paleta neba se vrti skozi pet barvnih shem, vezanih na trenutni indeks črke; položaji dreves in grmov so posejani iz <code>stepIdx</code>, tako da se vsako rundo zdijo drugačni, a ostanejo determinirani (ista črka vedno pokaže isto krajino). Tudi lik je SVG in hodi prek <code>requestAnimationFrame</code>, ki x-koordinato premakne za 3px na okvir — namensko dvofazni hodni cikel, ker bi pri merilu 16px več okvirjev dajalo le težjo, ne bolj gladko podobo.',
+      abcqSceneP2: 'Abecedne slike na znaku so resnične datoteke PNG v mapi <code>images/</code> — ena slika na črko, narisana in poimenovana po dogovoru (<code>a_ananas.png</code>, <code>ae_aepfel.png</code> itd.). Uporaba resničnih slikovnih datotek pomeni, da so slike lahko pravilno ilustrirane pri poljubni ločljivosti, za ceno 33 HTTP zahtev ob prvem nalaganju. Kompromis glede na pristop s SVG-emojiji v prejšnji različici: več vizualne natančnosti, nekoliko težje začetno nalaganje.',
+      abcqSceneP3: 'Celotna igra teče iz ene same datoteke HTML z React in Babel, naloženima prek CDN — brez korakov gradnje, brez <code>node_modules</code>. Babel ob prvem obisku v brskalniku pretvori JSX. To naredi izvorno kodo povsem berljivo takšno, kot je, in trivialno gostljivo kjer koli, pomeni pa nekaj sto milisekund odjemalske kompilacije ob hladnem zagonu.',
+      abcqBorrowH: 'Kaj od tega velja prevzeti za druge lekcije',
+      abcqBorrowP: 'Nobena od zgornjih tehnik ni specifična za abecedo. Enaka oblika zanke (prikaz dražljaja → multisenzorna predstavitev → izbira z nizkim tveganjem → nedvoumna nagrada → ponovitev) deluje za prepoznavanje števil, besedišče oblik/barv ali osnovno besedišče drugega jezika — povsod, kjer je dejansko učenje hitra povezava dražljaj-odziv, ne razmišljanje. Pristop uvajanja v eni datoteki HTML (React + Babel prek CDN, brez korakov gradnje) je vreden premisleka tudi za majhna učna orodja: celotna logika igre je berljiva v eni datoteki, gostljiva kjer koli, kjer je mogoče streči statične datoteke, in razvejljiva brez razvojnega okolja.',
+      abcqBack: '← nazaj na presker.at',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
   <style>
     .nav-buttons {
       position: fixed;
@@ -15,6 +92,12 @@
       z-index: 1000;
       font-family: var(--mono);
       font-size: 13px;
+    }
+    .nav-toggles {
+      position: fixed;
+      top: 10px;
+      right: 1.5rem;
+      z-index: 1000;
     }
     .nav-btn {
       background: var(--bg2);
@@ -70,44 +153,69 @@
 <body>
   <div class="top-bar"></div>
   <div class="nav-buttons">
-    <a href="/" class="nav-btn">🏠 Home</a>
-    <a href="/lab/" class="nav-btn">← Back</a>
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+    <a href="/lab/" class="nav-btn" data-i18n="backLab">← Back</a>
+
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
   </div>
   <main class="lab-shell">
 
-    <p class="lab-eyebrow">Digital Lab</p>
-    <h1>ABC Quest — building an e-learning game.</h1>
-    <p class="lab-sub">A bilingual German/Slovenian alphabet game for preschool kids in Carinthia — and a look at why it's built the way it is, not just how.</p>
+    <p class="lab-eyebrow" data-i18n="abcqEyebrow">Digital Lab</p>
+    <h1 data-i18n="abcqH1">ABC Quest — an alphabet game I built for my kid.</h1>
+    <p class="lab-sub" data-i18n="abcqSub">A bilingual German/Slovenian alphabet game for preschool kids in Carinthia — and a look at why it's built the way it is, not just how.</p>
 
     <div class="game-container">
-      <button class="fullscreen-btn" onclick="document.getElementById('gameFrame').requestFullscreen()">⛶ Fullscreen</button>
+      <button class="fullscreen-btn" data-i18n="abcqFullscreen" onclick="document.getElementById('gameFrame').requestFullscreen()">⛶ Fullscreen</button>
       <iframe id="gameFrame" src="/lab/abc-quest/" title="ABC Quest" style="border:1px solid var(--border); border-radius: 8px;" loading="eager"></iframe>
     </div>
 
-    <h2>The pedagogical brief</h2>
-    <p>Carinthia (southern Austria) has a recognized Slovenian-speaking minority — kids there often grow up genuinely bilingual, or are being raised that way by choice. Learning the alphabet is usually a monolingual exercise: one set of letters, one set of words. ABC Quest treats the alphabet itself as the place where the two languages need to be reconciled, not bolted together afterward.</p>
-    <p>Concretely: German has <strong>Ä Ö Ü</strong> with no Slovenian equivalent; Slovenian has <strong>Č Š Ž</strong> with no German equivalent. Most letters overlap (<em>A</em>, <em>B</em>, <em>D</em>...) but the word behind each letter usually doesn't (<em>Banane</em> / <em>Banana</em>). The game's data model encodes this directly — each alphabet entry carries a <code>lang</code> field (<code>"de"</code>, <code>"sl"</code>, or <code>"both"</code>) and separate <code>de</code> / <code>sl</code> word fields, so a German-only letter simply has no Slovenian word to show, rather than a wrong or invented one.</p>
+    <p data-i18n-html="abcqNew3d"><strong>New: <a href="/lab/abc-quest-3d/">ABC Quest 3D</a></strong> — the same game in first person. There is no text in the rooms, only the spoken word (recorded Austrian German and Slovenian voices) and a 3D object floating above three small doors. Each door carries a letter, and only the right one opens. The rooms come in a new random order every time, so the next letter can't be guessed from the alphabet. It is also an arcade game now, <em>The 36th Chamber of Schooling</em>: five lives, a wrong door costs one, every 36 rooms is a chamber worth a 100-point bonus, and at the end you enter five letters for the high-score table.</p>
 
-    <h2>Why a "door" loop, specifically</h2>
-    <p>The whole game is one repeated four-beat loop: walk → see a picture and hear its word → pick the matching starting letter → door opens, walk through. For a preschool attention span, this matters more than it might look:</p>
+    <h2 id="pedagogy" data-i18n="abcqPedagogyH">The pedagogical brief</h2>
+    <p data-i18n="abcqPedagogyP1">Carinthia (southern Austria) has a recognized Slovenian-speaking minority — kids there often grow up genuinely bilingual, or are being raised that way by choice. Learning the alphabet is usually a monolingual exercise: one set of letters, one set of words. ABC Quest treats the alphabet itself as the place where the two languages need to be reconciled, not bolted together afterward.</p>
+    <p data-i18n-html="abcqPedagogyP2">Concretely: German has <strong>Ä Ö Ü</strong> with no Slovenian equivalent; Slovenian has <strong>Č Š Ž</strong> with no German equivalent. Most letters overlap (<em>A</em>, <em>B</em>, <em>D</em>...) but the word behind each letter usually doesn't (<em>Banane</em> / <em>Banana</em>). The game's data model encodes this directly — each alphabet entry carries a <code>lang</code> field (<code>"de"</code>, <code>"sl"</code>, or <code>"both"</code>) and separate <code>de</code> / <code>sl</code> word fields, so a German-only letter simply has no Slovenian word to show, rather than a wrong or invented one.</p>
+
+    <h2 data-i18n="abcqDoorH">Why a "door" loop, specifically</h2>
+    <p data-i18n="abcqDoorP">The whole game is one repeated four-beat loop: walk → see a picture and hear its word → pick the matching starting letter → door opens, walk through. For a preschool attention span, this matters more than it might look:</p>
     <ul style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85;">
-      <li><strong>The reward is the same shape every time.</strong> A door that opens is unambiguous — there's no scoreboard to interpret, no paragraph of feedback to read. Right answer, door opens, walk through, immediately next picture.</li>
-      <li><strong>Three signals arrive together, not in sequence.</strong> The sign shows the picture, narrates the word out loud (<code>SpeechSynthesisUtterance</code>, locale-correct: <code>de-DE</code> or <code>sl-SI</code>), and the child has to map that to a written letter. Image, sound, and grapheme land in the same few seconds — that simultaneity is the actual mechanism for building the sound-to-letter association, not the game wrapper around it.</li>
-      <li><strong>Wrong answers don't stop anything.</strong> A wrong pick shakes the scene and clears after 600ms with no penalty, no life lost, no game-over. The cost of guessing wrong is kept close to zero on purpose, so guessing remains a reasonable strategy for a four-year-old rather than something to be afraid of.</li>
+      <li data-i18n-html="abcqDoorLi1"><strong>The reward is the same shape every time.</strong> A door that opens is unambiguous — there's no scoreboard to interpret, no paragraph of feedback to read. Right answer, door opens, walk through, immediately next picture.</li>
+      <li data-i18n-html="abcqDoorLi2"><strong>Three signals arrive together, not in sequence.</strong> The sign shows the picture, narrates the word out loud (<code>SpeechSynthesisUtterance</code>, locale-correct: <code>de-DE</code> or <code>sl-SI</code>), and the child has to map that to a written letter. Image, sound, and grapheme land in the same few seconds — that simultaneity is the actual mechanism for building the sound-to-letter association, not the game wrapper around it.</li>
+      <li data-i18n-html="abcqDoorLi3"><strong>Wrong answers don't stop anything.</strong> A wrong pick shakes the scene and clears after 600ms with no penalty, no life lost, no game-over. The cost of guessing wrong is kept close to zero on purpose, so guessing remains a reasonable strategy for a four-year-old rather than something to be afraid of.</li>
     </ul>
 
-    <h2>Why the options are reshuffled every round</h2>
-    <p><code>buildOptions()</code> picks three random wrong letters and inserts the correct one at a random position, every single round. This is a small but deliberate anti-pattern fix: if the correct answer always appeared in the same screen position, a child could "solve" the game by memorizing position-to-reward instead of learning the letter-sound mapping. Reshuffling forces the only reliable strategy to be the real one.</p>
+    <h2 data-i18n="abcqReshuffleH">Why the options are reshuffled every round</h2>
+    <p data-i18n-html="abcqReshuffleP"><code>buildOptions()</code> picks three random wrong letters and inserts the correct one at a random position, every single round. This is a small but deliberate anti-pattern fix: if the correct answer always appeared in the same screen position, a child could "solve" the game by memorizing position-to-reward instead of learning the letter-sound mapping. Reshuffling forces the only reliable strategy to be the real one.</p>
 
-    <h2>How the scene is actually drawn</h2>
-    <p>There are no image files in this project at all — not even for the alphabet pictures. Every visual, from the character to the trees to the "Ananas" icon on the sign, is an inline SVG, and the alphabet pictures are generated at runtime as tiny base64-encoded SVGs containing an emoji on a colour swatch (<code>makeImg()</code>). That's a real, deliberate constraint, not a placeholder shortcut: zero external image requests means zero broken-image risk, zero licensing question for icon sets, and a total JS bundle under 160KB.</p>
-    <p>The character's walk cycle doesn't use a sprite sheet either — it's <code>requestAnimationFrame</code> nudging an x-coordinate by 3px per frame, with leg/arm rectangles redrawn at slightly different heights depending on a <code>walkFrame</code> computed from <code>Date.now()</code>. It's a deliberately crude two-frame walk cycle, not a limitation — at this scale (a 16px-tall pixel character) more frames wouldn't read as smoother, just heavier.</p>
+    <h2 data-i18n="abcqSceneH">How the scene is actually drawn</h2>
+    <p data-i18n-html="abcqSceneP1">The background scene — sky, ground, trees, door — is a single inline <code>&lt;svg&gt;</code> redrawn on every animation frame. The sky palette cycles through five colour schemes keyed to the current letter index; the tree and bush positions are seeded from <code>stepIdx</code> so they look different each round but stay deterministic (the same letter always shows the same landscape). The character is also SVG, walking via <code>requestAnimationFrame</code> that nudges an x-coordinate by 3px per frame — a deliberately two-frame walk cycle, because at 16px scale more frames wouldn't read as smoother, just heavier.</p>
+    <p data-i18n-html="abcqSceneP2">The alphabet pictures on the sign are real PNG files in an <code>images/</code> directory — one image per letter, drawn and named by convention (<code>a_ananas.png</code>, <code>ae_aepfel.png</code>, etc.). Using real image files means the pictures can be illustrated properly at any resolution, at the cost of 33 HTTP requests on first load. The tradeoff from the SVG-emoji approach in the earlier version: more visual fidelity, slightly heavier initial load.</p>
+    <p data-i18n-html="abcqSceneP3">The whole game runs from a single HTML file with React and Babel loaded via CDN — no build step, no <code>node_modules</code>. Babel transpiles the JSX in the browser on first visit. This makes the source completely readable as-is and trivially hostable anywhere, but it does mean a few hundred milliseconds of client-side compilation on cold load.</p>
 
-    <h2>What's worth borrowing from this for other lessons</h2>
-    <p>None of the techniques above are specific to the alphabet. The same loop shape (show stimulus → multisensory presentation → low-stakes multiple choice → unambiguous reward → repeat) works for number recognition, shape/color vocabulary, or a second language's basic vocabulary — anything where the actual learning is a fast stimulus-response mapping rather than reasoning. The SVG-only asset approach is also worth keeping for any small teaching tool: it keeps the whole thing inside one JS file, with nothing that can 404.</p>
+    <h2 data-i18n="abcqBorrowH">What's worth borrowing from this for other lessons</h2>
+    <p data-i18n="abcqBorrowP">None of the techniques above are specific to the alphabet. The same loop shape (show stimulus → multisensory presentation → low-stakes multiple choice → unambiguous reward → repeat) works for number recognition, shape/color vocabulary, or a second language's basic vocabulary — anything where the actual learning is a fast stimulus-response mapping rather than reasoning. The single-HTML-file deployment approach (React + Babel via CDN, no build step) is also worth keeping in mind for small teaching tools: the entire game logic is human-readable in one file, deployable anywhere that can serve static files, and forkable without a development environment.</p>
 
-    <a href="/" class="lab-back">← back to presker.at</a>
+    <a href="/" class="lab-back" data-i18n="abcqBack">← back to presker.at</a>
 
-  </main>
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
 </body>
 </html>

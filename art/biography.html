@@ -4,7 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biography — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      bioP1: 'Miha Presker (born 1979, Maribor, Slovenia) is an interdisciplinary artist working across installation, photography, light, and interactive media. After studying mechanical engineering and computer science in Maribor, he continued his education at the University of Applied Arts Vienna, where he studied with Bernhard Leitner and later Erwin Wurm.',
+      bioP2: 'His practice combines technological systems with philosophical investigations into perception, projection, and space. Working at the intersection of the physical and the projected, Presker creates situations in which the viewer becomes aware of the mechanics of seeing — the thresholds at which observation becomes surveillance, presence becomes trace, and space becomes image.',
+      bioP3: 'His works have been exhibited internationally and include a long-term collaboration with artist Luiza Margan, with whom he won the OHO Group Award in 2007 for the installation <em>Formication</em> — judged by a panel including Zdenka Badovinac, director of Moderna galerija Ljubljana. The award brought a six-week residency at ISCP (International Studio &amp; Curatorial Program) in New York, completed in 2008, where new work — including <em>Tube</em> — was shown at the residency\'s Open Studios.',
+      bioP4: 'More recently, his 2016 installation <em>interActive Window</em>, made with Maja Ozvaldic and Sasa Fabjan, used a Vienna shop window as a responsive threshold between street and interior.',
+      bioP5: 'Presker lives and works in Vienna.'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      bioP1: 'Miha Presker (geboren 1979 in Maribor, Slowenien) ist ein interdisziplinärer Künstler, der mit Installation, Fotografie, Licht und interaktiven Medien arbeitet. Nach einem Studium des Maschinenbaus und der Informatik in Maribor setzte er seine Ausbildung an der Universität für angewandte Kunst Wien fort, wo er bei Bernhard Leitner und später bei Erwin Wurm studierte.',
+      bioP2: 'Seine künstlerische Praxis verbindet technologische Systeme mit philosophischen Untersuchungen zu Wahrnehmung, Projektion und Raum. An der Schnittstelle zwischen dem Physischen und dem Projizierten schafft Presker Situationen, in denen sich der Betrachter der Mechanik des Sehens bewusst wird — jener Schwellen, an denen Beobachtung zu Überwachung wird, Anwesenheit zur Spur und Raum zum Bild.',
+      bioP3: 'Seine Arbeiten wurden international ausgestellt, darunter eine langjährige Zusammenarbeit mit der Künstlerin Luiza Margan, mit der er 2007 für die Installation <em>Formication</em> den OHO-Gruppenpreis gewann — verliehen von einer Jury, der unter anderem Zdenka Badovinac, Direktorin der Moderna galerija Ljubljana, angehörte. Der Preis brachte ein sechswöchiges Stipendium am ISCP (International Studio &amp; Curatorial Program) in New York mit sich, das 2008 abgeschlossen wurde; dort wurde neue Arbeit — darunter <em>Tube</em> — bei den Open Studios der Residency gezeigt.',
+      bioP4: 'Jüngeren Datums ist seine Installation <em>interActive Window</em> aus dem Jahr 2016, die er gemeinsam mit Maja Ozvaldic und Saša Fabjan realisierte: Ein Wiener Schaufenster wurde darin zu einer reaktiven Schwelle zwischen Straße und Innenraum.',
+      bioP5: 'Presker lebt und arbeitet in Wien.'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      bioP1: 'Miha Presker (rojen 1979 v Mariboru, Slovenija) je interdisciplinarni umetnik, ki deluje na področju inštalacije, fotografije, svetlobe in interaktivnih medijev. Po študiju strojništva in računalništva v Mariboru je nadaljeval izobraževanje na Dunajski univerzi za uporabno umetnost, kjer je študiral pri Bernhardu Leitnerju in kasneje pri Erwinu Wurmu.',
+      bioP2: 'Njegova praksa združuje tehnološke sisteme s filozofskim raziskovanjem zaznave, projekcije in prostora. Presker na stičišču fizičnega in projiciranega ustvarja situacije, v katerih se opazovalec zave mehanike gledanja — mej, na katerih opazovanje postane nadzor, prisotnost sled in prostor podoba.',
+      bioP3: 'Njegova dela so bila razstavljena mednarodno, med drugim v okviru dolgoletnega sodelovanja z umetnico Luizo Margan, s katero je leta 2007 za inštalacijo <em>Formication</em> prejel nagrado skupine OHO — podelila jo je žirija, v kateri je bila med drugim Zdenka Badovinac, direktorica Moderne galerije Ljubljana. Nagrada je prinesla šesttedensko rezidenco pri ISCP (International Studio &amp; Curatorial Program) v New Yorku, zaključeno leta 2008, kjer so na dnevih odprtih vrat rezidence (Open Studios) predstavili nova dela — med njimi <em>Tube</em>.',
+      bioP4: 'V zadnjem času je njegova inštalacija <em>interActive Window</em> iz leta 2016, ustvarjena skupaj z Majo Ozvaldic in Sašo Fabjanom, dunajsko izložbeno okno spremenila v odzivni prag med ulico in notranjostjo.',
+      bioP5: 'Presker živi in dela na Dunaju.'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -14,40 +40,47 @@
 
       <div class="page-header">
         <div class="page-eyebrow">Miha Presker</div>
-        <h1 class="page-title">Biography</h1>
+        <h1 class="page-title" data-i18n="artBio">Biography</h1>
       </div>
 
       <div class="page-body">
-        <p>Miha Presker (born 1979, Maribor, Slovenia) is an interdisciplinary artist working across installation, photography, light, and interactive media. After studying mechanical engineering and computer science in Maribor, he continued his education at the University of Applied Arts Vienna, where he studied with Bernhard Leitner and later Erwin Wurm.</p>
+        <p data-i18n-html="bioP1">Miha Presker (born 1979, Maribor, Slovenia) is an interdisciplinary artist working across installation, photography, light, and interactive media. After studying mechanical engineering and computer science in Maribor, he continued his education at the University of Applied Arts Vienna, where he studied with Bernhard Leitner and later Erwin Wurm.</p>
 
-        <p>His practice combines technological systems with philosophical investigations into perception, projection, and space. Working at the intersection of the physical and the projected, Presker creates situations in which the viewer becomes aware of the mechanics of seeing — the thresholds at which observation becomes surveillance, presence becomes trace, and space becomes image.</p>
+        <p data-i18n-html="bioP2">His practice combines technological systems with philosophical investigations into perception, projection, and space. Working at the intersection of the physical and the projected, Presker creates situations in which the viewer becomes aware of the mechanics of seeing — the thresholds at which observation becomes surveillance, presence becomes trace, and space becomes image.</p>
 
-        <p>His works have been exhibited internationally and include a long-term collaboration with artist Luiza Margan, with whom he won the OHO Group Award in 2007 for the installation <em>Formication</em> — judged by a panel including Zdenka Badovinac, director of Moderna galerija Ljubljana. The award brought a six-week residency at ISCP (International Studio &amp; Curatorial Program) in New York, completed in 2008, where new work — including <em>Tube</em> — was shown at the residency's Open Studios.</p>
+        <p data-i18n-html="bioP3">His works have been exhibited internationally and include a long-term collaboration with artist Luiza Margan, with whom he won the OHO Group Award in 2007 for the installation <em>Formication</em> — judged by a panel including Zdenka Badovinac, director of Moderna galerija Ljubljana. The award brought a six-week residency at ISCP (International Studio &amp; Curatorial Program) in New York, completed in 2008, where new work — including <em>Tube</em> — was shown at the residency's Open Studios.</p>
 
-        <p>More recently, his 2016 installation <em>interActive Window</em>, made with Maja Ozvaldic and Sasa Fabjan, used a Vienna shop window as a responsive threshold between street and interior.</p>
+        <p data-i18n-html="bioP4">More recently, his 2016 installation <em>interActive Window</em>, made with Maja Ozvaldic and Sasa Fabjan, used a Vienna shop window as a responsive threshold between street and interior.</p>
 
-        <p>Presker lives and works in Vienna.</p>
+        <p data-i18n-html="bioP5">Presker lives and works in Vienna.</p>
 
-        <!-- Add further biographical paragraphs here -->
       </div>
 
       <div class="overview-actions" style="border-top: 1px solid var(--border);">
         <a href="/art/statement.html" class="action-btn">
-          <span class="action-btn-label">Artist Statement</span>
+          <span class="action-btn-label" data-i18n="artStatement">Artist Statement</span>
           <span class="action-btn-arrow">→</span>
         </a>
         <a href="/art/cv.html" class="action-btn">
-          <span class="action-btn-label">CV</span>
+          <span class="action-btn-label" data-i18n="artCV">CV</span>
           <span class="action-btn-arrow">→</span>
         </a>
         <a href="/art/works/" class="action-btn">
-          <span class="action-btn-label">Works</span>
+          <span class="action-btn-label" data-i18n="artWorks">Works</span>
           <span class="action-btn-arrow">→</span>
         </a>
       </div>
 
-    </main>
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

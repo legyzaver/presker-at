@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vinyl Recorder — Presker.at</title>
+  <meta name="description" content="How I built a vinyl record cutter from flatbed-scanner parts, candles, and necessity — and why it became my origin story for 3D printing.">
+  <link rel="canonical" href="https://www.presker.at/projects/vinyl-recorder.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.presker.at/projects/vinyl-recorder.html">
+  <meta property="og:title" content="Vinyl Recorder — Presker.at">
+  <meta property="og:description" content="I needed a machine to cut grooves into blank vinyl. The parts didn't exist, so I built the machine — then built the tools to build the machine.">
+  <meta property="og:image" content="https://www.presker.at/projects/images/vinyl/dsc-0770.JPG">
+  <link rel="stylesheet" href="/style.css?v=2">
+  <link rel="stylesheet" href="/article.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+  Object.assign(window.PRESKER_I18N.en, {
+    vrBackLink: '← workshop',
+    vrDateLabel: 'Art piece / build log · 2010s',
+    vrLead: 'I needed a machine to cut grooves into blank vinyl. The parts were expensive or unavailable. So I built the machine — then built the tools to build the machine.',
+    vrH1: 'The chain',
+    vrP1: "This isn't really a 3D-printing project. It's an origin story. Each step only became possible because of the one before it:",
+    vrLi1: "<strong>A 2013 Mustek scanner with ISA interface</strong> → NEMA motors, original gears, pulling belts, linear rods, optical endstops. Parts that didn't exist anymore, from a machine nobody wanted.",
+    vrLi2: '<strong>A candle and an aluminium plate</strong> → a heated bed, before I owned a real one.',
+    vrLi3: '<strong>A 3D printer</strong> → suddenly possible.',
+    vrLi4: "<strong>The printer</strong> → gears I couldn't buy.",
+    vrLi5: '<strong>The gears</strong> → drove the recorder.',
+    vrLi6: '<strong>The recorder</strong> → made the art.',
+    vrH2: 'How it came together',
+    vrFig1Step: 'Step 1: The old scanner',
+    vrFig1Cap: "May 2013. A Mustek flatbed scanner with an ISA interface — a connector that was already disappearing. ISA slots didn't exist in new machines anymore. But inside: a NEMA motor, the original gears and pulling belts, linear rods, optical endstops. Salvage.",
+    vrFig2Step: 'Step 1b: Precision from scrap',
+    vrFig2Cap: "The salvaged motor and its original gears, photographed on an HTC 3D phone. This is the mechanical heritage I inherited — precision that was already built into the parts, decades before I pulled them out. The gear ratios, the bearing fit, the belt tension profiles — all already optimized by Mustek's engineers. I just needed to build around them.",
+    vrFig3Step: 'Step 2: The heated bed hack',
+    vrFig3Cap: "A wooden frame. The NEMA motor and rods from the scanner. A RAMPS board. And here's where everything hung: before a proper 3D printer heated bed existed for me, I used a candle and an aluminium plate. The whole machine depended on that improvisation.",
+    vrFig4Step: 'Step 2b: Before I had a heated bed, I had candles',
+    vrFig4Cap: 'This is the image that stops people. A candle under an aluminium plate. No commercial product. No budget. Just — it has to work, so: fire under metal. This is where desperation becomes method. This is kitchen-table engineering.',
+    vrFig5Step: 'Step 2c: It actually worked',
+    vrFig5Cap: 'From below: the flame actually doing the heating. No thermostat. No PID loop. Just observation, adjustment, and a lot of attention. The bed reached temperature. The plastic stuck. The printer printed.',
+    vrFig6Step: 'Step 3: It works',
+    vrFig6Cap: 'The printer running. An ASUS netbook showing CAD in the foreground. The wooden frame, the salvaged motor, the improvised heated bed — all of it working together. Living room floor. Slippers. Exposed wiring. This is the aesthetic: not a clean workshop, but a place where things get made because they have to.',
+    vrFig7Step: 'Step 4: Precision from improvisation',
+    vrFig7Cap: "The printer head drawing a gear profile. The geometry came from the salvaged motor specs, the precision came from the printer, the ingenuity came from having no other option. Gears I couldn't buy. Gears I had to print.",
+    vrFig8Step: 'Step 5: The chain completes',
+    vrFig8Cap: 'The finished recorder. A 3D-printed drive gear running on the motor from 2013, cutting grooves into blank vinyl. The gears drove the recorder. The recorder made the art. Every step was only possible because of the one before.',
+    vrH3: 'Why this matters',
+    vrP2: "This is where my practice shifted. I stopped exhibiting, but I never stopped building. The studio is messy, the projects are unfinished, but the chain keeps going — most of what's in the <a href=\"/projects/\">workshop</a> today started here.",
+    vrEndTag: '// video archive being sorted',
+    vrNudge: 'nudge me →',
+  });
+  Object.assign(window.PRESKER_I18N.de, {
+    vrBackLink: '← Werkstatt',
+    vrDateLabel: 'Kunstwerk / Bauprotokoll · 2010er',
+    vrLead: 'Ich brauchte eine Maschine, um Rillen in rohes Vinyl zu schneiden. Die Teile waren teuer oder nicht erhältlich. Also baute ich die Maschine — und dann die Werkzeuge, um die Maschine zu bauen.',
+    vrH1: 'Die Kette',
+    vrP1: 'Das ist eigentlich kein 3D-Druck-Projekt. Es ist eine Ursprungsgeschichte. Jeder Schritt wurde nur durch den vorherigen möglich:',
+    vrLi1: '<strong>Ein Mustek-Scanner von 2013 mit ISA-Schnittstelle</strong> → NEMA-Motoren, Originalzahnräder, Zugriemen, lineare Stangen, optische Endschalter. Teile, die es nicht mehr gab, aus einer Maschine, die niemand wollte.',
+    vrLi2: '<strong>Eine Kerze und eine Aluplatte</strong> → ein heizbares Druckbett, bevor ich ein richtiges hatte.',
+    vrLi3: '<strong>Ein 3D-Drucker</strong> → plötzlich möglich.',
+    vrLi4: '<strong>Der Drucker</strong> → Zahnräder, die ich nicht kaufen konnte.',
+    vrLi5: '<strong>Die Zahnräder</strong> → trieben den Rekorder an.',
+    vrLi6: '<strong>Der Rekorder</strong> → machte die Kunst.',
+    vrH2: 'Wie es zusammenkam',
+    vrFig1Step: 'Schritt 1: Der alte Scanner',
+    vrFig1Cap: 'Mai 2013. Ein Mustek-Flachbettscanner mit ISA-Schnittstelle — ein Anschluss, der schon im Verschwinden war. ISA-Steckplätze gab es in neuen Maschinen nicht mehr. Aber im Inneren: ein NEMA-Motor, die originalen Zahnräder und Zugriemen, lineare Stangen, optische Endschalter. Bergung.',
+    vrFig2Step: 'Schritt 1b: Präzision aus Schrott',
+    vrFig2Cap: 'Der gerettete Motor und seine originalen Zahnräder, fotografiert mit einem HTC-3D-Handy. Das ist das mechanische Erbe, das ich übernommen habe — Präzision, die schon Jahrzehnte vor meinem Ausbau in die Teile eingebaut war. Die Übersetzungsverhältnisse, die Lagerpassung, die Riemenspannungsprofile — alles schon von Musteks Ingenieuren optimiert. Ich musste nur darum herum bauen.',
+    vrFig3Step: 'Schritt 2: Der Trick mit dem heizbaren Bett',
+    vrFig3Cap: 'Ein Holzrahmen. Der NEMA-Motor und die Stangen aus dem Scanner. Eine RAMPS-Platine. Und hier hing alles: Bevor es für mich ein richtiges heizbares Druckbett gab, nutzte ich eine Kerze und eine Aluplatte. Die ganze Maschine hing von dieser Improvisation ab.',
+    vrFig4Step: 'Schritt 2b: Bevor ich ein heizbares Bett hatte, hatte ich Kerzen',
+    vrFig4Cap: 'Das ist das Bild, bei dem Leute stutzen. Eine Kerze unter einer Aluplatte. Kein kommerzielles Produkt. Kein Budget. Nur — es muss funktionieren, also: Feuer unter Metall. Hier wird aus Verzweiflung eine Methode. Das ist Küchentisch-Ingenieurskunst.',
+    vrFig5Step: 'Schritt 2c: Es hat tatsächlich funktioniert',
+    vrFig5Cap: 'Von unten: die Flamme, die tatsächlich heizt. Kein Thermostat. Keine PID-Regelung. Nur Beobachtung, Anpassung und viel Aufmerksamkeit. Das Bett erreichte die Temperatur. Das Plastik haftete. Der Drucker druckte.',
+    vrFig6Step: 'Schritt 3: Es funktioniert',
+    vrFig6Cap: 'Der laufende Drucker. Im Vordergrund ein ASUS-Netbook mit CAD-Ansicht. Der Holzrahmen, der gerettete Motor, das improvisierte heizbare Bett — alles arbeitet zusammen. Wohnzimmerboden. Hausschuhe. Offene Verkabelung. Das ist die Ästhetik: keine saubere Werkstatt, sondern ein Ort, wo Dinge entstehen, weil sie müssen.',
+    vrFig7Step: 'Schritt 4: Präzision aus Improvisation',
+    vrFig7Cap: 'Der Druckkopf zeichnet ein Zahnradprofil. Die Geometrie kam aus den Spezifikationen des geretteten Motors, die Präzision vom Drucker, der Erfindungsreichtum daher, keine andere Option zu haben. Zahnräder, die ich nicht kaufen konnte. Zahnräder, die ich drucken musste.',
+    vrFig8Step: 'Schritt 5: Die Kette schließt sich',
+    vrFig8Cap: 'Der fertige Rekorder. Ein 3D-gedrucktes Antriebszahnrad, das auf dem Motor von 2013 läuft und Rillen in rohes Vinyl schneidet. Die Zahnräder trieben den Rekorder an. Der Rekorder machte die Kunst. Jeder Schritt war nur durch den vorherigen möglich.',
+    vrH3: 'Warum das wichtig ist',
+    vrP2: 'Hier verschob sich meine Praxis. Ich hörte auf auszustellen, aber nie auf zu bauen. Das Atelier ist unordentlich, die Projekte sind unfertig, aber die Kette läuft weiter — das meiste, was heute in der <a href="/projects/">Werkstatt</a> steht, hat hier angefangen.',
+    vrEndTag: '// Videoarchiv wird gerade sortiert',
+    vrNudge: 'gib mir einen Stups →',
+  });
+  Object.assign(window.PRESKER_I18N.sl, {
+    vrBackLink: '← delavnica',
+    vrDateLabel: 'Umetniško delo / dnevnik izdelave · 2010-a',
+    vrLead: 'Potreboval sem stroj za rezanje žlebov v surovi vinil. Deli so bili dragi ali nedosegljivi. Zato sem zgradil stroj — nato pa še orodja za izdelavo stroja.',
+    vrH1: 'Veriga',
+    vrP1: 'To pravzaprav ni projekt 3D-tiska. Je izvorna zgodba. Vsak korak je bil mogoč samo zaradi prejšnjega:',
+    vrLi1: '<strong>Skener Mustek iz leta 2013 z vmesnikom ISA</strong> → motorji NEMA, originalni zobniki, vlečni jermeni, linearne palice, optična stikala konca poti. Deli, ki jih ni bilo več, iz stroja, ki ga ni hotel nihče.',
+    vrLi2: '<strong>Sveča in aluminijasta plošča</strong> → ogrevana podlaga, preden sem imel pravo.',
+    vrLi3: '<strong>3D-tiskalnik</strong> → nenadoma mogoč.',
+    vrLi4: '<strong>Tiskalnik</strong> → zobniki, ki jih nisem mogel kupiti.',
+    vrLi5: '<strong>Zobniki</strong> → poganjali so snemalnik.',
+    vrLi6: '<strong>Snemalnik</strong> → ustvaril je umetnino.',
+    vrH2: 'Kako je nastalo',
+    vrFig1Step: 'Korak 1: Stari skener',
+    vrFig1Cap: 'Maj 2013. Namizni skener Mustek z vmesnikom ISA — priključkom, ki je takrat že izginjal. Rež ISA v novih strojih ni bilo več. A znotraj: motor NEMA, originalni zobniki in vlečni jermeni, linearne palice, optična stikala konca poti. Rešeni deli.',
+    vrFig2Step: 'Korak 1b: Natančnost iz odpada',
+    vrFig2Cap: 'Rešeni motor in njegovi originalni zobniki, fotografirani s telefonom HTC 3D. To je mehanska dediščina, ki sem jo prevzel — natančnost, ki je bila vgrajena v dele desetletja, preden sem jih izvlekel. Prestavna razmerja, ujemanje ležajev, profili napetosti jermena — vse že optimizirano s strani Mustekovih inženirjev. Moral sem le zgraditi okoli njih.',
+    vrFig3Step: 'Korak 2: Trik z ogrevano podlago',
+    vrFig3Cap: 'Lesen okvir. Motor NEMA in palice iz skenerja. Plošča RAMPS. In tu je vse viselo na nitki: preden sem imel pravo ogrevano podlago za 3D-tiskalnik, sem uporabil svečo in aluminijasto ploščo. Celoten stroj je bil odvisen od te improvizacije.',
+    vrFig4Step: 'Korak 2b: Preden sem imel ogrevano podlago, sem imel sveče',
+    vrFig4Cap: 'To je slika, ob kateri se ljudje ustavijo. Sveča pod aluminijasto ploščo. Brez komercialnega izdelka. Brez proračuna. Samo — delovati mora, torej: ogenj pod kovino. Tu obup postane metoda. To je inženirstvo za kuhinjsko mizo.',
+    vrFig5Step: 'Korak 2c: Dejansko je delovalo',
+    vrFig5Cap: 'Od spodaj: plamen dejansko greje. Brez termostata. Brez PID regulacije. Samo opazovanje, prilagajanje in veliko pozornosti. Podlaga je dosegla temperaturo. Plastika je oprijela. Tiskalnik je tiskal.',
+    vrFig6Step: 'Korak 3: Deluje',
+    vrFig6Cap: 'Tiskalnik med delovanjem. V ospredju prenosnik ASUS s prikazom CAD. Lesen okvir, rešeni motor, improvizirana ogrevana podlaga — vse deluje skupaj. Tla dnevne sobe. Copati. Odprto ožičenje. To je estetika: ne čista delavnica, temveč prostor, kjer stvari nastanejo, ker morajo.',
+    vrFig7Step: 'Korak 4: Natančnost iz improvizacije',
+    vrFig7Cap: 'Tiskalna glava riše profil zobnika. Geometrija je prišla iz specifikacij rešenega motorja, natančnost iz tiskalnika, iznajdljivost iz dejstva, da ni bilo druge možnosti. Zobniki, ki jih nisem mogel kupiti. Zobniki, ki jih sem moral natisniti.',
+    vrFig8Step: 'Korak 5: Veriga se sklene',
+    vrFig8Cap: 'Dokončan snemalnik. 3D-natisnjen pogonski zobnik, ki teče na motorju iz leta 2013 in reže žlebove v surovi vinil. Zobniki so poganjali snemalnik. Snemalnik je ustvaril umetnino. Vsak korak je bil mogoč le zaradi prejšnjega.',
+    vrH3: 'Zakaj je to pomembno',
+    vrP2: 'Tu se je moja praksa premaknila. Nehal sem razstavljati, a nikoli nisem nehal ustvarjati. Atelje je razmetan, projekti nedokončani, a veriga se nadaljuje — večina tega, kar je danes v <a href="/projects/">delavnici</a>, se je začelo tukaj.',
+    vrEndTag: '// video arhiv se ravno ureja',
+    vrNudge: 'spodbodi me →',
+  });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+</head>
+<body>
+
+  <nav>
+    <span class="logo"><a href="/" style="color:inherit;text-decoration:none;">PRESKER.AT</a></span>
+    <div class="nav-links">
+      <a href="/#featured" data-i18n="navFeatured">featured</a>
+      <a href="/#projects" data-i18n="navProjects">projects</a>
+      <a href="/#art" data-i18n="navArt">art</a>
+      <a href="/about.html" data-i18n="navAbout">about</a>
+      <a href="/#feedback" data-i18n="navFeedback">feedback</a>
+    </div>
+    <div class="toggles">
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+        <button class="pill-btn" data-theme-set="light">☀</button>
+        <button class="pill-btn" data-theme-set="auto">Auto</button>
+        <button class="pill-btn" data-theme-set="dark">☾</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="article-page">
+
+    <a href="/projects/" class="back-link" data-i18n="vrBackLink">← workshop</a>
+
+    <div class="article-hero">
+      <div class="article-hero-meta">
+        <span class="tag tag-make">make</span>
+        <span class="card-date" data-i18n="vrDateLabel">Art piece / build log · 2010s</span>
+      </div>
+      <h1>Vinyl Recorder</h1>
+      <p class="article-lead" data-i18n="vrLead">I needed a machine to cut grooves into blank vinyl. The parts were expensive or unavailable. So I built the machine — then built the tools to build the machine.</p>
+    </div>
+
+    <div class="article-content">
+
+      <h2 data-i18n="vrH1">The chain</h2>
+      <p data-i18n="vrP1">This isn't really a 3D-printing project. It's an origin story. Each step only became possible because of the one before it:</p>
+      <ol class="build-chain">
+        <li data-i18n-html="vrLi1"><strong>A 2013 Mustek scanner with ISA interface</strong> → NEMA motors, original gears, pulling belts, linear rods, optical endstops. Parts that didn't exist anymore, from a machine nobody wanted.</li>
+        <li data-i18n-html="vrLi2"><strong>A candle and an aluminium plate</strong> → a heated bed, before I owned a real one.</li>
+        <li data-i18n-html="vrLi3"><strong>A 3D printer</strong> → suddenly possible.</li>
+        <li data-i18n-html="vrLi4"><strong>The printer</strong> → gears I couldn't buy.</li>
+        <li data-i18n-html="vrLi5"><strong>The gears</strong> → drove the recorder.</li>
+        <li data-i18n-html="vrLi6"><strong>The recorder</strong> → made the art.</li>
+      </ol>
+
+      <h2 data-i18n="vrH2">How it came together</h2>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/scanner-teardown.jpg" alt="A 2013 Mustek flatbed scanner being taken apart on a living room floor, wooden frame, exposed internal components"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: scanner teardown — May 2013&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig1Cap"><span class="step" data-i18n="vrFig1Step">Step 1: The old scanner</span>May 2013. A Mustek flatbed scanner with an ISA interface — a connector that was already disappearing. ISA slots didn't exist in new machines anymore. But inside: a NEMA motor, the original gears and pulling belts, linear rods, optical endstops. Salvage.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/salvaged-gear-motor.jpg" alt="Close-up of salvaged motor and gears from the scanner, showing the original gear teeth and mechanical precision"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: salvaged parts — stereoscopic detail&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig2Cap"><span class="step" data-i18n="vrFig2Step">Step 1b: Precision from scrap</span>The salvaged motor and its original gears, photographed on an HTC 3D phone. This is the mechanical heritage I inherited — precision that was already built into the parts, decades before I pulled them out. The gear ratios, the bearing fit, the belt tension profiles — all already optimized by Mustek's engineers. I just needed to build around them.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/repstrap.jpg" alt="An early self-built 3D printer with a wooden frame, exposed wiring, RAMPS board visible on the side"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: early printer build&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig3Cap"><span class="step" data-i18n="vrFig3Step">Step 2: The heated bed hack</span>A wooden frame. The NEMA motor and rods from the scanner. A RAMPS board. And here's where everything hung: before a proper 3D printer heated bed existed for me, I used a candle and an aluminium plate. The whole machine depended on that improvisation.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/13073.jpg" alt="A lit candle underneath an aluminium plate, glowing orange in a darkened room, providing heat for the 3D printer bed"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: the candles — the money shot&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig4Cap"><span class="step" data-i18n="vrFig4Step">Step 2b: Before I had a heated bed, I had candles</span>This is the image that stops people. A candle under an aluminium plate. No commercial product. No budget. Just — it has to work, so: fire under metal. This is where desperation becomes method. This is kitchen-table engineering.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/13122.jpg" alt="The same candle setup photographed from below, showing the blue flame actually heating the plate from underneath"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: proof it worked&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig5Cap"><span class="step" data-i18n="vrFig5Step">Step 2c: It actually worked</span>From below: the flame actually doing the heating. No thermostat. No PID loop. Just observation, adjustment, and a lot of attention. The bed reached temperature. The plastic stuck. The printer printed.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/dsc-0310.JPG" alt="The printer running, with an ASUS netbook displaying CAD geometry next to the wooden-framed machine in a living room setting"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: printer + CAD proof&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig6Cap"><span class="step" data-i18n="vrFig6Step">Step 3: It works</span>The printer running. An ASUS netbook showing CAD in the foreground. The wooden frame, the salvaged motor, the improvised heated bed — all of it working together. Living room floor. Slippers. Exposed wiring. This is the aesthetic: not a clean workshop, but a place where things get made because they have to.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/dsc-0321.JPG" alt="High-resolution close-up of the printer head in action, drawing a gear profile in molten plastic with precision"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: gear profile printing&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig7Cap"><span class="step" data-i18n="vrFig7Step">Step 4: Precision from improvisation</span>The printer head drawing a gear profile. The geometry came from the salvaged motor specs, the precision came from the printer, the ingenuity came from having no other option. Gears I couldn't buy. Gears I had to print.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <img src="/projects/images/vinyl/dsc-0770.JPG" alt="The finished vinyl recorder: a 3D-printed drive gear mounted on the salvaged scanner motor, driving a platter holding a blank vinyl disc"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo: the chain completes&lt;/div&gt;')">
+        <figcaption data-i18n-html="vrFig8Cap"><span class="step" data-i18n="vrFig8Step">Step 5: The chain completes</span>The finished recorder. A 3D-printed drive gear running on the motor from 2013, cutting grooves into blank vinyl. The gears drove the recorder. The recorder made the art. Every step was only possible because of the one before.</figcaption>
+      </figure>
+
+      <h2 data-i18n="vrH3">Why this matters</h2>
+      <p data-i18n-html="vrP2">This is where my practice shifted. I stopped exhibiting, but I never stopped building. The studio is messy, the projects are unfinished, but the chain keeps going — most of what's in the <a href="/projects/">workshop</a> today started here.</p>
+
+      <div class="article-end-tag">
+        <span data-i18n="vrEndTag">// video archive being sorted</span>
+        <a href="/#feedback" class="card-link" data-i18n="vrNudge">nudge me →</a>
+      </div>
+
+    </div>
+
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
+
+  <footer>
+    <span data-i18n="footerCopy">© 2026 Presker.at</span>
+    <span data-i18n="footerHost">Hosted at World4You</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+
+</body>
+</html>

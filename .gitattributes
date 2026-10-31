@@ -1,0 +1,14 @@
+# Force LF for all Python scripts (prevent Windows CRLF from breaking Linux shebang)
+*.py text eol=lf
+
+# Also keep shell scripts and htaccess as LF
+*.sh text eol=lf
+.htaccess text eol=lf
+
+# Binary files — no line ending conversion
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

@@ -1,0 +1,946 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Uhr · Ura — telling the time in German and Slovenian</title>
+<meta name="description" content="A bilingual clock for kids: drag the geared hands and hear how German, Austrian German and Slovenian say the time. Then play four short levels from full hours to five-minute steps.">
+<link rel="canonical" href="https://www.presker.at/lab/uhr-ura/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/uhr-ura/">
+<meta property="og:title" content="Uhr · Ura — a bilingual clock">
+<meta property="og:description" content="Drag the hands and see why “halb drei” and “pol treh” both mean 2:30. Four short levels for kids learning to read the clock in German and Slovenian.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a;
+  --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff;
+  --past: #2a5fb0; --hourhand: #a2461f; --bad: #c23e1f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414;
+  --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --past: #7ab8f5; --hourhand: #f5b85a; --bad: #f57a7a;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414;
+    --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --past: #7ab8f5; --hourhand: #f5b85a; --bad: #f57a7a;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.45 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding: 18px 16px 28px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 8px; }
+.home:hover { color: var(--accent); }
+h1 { font: 600 22px var(--mono); margin: 0; letter-spacing: -.01em; }
+h1 .dot { color: var(--accent); }
+.lede { margin: 4px 0 14px; color: var(--muted); max-width: 680px; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+button {
+  font: 13px var(--mono); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+  touch-action: manipulation;
+}
+button:hover { border-color: var(--muted); }
+button.on, button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .4; cursor: default; }
+
+.app { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+.clockbox { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 10px; }
+#clock { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+#clock.grab { cursor: grab; }
+#clock.dragging { cursor: grabbing; }
+.digital { text-align: center; font: 600 28px var(--mono); margin: 4px 0 2px; letter-spacing: .04em; }
+.digital.hide { visibility: hidden; }
+.nudge { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin: 6px 0 4px; }
+.nudge button { padding: 6px 10px; }
+
+.panel { min-width: 0; }
+.label { font: 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 0 0 6px; }
+
+/* explore: one row per language */
+.say { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid var(--line);
+  border-radius: 10px; margin-bottom: 8px; cursor: pointer; background: var(--paper); }
+.say.focus { border-color: var(--accent); }
+.say .lang { font: 11px var(--mono); color: var(--muted); width: 74px; flex: none; }
+.say .txt { flex: 1; font-size: 19px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.say .txt b { color: var(--accent); }
+.say .txt b.past { color: var(--past); }
+.speak { flex: none; width: 36px; height: 36px; padding: 0; border-radius: 50%; font-size: 15px; }
+.why { color: var(--muted); border-left: 2px solid var(--accent); padding: 2px 0 2px 12px; margin: 12px 0; min-height: 44px; }
+.why em { color: var(--ink); font-style: normal; font-weight: 600; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); margin-top: 6px; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+
+/* play */
+.levels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+.levels button { padding: 8px 4px; font-size: 12px; line-height: 1.25; }
+.levels button small { display: block; color: inherit; opacity: .7; font-size: 11px; }
+.langpick { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.card { background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.kind { font: 12px var(--mono); color: var(--muted); margin-bottom: 8px; }
+.prompt { display: flex; align-items: center; gap: 10px; font-size: 24px; font-weight: 700; margin-bottom: 10px; min-height: 36px; }
+.prompt span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.opts { display: grid; gap: 8px; }
+.opts button { font: 600 17px ui-sans-serif, system-ui, sans-serif; text-align: left; padding: 12px 14px; background: var(--panel); }
+.opts button.right { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.opts button.wrong { border-color: var(--bad); color: var(--bad); }
+.fb { min-height: 46px; margin: 10px 0 4px; color: var(--muted); }
+.fb.good { color: var(--accent); }
+.fb.bad { color: var(--bad); }
+.fb q { color: var(--ink); font-weight: 600; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dots { display: flex; gap: 6px; margin-top: 12px; }
+.dots span { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; font-size: 12px; color: var(--muted); }
+.dots span.cur { border-color: var(--accent); }
+.dots span.star { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.dots span.done { border-color: var(--muted); color: var(--ink); }
+.think { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 12px; }
+.think p { margin: 6px 0; }
+.think .ans { color: var(--muted); }
+.big { font-size: 34px; letter-spacing: 4px; color: var(--accent); margin: 4px 0; }
+.shake { animation: shake .35s; }
+@keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-6px); } 75% { transform: translateX(6px); } }
+
+.about { margin-top: 26px; color: var(--muted); max-width: 760px; font-size: 14px; }
+.about h2 { font: 600 13px var(--mono); color: var(--ink); margin: 18px 0 4px; }
+.about p { margin: 4px 0 8px; }
+.site-foot { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+kbd { font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; gap: 14px; }
+  .clockbox { max-width: 440px; margin: 0 auto; width: 100%; }
+  .say .txt { font-size: 17px; }
+  .prompt { font-size: 21px; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  uhrLede: 'Telling the time in German and Slovenian. Drag the hands: they are geared like a real clock. Both languages say <q>half three</q> when English says half past two. The coloured slice on the dial shows why.',
+  uhrClockSays: 'The clock says',
+  uhrLegendPast: 'counting from the hour that passed',
+  uhrLegendToward: 'counting toward the next hour',
+  uhrSurprise: 'Surprise me',
+  uhrAboutH1: 'Why this is tricky',
+  uhrAboutP1: 'English counts from the hour that has passed: half <em>past</em> two. German and Slovenian count toward the coming hour: <q>halb drei</q>, <q>pol treh</q>, literally half (of the) three. In Austria the quarters work the same way, <q>viertel drei</q> and <q>dreiviertel drei</q>, matching Slovenian <q>četrt na tri</q> and <q>tri četrt na tri</q>, while standard German says <q>Viertel nach zwei</q> and <q>Viertel vor drei</q>. Kids growing up between two of these systems meet all of them at once.',
+  uhrAboutH2: 'How the game teaches',
+  uhrAboutP2: 'Four short levels, each adding one idea: full hours, halves, quarters, five-minute steps. Read tasks and set tasks alternate, so a child both decodes and produces. Wrong answers are cheap and visible: pick the wrong sentence and its clock appears as red ghost hands next to the real ones; set the wrong time and the game reads your clock back to you. The coloured slice only appears as a hint after two tries. Every level ends with a <q>why</q> question to talk about together before revealing an answer.',
+  uhrAboutP3: 'Speech uses the voices already installed in your browser, so how it sounds (and whether there is a Slovenian voice) depends on your device. Nothing is stored or sent anywhere.',
+  uhrFooter: '© 2026 Presker.at · runs in your browser',
+  uhrLvl1Name: 'Hours', uhrLvl2Name: 'Half', uhrLvl3Name: 'Quarters', uhrLvl4Name: '5 minutes',
+  uhrLvl1Intro: 'Start with the short hand: it points at the hour. The long hand stands on 12.',
+  uhrLvl2Intro: 'Predict first: the short hand is between 2 and 3. Is it “halb zwei” or “halb drei”?',
+  uhrLvl3Intro: 'Quarters: a quarter of the way round is 15 minutes. Watch which hour each language names.',
+  uhrLvl4Intro: 'Every number on the dial is five more minutes for the long hand. Use the small grey numbers outside if you need them.',
+  uhrLvl1Q: 'Which hand tells you the hour, the short one or the long one? How can you tell?',
+  uhrLvl2Q: 'At 2:30 the short hand stands between 2 and 3. Why do German and Slovenian say “halb drei” / “pol treh” and not two?',
+  uhrLvl3Q: 'Which comes first in the afternoon: “viertel drei” or “halb drei”? And what does standard German call “viertel drei”?',
+  uhrLvl4Q: 'Why is 2:25 “fünf vor halb drei” / “pet do pol treh” instead of counting 25 minutes after two?',
+  uhrLvl1A: 'The short one. The long hand goes round once every hour, so on its own it can only tell minutes. The short hand needs twelve hours for one round.',
+  uhrLvl2A: 'They count toward the coming hour: half of the hour that leads up to three is gone. English counts from the hour that passed: half past two.',
+  uhrLvl3A: '“viertel drei” (2:15) comes first: a quarter of the way to three, then half way (2:30). Standard German calls 2:15 “Viertel nach zwei”, Slovenian “četrt na tri”.',
+  uhrLvl4A: 'People count from the nearest landmark on the dial: the hour, the half or a quarter. From the half it is only five minutes back, which is easier to say and to see.',
+  uhrStarsOf: '{stars} of {tasks} on the first try.',
+  uhrTalkAboutIt: 'Talk about it',
+  uhrShowAnswer: 'Show an answer', uhrPlayAgain: 'Play again', uhrNextLevel: 'Next level →', uhrNext: 'Next →',
+  uhrDragThenCheck: 'Drag the hands, then check.',
+  uhrThereItIs: 'There it is.',
+  uhrNotQuite: 'Not quite: <q>{phrase}</q> looks like the red hands.',
+  uhrHintRinged: 'Hint: the ringed number is the hour the right sentence names.',
+  uhrYourClockSays: 'Your clock says <q>{phrase}</q>.',
+  uhrHintSlice: 'Hint: the slice shows where the long hand should end, the ring which hour is named.',
+  uhrThisIs: 'This is <q>{phrase}</q>: {digital}. Watch where both hands stop.',
+  uhrExpOnHour: 'On the hour every language just names the hour: <em>{h} o’clock</em>.',
+  uhrExpHalf: 'Half way from {h} to {n}. German and Slovenian name the coming hour: <em>halb {deN}</em>, <em>pol {slN}</em>. English counts from the hour that passed: half past {h}.',
+  uhrExpQuarter: 'A quarter of the way to {n}. Austrian <em>viertel {deN}</em> and Slovenian <em>četrt na {slAcc}</em> already name the {n}; standard German counts from {h}: <em>Viertel nach {deH}</em>.',
+  uhrExpThreeQuarter: 'Three quarters of the way to {n}: Austrian <em>dreiviertel {deN}</em>, Slovenian <em>tri četrt na {slAcc}</em>. Standard German counts down: <em>Viertel vor {deN}</em>.',
+  uhrExpNearHalf: 'Close to the half, so both languages lean on it: five minutes {beforeAfter} <em>halb {deN}</em> / <em>pol {slGen}</em>. The half already belongs to {n}.',
+  uhrExpAfter: '<em>nach</em> and <em>čez</em> mean after: count {m} minutes forward from {h}.',
+  uhrExpBefore: '<em>vor</em> and <em>do</em> mean before / until: count {rem} minutes down to {n}.',
+  uhrGotIt: 'Got it.', uhrTryAgain: 'Try again.',
+  moreToExplore: 'More to explore',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  uhrLede: 'Die Uhrzeit auf Deutsch und Slowenisch sagen. Ziehe die Zeiger: sie sind verzahnt wie bei einer echten Uhr. Beide Sprachen sagen <q>halb drei</q>, wenn Englisch „half past two“ sagt. Die farbige Scheibe auf dem Zifferblatt zeigt, warum.',
+  uhrClockSays: 'Die Uhr sagt',
+  uhrLegendPast: 'zählt von der vergangenen Stunde',
+  uhrLegendToward: 'zählt auf die kommende Stunde zu',
+  uhrSurprise: 'Überrasch mich',
+  uhrAboutH1: 'Warum das knifflig ist',
+  uhrAboutP1: 'Englisch zählt von der vergangenen Stunde: half <em>past</em> two. Deutsch und Slowenisch zählen auf die kommende Stunde zu: <q>halb drei</q>, <q>pol treh</q>, wörtlich halb (der) drei. In Österreich funktionieren die Viertel genauso, <q>viertel drei</q> und <q>dreiviertel drei</q>, passend zum slowenischen <q>četrt na tri</q> und <q>tri četrt na tri</q>, während Standarddeutsch <q>Viertel nach zwei</q> und <q>Viertel vor drei</q> sagt. Kinder, die zwischen zwei dieser Systeme aufwachsen, begegnen allen gleichzeitig.',
+  uhrAboutH2: 'Wie das Spiel es lehrt',
+  uhrAboutP2: 'Vier kurze Level, jedes fügt eine Idee hinzu: volle Stunden, Halbe, Viertel, Fünf-Minuten-Schritte. Lese- und Stellaufgaben wechseln sich ab, sodass ein Kind sowohl entschlüsselt als auch erzeugt. Falsche Antworten kosten nichts und sind sichtbar: wählt man den falschen Satz, erscheint seine Uhrzeit als rote Geisterzeiger neben den echten; stellt man die falsche Zeit, liest das Spiel die eigene Uhr vor. Die farbige Scheibe erscheint erst nach zwei Versuchen als Hinweis. Jedes Level endet mit einer <q>Warum</q>-Frage zum gemeinsamen Besprechen, bevor die Antwort erscheint.',
+  uhrAboutP3: 'Die Sprachausgabe nutzt die im Browser bereits installierten Stimmen, daher hängt der Klang (und ob es eine slowenische Stimme gibt) vom Gerät ab. Nichts wird gespeichert oder gesendet.',
+  uhrFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  uhrLvl1Name: 'Stunden', uhrLvl2Name: 'Halb', uhrLvl3Name: 'Viertel', uhrLvl4Name: '5 Minuten',
+  uhrLvl1Intro: 'Beginne mit dem kurzen Zeiger: er zeigt auf die Stunde. Der lange Zeiger steht auf 12.',
+  uhrLvl2Intro: 'Rate zuerst: der kurze Zeiger steht zwischen 2 und 3. Ist es „halb zwei“ oder „halb drei“?',
+  uhrLvl3Intro: 'Viertel: ein Viertel des Weges sind 15 Minuten. Beobachte, welche Stunde jede Sprache benennt.',
+  uhrLvl4Intro: 'Jede Zahl auf dem Zifferblatt bedeutet fünf weitere Minuten für den langen Zeiger. Nutze die kleinen grauen Zahlen außen, falls nötig.',
+  uhrLvl1Q: 'Welcher Zeiger zeigt dir die Stunde, der kurze oder der lange? Wie erkennst du das?',
+  uhrLvl2Q: 'Um 2:30 steht der kurze Zeiger zwischen 2 und 3. Warum sagen Deutsch und Slowenisch „halb drei“ / „pol treh“ und nicht zwei?',
+  uhrLvl3Q: 'Was kommt nachmittags zuerst: „viertel drei“ oder „halb drei“? Und wie nennt Standarddeutsch „viertel drei“?',
+  uhrLvl4Q: 'Warum ist 2:25 „fünf vor halb drei“ / „pet do pol treh“ statt 25 Minuten nach zwei zu zählen?',
+  uhrLvl1A: 'Der kurze. Der lange Zeiger dreht sich einmal pro Stunde, allein kann er also nur Minuten anzeigen. Der kurze Zeiger braucht zwölf Stunden für eine Runde.',
+  uhrLvl2A: 'Sie zählen auf die kommende Stunde zu: die Hälfte der Stunde, die zur Drei hinführt, ist vergangen. Englisch zählt von der vergangenen Stunde: half past two.',
+  uhrLvl3A: '„viertel drei“ (2:15) kommt zuerst: ein Viertel des Weges zur Drei, dann die Hälfte (2:30). Standarddeutsch nennt 2:15 „Viertel nach zwei“, Slowenisch „četrt na tri“.',
+  uhrLvl4A: 'Man zählt vom nächsten Orientierungspunkt auf dem Zifferblatt: der Stunde, der Hälfte oder einem Viertel. Von der Hälfte sind es nur fünf Minuten zurück, leichter zu sagen und zu sehen.',
+  uhrStarsOf: '{stars} von {tasks} im ersten Versuch.',
+  uhrTalkAboutIt: 'Darüber sprechen',
+  uhrShowAnswer: 'Antwort zeigen', uhrPlayAgain: 'Nochmal spielen', uhrNextLevel: 'Nächstes Level →', uhrNext: 'Weiter →',
+  uhrDragThenCheck: 'Ziehe die Zeiger, dann prüfe.',
+  uhrThereItIs: 'Da ist es.',
+  uhrNotQuite: 'Nicht ganz: <q>{phrase}</q> sieht so aus wie die roten Zeiger.',
+  uhrHintRinged: 'Hinweis: die umringte Zahl ist die Stunde, die der richtige Satz nennt.',
+  uhrYourClockSays: 'Deine Uhr sagt <q>{phrase}</q>.',
+  uhrHintSlice: 'Hinweis: die Scheibe zeigt, wo der lange Zeiger enden soll, der Ring, welche Stunde gemeint ist.',
+  uhrThisIs: 'Das ist <q>{phrase}</q>: {digital}. Beobachte, wo beide Zeiger stehen bleiben.',
+  uhrExpOnHour: 'Zur vollen Stunde benennt jede Sprache einfach die Stunde: <em>{h} Uhr</em>.',
+  uhrExpHalf: 'Auf halbem Weg von {h} zu {n}. Deutsch und Slowenisch benennen die kommende Stunde: <em>halb {deN}</em>, <em>pol {slN}</em>. Englisch zählt von der vergangenen Stunde: half past {h}.',
+  uhrExpQuarter: 'Ein Viertel des Weges zu {n}. Österreichisch <em>viertel {deN}</em> und Slowenisch <em>četrt na {slAcc}</em> benennen bereits die {n}; Standarddeutsch zählt von {h}: <em>Viertel nach {deH}</em>.',
+  uhrExpThreeQuarter: 'Drei Viertel des Weges zu {n}: Österreichisch <em>dreiviertel {deN}</em>, Slowenisch <em>tri četrt na {slAcc}</em>. Standarddeutsch zählt rückwärts: <em>Viertel vor {deN}</em>.',
+  uhrExpNearHalf: 'Nahe an der Hälfte, daher lehnen sich beide Sprachen daran an: fünf Minuten {beforeAfter} <em>halb {deN}</em> / <em>pol {slGen}</em>. Die Hälfte gehört schon zur {n}.',
+  uhrExpAfter: '<em>nach</em> und <em>čez</em> bedeuten danach: zähle {m} Minuten vorwärts von {h}.',
+  uhrExpBefore: '<em>vor</em> und <em>do</em> bedeuten davor / bis: zähle {rem} Minuten rückwärts zur {n}.',
+  uhrGotIt: 'Verstanden.', uhrTryAgain: 'Versuch es noch einmal.',
+  moreToExplore: 'Mehr zum Entdecken',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  uhrLede: 'Povej čas v nemščini in slovenščini. Povleci kazalce: so zobniško povezani kot pri resnični uri. Oba jezika rečeta <q>pol tri</q>, ko angleščina reče „half past two“. Barvni izsek na številčnici pokaže, zakaj.',
+  uhrClockSays: 'Ura pravi',
+  uhrLegendPast: 'štetje od pretekle ure',
+  uhrLegendToward: 'štetje proti naslednji uri',
+  uhrSurprise: 'Presenetite me',
+  uhrAboutH1: 'Zakaj je to zahrbtno',
+  uhrAboutP1: 'Angleščina šteje od pretekle ure: half <em>past</em> two. Nemščina in slovenščina štejeta proti prihajajoči uri: <q>halb drei</q>, <q>pol treh</q>, dobesedno polovica (do) treh. V Avstriji četrtine delujejo enako, <q>viertel drei</q> in <q>dreiviertel drei</q>, kar ustreza slovenskemu <q>četrt na tri</q> in <q>tri četrt na tri</q>, medtem ko standardna nemščina reče <q>Viertel nach zwei</q> in <q>Viertel vor drei</q>. Otroci, ki odraščajo med dvema od teh sistemov, srečajo vse hkrati.',
+  uhrAboutH2: 'Kako igra uči',
+  uhrAboutP2: 'Štirje kratki nivoji, vsak doda eno idejo: polne ure, polovice, četrtine, pet-minutne korake. Naloge branja in nastavljanja se izmenjujejo, tako da otrok tako razbira kot ustvarja. Napačni odgovori ne stanejo nič in so vidni: izbereš napačen stavek in njegova ura se prikaže kot rdeči kazalci duha poleg resničnih; nastaviš napačen čas in igra prebere tvojo uro nazaj. Barvni izsek se kot namig prikaže šele po dveh poskusih. Vsak nivo se konča z vprašanjem <q>zakaj</q>, o katerem se pogovorite, preden se prikaže odgovor.',
+  uhrAboutP3: 'Govor uporablja glasove, ki so že nameščeni v brskalniku, zato je zvok (in ali obstaja slovenski glas) odvisen od naprave. Nič se ne shranjuje ali pošilja.',
+  uhrFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  uhrLvl1Name: 'Ure', uhrLvl2Name: 'Pol', uhrLvl3Name: 'Četrtine', uhrLvl4Name: '5 minut',
+  uhrLvl1Intro: 'Začni s kratkim kazalcem: kaže na uro. Dolgi kazalec stoji na 12.',
+  uhrLvl2Intro: 'Najprej ugani: kratki kazalec je med 2 in 3. Je „halb zwei“ ali „halb drei“?',
+  uhrLvl3Intro: 'Četrtine: četrtina poti je 15 minut. Opazuj, katero uro poimenuje vsak jezik.',
+  uhrLvl4Intro: 'Vsaka številka na številčnici pomeni pet minut več za dolgi kazalec. Po potrebi uporabi majhne sive številke zunaj.',
+  uhrLvl1Q: 'Kateri kazalec pove uro, kratki ali dolgi? Kako to veš?',
+  uhrLvl2Q: 'Ob 2:30 je kratki kazalec med 2 in 3. Zakaj nemščina in slovenščina rečeta „halb drei“ / „pol treh“ in ne dve?',
+  uhrLvl3Q: 'Kaj pride popoldne prej: „viertel drei“ ali „halb drei“? In kako standardna nemščina imenuje „viertel drei“?',
+  uhrLvl4Q: 'Zakaj je 2:25 „fünf vor halb drei“ / „pet do pol treh“ namesto štetja 25 minut po dveh?',
+  uhrLvl1A: 'Kratki. Dolgi kazalec se zavrti enkrat na uro, zato sam lahko pove le minute. Kratki kazalec potrebuje dvanajst ur za en krog.',
+  uhrLvl2A: 'Štejeta proti prihajajoči uri: polovica ure, ki vodi do tretje, je mimo. Angleščina šteje od pretekle ure: half past two.',
+  uhrLvl3A: '„viertel drei“ (2:15) pride prej: četrtina poti do tretje, nato polovica (2:30). Standardna nemščina 2:15 imenuje „Viertel nach zwei“, slovensko „četrt na tri“.',
+  uhrLvl4A: 'Ljudje štejejo od najbližje prelomnice na številčnici: ure, polovice ali četrtine. Od polovice je nazaj le pet minut, kar je lažje izreči in videti.',
+  uhrStarsOf: '{stars} od {tasks} v prvem poskusu.',
+  uhrTalkAboutIt: 'Pogovorita se o tem',
+  uhrShowAnswer: 'Pokaži odgovor', uhrPlayAgain: 'Igraj znova', uhrNextLevel: 'Naslednji nivo →', uhrNext: 'Naprej →',
+  uhrDragThenCheck: 'Povleci kazalce, nato preveri.',
+  uhrThereItIs: 'Tam je.',
+  uhrNotQuite: 'Ni čisto tako: <q>{phrase}</q> je videti kot rdeči kazalci.',
+  uhrHintRinged: 'Namig: obkrožena številka je ura, ki jo pravi stavek poimenuje.',
+  uhrYourClockSays: 'Tvoja ura pravi <q>{phrase}</q>.',
+  uhrHintSlice: 'Namig: izsek pokaže, kje naj se konča dolgi kazalec, obroček pa katera ura je poimenovana.',
+  uhrThisIs: 'To je <q>{phrase}</q>: {digital}. Opazuj, kje se ustavita oba kazalca.',
+  uhrExpOnHour: 'Ob polni uri vsak jezik preprosto poimenuje uro: <em>{h} ura</em>.',
+  uhrExpHalf: 'Na polovici poti od {h} do {n}. Nemščina in slovenščina poimenujeta prihajajočo uro: <em>halb {deN}</em>, <em>pol {slN}</em>. Angleščina šteje od pretekle ure: half past {h}.',
+  uhrExpQuarter: 'Četrtina poti do {n}. Avstrijsko <em>viertel {deN}</em> in slovensko <em>četrt na {slAcc}</em> že poimenujeta {n}; standardna nemščina šteje od {h}: <em>Viertel nach {deH}</em>.',
+  uhrExpThreeQuarter: 'Tri četrtine poti do {n}: avstrijsko <em>dreiviertel {deN}</em>, slovensko <em>tri četrt na {slAcc}</em>. Standardna nemščina šteje nazaj: <em>Viertel vor {deN}</em>.',
+  uhrExpNearHalf: 'Blizu polovice, zato se oba jezika nanjo navezujeta: pet minut {beforeAfter} <em>halb {deN}</em> / <em>pol {slGen}</em>. Polovica že spada k {n}.',
+  uhrExpAfter: '<em>nach</em> in <em>čez</em> pomenita po: štej {m} minut naprej od {h}.',
+  uhrExpBefore: '<em>vor</em> in <em>do</em> pomenita pred / do: štej {rem} minut nazaj do {n}.',
+  uhrGotIt: 'Razumljeno.', uhrTryAgain: 'Poskusi znova.',
+  moreToExplore: 'Še več za raziskati',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Uhr <span class="dot">·</span> Ura</h1>
+  <p class="lede" data-i18n-html="uhrLede">Telling the time in German and Slovenian. Drag the hands: they are geared like a real clock.
+    Both languages say <q>half three</q> when English says half past two. The coloured slice on the dial shows why.</p>
+
+  <div class="tabs" role="tablist">
+    <button id="tabExplore" class="on" role="tab">Explore · Schauen · Glej</button>
+    <button id="tabPlay" role="tab">Play · Spielen · Igraj</button>
+  </div>
+
+  <div class="app">
+    <div class="clockbox">
+      <svg id="clock" viewBox="-120 -120 240 240" aria-label="Analogue clock">
+        <circle r="100" fill="#0a0a0a" stroke="#262626" stroke-width="2"/>
+        <g id="guide"></g>
+        <g id="ticks"></g>
+        <g id="nums"></g>
+        <g id="ghost" opacity="0"></g>
+        <g id="hands"></g>
+      </svg>
+      <div class="digital" id="digital">2:30</div>
+      <div class="nudge" id="nudge">
+        <button data-d="-60" title="Arrow down">−1 h</button>
+        <button data-d="-5" title="Arrow left">−5 min</button>
+        <button data-d="5" title="Arrow right">+5 min</button>
+        <button data-d="60" title="Arrow up">+1 h</button>
+      </div>
+    </div>
+
+    <div class="panel">
+      <!-- Explore -->
+      <section id="explore">
+        <p class="label" data-i18n="uhrClockSays">The clock says</p>
+        <div id="rows"></div>
+        <div class="why" id="why"></div>
+        <div class="legend">
+          <span><i style="background:var(--past)"></i><span data-i18n="uhrLegendPast">counting from the hour that passed</span></span>
+          <span><i style="background:var(--accent)"></i><span data-i18n="uhrLegendToward">counting toward the next hour</span></span>
+        </div>
+        <div class="actions" style="margin-top:14px">
+          <button id="btnNow">Now · Jetzt · Zdaj</button>
+          <button id="btnRandom" data-i18n="uhrSurprise">Surprise me</button>
+        </div>
+      </section>
+
+      <!-- Play -->
+      <section id="play" hidden>
+        <div class="levels" id="levels"></div>
+        <div class="langpick" id="langpick"></div>
+        <div class="card" id="card"></div>
+      </section>
+    </div>
+  </div>
+
+  <div class="about">
+    <h2 data-i18n="uhrAboutH1">Why this is tricky</h2>
+    <p data-i18n-html="uhrAboutP1">English counts from the hour that has passed: half <em>past</em> two. German and Slovenian count toward the coming hour:
+      <q>halb drei</q>, <q>pol treh</q>, literally half (of the) three. In Austria the quarters work the same way,
+      <q>viertel drei</q> and <q>dreiviertel drei</q>, matching Slovenian <q>četrt na tri</q> and <q>tri četrt na tri</q>,
+      while standard German says <q>Viertel nach zwei</q> and <q>Viertel vor drei</q>. Kids growing up between two of these systems
+      meet all of them at once.</p>
+    <h2 data-i18n="uhrAboutH2">How the game teaches</h2>
+    <p data-i18n-html="uhrAboutP2">Four short levels, each adding one idea: full hours, halves, quarters, five-minute steps. Read tasks and set tasks alternate,
+      so a child both decodes and produces. Wrong answers are cheap and visible: pick the wrong sentence and its clock appears as red ghost hands
+      next to the real ones; set the wrong time and the game reads your clock back to you. The coloured slice only appears as a hint after two tries.
+      Every level ends with a <q>why</q> question to talk about together before revealing an answer.</p>
+    <p data-i18n="uhrAboutP3">Speech uses the voices already installed in your browser, so how it sounds (and whether there is a Slovenian voice) depends on your device.
+      Nothing is stored or sent anywhere.</p>
+  </div>
+
+  <div class="lab-related" style="margin-top:22px; font:12px var(--mono); color:var(--muted);">
+    <span class="lbl" data-i18n="moreToExplore" style="text-transform:uppercase; letter-spacing:.06em; font-size:11px; margin-right:8px;">More to explore</span>
+    <a href="/lab/word-safari/" style="color:var(--accent);">Word Safari</a> · <a href="/lab/pitch-garden/" style="color:var(--accent);">Pitch Garden</a> · <a href="/lab/abc-quest/" style="color:var(--accent);">ABC Quest</a>
+  </div>
+
+  <footer class="site-foot">
+    <span data-i18n="uhrFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+
+// Named `tr`, not `t` — this file uses `t` everywhere as the clock-time variable.
+function tr(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+/* ------------------------------------------------------------------ *
+ *  Language: how each language names a time (minutes in 5-steps)    *
+ * ------------------------------------------------------------------ */
+
+const DE = ['', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun', 'zehn', 'elf', 'zwölf'];
+const SL_NOM = ['', 'ena', 'dve', 'tri', 'štiri', 'pet', 'šest', 'sedem', 'osem', 'devet', 'deset', 'enajst', 'dvanajst'];
+const SL_ACC = SL_NOM.map((w, i) => i === 1 ? 'eno' : w);   // after "čez" and "na"
+const SL_GEN = ['', 'enih', 'dveh', 'treh', 'štirih', 'petih', 'šestih', 'sedmih', 'osmih', 'devetih', 'desetih', 'enajstih', 'dvanajstih']; // after "pol" and "do"
+
+const LANGS = {
+  at: { name: 'Deutsch (AT)', short: 'AT', speech: 'de-AT' },
+  de: { name: 'Deutsch',      short: 'DE', speech: 'de-DE' },
+  sl: { name: 'Slovenščina',  short: 'SL', speech: 'sl-SI' },
+};
+
+// Returns { text, hour, how } where `hour` is the number the sentence names and
+// `how` says how it is reached: 'exact', 'past' (count forward from it),
+// 'toward' (fraction of the way to it) or 'before' (count down to it).
+// The named hour is wrapped in <b> markers so it can be highlighted.
+function phrase(lang, t) {
+  const h = hourOf(t), m = minuteOf(t), n = h % 12 + 1;
+  const hb = w => `[${w}]`;
+  if (lang === 'sl') {
+    const S = {
+      0:  [`${hb(SL_NOM[h])}`, h, 'exact'],
+      5:  [`pet čez ${hb(SL_ACC[h])}`, h, 'past'],
+      10: [`deset čez ${hb(SL_ACC[h])}`, h, 'past'],
+      15: [`četrt na ${hb(SL_ACC[n])}`, n, 'toward'],
+      20: [`dvajset čez ${hb(SL_ACC[h])}`, h, 'past'],
+      25: [`pet do pol ${hb(SL_GEN[n])}`, n, 'toward'],
+      30: [`pol ${hb(SL_GEN[n])}`, n, 'toward'],
+      35: [`pet čez pol ${hb(SL_GEN[n])}`, n, 'toward'],
+      40: [`dvajset do ${hb(SL_GEN[n])}`, n, 'before'],
+      45: [`tri četrt na ${hb(SL_ACC[n])}`, n, 'toward'],
+      50: [`deset do ${hb(SL_GEN[n])}`, n, 'before'],
+      55: [`pet do ${hb(SL_GEN[n])}`, n, 'before'],
+    }[m];
+    return { text: `Ura je ${S[0]}.`, hour: S[1], how: S[2] };
+  }
+  const at = lang === 'at';
+  const G = {
+    0:  [`${hb(h === 1 ? 'ein' : DE[h])} Uhr`, h, 'exact'],
+    5:  [`fünf nach ${hb(DE[h])}`, h, 'past'],
+    10: [`zehn nach ${hb(DE[h])}`, h, 'past'],
+    15: at ? [`viertel ${hb(DE[n])}`, n, 'toward'] : [`Viertel nach ${hb(DE[h])}`, h, 'past'],
+    20: [`zwanzig nach ${hb(DE[h])}`, h, 'past'],
+    25: [`fünf vor halb ${hb(DE[n])}`, n, 'toward'],
+    30: [`halb ${hb(DE[n])}`, n, 'toward'],
+    35: [`fünf nach halb ${hb(DE[n])}`, n, 'toward'],
+    40: [`zwanzig vor ${hb(DE[n])}`, n, 'before'],
+    45: at ? [`dreiviertel ${hb(DE[n])}`, n, 'toward'] : [`Viertel vor ${hb(DE[n])}`, n, 'before'],
+    50: [`zehn vor ${hb(DE[n])}`, n, 'before'],
+    55: [`fünf vor ${hb(DE[n])}`, n, 'before'],
+  }[m];
+  return { text: `Es ist ${G[0]}.`, hour: G[1], how: G[2] };
+}
+const plain = s => s.replace(/[[\]]/g, '');
+const bare = s => plain(s).replace(/\.$/, '');   // without the full stop, for quoting mid-sentence
+const marked = (s, how) => s.replace(/\[(.+?)\]/, `<b class="${how === 'past' ? 'past' : ''}">$1</b>`);
+
+// A short note on the logic behind the current time, in the active UI language.
+function explain(time) {
+  const h = hourOf(time), m = minuteOf(time), n = h % 12 + 1;
+  switch (m) {
+    case 0:  return tr('uhrExpOnHour', { h });
+    case 30: return tr('uhrExpHalf', { h, n, deN: DE[n], slN: SL_NOM[n] });
+    case 15: return tr('uhrExpQuarter', { h, n, deN: DE[n], slAcc: SL_ACC[n], deH: DE[h] });
+    case 45: return tr('uhrExpThreeQuarter', { n, deN: DE[n], slAcc: SL_ACC[n] });
+    case 25: case 35:
+      return tr('uhrExpNearHalf', { n, deN: DE[n], slGen: SL_GEN[n], beforeAfter: m === 25 ? 'before' : 'after' });
+    case 5: case 10: case 20:
+      return tr('uhrExpAfter', { m, h });
+    default:
+      return tr('uhrExpBefore', { rem: 60 - m, n });
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Time helpers. t = minutes since 12:00, 0..719, multiples of 5     *
+ * ------------------------------------------------------------------ */
+
+const mod = (a, b) => ((a % b) + b) % b;
+const hourOf = t => Math.floor(mod(t, 720) / 60) || 12;
+const minuteOf = t => mod(t, 60);
+const T = (h, m) => mod((h % 12) * 60 + m, 720);
+const digital = t => `${hourOf(t)}:${String(minuteOf(t)).padStart(2, '0')}`;
+
+/* ------------------------------------------------------------------ *
+ *  Clock drawing (SVG, angle 0 = 12 o'clock, clockwise)              *
+ * ------------------------------------------------------------------ */
+
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('clock');
+const el = (tag, attrs, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const pt = (r, deg) => { const a = deg * Math.PI / 180; return [r * Math.sin(a), -r * Math.cos(a)]; };
+
+(function drawFace() {
+  const ticks = document.getElementById('ticks'), nums = document.getElementById('nums');
+  for (let i = 0; i < 60; i++) {
+    const big = i % 5 === 0;
+    const [x1, y1] = pt(big ? 88 : 93, i * 6), [x2, y2] = pt(98, i * 6);
+    el('line', { x1, y1, x2, y2, stroke: big ? '#8a8a8a' : '#3a3a3a', 'stroke-width': big ? 2.2 : 1, 'stroke-linecap': 'round' }, ticks);
+  }
+  for (let i = 1; i <= 12; i++) {
+    const [x, y] = pt(74, i * 30);
+    el('circle', { cx: x, cy: y, r: 13, fill: 'none', 'stroke-width': 2.5, id: 'ring' + i }, nums);
+    const tx = el('text', { x, y: y + 6, 'text-anchor': 'middle', 'font-size': 17, 'font-weight': 700,
+      fill: '#e8e8e8', 'font-family': 'system-ui, sans-serif', id: 'num' + i }, nums);
+    tx.textContent = i;
+    // minute numbers outside the dial: what the long hand counts
+    const [mx, my] = pt(110, i * 30);
+    const mt = el('text', { x: mx, y: my + 3, 'text-anchor': 'middle', 'font-size': 7.5, fill: '#5e5e5e',
+      'font-family': 'ui-monospace, Consolas, monospace' }, nums);
+    mt.textContent = String(i * 5 % 60).padStart(2, '0');
+  }
+})();
+
+function makeHands(parent, colorHour, colorMin) {
+  const g = el('g', {}, parent);
+  const hour = el('g', {}, g);
+  el('line', { x1: 0, y1: 10, x2: 0, y2: -50, stroke: colorHour, 'stroke-width': 9, 'stroke-linecap': 'round' }, hour);
+  const min = el('g', {}, g);
+  el('line', { x1: 0, y1: 14, x2: 0, y2: -84, stroke: colorMin, 'stroke-width': 5, 'stroke-linecap': 'round' }, min);
+  el('circle', { r: 6, fill: colorMin }, g);
+  return { hour, min };
+}
+const hands = makeHands(document.getElementById('hands'), '#f5b85a', '#e8e8e8');
+const ghostG = document.getElementById('ghost');
+const ghostHands = makeHands(ghostG, '#f57a7a', '#f57a7a');
+
+function setHands(h, tFloat) {
+  const m = mod(tFloat, 60), hrs = mod(tFloat, 720) / 60;
+  h.min.setAttribute('transform', `rotate(${m * 6})`);
+  h.hour.setAttribute('transform', `rotate(${hrs * 30})`);
+}
+
+// The coloured slice: from 12 to the minute hand ("past", "toward") or from
+// the minute hand back to 12 ("before"), plus a ring around the named hour.
+const guideG = document.getElementById('guide');
+function drawGuide(info, t) {
+  guideG.innerHTML = '';
+  for (let i = 1; i <= 12; i++) document.getElementById('ring' + i).setAttribute('stroke', 'none');
+  if (!info) return;
+  const col = info.how === 'past' ? '#7ab8f5' : '#b8f57a';
+  document.getElementById('ring' + info.hour).setAttribute('stroke', col);
+  const m = minuteOf(t);
+  if (info.how === 'exact' || m === 0) return;
+  let a0 = 0, a1 = m * 6;
+  if (info.how === 'before') { a0 = m * 6; a1 = 360; }
+  const [x0, y0] = pt(100, a0), [x1, y1] = pt(100, a1);
+  const large = a1 - a0 > 180 ? 1 : 0;
+  el('path', { d: `M0 0 L${x0} ${y0} A100 100 0 ${large} 1 ${x1} ${y1} Z`, fill: col, 'fill-opacity': .16,
+    stroke: col, 'stroke-opacity': .7, 'stroke-width': 1.5, 'stroke-dasharray': info.how === 'before' ? '4 3' : 'none' }, guideG);
+}
+
+/* ------------------------------------------------------------------ *
+ *  State + animation                                                 *
+ * ------------------------------------------------------------------ */
+
+const S = {
+  mode: 'explore',
+  t: T(2, 30),        // the time the hands are set to
+  shown: T(2, 30),    // what is drawn right now (eases toward t)
+  focus: 'at',        // language whose logic the slice shows (explore)
+  locked: false,      // hands not draggable (read tasks)
+};
+
+function tick() {
+  // ease along the shortest way round the dial
+  let d = mod(S.t - S.shown + 360, 720) - 360;
+  S.shown = Math.abs(d) < 0.05 ? S.t : S.shown + d * 0.22;
+  setHands(hands, S.shown);
+  requestAnimationFrame(tick);
+}
+
+function setTime(t, instant) {
+  S.t = mod(t, 720);
+  if (instant) S.shown = S.t;
+  onTimeChange();
+}
+
+function onTimeChange() {
+  if (S.mode === 'explore') renderExplore();
+  else document.getElementById('digital').textContent = digital(S.t);
+}
+
+/* dragging: grab whichever hand is closest in angle; both turn the same gear train */
+let drag = null;
+function pointerAngle(e) {
+  const r = svg.getBoundingClientRect();
+  const x = e.clientX - (r.left + r.width / 2), y = e.clientY - (r.top + r.height / 2);
+  return mod(Math.atan2(x, -y) * 180 / Math.PI, 360);
+}
+svg.addEventListener('pointerdown', e => {
+  if (S.locked) return;
+  const a = pointerAngle(e);
+  const dist = (p, q) => Math.abs(mod(p - q + 180, 360) - 180);
+  const aMin = minuteOf(S.t) * 6, aHour = (mod(S.t, 720) / 60) * 30;
+  const which = dist(a, aHour) + 4 < dist(a, aMin) ? 'hour' : 'min';
+  drag = { which, last: a, tc: S.t };
+  svg.setPointerCapture(e.pointerId);
+  svg.classList.add('dragging');
+  e.preventDefault();
+});
+svg.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const a = pointerAngle(e);
+  const d = mod(a - drag.last + 180, 360) - 180;
+  drag.last = a;
+  drag.tc += drag.which === 'min' ? d / 6 : d * 2;  // 6° per minute vs 0.5° per minute
+  const snapped = mod(Math.round(drag.tc / 5) * 5, 720);
+  if (snapped !== S.t) { S.t = snapped; onTimeChange(); }
+  S.shown = mod(drag.tc, 720);
+});
+const endDrag = () => {
+  if (!drag) return;
+  drag = null;
+  svg.classList.remove('dragging');
+};
+svg.addEventListener('pointerup', endDrag);
+svg.addEventListener('pointercancel', endDrag);
+
+document.getElementById('nudge').addEventListener('click', e => {
+  const d = +e.target.dataset.d;
+  if (d && !S.locked) setTime(S.t + d);
+});
+window.addEventListener('keydown', e => {
+  if (S.locked || e.target.tagName === 'INPUT') return;
+  const d = { ArrowRight: 5, ArrowLeft: -5, ArrowUp: 60, ArrowDown: -60 }[e.key];
+  if (d) { setTime(S.t + d); e.preventDefault(); }
+});
+
+function setLocked(on) {
+  S.locked = on;
+  svg.classList.toggle('grab', !on);
+  document.querySelectorAll('#nudge button').forEach(b => b.disabled = on);
+}
+
+/* ------------------------------------------------------------------ *
+ *  Speech (voices already installed in the browser; optional)        *
+ * ------------------------------------------------------------------ */
+
+const synth = window.speechSynthesis;
+function speak(text, lang) {
+  if (!synth) return;
+  synth.cancel();
+  const u = new SpeechSynthesisUtterance(plain(text));
+  const tag = LANGS[lang].speech, base = tag.slice(0, 2);
+  const voices = synth.getVoices();
+  const v = voices.find(v => v.lang.replace('_', '-') === tag) || voices.find(v => v.lang.startsWith(base));
+  if (v) u.voice = v;
+  u.lang = v ? v.lang : tag;
+  u.rate = 0.9;
+  synth.speak(u);
+}
+const speakBtn = (text, lang) =>
+  synth ? `<button class="speak" title="Listen" data-say="${encodeURIComponent(text)}" data-lang="${lang}">🔊</button>` : '';
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-say]');
+  if (b) { e.stopPropagation(); speak(decodeURIComponent(b.dataset.say), b.dataset.lang); }
+}, true);
+
+/* ------------------------------------------------------------------ *
+ *  Explore mode                                                      *
+ * ------------------------------------------------------------------ */
+
+function renderExplore() {
+  const t = S.t;
+  document.getElementById('digital').textContent = digital(t);
+  const at = phrase('at', t), de = phrase('de', t), sl = phrase('sl', t);
+  // Austrian and standard German only differ at :15 and :45
+  const rows = at.text === de.text
+    ? [['at', 'Deutsch<br>AT · DE', at], ['sl', 'Slovenščina', sl]]
+    : [['at', 'Deutsch<br>Österreich', at], ['de', 'Deutsch<br>Standard', de], ['sl', 'Slovenščina', sl]];
+  if (!rows.some(r => r[0] === S.focus)) S.focus = 'at';
+  document.getElementById('rows').innerHTML = rows.map(([k, name, p]) => `
+    <div class="say ${k === S.focus ? 'focus' : ''}" data-focus="${k}">
+      <span class="lang">${name}</span>
+      <span class="txt">${marked(p.text, p.how)}</span>
+      ${speakBtn(p.text, k)}
+    </div>`).join('');
+  document.getElementById('why').innerHTML = explain(t);
+  drawGuide(phrase(S.focus, t), t);
+}
+document.getElementById('rows').addEventListener('click', e => {
+  const r = e.target.closest('[data-focus]');
+  if (r) { S.focus = r.dataset.focus; renderExplore(); }
+});
+document.getElementById('btnNow').onclick = () => {
+  const d = new Date();
+  setTime(T(d.getHours(), Math.round(d.getMinutes() / 5) * 5));
+};
+document.getElementById('btnRandom').onclick = () => {
+  let t;
+  do t = Math.floor(Math.random() * 144) * 5; while (t === S.t);
+  setTime(t);
+};
+
+/* ------------------------------------------------------------------ *
+ *  Play mode: 4 levels x 6 tasks, read and set alternating           *
+ * ------------------------------------------------------------------ */
+
+function levelDefs() { return [
+  { nameKey: 'uhrLvl1Name', sub: 'Stunde · ura', targets: [0], pool: [0],
+    introKey: 'uhrLvl1Intro', qKey: 'uhrLvl1Q', aKey: 'uhrLvl1A' },
+  { nameKey: 'uhrLvl2Name', sub: 'halb · pol', targets: [30], pool: [0, 30],
+    introKey: 'uhrLvl2Intro', qKey: 'uhrLvl2Q', aKey: 'uhrLvl2A' },
+  { nameKey: 'uhrLvl3Name', sub: 'Viertel · četrt', targets: [15, 45, 15, 45, 30], pool: [0, 15, 30, 45],
+    introKey: 'uhrLvl3Intro', qKey: 'uhrLvl3Q', aKey: 'uhrLvl3A' },
+  { nameKey: 'uhrLvl4Name', sub: 'Minuten · minute', targets: [5, 10, 20, 25, 35, 40, 50, 55], pool: [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+    introKey: 'uhrLvl4Intro', qKey: 'uhrLvl4Q', aKey: 'uhrLvl4A' },
+]; }
+const LEVELS = levelDefs().map(L => ({
+  get name() { return tr(L.nameKey); }, sub: L.sub, targets: L.targets, pool: L.pool,
+  get intro() { return tr(L.introKey); }, get q() { return tr(L.qKey); }, get a() { return tr(L.aKey); },
+}));
+const TASKS = 6;
+const P = { level: 0, lang: 'at', i: 0, tasks: [], results: [], tries: 0, done: false, best: [0, 0, 0, 0] };
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function newLevel(level) {
+  const L = LEVELS[level];
+  P.level = level; P.i = 0; P.results = []; P.done = false;
+  const used = new Set();
+  P.tasks = [];
+  for (let k = 0; k < TASKS; k++) {
+    let t;
+    do t = T(1 + Math.floor(Math.random() * 12), L.targets[k % L.targets.length]); while (used.has(t));
+    used.add(t);
+    P.tasks.push({ kind: k % 2 ? 'set' : 'read', t });
+  }
+  startTask();
+}
+
+// Wrong answers that target real misconceptions: naming the wrong hour
+// (the "halb zwei" trap), mirrored minutes, and swapping the two hands.
+function distractors(t) {
+  const h = hourOf(t), m = minuteOf(t), pool = LEVELS[P.level].pool;
+  const right = phrase(P.lang, t).text;
+  const first = [T(h - 1, m)];
+  const rest = [T(h + 1, m), T(h, 60 - m), T((m / 5) || 12, (h * 5) % 60), T(h + 6, m), T(h - 2, m)];
+  const seen = new Set([right]), out = [];
+  for (const c of first.concat(shuffle(rest))) {
+    if (!pool.includes(minuteOf(c))) continue;
+    const p = phrase(P.lang, c).text;
+    if (seen.has(p)) continue;
+    seen.add(p); out.push(c);
+    if (out.length === 2) break;
+  }
+  return out;
+}
+
+function startTask() {
+  const task = P.tasks[P.i];
+  P.tries = 0;
+  ghostG.setAttribute('opacity', 0);
+  drawGuide(null);
+  if (task.kind === 'read') {
+    setLocked(true);
+    setTime(task.t);
+    task.opts = shuffle([task.t, ...distractors(task.t)]);
+    document.getElementById('digital').classList.add('hide');
+  } else {
+    setLocked(false);
+    setTime(task.t === 0 ? T(6, 0) : 0);
+    document.getElementById('digital').classList.remove('hide');
+  }
+  renderPlay();
+}
+
+function renderPlay(feedback = '', cls = '') {
+  // level picker + language picker
+  document.getElementById('levels').innerHTML = LEVELS.map((L, k) => `
+    <button class="${k === P.level ? 'on' : ''}" data-level="${k}">${k + 1}. ${L.name}
+      <small>${L.sub} ${P.best[k] ? '★' + P.best[k] : ''}</small></button>`).join('');
+  document.getElementById('langpick').innerHTML = Object.entries(LANGS).map(([k, L]) =>
+    `<button class="${k === P.lang ? 'on' : ''}" data-lang-pick="${k}">${L.name}</button>`).join('');
+
+  const card = document.getElementById('card');
+  const dots = `<div class="dots">${P.tasks.map((_, k) => {
+    const r = P.results[k];
+    return `<span class="${r === 'star' ? 'star' : r ? 'done' : k === P.i && !P.done ? 'cur' : ''}">${r === 'star' ? '★' : r ? '✓' : ''}</span>`;
+  }).join('')}</div>`;
+
+  if (P.done) {
+    const L = LEVELS[P.level], stars = P.results.filter(r => r === 'star').length;
+    card.innerHTML = `
+      <div class="kind">Level ${P.level + 1} done · geschafft · opravljeno</div>
+      <div class="big">${'★'.repeat(stars)}${'☆'.repeat(TASKS - stars)}</div>
+      <p>${tr('uhrStarsOf', { stars, tasks: TASKS })}</p>
+      ${dots}
+      <div class="think">
+        <p class="label">${tr('uhrTalkAboutIt')}</p>
+        <p>${L.q}</p>
+        <p class="ans" id="ans" hidden>${L.a}</p>
+        <div class="actions">
+          <button id="btnReveal">${tr('uhrShowAnswer')}</button>
+          <button id="btnAgain">${tr('uhrPlayAgain')}</button>
+          ${P.level < LEVELS.length - 1 ? `<button class="primary" id="btnNextLevel">${tr('uhrNextLevel')}</button>` : ''}
+        </div>
+      </div>`;
+    document.getElementById('btnReveal').onclick = e => { document.getElementById('ans').hidden = false; e.target.remove(); };
+    document.getElementById('btnAgain').onclick = () => newLevel(P.level);
+    const nx = document.getElementById('btnNextLevel');
+    if (nx) nx.onclick = () => newLevel(P.level + 1);
+    return;
+  }
+
+  const task = P.tasks[P.i];
+  const answered = P.results[P.i] !== undefined;
+  const intro = P.i === 0 && !feedback ? `<p class="fb">${LEVELS[P.level].intro}</p>` : '';
+  if (task.kind === 'read') {
+    card.innerHTML = `
+      <div class="kind">Read the clock · Lies die Uhr · Preberi uro</div>
+      <div class="opts">${task.opts.map(t => {
+        const st = task.marks && task.marks[t];
+        return `<button data-opt="${t}" class="${st || ''}" ${answered ? 'disabled' : ''}>${plain(phrase(P.lang, t).text)}</button>`;
+      }).join('')}</div>
+      ${intro}<div class="fb ${cls}" id="fb">${feedback}</div>
+      <div class="actions">${answered ? `<button class="primary" id="btnNext">${tr('uhrNext')}</button>` : ''}</div>
+      ${dots}`;
+  } else {
+    const target = phrase(P.lang, task.t).text;
+    card.innerHTML = `
+      <div class="kind">Set the clock · Stell die Uhr · Nastavi uro</div>
+      <div class="prompt"><span>${plain(target)}</span>${speakBtn(target, P.lang)}</div>
+      ${intro}<div class="fb ${cls}" id="fb">${feedback || (P.i === 0 ? '' : tr('uhrDragThenCheck'))}</div>
+      <div class="actions">${answered
+        ? `<button class="primary" id="btnNext">${tr('uhrNext')}</button>`
+        : '<button class="primary" id="btnCheck">Check · Prüfen · Preveri</button>'}</div>
+      ${dots}`;
+  }
+  const next = document.getElementById('btnNext');
+  if (next) next.onclick = nextTask;
+  const chk = document.getElementById('btnCheck');
+  if (chk) chk.onclick = checkSet;
+}
+
+function nextTask() {
+  P.i++;
+  if (P.i >= TASKS) {
+    P.done = true;
+    const stars = P.results.filter(r => r === 'star').length;
+    P.best[P.level] = Math.max(P.best[P.level], stars);
+    setLocked(false);
+    document.getElementById('digital').classList.remove('hide');
+    ghostG.setAttribute('opacity', 0);
+    renderPlay();
+  } else startTask();
+}
+
+function shake() {
+  const c = document.getElementById('card');
+  c.classList.remove('shake'); void c.offsetWidth; c.classList.add('shake');
+}
+
+function answerRead(t) {
+  const task = P.tasks[P.i];
+  task.marks = task.marks || {};
+  P.tries++;
+  if (t === task.t) {
+    task.marks[t] = 'right';
+    P.results[P.i] = P.tries === 1 ? 'star' : 'ok';
+    ghostG.setAttribute('opacity', 0);
+    drawGuide(phrase(P.lang, task.t), task.t);
+    document.getElementById('digital').classList.remove('hide');
+    speak(phrase(P.lang, task.t).text, P.lang);
+    renderPlay(P.tries === 1 ? 'Yes! Richtig! Pravilno!' : tr('uhrThereItIs'), 'good');
+    return;
+  }
+  // show what the chosen sentence would look like, as red ghost hands
+  task.marks[t] = 'wrong';
+  setHands(ghostHands, t);
+  ghostG.setAttribute('opacity', .55);
+  let msg = tr('uhrNotQuite', { phrase: bare(phrase(P.lang, t).text) });
+  if (P.tries >= 2) {
+    drawGuide(phrase(P.lang, task.t), task.t);
+    msg += ' ' + tr('uhrHintRinged');
+  }
+  shake();
+  renderPlay(msg, 'bad');
+}
+
+function checkSet() {
+  const task = P.tasks[P.i];
+  P.tries++;
+  if (S.t === task.t) {
+    P.results[P.i] = P.tries === 1 ? 'star' : 'ok';
+    setLocked(true);
+    drawGuide(phrase(P.lang, task.t), task.t);
+    renderPlay(P.tries === 1 ? 'Yes! Richtig! Pravilno!' : tr('uhrGotIt'), 'good');
+    return;
+  }
+  // read the child's clock back to them
+  let msg = tr('uhrYourClockSays', { phrase: bare(phrase(P.lang, S.t).text) });
+  if (P.tries === 2) {
+    drawGuide(phrase(P.lang, task.t), task.t);
+    msg += ' ' + tr('uhrHintSlice');
+  } else if (P.tries >= 3) {
+    P.results[P.i] = 'ok';
+    setLocked(true);
+    setTime(task.t);
+    drawGuide(phrase(P.lang, task.t), task.t);
+    msg = tr('uhrThisIs', { phrase: bare(phrase(P.lang, task.t).text), digital: digital(task.t) });
+    renderPlay(msg, '');
+    return;
+  } else msg += ' ' + tr('uhrTryAgain');
+  shake();
+  renderPlay(msg, 'bad');
+}
+
+document.getElementById('play').addEventListener('click', e => {
+  const o = e.target.closest('[data-opt]');
+  if (o && !o.disabled) return answerRead(+o.dataset.opt);
+  const lv = e.target.closest('[data-level]');
+  if (lv) return newLevel(+lv.dataset.level);
+  const lp = e.target.closest('[data-lang-pick]');
+  if (lp && lp.dataset.langPick !== P.lang) { P.lang = lp.dataset.langPick; newLevel(P.level); }
+});
+
+/* ------------------------------------------------------------------ *
+ *  Tabs                                                              *
+ * ------------------------------------------------------------------ */
+
+function setMode(mode) {
+  S.mode = mode;
+  document.getElementById('tabExplore').classList.toggle('on', mode === 'explore');
+  document.getElementById('tabPlay').classList.toggle('on', mode === 'play');
+  document.getElementById('explore').hidden = mode !== 'explore';
+  document.getElementById('play').hidden = mode !== 'play';
+  ghostG.setAttribute('opacity', 0);
+  document.getElementById('digital').classList.remove('hide');
+  if (mode === 'explore') { setLocked(false); renderExplore(); }
+  else newLevel(P.level);
+}
+document.getElementById('tabExplore').onclick = () => setMode('explore');
+document.getElementById('tabPlay').onclick = () => setMode('play');
+
+if (synth) synth.getVoices();   // some browsers load the voice list lazily
+setLocked(false);
+renderExplore();
+tick();
+</script>
+</body>
+</html>

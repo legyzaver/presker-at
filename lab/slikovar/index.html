@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slikovar — tap a picture, hear the word in Slovenian</title>
+<meta name="description" content="A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice — animals, food, home and more, A to Ž.">
+<link rel="canonical" href="https://www.presker.at/lab/slikovar/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/slikovar/">
+<meta property="og:title" content="Slikovar">
+<meta property="og:description" content="Tap a picture, hear its name in Slovenian. A preschool picture dictionary with a real offline neural voice, A to Ž.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a;
+  --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff; --sl: #2a5fb0;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e; --sl: #7ab8f5;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e; --sl: #7ab8f5;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 18px 16px 28px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 8px; }
+.home:hover { color: var(--accent); }
+h1 { font: 600 24px var(--mono); margin: 10px 0 2px; letter-spacing: -.01em; }
+.lede { margin: 4px 0 14px; color: var(--muted); max-width: 680px; }
+button { font: 13px var(--mono); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; cursor: pointer; touch-action: manipulation; }
+button:hover { border-color: var(--muted); }
+button.primary { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+button:disabled { opacity: .5; cursor: default; }
+.toprow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 16px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.card {
+  background: var(--panel); border: 2px solid var(--line); border-radius: 14px;
+  padding: 14px 8px 10px; text-align: center; cursor: pointer; user-select: none;
+  transition: border-color .15s, transform .12s;
+}
+.card:hover { border-color: var(--sl); }
+.card:active { transform: scale(.95); }
+.card.playing { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(184,245,122,.18); }
+.card .pic { font-size: 44px; line-height: 1; display: block; }
+.card .word { display: block; margin-top: 8px; font: 700 14px var(--mono); letter-spacing: .01em; }
+.card .letter { font: 11px var(--mono); color: var(--muted); display: block; margin-top: 2px; }
+
+details { margin-top: 26px; color: var(--muted); }
+summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+details p { max-width: 70ch; }
+footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.donate { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #3a3a3a; border-radius: 999px; padding: 5px 12px 5px 6px; color: var(--ink); text-decoration: none; }
+.donate:hover { border-color: var(--accent); }
+.donate .r { width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #000; display: inline-grid; place-items: center; font-weight: 800; font-size: 12px; }
+@media (max-width: 480px) { .grid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); } .card .pic { font-size: 36px; } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+  Object.assign(window.PRESKER_I18N.en, {
+    svLede: 'Tap any picture and hear its name spoken aloud in Slovenian — by a real offline neural voice, not the browser’s own. Animals, food and home, A to Ž.',
+    svPlayAll: '▶️ Play all, A to Ž', svStop: '⏹ Stop',
+    svAboutSummary: 'For grown-ups: how it works',
+    svAboutBody: 'Every word here is pre-recorded, not read live: each clip was generated once, offline, with Piper — a small open-source neural text-to-speech engine — using its Slovenian voice ("sl_SI-artur-medium"). The finished page just plays back those 24 audio files; nothing is synthesized in the browser and nothing is sent anywhere when a child taps a picture. That also means it sounds the same for every visitor, unlike the browser speech synthesis used elsewhere in this lab, which depends on whatever voices happen to be installed on each device. Every Slovenian word was cross-checked against the same borismarn/english-slovenian-dictionary dataset behind Besedopad, so the spelling matches a real dictionary entry.',
+    svBack: '← presker.at / lab',
+  });
+  Object.assign(window.PRESKER_I18N.de, {
+    svLede: 'Tippe auf ein Bild und höre seinen Namen auf Slowenisch — gesprochen von einer echten, offline laufenden neuronalen Stimme, nicht der des Browsers. Tiere, Essen und Zuhause, von A bis Ž.',
+    svPlayAll: '▶️ Alle abspielen, A bis Ž', svStop: '⏹ Stopp',
+    svAboutSummary: 'Für Erwachsene: wie es funktioniert',
+    svAboutBody: 'Jedes Wort hier ist vorab aufgenommen, nicht live vorgelesen: jeder Clip wurde einmal offline erzeugt, mit Piper — einer kleinen Open-Source-Sprachsynthese — unter Verwendung seiner slowenischen Stimme ("sl_SI-artur-medium"). Die fertige Seite spielt nur diese 24 Audiodateien ab; im Browser wird nichts synthetisiert und beim Tippen auf ein Bild wird nichts irgendwohin gesendet. Das bedeutet auch, dass es bei jedem Besucher gleich klingt — anders als die Browser-Sprachsynthese, die anderswo in diesem Lab verwendet wird und davon abhängt, welche Stimmen gerade auf dem jeweiligen Gerät installiert sind. Jedes slowenische Wort wurde gegen denselben borismarn/english-slovenian-dictionary-Datensatz geprüft, der auch Besedopad zugrunde liegt, sodass die Schreibweise einem echten Wörterbucheintrag entspricht.',
+    svBack: '← presker.at / lab',
+  });
+  Object.assign(window.PRESKER_I18N.sl, {
+    svLede: 'Tapni na sliko in slišiš njeno ime, izgovorjeno v slovenščini — s pravim glasom nevronske sinteze, ki teče brez povezave, ne z glasom brskalnika. Živali, hrana in dom, od A do Ž.',
+    svPlayAll: '▶️ Predvajaj vse, od A do Ž', svStop: '⏹ Ustavi',
+    svAboutSummary: 'Za odrasle: kako deluje',
+    svAboutBody: 'Vsaka beseda tukaj je vnaprej posneta, ne prebrana v živo: vsak posnetek je bil ustvarjen enkrat, brez povezave, s Piperjem — majhnim odprtokodnim sintetizatorjem govora — z njegovim slovenskim glasom ("sl_SI-artur-medium"). Konč​na stran le predvaja teh 24 zvoč​nih datotek; v brskalniku se nič ne sintetizira in ob tapu na sliko se nič ne poš​lje nikamor. To tudi pomeni, da zveni enako vsakemu obiskovalcu — drugač​e kot sinteza govora brskalnika, uporabljena drugje v tem labu, ki je odvisna od tega, kateri glasovi so nameš​č​eni na posamezni napravi. Vsaka slovenska beseda je bila preverjena z istim naborom podatkov borismarn/english-slovenian-dictionary, na katerem temelji tudi Besedopad, zato se črkovanje ujema s pravim slovarskim vnosom.',
+    svBack: '← presker.at / lab',
+  });
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="svBack">← presker.at / lab</a>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+        <button class="pill-btn" data-theme-set="light">☀</button>
+        <button class="pill-btn" data-theme-set="auto">Auto</button>
+        <button class="pill-btn" data-theme-set="dark">☾</button>
+      </div>
+    </div>
+  </div>
+  <h1>Slikovar</h1>
+  <p class="lede" data-i18n="svLede">Tap any picture and hear its name spoken aloud in Slovenian — by a real offline neural voice, not the browser's own. Animals, food and home, A to Ž.</p>
+
+  <div class="toprow">
+    <button id="playAllBtn" data-i18n="svPlayAll">▶️ Play all, A to Ž</button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <details>
+    <summary data-i18n="svAboutSummary">For grown-ups: how it works</summary>
+    <p data-i18n="svAboutBody">Every word here is pre-recorded, not read live: each clip was generated once, offline, with Piper — a small open-source neural text-to-speech engine — using its Slovenian voice ("sl_SI-artur-medium"). The finished page just plays back those 24 audio files; nothing is synthesized in the browser and nothing is sent anywhere when a child taps a picture. That also means it sounds the same for every visitor, unlike the browser speech synthesis used elsewhere in this lab, which depends on whatever voices happen to be installed on each device.</p>
+  </details>
+
+  <div style="margin-top:22px; font:12px var(--mono); color:var(--muted);">
+    <span style="text-transform:uppercase; letter-spacing:.06em; font-size:11px; margin-right:8px;" data-i18n="moreToExplore">More to explore</span>
+    <a href="/lab/besedopad/" style="color:var(--accent);">Besedopad</a> · <a href="/lab/word-safari/" style="color:var(--accent);">Word Safari</a> · <a href="/lab/abc-quest/" style="color:var(--accent);">ABC Quest</a>
+  </div>
+
+  <footer>
+    <span>© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+// Slovenian word, emoji, audio filename slug — ordered A to Ž by the Slovenian word.
+const WORDS = [
+  { w: 'Ananas',   pic: '🍍', slug: 'ananas' },
+  { w: 'Banana',   pic: '🍌', slug: 'banana' },
+  { w: 'Cvet',     pic: '🌸', slug: 'cvet' },
+  { w: 'Čebela',   pic: '🐝', slug: 'cebela' },
+  { w: 'Delfin',   pic: '🐬', slug: 'delfin' },
+  { w: 'Fižol',    pic: '🫘', slug: 'fizol' },
+  { w: 'Gorila',   pic: '🦍', slug: 'gorila' },
+  { w: 'Hiša',     pic: '🏠', slug: 'hisa' },
+  { w: 'Igrača',   pic: '🧸', slug: 'igraca' },
+  { w: 'Jabolko',  pic: '🍎', slug: 'jabolko' },
+  { w: 'Krokodil', pic: '🐊', slug: 'krokodil' },
+  { w: 'Lev',      pic: '🦁', slug: 'lev' },
+  { w: 'Mačka',    pic: '🐱', slug: 'macka' },
+  { w: 'Nosorog',  pic: '🦏', slug: 'nosorog' },
+  { w: 'Ovca',     pic: '🐑', slug: 'ovca' },
+  { w: 'Pes',      pic: '🐶', slug: 'pes' },
+  { w: 'Riba',     pic: '🐟', slug: 'riba' },
+  { w: 'Sonce',    pic: '☀️', slug: 'sonce' },
+  { w: 'Šunka',    pic: '🍖', slug: 'sunka' },
+  { w: 'Tiger',    pic: '🐯', slug: 'tiger' },
+  { w: 'Ura',      pic: '⏰', slug: 'ura' },
+  { w: 'Voda',     pic: '💧', slug: 'voda' },
+  { w: 'Zajec',    pic: '🐰', slug: 'zajec' },
+  { w: 'Žaba',     pic: '🐸', slug: 'zaba' },
+];
+
+const grid = $('grid');
+const audioCache = {};
+let currentlyPlaying = null;
+let playAllTimer = null;
+let playAllActive = false;
+
+function getAudio(slug) {
+  if (!audioCache[slug]) audioCache[slug] = new Audio('audio/' + slug + '.wav');
+  return audioCache[slug];
+}
+
+function play(entry, card) {
+  if (currentlyPlaying) currentlyPlaying.classList.remove('playing');
+  const a = getAudio(entry.slug);
+  try { a.currentTime = 0; } catch (e) {}
+  a.play().catch(() => {});
+  card.classList.add('playing');
+  currentlyPlaying = card;
+  a.onended = () => { card.classList.remove('playing'); if (currentlyPlaying === card) currentlyPlaying = null; };
+}
+
+WORDS.forEach(entry => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.setAttribute('role', 'button');
+  card.setAttribute('tabindex', '0');
+  card.innerHTML = '<span class="pic">' + entry.pic + '</span>' +
+    '<span class="word">' + entry.w + '</span>' +
+    '<span class="letter">' + entry.w[0] + '</span>';
+  card.addEventListener('click', () => { stopPlayAll(); play(entry, card); });
+  card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); stopPlayAll(); play(entry, card); } });
+  grid.appendChild(card);
+});
+
+function stopPlayAll() {
+  if (playAllTimer) clearTimeout(playAllTimer);
+  playAllActive = false;
+  updatePlayAllBtn();
+}
+
+function updatePlayAllBtn() {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  $('playAllBtn').textContent = playAllActive ? (dict.svStop || fallback.svStop) : (dict.svPlayAll || fallback.svPlayAll);
+}
+
+$('playAllBtn').addEventListener('click', () => {
+  if (playAllActive) { stopPlayAll(); return; }
+  playAllActive = true;
+  updatePlayAllBtn();
+  let i = 0;
+  const cards = grid.children;
+  function step() {
+    if (!playAllActive || i >= WORDS.length) { stopPlayAll(); return; }
+    const entry = WORDS[i], card = cards[i];
+    play(entry, card);
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const a = audioCache[entry.slug];
+    const advance = () => { i++; playAllTimer = setTimeout(step, 250); };
+    if (a && a.duration) setTimeout(advance, Math.max(600, a.duration * 1000));
+    else setTimeout(advance, 1200);
+  }
+  step();
+});
+
+document.addEventListener('presker-lang-change', updatePlayAllBtn);
+})();
+</script>
+</body>
+</html>

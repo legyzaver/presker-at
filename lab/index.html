@@ -3,108 +3,266 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Python CGI Lab — PRESKER.AT</title>
-  <link rel="stylesheet" href="/lab/lab.css">
+  <title>The Lab — PRESKER.AT</title>
+  <meta name="description" content="Every Daily Lab project, chronologically: one self-contained browser experiment most days, plus the earlier games and tools that started it.">
+  <link rel="canonical" href="https://www.presker.at/lab/">
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      labEyebrow: 'Digital Lab',
+      labSub: 'One self-contained browser project most days. Newest first — everything is still here once it rotates off the homepage.',
+      labH2Daily: 'Daily Lab, newest first',
+      labH2Earlier: 'Earlier in the lab',
+      slikovarHubDesc: 'A picture dictionary for preschoolers: tap a picture and hear its name spoken in Slovenian by a real offline neural voice.',
+      wordSafariHubDesc: 'Study whole German/Slovenian word pairs, then match them on a memory grid, spoken aloud in both languages.',
+      besedopadHubDesc: 'Tetris-style falling letters that spell real Slovenian words for points.',
+      cameraHubDesc: 'A pinhole-camera cutaway: resize the hole, move the screen, watch the brightness/sharpness trade-off.',
+      pitchHubDesc: 'Sing higher or lower to climb a flower staircase and spell a word out loud, in German or Slovenian.',
+      sliceHubDesc: 'Slice a 3D print into layers and see exactly where it needs supports before it fails on the bed.',
+      plotterHubDesc: "Watch nearest-neighbour and 2-opt shrink a pen plotter's wasted pen-up travel.",
+      chladniHubDesc: '36,000 grains of sand settle onto the nodal lines of a vibrating metal plate.',
+      bitBlocksHubDesc: "The kids' version of Core Memory: blocky graphics, water instead of current.",
+      coreMemoryHubDesc: 'An 8×8 plane of ferrite rings, the way computers stored bits before chips.',
+      uhrUraHubDesc: 'A clock game for kids learning to tell the time in German and Slovenian.',
+      inglenookHubDesc: 'The classic model-railway shunting puzzle, with a solver to check your best answer.',
+      whiteCubeHubDesc: 'A 3D gallery for learning installation art — anamorphosis, coloured shadows, a shadow sculpture.',
+      orbitHubDesc: 'Predict a rocket burn, fly it, then find out why. Orbital mechanics by doing.',
+      planetHubDesc: 'Drag a 360° panorama through eight projections, from flat map to little planet.',
+      platterHubDesc: 'A drum machine cut into a spinning record — scratch the platter, change the tempo.',
+      harmoHubDesc: 'Four swinging pendulums trace slowly decaying spirals, like a Victorian drawing machine.',
+      abcHubDesc: 'The original German/Slovenian letter-door alphabet game.',
+      abc3dHubDesc: 'ABC Quest turned into a first-person arcade game, 36 rooms deep.',
+      abcNotesHubDesc: 'The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, free mistakes.',
+      gear360HubDesc: "Stitch any 360° camera's two-circle file into one finished, levelled panorama.",
+      fpBurnerHubDesc: 'Turn a melody into bump geometry for a 1971 Fisher Price toy record player.',
+      cgiHubDesc: 'CGI scripts and Python backend logic, running live on plain shared hosting.',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      labEyebrow: 'Digitales Lab',
+      labSub: 'Fast jeden Tag ein eigenständiges Browser-Projekt. Neueste zuerst — alles bleibt hier, auch wenn es von der Startseite verschwindet.',
+      labH2Daily: 'Daily Lab, neueste zuerst',
+      labH2Earlier: 'Früher im Lab',
+      slikovarHubDesc: 'Ein Bildwörterbuch für Vorschulkinder: Tippe auf ein Bild und höre seinen Namen auf Slowenisch, gesprochen von einer echten offline laufenden neuronalen Stimme.',
+      wordSafariHubDesc: 'Lerne deutsch-slowenische Wortpaare und ordne sie dann auf einem Memory-Raster zu, in beiden Sprachen vorgelesen.',
+      besedopadHubDesc: 'Fallende Buchstaben im Tetris-Stil, die echte slowenische Wörter für Punkte buchstabieren.',
+      cameraHubDesc: 'Eine Lochkamera im Querschnitt: verändere die Lochgröße, verschiebe die Leinwand, beobachte den Kompromiss zwischen Helligkeit und Schärfe.',
+      pitchHubDesc: 'Singe höher oder tiefer, um eine Blumentreppe zu erklimmen und ein Wort laut zu buchstabieren, auf Deutsch oder Slowenisch.',
+      sliceHubDesc: 'Zerlege einen 3D-Druck in Schichten und sieh genau, wo er Stützen braucht, bevor er auf dem Druckbett scheitert.',
+      plotterHubDesc: 'Beobachte, wie Nearest-Neighbour und 2-opt die verschwendete Leerfahrt eines Stiftplotters verkürzen.',
+      chladniHubDesc: '36.000 Sandkörner setzen sich auf den Knotenlinien einer schwingenden Metallplatte ab.',
+      bitBlocksHubDesc: 'Die Kinderversion von Core Memory: blockige Grafik, Wasser statt Strom.',
+      coreMemoryHubDesc: 'Eine 8×8-Ebene aus Ferritringen, so wie Computer Bits speicherten, bevor es Chips gab.',
+      uhrUraHubDesc: 'Ein Uhrenspiel für Kinder, die lernen, die Zeit auf Deutsch und Slowenisch zu sagen.',
+      inglenookHubDesc: 'Das klassische Rangier-Puzzle der Modelleisenbahn, mit einem Solver, der deine beste Antwort prüft.',
+      whiteCubeHubDesc: 'Eine 3D-Galerie, um Installationskunst zu lernen — Anamorphose, farbige Schatten, eine Schattenskulptur.',
+      orbitHubDesc: 'Sage einen Raketenbrand voraus, fliege ihn, finde dann heraus, warum. Bahnmechanik durch Ausprobieren.',
+      planetHubDesc: 'Ziehe ein 360°-Panorama durch acht Projektionen, von der flachen Karte zum kleinen Planeten.',
+      platterHubDesc: 'Eine Drum-Machine, geschnitten in eine sich drehende Schallplatte — scratche die Platte, ändere das Tempo.',
+      harmoHubDesc: 'Vier schwingende Pendel zeichnen langsam abklingende Spiralen, wie eine viktorianische Zeichenmaschine.',
+      abcHubDesc: 'Das ursprüngliche deutsch-slowenische Türen-Buchstabenspiel.',
+      abc3dHubDesc: 'ABC Quest, verwandelt in ein Ego-Arcade-Spiel, 36 Räume tief.',
+      abcNotesHubDesc: 'Die didaktischen Notizen hinter dem Alphabetspiel: eine wiederholte Schleife, gemischte Antworten, kostenlose Fehler.',
+      gear360HubDesc: 'Füge die Zweikreis-Datei jeder 360°-Kamera zu einem fertigen, nivellierten Panorama zusammen.',
+      fpBurnerHubDesc: 'Verwandle eine Melodie in Noppen-Geometrie für einen Fisher-Price-Spielzeugplattenspieler von 1971.',
+      cgiHubDesc: 'CGI-Skripte und Python-Backend-Logik, live auf gewöhnlichem Shared Hosting.',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      labEyebrow: 'Digitalni lab',
+      labSub: 'Skoraj vsak dan nov samostojen brskalniški projekt. Najnovejši najprej — vse ostane tukaj, tudi ko izgine z domače strani.',
+      labH2Daily: 'Daily Lab, najnovejši najprej',
+      labH2Earlier: 'Prej v labu',
+      slikovarHubDesc: 'Slikovni slovar za predšolske otroke: tapni na sliko in slišiš njeno ime v slovenščini, izgovorjeno s pravim glasom nevronske sinteze brez povezave.',
+      wordSafariHubDesc: 'Spoznaj nemško-slovenske pare besed, nato jih poveži na mreži za spomin, izgovorjene v obeh jezikih.',
+      besedopadHubDesc: 'Padajoče črke v slogu Tetrisa, ki za točke črkujejo pravе slovenske besede.',
+      cameraHubDesc: 'Prerez luknjične kamere: spremeni velikost luknje, premakni zaslon, opazuj razmerje med svetlostjo in ostrino.',
+      pitchHubDesc: 'Prepevaj višje ali nižje, da splezaš po stopnicah cvetlic in naglas črkuješ besedo, v nemščini ali slovenščini.',
+      sliceHubDesc: 'Razreži 3D-izdelek na plasti in poglej natanko, kje potrebuje podpore, preden spodleti na podlagi.',
+      plotterHubDesc: 'Opazuj, kako nearest-neighbour in 2-opt skrajšata zapravljeno pot risalnega plotra z dvignjenim peresom.',
+      chladniHubDesc: '36.000 zrn peska se usede na vozlne črte vibrirajoče kovinske plošče.',
+      bitBlocksHubDesc: 'Otroška različica Core Memory: bloksasta grafika, voda namesto toka.',
+      coreMemoryHubDesc: 'Ravnina 8×8 feritnih obročkov, tako kot so računalniki shranjevali bite, preden so bili čipi.',
+      uhrUraHubDesc: 'Igra z uro za otroke, ki se učijo povedati čas v nemščini in slovenščini.',
+      inglenookHubDesc: 'Klasična uganka ranžiranja modelne železnice, s reševalnikom, ki preveri tvoj najboljši odgovor.',
+      whiteCubeHubDesc: '3D galerija za učenje inštalacijske umetnosti — anamorfoza, barvne sence, senčna skulptura.',
+      orbitHubDesc: 'Napovej zagon rakete, odleti ga, nato ugotovi, zakaj. Orbitalna mehanika s preizkušanjem.',
+      planetHubDesc: 'Povleci 360°-panoramo skozi osem projekcij, od ravnega zemljevida do malega planeta.',
+      platterHubDesc: 'Bobnarski avtomat, vrezan v vrtečo se ploščo — scratchaj ploščo, spremeni tempo.',
+      harmoHubDesc: 'Štiri nihajoča nihala izrisujejo počasi pojemajoče spirale, kot viktorijanski risalni stroj.',
+      abcHubDesc: 'Izvirna nemško-slovenska igra vrat s črkami.',
+      abc3dHubDesc: 'ABC Quest, spremenjen v arkadno igro v prvi osebi, 36 sob globoko.',
+      abcNotesHubDesc: 'Didaktični zapiski za abecedno igro: ena ponavljajoča se zanka, premešani odgovori, brezplačne napake.',
+      gear360HubDesc: 'Zlepi datoteko z dvema krogoma katerekoli 360°-kamere v eno dokončano, izravnano panoramo.',
+      fpBurnerHubDesc: 'Spremeni melodijo v geometrijo izboklin za Fisher-Price otroški gramofon iz leta 1971.',
+      cgiHubDesc: 'CGI skripti in Python zaledna logika, v živo na navadnem skupnem gostovanju.',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
   <style>
-    .nav-buttons {
-      position: fixed;
-      top: 2px;
-      left: 1.5rem;
-      display: flex;
-      gap: 12px;
-      z-index: 1000;
-      font-family: var(--mono);
-      font-size: 13px;
-    }
-    .nav-btn {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      color: var(--text);
-      padding: 8px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .nav-btn:hover {
-      background: var(--accent);
-      color: var(--bg);
-      border-color: var(--accent);
-    }
+    .nav-buttons { position: fixed; top: 2px; left: 1.5rem; display: flex; gap: 12px; z-index: 1000; font-family: var(--mono); font-size: 13px; }
+    .nav-toggles { position: fixed; top: 10px; right: 1.5rem; z-index: 1000; }
+    .nav-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .nav-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .lab-card-date { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 8px; }
   </style>
 </head>
 <body>
   <div class="top-bar"></div>
   <div class="nav-buttons">
-    <a href="/" class="nav-btn">🏠 Home</a>
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
   </div>
   <main class="lab-shell">
 
-    <p class="lab-eyebrow">Digital Lab</p>
-    <h1>Python CGI Lab</h1>
-    <p class="lab-sub">CGI scripts and Python backend logic, running live on ordinary shared hosting — no app server, no port to bind, no process to keep alive. Just Apache and a Python interpreter.</p>
+    <p class="lab-eyebrow" data-i18n="labEyebrow">Digital Lab</p>
+    <h1>The Lab</h1>
+    <p class="lab-sub" data-i18n="labSub">One self-contained browser project most days. Newest first — everything is still here once it rotates off the homepage.</p>
 
-    <h2>What CGI actually is</h2>
-    <p>CGI — the Common Gateway Interface — is the oldest way to make a web server run a program instead of serving a static file. It dates to 1993. The "interface" part is almost insultingly simple: when a request hits a script, the web server (Apache, here) starts a brand-new process, hands it the request as <strong>environment variables</strong> plus the raw request body on <strong>stdin</strong>, and reads whatever the process prints to <strong>stdout</strong> as the response.</p>
-    <p>That's the entire protocol. No sockets to open, no framework required, no persistent process. A CGI script is just a program that knows it must:</p>
-    <ol style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.8;">
-      <li>Print a <code>Content-Type</code> header line</li>
-      <li>Print one blank line (the header/body separator — easy to forget, breaks everything if missing)</li>
-      <li>Print the response body</li>
-    </ol>
-    <p>That's <a href="/test/hello.py" class="lab-link">hello.py →</a> in its entirety: three print statements.</p>
-
-    <h2>Why this still matters on shared hosting</h2>
-    <p>Modern Python web apps usually run as a long-lived process — Gunicorn, uWSGI, an ASGI server — sitting behind a reverse proxy, listening on its own port. Cheap shared hosting (like this site's host, World4You) generally won't let you do that: no port binding, no persistent background process, no control over what's listening where.</p>
-    <p>What shared hosts <em>do</em> support — going back decades — is Apache configured to execute a script and capture its output. That's exactly the contract CGI provides, which is why it's still the practical way to run server-side Python on this kind of hosting. The tradeoff is that the Python interpreter starts cold on every single request — there's no warm process holding a database connection pool or cached state. For small scripts and low traffic, that startup cost is negligible. It would be a real problem at scale.</p>
-
-    <h2>Statelessness — the core limitation</h2>
-    <p>Because every request gets a fresh process with no memory of the last one, a CGI script by itself has no concept of "earlier" or "later." Anything that needs to persist — a visit count, a session, a queue of feedback messages — has to be written somewhere <em>outside</em> the process, almost always the filesystem on shared hosting (a database is the other option, where available). <a href="/test/counter.py" class="lab-link">counter.py →</a> demonstrates this directly: it reads a number from a text file, increments it, writes it back, with an OS-level file lock so two simultaneous requests can't corrupt the count by racing each other.</p>
-
-    <h2>Reading a request: environment variables and stdin</h2>
-    <p>Everything the browser sent arrives as environment variables — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code>, and so on — readable with plain <code>os.environ</code>. A GET request's form data lives entirely in <code>QUERY_STRING</code>. A POST request's body has to be read from <code>sys.stdin</code>, exactly <code>CONTENT_LENGTH</code> bytes — read less and you lose data, read more (or read until EOF) and the script can hang waiting for bytes that will never arrive, since CGI doesn't close stdin for you. <a href="/test/env.py" class="lab-link">env.py →</a> dumps the environment variables for whatever request loaded it; <a href="/test/echo.py" class="lab-link">echo.py →</a> parses a real form submission via both GET and POST.</p>
-    <p style="font-size: 13px; color: var(--muted);">Note: these examples parse the query string and POST body with <code>urllib.parse</code> rather than the stdlib <code>cgi</code> module. <code>cgi.FieldStorage</code> was the traditional tool for this, but the whole <code>cgi</code> module was deprecated in Python 3.11 and removed entirely in 3.13 (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — worth knowing if you're maintaining older CGI code that imports it.</p>
-
-    <h2>Security notes that actually matter here</h2>
-    <p>CGI's simplicity cuts both ways — there's no framework quietly escaping things for you, so a few rules are worth stating plainly:</p>
-    <ul style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85;">
-      <li><strong>Escape everything you echo back.</strong> Any user-supplied string printed into HTML is a potential XSS vector unless run through <code>html.escape()</code> first — every script in this lab does this.</li>
-      <li><strong>Never build a shell command from request data.</strong> <code>os.system()</code> or <code>subprocess</code> with <code>shell=True</code> and unsanitized input is a direct path to remote code execution on the host. None of these scripts shell out at all.</li>
-      <li><strong>Trust <code>CONTENT_LENGTH</code>, not "read until done."</strong> Reading stdin without a length bound from an untrusted client risks both hangs and unbounded memory use.</li>
-      <li><strong>File locking matters the moment two requests can land at once.</strong> A naive read-modify-write to a shared file (like a counter or a log) will silently corrupt data under concurrent load without a lock.</li>
-    </ul>
-
-    <h2>Live demos</h2>
+    <h2 data-i18n="labH2Daily">Daily Lab, newest first</h2>
     <div class="lab-grid">
-      <a href="/test/hello.py" class="lab-card">
-        <div class="lab-card-title">Hello, CGI</div>
-        <div class="lab-card-path">/test/hello.py</div>
-        <div class="lab-card-desc">The protocol in three lines: header, blank line, body.</div>
+      <a href="/lab/slikovar/" class="lab-card">
+        <div class="lab-card-title">Slikovar</div>
+        <div class="lab-card-date">2026-10-30</div>
+        <div class="lab-card-desc" data-i18n="slikovarHubDesc">A picture dictionary for preschoolers: tap a picture and hear its name spoken in Slovenian by a real offline neural voice.</div>
       </a>
-      <a href="/test/env.py" class="lab-card">
-        <div class="lab-card-title">Request environment</div>
-        <div class="lab-card-path">/test/env.py</div>
-        <div class="lab-card-desc">What Apache actually hands the script per request.</div>
+      <a href="/lab/word-safari/" class="lab-card">
+        <div class="lab-card-title">Word Safari</div>
+        <div class="lab-card-date">2026-10-29</div>
+        <div class="lab-card-desc" data-i18n="wordSafariHubDesc">Study whole German/Slovenian word pairs, then match them on a memory grid, spoken aloud in both languages.</div>
       </a>
-      <a href="/test/echo.py" class="lab-card">
-        <div class="lab-card-title">Form echo</div>
-        <div class="lab-card-path">/test/echo.py</div>
-        <div class="lab-card-desc">Parses GET query strings and POST bodies by hand.</div>
+      <a href="/lab/besedopad/" class="lab-card">
+        <div class="lab-card-title">Besedopad</div>
+        <div class="lab-card-date">2026-10-29</div>
+        <div class="lab-card-desc" data-i18n="besedopadHubDesc">Tetris-style falling letters that spell real Slovenian words for points.</div>
       </a>
-      <a href="/test/counter.py" class="lab-card">
-        <div class="lab-card-title">Persistent counter</div>
-        <div class="lab-card-path">/test/counter.py</div>
-        <div class="lab-card-desc">State surviving a stateless process, via a locked file.</div>
+      <a href="/lab/camera-obscura/" class="lab-card">
+        <div class="lab-card-title">Camera Obscura Lab</div>
+        <div class="lab-card-date">2026-10-27</div>
+        <div class="lab-card-desc" data-i18n="cameraHubDesc">A pinhole-camera cutaway: resize the hole, move the screen, watch the brightness/sharpness trade-off.</div>
+      </a>
+      <a href="/lab/pitch-garden/" class="lab-card">
+        <div class="lab-card-title">Pitch Garden</div>
+        <div class="lab-card-date">2026-10-26</div>
+        <div class="lab-card-desc" data-i18n="pitchHubDesc">Sing higher or lower to climb a flower staircase and spell a word out loud, in German or Slovenian.</div>
+      </a>
+      <a href="/lab/slice-lab/" class="lab-card">
+        <div class="lab-card-title">Slice Lab</div>
+        <div class="lab-card-date">2026-10-25</div>
+        <div class="lab-card-desc" data-i18n="sliceHubDesc">Slice a 3D print into layers and see exactly where it needs supports before it fails on the bed.</div>
+      </a>
+      <a href="/lab/plotter-tour/" class="lab-card">
+        <div class="lab-card-title">Plotter Tour</div>
+        <div class="lab-card-date">2026-10-24</div>
+        <div class="lab-card-desc" data-i18n="plotterHubDesc">Watch nearest-neighbour and 2-opt shrink a pen plotter's wasted pen-up travel.</div>
+      </a>
+      <a href="/lab/chladni-sand/" class="lab-card">
+        <div class="lab-card-title">Chladni Sand</div>
+        <div class="lab-card-date">2026-10-23</div>
+        <div class="lab-card-desc" data-i18n="chladniHubDesc">36,000 grains of sand settle onto the nodal lines of a vibrating metal plate.</div>
+      </a>
+      <a href="/lab/bit-blocks/" class="lab-card">
+        <div class="lab-card-title">Bit Blocks</div>
+        <div class="lab-card-date">2026-10-22</div>
+        <div class="lab-card-desc" data-i18n="bitBlocksHubDesc">The kids' version of Core Memory: blocky graphics, water instead of current.</div>
+      </a>
+      <a href="/lab/core-memory/" class="lab-card">
+        <div class="lab-card-title">Core Memory</div>
+        <div class="lab-card-date">2026-10-22</div>
+        <div class="lab-card-desc" data-i18n="coreMemoryHubDesc">An 8×8 plane of ferrite rings, the way computers stored bits before chips.</div>
+      </a>
+      <a href="/lab/uhr-ura/" class="lab-card">
+        <div class="lab-card-title">Uhr · Ura</div>
+        <div class="lab-card-date">2026-10-21</div>
+        <div class="lab-card-desc" data-i18n="uhrUraHubDesc">A clock game for kids learning to tell the time in German and Slovenian.</div>
+      </a>
+      <a href="/lab/inglenook/" class="lab-card">
+        <div class="lab-card-title">Inglenook Sidings</div>
+        <div class="lab-card-date">2026-10-20</div>
+        <div class="lab-card-desc" data-i18n="inglenookHubDesc">The classic model-railway shunting puzzle, with a solver to check your best answer.</div>
+      </a>
+      <a href="/lab/white-cube/" class="lab-card">
+        <div class="lab-card-title">White Cube</div>
+        <div class="lab-card-date">2026-10-19</div>
+        <div class="lab-card-desc" data-i18n="whiteCubeHubDesc">A 3D gallery for learning installation art — anamorphosis, coloured shadows, a shadow sculpture.</div>
+      </a>
+      <a href="/lab/orbit-school/" class="lab-card">
+        <div class="lab-card-title">Orbit School</div>
+        <div class="lab-card-date">2026-10-18</div>
+        <div class="lab-card-desc" data-i18n="orbitHubDesc">Predict a rocket burn, fly it, then find out why. Orbital mechanics by doing.</div>
+      </a>
+      <a href="/lab/little-planet/" class="lab-card">
+        <div class="lab-card-title">Little Planet Lab</div>
+        <div class="lab-card-date">2026-10-18</div>
+        <div class="lab-card-desc" data-i18n="planetHubDesc">Drag a 360° panorama through eight projections, from flat map to little planet.</div>
+      </a>
+      <a href="/lab/platter-sequencer/" class="lab-card">
+        <div class="lab-card-title">Platter Sequencer</div>
+        <div class="lab-card-date">2026-10-17</div>
+        <div class="lab-card-desc" data-i18n="platterHubDesc">A drum machine cut into a spinning record — scratch the platter, change the tempo.</div>
+      </a>
+      <a href="/lab/harmonograph/" class="lab-card">
+        <div class="lab-card-title">Harmonograph Lab</div>
+        <div class="lab-card-date">2026-10-17</div>
+        <div class="lab-card-desc" data-i18n="harmoHubDesc">Four swinging pendulums trace slowly decaying spirals, like a Victorian drawing machine.</div>
       </a>
     </div>
 
-    <p style="font-size: 13px; color: var(--muted);">More scripts and notes will land here over time — this is a working lab, not a finished reference.</p>
+    <h2 data-i18n="labH2Earlier">Earlier in the lab</h2>
+    <div class="lab-grid">
+      <a href="/lab/abc-quest-3d/" class="lab-card">
+        <div class="lab-card-title">The 36th Chamber of Schooling</div>
+        <div class="lab-card-date">abc-quest-3d</div>
+        <div class="lab-card-desc" data-i18n="abc3dHubDesc">ABC Quest turned into a first-person arcade game, 36 rooms deep.</div>
+      </a>
+      <a href="/lab/abc-quest/" class="lab-card">
+        <div class="lab-card-title">ABC Quest</div>
+        <div class="lab-card-date">abc-quest</div>
+        <div class="lab-card-desc" data-i18n="abcHubDesc">The original German/Slovenian letter-door alphabet game.</div>
+      </a>
+      <a href="/lab/abc-quest-notes.html" class="lab-card">
+        <div class="lab-card-title">ABC Quest, the pedagogy</div>
+        <div class="lab-card-date">notes</div>
+        <div class="lab-card-desc" data-i18n="abcNotesHubDesc">The teaching notes behind the alphabet game: one repeated loop, reshuffled answers, free mistakes.</div>
+      </a>
+      <a href="/lab/gear360-stitcher/" class="lab-card">
+        <div class="lab-card-title">Dual Lens Stitcher</div>
+        <div class="lab-card-date">gear360-stitcher</div>
+        <div class="lab-card-desc" data-i18n="gear360HubDesc">Stitch any 360° camera's two-circle file into one finished, levelled panorama.</div>
+      </a>
+      <a href="/lab/fp-disk-burner/" class="lab-card">
+        <div class="lab-card-title">FP Disk Burner</div>
+        <div class="lab-card-date">fp-disk-burner</div>
+        <div class="lab-card-desc" data-i18n="fpBurnerHubDesc">Turn a melody into bump geometry for a 1971 Fisher Price toy record player.</div>
+      </a>
+      <a href="/lab/cgi.html" class="lab-card">
+        <div class="lab-card-title">Python CGI Lab</div>
+        <div class="lab-card-date">cgi.html</div>
+        <div class="lab-card-desc" data-i18n="cgiHubDesc">CGI scripts and Python backend logic, running live on plain shared hosting.</div>
+      </a>
+    </div>
 
-    <a href="/" class="lab-back">← back to presker.at</a>
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
 
-  </main>
+</main>
 </body>
 </html>

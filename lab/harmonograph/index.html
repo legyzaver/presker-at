@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Harmonograph Lab — pendulum drawings in your browser</title>
+<meta name="description" content="A virtual harmonograph: four damped pendulums and a turning table draw spirographic figures in your browser. Export PNG or a pen-plotter SVG, share any figure as a link.">
+<link rel="canonical" href="https://www.presker.at/lab/harmonograph/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/harmonograph/">
+<meta property="og:title" content="Harmonograph Lab">
+<meta property="og:description" content="A virtual harmonograph: four damped pendulums and a turning table draw spirographic figures in your browser. Export PNG or a pen-plotter SVG, share any figure as a link.">
+<meta name="twitter:card" content="summary">
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  hgLede: 'Four damped pendulums push a pen; an optional rotating table turns the paper underneath. Small detunings between near-whole-number frequencies make the patterns.',
+  hgRandomBtn: 'Surprise me', hgReplayBtn: 'Redraw', hgCopyLinkBtn: 'Copy link',
+  hgRotaryH: 'Rotary table', hgDrawingH: 'Drawing', hgBuildH: 'Build a real one',
+  hgColourLabel: 'Colour',
+  hgHint1: '<kbd>R</kbd> surprise &nbsp; <kbd>Space</kbd> redraw &nbsp; <kbd>S</kbd> save SVG',
+  hgHint2: 'Pendulum lengths if frequency 1.000 is a 1&nbsp;m "seconds pendulum" (L = 0.994&nbsp;m / f²). Real harmonographs swing much slower than this preview; the drawing is the same.',
+  hgFooter: '© 2026 Presker.at · runs in your browser',
+  hgPendulumName: 'Pendulum {n}',
+  hgLabelFrequency: 'Frequency', hgLabelPhase: 'Phase', hgLabelSwing: 'Swing', hgLabelDamping: 'Damping',
+  hgLabelSpin: 'Spin', hgLabelDuration: 'Duration', hgLabelPenWidth: 'Pen width', hgLabelInk: 'Ink', hgLabelSpeed: 'Speed',
+  hgPresetsPlaceholder: 'Presets…',
+  hgPresetClassic: 'Classic 2:3', hgPresetRose: 'Rose on a turntable', hgPresetLissajous: 'Lissajous drift',
+  hgPresetSpiral: 'Spiral bloom', hgPresetTight: 'Tight weave', hgPresetShell: 'Shell',
+  hgPaletteInk: 'Ink', hgPaletteSpectrum: 'Spectrum', hgPaletteSunset: 'Sunset',
+  hgPaletteOcean: 'Ocean', hgPaletteEmber: 'Ember', hgPaletteMoss: 'Moss',
+  hgCopiedMsg: 'Copied', hgCopyFailedMsg: 'Copy failed',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  hgLede: 'Vier gedämpfte Pendel bewegen einen Stift; ein optionaler Drehtisch dreht das Papier darunter. Die Muster entstehen durch kleine Verstimmungen zwischen nahezu ganzzahligen Frequenzen.',
+  hgRandomBtn: 'Überrasch mich', hgReplayBtn: 'Neu zeichnen', hgCopyLinkBtn: 'Link kopieren',
+  hgRotaryH: 'Drehtisch', hgDrawingH: 'Zeichnung', hgBuildH: 'Einen echten bauen',
+  hgColourLabel: 'Farbe',
+  hgHint1: '<kbd>R</kbd> überraschen &nbsp; <kbd>Leertaste</kbd> neu zeichnen &nbsp; <kbd>S</kbd> SVG speichern',
+  hgHint2: 'Pendellängen, wenn Frequenz 1.000 einem 1&nbsp;m langen „Sekundenpendel" entspricht (L = 0,994&nbsp;m / f²). Echte Harmonographen schwingen viel langsamer als diese Vorschau; die Zeichnung bleibt dieselbe.',
+  hgFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  hgPendulumName: 'Pendel {n}',
+  hgLabelFrequency: 'Frequenz', hgLabelPhase: 'Phase', hgLabelSwing: 'Ausschlag', hgLabelDamping: 'Dämpfung',
+  hgLabelSpin: 'Drehung', hgLabelDuration: 'Dauer', hgLabelPenWidth: 'Stiftbreite', hgLabelInk: 'Tinte', hgLabelSpeed: 'Geschwindigkeit',
+  hgPresetsPlaceholder: 'Vorgaben…',
+  hgPresetClassic: 'Klassisch 2:3', hgPresetRose: 'Rose auf dem Drehtisch', hgPresetLissajous: 'Lissajous-Drift',
+  hgPresetSpiral: 'Spiralblüte', hgPresetTight: 'Enges Geflecht', hgPresetShell: 'Muschel',
+  hgPaletteInk: 'Tinte', hgPaletteSpectrum: 'Spektrum', hgPaletteSunset: 'Sonnenuntergang',
+  hgPaletteOcean: 'Ozean', hgPaletteEmber: 'Glut', hgPaletteMoss: 'Moos',
+  hgCopiedMsg: 'Kopiert', hgCopyFailedMsg: 'Kopieren fehlgeschlagen',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  hgLede: 'Štiri dušena nihala poganjajo pisalo; neobvezna vrteča miza pod njim vrti papir. Vzorci nastanejo zaradi majhnih odstopanj med skoraj celoštevilskimi frekvencami.',
+  hgRandomBtn: 'Presenetí me', hgReplayBtn: 'Znova nariši', hgCopyLinkBtn: 'Kopiraj povezavo',
+  hgRotaryH: 'Vrteča miza', hgDrawingH: 'Risba', hgBuildH: 'Zgradi resničnega',
+  hgColourLabel: 'Barva',
+  hgHint1: '<kbd>R</kbd> presenetenje &nbsp; <kbd>Preslednica</kbd> znova nariši &nbsp; <kbd>S</kbd> shrani SVG',
+  hgHint2: 'Dolžine nihal, če frekvenca 1.000 ustreza 1&nbsp;m dolgemu "sekundnemu nihalu" (L = 0,994&nbsp;m / f²). Resnični harmonografi nihajo veliko počasneje kot ta predogled; risba pa je enaka.',
+  hgFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  hgPendulumName: 'Nihalo {n}',
+  hgLabelFrequency: 'Frekvenca', hgLabelPhase: 'Faza', hgLabelSwing: 'Zamah', hgLabelDamping: 'Dušenje',
+  hgLabelSpin: 'Vrtenje', hgLabelDuration: 'Trajanje', hgLabelPenWidth: 'Širina peresa', hgLabelInk: 'Črnilo', hgLabelSpeed: 'Hitrost',
+  hgPresetsPlaceholder: 'Prednastavitve…',
+  hgPresetClassic: 'Klasika 2:3', hgPresetRose: 'Roža na vrteči mizi', hgPresetLissajous: 'Lissajousov zdrs',
+  hgPresetSpiral: 'Spiralni cvet', hgPresetTight: 'Tesno pletenje', hgPresetShell: 'Školjka',
+  hgPaletteInk: 'Črnilo', hgPaletteSpectrum: 'Spekter', hgPaletteSunset: 'Zahod sonca',
+  hgPaletteOcean: 'Ocean', hgPaletteEmber: 'Žerjavica', hgPaletteMoss: 'Mah',
+  hgCopiedMsg: 'Kopirano', hgCopyFailedMsg: 'Kopiranje ni uspelo',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+<style>
+:root {
+  --bg: #f4f1ea;
+  --panel: #fbfaf6;
+  --paper: #fffdf8;
+  --ink: #1f1d1a;
+  --muted: #6d675d;
+  --line: #e2ddd2;
+  --accent: #b5532a;
+  --accent-ink: #fff;
+  --track: #e4ded2;
+  --shadow: 0 1px 2px rgba(40,30,10,.06), 0 8px 24px rgba(40,30,10,.06);
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+    --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --track: #2a2a2a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+  --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --track: #2a2a2a; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.4 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.app { display: grid; grid-template-columns: 360px 1fr; height: 100vh; }
+aside {
+  background: var(--panel); border-right: 1px solid var(--line);
+  overflow-y: auto; padding: 18px 18px 40px;
+}
+header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+header p { margin: 4px 0 14px; color: var(--muted); font-size: 13px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+button, select {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer;
+}
+button:hover, select:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details {
+  border: 1px solid var(--line); border-radius: 10px; margin-bottom: 10px; background: var(--paper);
+}
+summary {
+  cursor: pointer; padding: 9px 12px; font-weight: 600; list-style: none;
+  display: flex; justify-content: space-between; align-items: center;
+}
+summary::-webkit-details-marker { display: none; }
+summary .tag { font-weight: 400; color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+.body { padding: 2px 12px 10px; }
+.ctl { display: grid; grid-template-columns: 74px 1fr 58px; align-items: center; gap: 8px; margin: 6px 0; }
+.ctl label { color: var(--muted); font-size: 12.5px; }
+.ctl output { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.hint { color: var(--muted); font-size: 12px; margin: 4px 0 0; }
+main { position: relative; display: flex; align-items: center; justify-content: center; padding: 20px; min-width: 0; }
+.stage {
+  position: relative; width: min(100%, calc(100vh - 40px)); aspect-ratio: 1;
+  background: var(--paper); border-radius: 6px; box-shadow: var(--shadow);
+}
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 6px; }
+.status {
+  position: absolute; left: 14px; bottom: 10px; font-size: 12px; color: var(--muted);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.build { font-size: 12px; color: var(--muted); margin: 6px 0 0; font-variant-numeric: tabular-nums; }
+.theme-toggle { position: absolute; top: 14px; right: 14px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.home:hover { color: var(--accent); }
+.pill-group { display: inline-flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; margin: 0 0 10px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+header h1, summary, button, select { font-family: var(--mono); }
+.site-foot { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+kbd { font: 11px ui-monospace, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+@media (max-width: 860px) {
+  .app { grid-template-columns: 1fr; height: auto; }
+  aside { border-right: 0; border-bottom: 1px solid var(--line); padding: 16px; order: 2; }
+  main { order: 1; padding: 16px; }
+  .stage { width: 100%; }
+  .theme-toggle { top: 22px; right: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <header>
+      <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <h1>Harmonograph Lab</h1>
+      <p data-i18n="hgLede">Four damped pendulums push a pen; an optional rotating table turns the paper underneath. Small detunings between near-whole-number frequencies make the patterns.</p>
+    </header>
+    <div class="row">
+      <button class="primary" id="btnRandom" title="R" data-i18n="hgRandomBtn">Surprise me</button>
+      <button id="btnReplay" title="Space" data-i18n="hgReplayBtn">Redraw</button>
+      <select id="preset" aria-label="Preset"></select>
+    </div>
+    <div class="row">
+      <button id="btnPng">PNG</button>
+      <button id="btnSvg">SVG</button>
+      <button id="btnLink" data-i18n="hgCopyLinkBtn">Copy link</button>
+    </div>
+    <div id="pendulums"></div>
+    <details open>
+      <summary><span data-i18n="hgRotaryH">Rotary table</span> <span class="tag" id="rotTag"></span></summary>
+      <div class="body" id="rotary"></div>
+    </details>
+    <details open>
+      <summary data-i18n="hgDrawingH">Drawing</summary>
+      <div class="body" id="drawing">
+        <div class="ctl"><label for="palette" data-i18n="hgColourLabel">Colour</label>
+          <select id="palette" style="grid-column: span 2"></select></div>
+      </div>
+    </details>
+    <details>
+      <summary data-i18n="hgBuildH">Build a real one</summary>
+      <div class="body">
+        <p class="hint" data-i18n-html="hgHint2">Pendulum lengths if frequency 1.000 is a 1&nbsp;m "seconds pendulum" (L = 0.994&nbsp;m / f²). Real harmonographs swing much slower than this preview; the drawing is the same.</p>
+        <div class="build" id="build"></div>
+      </div>
+    </details>
+    <p class="hint" data-i18n-html="hgHint1"><kbd>R</kbd> surprise &nbsp; <kbd>Space</kbd> redraw &nbsp; <kbd>S</kbd> save SVG</p>
+    <footer class="site-foot">
+      <span data-i18n="hgFooter">© 2026 Presker.at · runs in your browser</span>
+      <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+    </footer>
+  </aside>
+  <main>
+    <div class="stage" id="stage">
+      <canvas id="paper"></canvas>
+      <canvas id="pen"></canvas>
+      <div class="status" id="status"></div>
+    </div>
+    <button class="theme-toggle" id="btnTheme" aria-label="Toggle theme">◐</button>
+  </main>
+</div>
+<script>
+(() => {
+  'use strict';
+
+  function t(key, vars) {
+    const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+    const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+    const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+    let s = dict[key] != null ? dict[key] : fallback[key] || '';
+    if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+    return s;
+  }
+
+  const AXES = [
+    { key: 'x1', short: 'X₁', axis: 'x' },
+    { key: 'x2', short: 'X₂', axis: 'x' },
+    { key: 'y1', short: 'Y₁', axis: 'y' },
+    { key: 'y2', short: 'Y₂', axis: 'y' },
+  ];
+  const PEND_FIELDS = [
+    { k: 'f', labelKey: 'hgLabelFrequency', min: 0.5, max: 8, step: 0.001, fmt: v => v.toFixed(3) },
+    { k: 'p', labelKey: 'hgLabelPhase', min: 0, max: 360, step: 1, fmt: v => v.toFixed(0) + '°' },
+    { k: 'a', labelKey: 'hgLabelSwing', min: 0, max: 1, step: 0.01, fmt: v => v.toFixed(2) },
+    { k: 'd', labelKey: 'hgLabelDamping', min: 0, max: 0.06, step: 0.0005, fmt: v => v.toFixed(4) },
+  ];
+  const ROT_FIELDS = [
+    { k: 'rf', labelKey: 'hgLabelSpin', min: -0.5, max: 0.5, step: 0.001, fmt: v => v.toFixed(3) },
+    { k: 'rd', labelKey: 'hgLabelDamping', min: 0, max: 0.06, step: 0.0005, fmt: v => v.toFixed(4) },
+  ];
+  const DRAW_FIELDS = [
+    { k: 'dur', labelKey: 'hgLabelDuration', min: 20, max: 400, step: 1, fmt: v => v.toFixed(0) + ' s' },
+    { k: 'lw', labelKey: 'hgLabelPenWidth', min: 0.3, max: 4, step: 0.1, fmt: v => v.toFixed(1) },
+    { k: 'alpha', labelKey: 'hgLabelInk', min: 0.1, max: 1, step: 0.01, fmt: v => Math.round(v * 100) + '%' },
+    { k: 'speed', labelKey: 'hgLabelSpeed', min: 1, max: 60, step: 1, fmt: v => v.toFixed(0) + '×' },
+  ];
+  const PRESET_LABEL_KEYS = {
+    'Classic 2:3': 'hgPresetClassic', 'Rose on a turntable': 'hgPresetRose',
+    'Lissajous drift': 'hgPresetLissajous', 'Spiral bloom': 'hgPresetSpiral',
+    'Tight weave': 'hgPresetTight', 'Shell': 'hgPresetShell',
+  };
+  const PALETTE_LABEL_KEYS = {
+    ink: 'hgPaletteInk', spectrum: 'hgPaletteSpectrum', sunset: 'hgPaletteSunset',
+    ocean: 'hgPaletteOcean', ember: 'hgPaletteEmber', moss: 'hgPaletteMoss',
+  };
+
+  // Colour stops are sampled along time; "ink" follows the theme.
+  const PALETTES = {
+    ink:      { name: 'Ink', stops: null },
+    spectrum: { name: 'Spectrum', stops: ['#e6194b', '#f58231', '#ffe119', '#3cb44b', '#42d4f4', '#4363d8', '#911eb4'] },
+    sunset:   { name: 'Sunset', stops: ['#2d1e4f', '#7b2d6b', '#d1495b', '#ef8a3c', '#f6d26b'] },
+    ocean:    { name: 'Ocean', stops: ['#0b3954', '#087e8b', '#3fc1c9', '#bfd7ea'] },
+    ember:    { name: 'Ember', stops: ['#ffd166', '#ef476f', '#7a1c3b', '#2b0f1f'] },
+    moss:     { name: 'Moss', stops: ['#283618', '#606c38', '#bc6c25', '#dda15e'] },
+  };
+
+  const P = (f, p, a, d) => ({ f, p, a, d });
+  const PRESETS = {
+    'Classic 2:3': {
+      x1: P(2.003, 90, 0.6, 0.012), x2: P(3.001, 0, 0.4, 0.016),
+      y1: P(3.000, 0, 0.6, 0.012), y2: P(2.002, 270, 0.4, 0.016),
+      rf: 0, rd: 0, dur: 150, palette: 'ink' },
+    'Rose on a turntable': {
+      x1: P(3.001, 0, 0.6, 0.006), x2: P(1.000, 90, 0.2, 0.002),
+      y1: P(3.000, 90, 0.6, 0.006), y2: P(1.002, 0, 0.2, 0.002),
+      rf: 0.012, rd: 0.002, dur: 220, palette: 'sunset' },
+    'Lissajous drift': {
+      x1: P(3.003, 0, 0.9, 0.003), x2: P(1, 0, 0, 0.003),
+      y1: P(4.000, 45, 0.9, 0.003), y2: P(1, 0, 0, 0.003),
+      rf: 0, rd: 0, dur: 140, palette: 'ocean' },
+    'Spiral bloom': {
+      x1: P(2.000, 0, 0.55, 0.012), x2: P(6.004, 0, 0.45, 0.02),
+      y1: P(2.000, 90, 0.55, 0.012), y2: P(6.000, 90, 0.45, 0.02),
+      rf: -0.006, rd: 0, dur: 260, palette: 'spectrum' },
+    'Tight weave': {
+      x1: P(5.002, 30, 0.5, 0.002), x2: P(4.001, 0, 0.5, 0.003),
+      y1: P(4.000, 120, 0.5, 0.002), y2: P(5.003, 200, 0.5, 0.003),
+      rf: 0, rd: 0, dur: 300, palette: 'ember' },
+    'Shell': {
+      x1: P(1.000, 90, 0.7, 0.010), x2: P(3.001, 0, 0.3, 0.004),
+      y1: P(1.001, 0, 0.7, 0.010), y2: P(2.998, 90, 0.3, 0.004),
+      rf: 0.004, rd: 0, dur: 240, palette: 'moss' },
+  };
+  const DRAW_DEFAULTS = { lw: 0.8, alpha: 0.5, speed: 12 };
+
+  let state = {};
+  const $ = id => document.getElementById(id);
+  const inputs = {};
+
+  // ---------- controls ----------
+  function makeCtl(parent, id, def, onInput) {
+    const wrap = document.createElement('div');
+    wrap.className = 'ctl';
+    wrap.innerHTML = `<label for="${id}">${t(def.labelKey)}</label>
+      <input type="range" id="${id}" min="${def.min}" max="${def.max}" step="${def.step}">
+      <output for="${id}"></output>`;
+    parent.appendChild(wrap);
+    const input = wrap.querySelector('input'), out = wrap.querySelector('output');
+    input.addEventListener('input', () => { out.textContent = def.fmt(+input.value); onInput(+input.value); });
+    inputs[id] = { input, out, def };
+  }
+
+  function buildControls() {
+    const host = $('pendulums');
+    for (const ax of AXES) {
+      const det = document.createElement('details');
+      det.open = ax.key.endsWith('1');
+      det.innerHTML = `<summary>${t('hgPendulumName', { n: ax.short })} <span class="tag" id="tag-${ax.key}"></span></summary><div class="body"></div>`;
+      host.appendChild(det);
+      const body = det.querySelector('.body');
+      for (const f of PEND_FIELDS) {
+        makeCtl(body, `${ax.key}-${f.k}`, f, v => { state[ax.key][f.k] = v; changed(); });
+      }
+    }
+    for (const f of ROT_FIELDS) makeCtl($('rotary'), f.k, f, v => { state[f.k] = v; changed(); });
+    for (const f of DRAW_FIELDS) makeCtl($('drawing'), f.k, f, v => {
+      state[f.k] = v;
+      if (f.k === 'speed') return;             // speed changes the animation, not the figure
+      changed();
+    });
+    const pal = $('palette');
+    for (const [k, v] of Object.entries(PALETTES)) pal.add(new Option(t(PALETTE_LABEL_KEYS[k]) || v.name, k));
+    pal.addEventListener('change', () => { state.palette = pal.value; changed(); });
+
+    const pre = $('preset');
+    pre.add(new Option(t('hgPresetsPlaceholder'), ''));
+    for (const name of Object.keys(PRESETS)) pre.add(new Option(t(PRESET_LABEL_KEYS[name]) || name, name));
+    pre.addEventListener('change', () => {
+      if (!pre.value) return;
+      load(structuredClone({ ...DRAW_DEFAULTS, ...PRESETS[pre.value] }));
+      pre.value = '';
+    });
+  }
+
+  function syncControls() {
+    for (const [id, c] of Object.entries(inputs)) {
+      const [k, f] = id.includes('-') ? id.split('-') : [id, null];
+      const v = f ? state[k][f] : state[k];
+      c.input.value = v;
+      c.out.textContent = c.def.fmt(v);
+    }
+    $('palette').value = state.palette;
+    updateTags();
+  }
+
+  // Nearest small-integer ratio, e.g. 2.003 : 3.000 ≈ 2:3
+  function ratio(a, b) {
+    let best = null;
+    for (let q = 1; q <= 9; q++) for (let p = 1; p <= 9; p++) {
+      const err = Math.abs(a / b - p / q);
+      if (!best || err < best.err - 1e-9) best = { p, q, err };
+    }
+    return best;
+  }
+
+  function updateTags() {
+    for (const ax of AXES) {
+      const s = state[ax.key];
+      $('tag-' + ax.key).textContent = s.a > 0 ? `f ${s.f.toFixed(3)}` : 'resting';
+    }
+    $('rotTag').textContent = state.rf ? `${state.rf > 0 ? '↻' : '↺'} ${Math.abs(state.rf).toFixed(3)}` : 'still';
+    const r = ratio(state.x1.f, state.y1.f);
+    const lines = AXES.map(ax => {
+      const f = state[ax.key].f;
+      const L = 0.994 / (f * f);
+      return `${ax.short}: ${L >= 0.1 ? (L * 100).toFixed(1) + ' cm' : (L * 1000).toFixed(0) + ' mm'}`;
+    });
+    lines.push(`X₁ : Y₁ ≈ ${r.p}:${r.q}`);
+    $('build').innerHTML = lines.join('<br>');
+  }
+
+  // ---------- simulation ----------
+  const SAMPLES_PER_S = 120;
+  let pts = null, nPts = 0, scale = 1;
+
+  function simulate() {
+    const s = state, T = s.dur, n = Math.ceil(T * SAMPLES_PER_S) + 1;
+    pts = new Float32Array(n * 2); nPts = n;
+    const TAU = Math.PI * 2, rad = Math.PI / 180;
+    const terms = AXES.map(ax => ({ ...s[ax.key], axis: ax.axis }));
+    let maxR = 1e-9;
+    for (let i = 0; i < n; i++) {
+      const t = i / SAMPLES_PER_S;
+      let x = 0, y = 0;
+      for (const m of terms) {
+        if (!m.a) continue;
+        const v = m.a * Math.sin(TAU * m.f * t + m.p * rad) * Math.exp(-m.d * t);
+        if (m.axis === 'x') x += v; else y += v;
+      }
+      if (s.rf) {
+        // paper turning under the pen: rotate the trace by the table's angle
+        const th = TAU * s.rf * t * Math.exp(-s.rd * t);
+        const c = Math.cos(th), sn = Math.sin(th);
+        const xr = x * c - y * sn; y = x * sn + y * c; x = xr;
+      }
+      pts[i * 2] = x; pts[i * 2 + 1] = y;
+      const r = Math.max(Math.abs(x), Math.abs(y));
+      if (r > maxR) maxR = r;
+    }
+    scale = 0.46 / maxR;   // fraction of canvas size, fits the actual trace
+  }
+
+  function hexToRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+  function colorAt(u) {
+    const stops = PALETTES[state.palette].stops;
+    if (!stops) return getComputedStyle(document.documentElement).getPropertyValue('--ink').trim();
+    const x = Math.min(0.9999, Math.max(0, u)) * (stops.length - 1);
+    const i = Math.floor(x), k = x - i;
+    const a = hexToRgb(stops[i]), b = hexToRgb(stops[i + 1]);
+    const c = a.map((v, j) => Math.round(v + (b[j] - v) * k));
+    return `rgb(${c[0]},${c[1]},${c[2]})`;
+  }
+
+  // ---------- rendering ----------
+  const paper = $('paper'), pen = $('pen');
+  const pctx = paper.getContext('2d'), nctx = pen.getContext('2d');
+  let size = 0, dpr = 1, drawIdx = 0, raf = 0;
+
+  function resize() {
+    const rect = $('stage').getBoundingClientRect();
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    size = rect.width;
+    for (const c of [paper, pen]) { c.width = Math.round(size * dpr); c.height = Math.round(size * dpr); }
+    restart(true);
+  }
+
+  const tx = i => size / 2 + pts[i * 2] * scale * size;
+  const ty = i => size / 2 - pts[i * 2 + 1] * scale * size;
+  const CHUNK = 6;   // points per stroke so the colour can follow time
+
+  function drawRange(from, to) {
+    pctx.save();
+    pctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    pctx.lineWidth = state.lw;
+    pctx.lineJoin = pctx.lineCap = 'round';
+    pctx.globalAlpha = state.alpha;
+    for (let s = from; s < to; s += CHUNK) {
+      const e = Math.min(to, s + CHUNK);
+      pctx.strokeStyle = colorAt(s / nPts);
+      pctx.beginPath();
+      pctx.moveTo(tx(s), ty(s));
+      for (let i = s + 1; i <= e && i < nPts; i++) pctx.lineTo(tx(i), ty(i));
+      pctx.stroke();
+    }
+    pctx.restore();
+  }
+
+  function drawPen(i) {
+    nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    nctx.clearRect(0, 0, size, size);
+    if (i >= nPts - 1) return;
+    const x = tx(i), y = ty(i);
+    // the arm: a faint line from centre, like the boom on a real machine
+    nctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--muted');
+    nctx.globalAlpha = 0.35; nctx.lineWidth = 1;
+    nctx.beginPath(); nctx.moveTo(size / 2, size / 2); nctx.lineTo(x, y); nctx.stroke();
+    nctx.globalAlpha = 1;
+    nctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--accent');
+    nctx.beginPath(); nctx.arc(x, y, 4, 0, Math.PI * 2); nctx.fill();
+  }
+
+  function frame() {
+    const step = Math.round(state.speed * SAMPLES_PER_S / 60 * 2);
+    const to = Math.min(nPts, drawIdx + step);
+    drawRange(Math.max(0, drawIdx - 1), to);
+    drawIdx = to;
+    drawPen(drawIdx);
+    $('status').textContent = `t = ${(drawIdx / SAMPLES_PER_S).toFixed(1)} s / ${state.dur} s`;
+    if (drawIdx < nPts) raf = requestAnimationFrame(frame);
+    else $('status').textContent = `${nPts.toLocaleString()} points · ${state.dur} s`;
+  }
+
+  function restart(instant) {
+    cancelAnimationFrame(raf);
+    simulate();
+    pctx.setTransform(1, 0, 0, 1, 0, 0);
+    pctx.clearRect(0, 0, paper.width, paper.height);
+    drawIdx = 0;
+    if (instant) { drawRange(0, nPts); drawIdx = nPts; drawPen(nPts); frame(); }
+    else raf = requestAnimationFrame(frame);
+  }
+
+  // Slider drags redraw instantly (debounced to the next frame); buttons animate.
+  let pending = 0;
+  function changed() {
+    updateTags();
+    saveHash();
+    if (pending) return;
+    pending = requestAnimationFrame(() => { pending = 0; restart(true); });
+  }
+
+  function load(s) {
+    state = s;
+    syncControls();
+    saveHash();
+    restart(false);
+  }
+
+  // ---------- randomizer ----------
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  function surprise() {
+    // pick a pleasing base ratio, then detune each pendulum a hair
+    const pairs = [[1, 2], [2, 3], [3, 4], [1, 3], [2, 5], [3, 5], [1, 1], [4, 5], [1, 4]];
+    const [a, b] = pick(pairs);
+    const detune = () => rnd(-0.008, 0.008);
+    let second = pick(['same', 'swap', 'multiple', 'off']);
+    const k = pick([2, 3]);
+    if (second === 'multiple' && Math.max(a, b) * k > 7.9) second = 'same';   // stay inside the slider range
+    const fx2 = second === 'swap' ? b : second === 'multiple' ? a * k : a;
+    const fy2 = second === 'swap' ? a : second === 'multiple' ? b * k : b;
+    const a2 = second === 'off' ? 0 : rnd(0.2, 0.6);
+    const pend = (f, amp) => P(+(f + detune()).toFixed(3), Math.round(rnd(0, 360)), +amp.toFixed(2), +rnd(0.004, 0.016).toFixed(4));
+    const spin = Math.random() < 0.4 ? +(rnd(0.002, 0.02) * pick([-1, 1])).toFixed(3) : 0;
+    load({
+      x1: pend(a, rnd(0.45, 0.8)), x2: pend(fx2, a2),
+      y1: pend(b, rnd(0.45, 0.8)), y2: pend(fy2, a2),
+      rf: spin, rd: spin ? +rnd(0, 0.004).toFixed(4) : 0,
+      dur: Math.round(rnd(140, 300)),
+      palette: pick(Object.keys(PALETTES)),
+      lw: state.lw ?? DRAW_DEFAULTS.lw, alpha: state.alpha ?? DRAW_DEFAULTS.alpha, speed: state.speed ?? DRAW_DEFAULTS.speed,
+    });
+  }
+
+  // ---------- share / export ----------
+  function saveHash() {
+    try { history.replaceState(null, '', '#' + btoa(JSON.stringify(state))); } catch (_) {}
+  }
+  function readHash() {
+    try {
+      const s = JSON.parse(atob(location.hash.slice(1)));
+      if (s && s.x1 && s.y1 && typeof s.dur === 'number') return { ...DRAW_DEFAULTS, ...s };
+    } catch (_) {}
+    return null;
+  }
+
+  function download(name, blob) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  const stamp = () => 'harmonograph-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+
+  function exportPng() {
+    const out = document.createElement('canvas');
+    out.width = paper.width; out.height = paper.height;
+    const c = out.getContext('2d');
+    c.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--paper');
+    c.fillRect(0, 0, out.width, out.height);
+    c.drawImage(paper, 0, 0);
+    out.toBlob(b => download(stamp() + '.png', b), 'image/png');
+  }
+
+  // SVG in millimetres on a 200 mm square, ready for a pen plotter.
+  // Ink palette → one continuous path; colour palettes → one path per colour band.
+  function exportSvg() {
+    const S = 200, f = v => v.toFixed(2);
+    const X = i => S / 2 + pts[i * 2] * scale * S, Y = i => S / 2 - pts[i * 2 + 1] * scale * S;
+    const ink = !PALETTES[state.palette].stops;
+    const bands = ink ? 1 : 48;
+    const per = Math.ceil(nPts / bands);
+    let paths = '';
+    for (let b = 0; b < bands; b++) {
+      const s = b * per, e = Math.min(nPts - 1, s + per);
+      if (s >= e) break;
+      let d = `M${f(X(s))} ${f(Y(s))}`;
+      for (let i = s + 1; i <= e; i++) d += `L${f(X(i))} ${f(Y(i))}`;
+      const col = ink ? '#000' : colorAt(s / nPts);
+      paths += `<path d="${d}" stroke="${col}"/>\n`;
+    }
+    const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="${S}mm" height="${S}mm" viewBox="0 0 ${S} ${S}">
+<!-- Harmonograph Lab: ${JSON.stringify(state).replace(/--/g, '- -')} -->
+<g fill="none" stroke-width="${(state.lw * 0.25).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="${state.alpha}">
+${paths}</g>
+</svg>`;
+    download(stamp() + '.svg', new Blob([svg], { type: 'image/svg+xml' }));
+  }
+
+  async function copyLink() {
+    const btn = $('btnLink');
+    try { await navigator.clipboard.writeText(location.href); btn.textContent = t('hgCopiedMsg'); }
+    catch (_) { btn.textContent = t('hgCopyFailedMsg'); }
+    setTimeout(() => (btn.textContent = t('hgCopyLinkBtn')), 1400);
+  }
+
+  // ---------- theme ----------
+  function initTheme() {
+    let t = null;
+    try { t = localStorage.getItem('hg-theme'); } catch (_) {}
+    if (t) document.documentElement.dataset.theme = t;
+    $('btnTheme').addEventListener('click', () => {
+      const cur = document.documentElement.dataset.theme ||
+        (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem('hg-theme', next); } catch (_) {}
+      restart(true);
+    });
+  }
+
+  // ---------- boot ----------
+  buildControls();
+  initTheme();
+  $('btnRandom').addEventListener('click', surprise);
+  $('btnReplay').addEventListener('click', () => restart(false));
+  $('btnPng').addEventListener('click', exportPng);
+  $('btnSvg').addEventListener('click', exportSvg);
+  $('btnLink').addEventListener('click', copyLink);
+  addEventListener('keydown', e => {
+    if (e.target.matches('input, select, textarea') || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'r' || e.key === 'R') surprise();
+    else if (e.key === ' ') { e.preventDefault(); restart(false); }
+    else if (e.key === 's' || e.key === 'S') exportSvg();
+  });
+  new ResizeObserver(() => {
+    const w = $('stage').getBoundingClientRect().width;
+    if (Math.abs(w - size) > 0.5) resize();
+  }).observe($('stage'));
+
+  state = readHash() || structuredClone({ ...DRAW_DEFAULTS, ...PRESETS['Classic 2:3'] });
+  syncControls();
+  simulate();
+  resize();
+  restart(false);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Core Memory — flip bits in a ferrite core plane</title>
+<meta name="description" content="An interactive 8×8 magnetic core memory plane. Send half-currents down the X and Y wires, watch one ferrite ring flip on its hysteresis loop, see why every read destroys the bit, and run four predict-then-watch experiments.">
+<link rel="canonical" href="https://www.presker.at/lab/core-memory/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/core-memory/">
+<meta property="og:title" content="Core Memory">
+<meta property="og:description" content="Flip bits in an 8×8 ferrite core plane with coincident currents, watch the hysteresis loop and the sense wire, and see why reading core memory erases it.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a;
+  --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff;
+  --sense: #2a5fb0; --inhibit: #a2461f; --bad: #c23e1f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414;
+  --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --sense: #7ab8f5; --inhibit: #f5c26b; --bad: #f58a7a;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414;
+    --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --sense: #7ab8f5; --inhibit: #f5c26b; --bad: #f58a7a;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1280px; margin: 0 auto; padding: 18px 20px 40px; }
+.kids { font-size: 13.5px; margin: 6px 0 0; }
+.kids a { color: var(--accent); }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.home:hover { color: var(--accent); }
+header h1 { font: 600 24px var(--mono); margin: 0; letter-spacing: -.01em; }
+header h1 span { color: var(--accent); }
+header p { margin: 4px 0 16px; color: var(--muted); max-width: 70ch; }
+
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; align-items: start; }
+.stage {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px; position: relative; touch-action: manipulation;
+}
+/* the plane is about 0.82 times as tall as it is wide; keep it within one screen */
+.stage canvas { display: block; width: 100%; max-width: max(320px, calc((100vh - 130px) / 0.82)); margin: 0 auto; cursor: pointer; }
+.status {
+  font: 12px var(--mono); color: var(--muted); padding: 6px 4px 0; min-height: 2.6em;
+  font-variant-numeric: tabular-nums;
+}
+.status b { color: var(--ink); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font: 11px var(--mono); color: var(--muted); padding: 4px 4px 2px; }
+.legend i { display: inline-block; width: 14px; height: 3px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+
+aside { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.box h2 { font: 600 12px var(--mono); text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 8px; }
+.box canvas { display: block; width: 100%; }
+.cap { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+
+button, input[type=text] {
+  font: 12.5px var(--mono); color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px;
+}
+button { cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button:disabled { opacity: .45; cursor: default; }
+button.on, button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.row input[type=text] { flex: 1 1 120px; min-width: 0; }
+.lbl { font: 11px var(--mono); color: var(--muted); margin: 10px 0 4px; display: flex; justify-content: space-between; }
+.lbl output { color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); margin: 0; }
+/* the band under the current slider: red where it fails, green where coincident selection works */
+.window { position: relative; height: 6px; border-radius: 3px; margin: 2px 0 0; background: var(--line); }
+.window b { position: absolute; top: 0; bottom: 0; border-radius: 3px; }
+.window .lo { left: 0; width: 22.2%; background: #5a2e2a; }
+.window .ok { left: 22.2%; width: 55.6%; background: #3d5a26; }
+.window .hi { left: 77.8%; right: 0; background: #5a2e2a; }
+.wtxt { display: flex; justify-content: space-between; font: 10px var(--mono); color: var(--muted); margin-top: 3px; }
+label.chk { display: flex; gap: 8px; align-items: center; font: 12px var(--mono); color: var(--muted); margin-top: 10px; cursor: pointer; }
+label.chk input { accent-color: var(--accent); width: 16px; height: 16px; }
+.readout {
+  font: 13px var(--mono); background: var(--paper); border: 1px solid var(--line); border-radius: 8px;
+  padding: 7px 10px; margin-top: 8px; white-space: pre; overflow: hidden; color: var(--sense);
+}
+.log { font: 11.5px/1.55 var(--mono); color: var(--muted); margin: 8px 0 0; padding: 0; list-style: none; min-height: 5.6em; }
+.log li:first-child { color: var(--ink); }
+
+.exp .q { margin: 0 0 10px; }
+.exp .opts { display: flex; flex-direction: column; gap: 6px; }
+.exp .opts button { text-align: left; font-family: inherit; font-size: 13.5px; }
+.exp .opts button.picked { border-color: var(--accent); }
+.exp .opts button.right { border-color: var(--accent); color: var(--accent); }
+.exp .opts button.wrong { border-color: var(--bad); color: var(--bad); }
+.exp .result { margin: 10px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--paper); border-radius: 0 8px 8px 0; }
+.exp .result.miss { border-left-color: var(--inhibit); }
+.exp .result p { margin: 0 0 6px; }
+.exp .result p:last-child { margin: 0; }
+.exp .think { color: var(--muted); font-size: 12.5px; font-style: italic; }
+.exp .steps { font: 11px var(--mono); color: var(--muted); }
+
+.explain { margin-top: 26px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.explain h3 { font: 600 13px var(--mono); color: var(--accent); margin: 0 0 6px; }
+.explain p { margin: 0 0 8px; color: #c8c8c8; }
+kbd { font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; color: var(--ink); }
+
+.site-foot { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 960px) {
+  .app { grid-template-columns: 1fr; }
+  .explain { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .wrap { padding: 14px 16px 32px; }
+  header h1 { font-size: 20px; }
+  .stage { padding: 6px; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  cmIntro: 'Sixty-four tiny ferrite rings on a grid of wires, the way computers stored their bits from the 1950s into the 1970s. Tap a ring to flip its bit. Each wire carries only half the current needed to switch a ring, so only the ring where the two energised wires cross gets enough to flip.',
+  cmKidsNote: 'For kids: <a href="/lab/bit-blocks/">Bit Blocks</a> tells the same story with blocks and water, in English and German →',
+  cmLegX: 'X / Y drive wires', cmLegInhibit: 'inhibit wire', cmLegSense: 'sense wire', cmLegOne: 'core holding 1',
+  cmStatusHint: 'Tap any core. Keys: arrows move, <kbd>space</kbd> toggle, <kbd>R</kbd> read, <kbd>1</kbd>/<kbd>0</kbd> write.',
+  cmH3Flip: 'Why only one ring flips',
+  cmPFlip1: 'A ferrite core has a nearly square hysteresis loop. Below a sharp threshold the field barely disturbs it; above it, the whole ring snaps to the other direction of magnetisation, and it stays there with no power.',
+  cmPFlip2: 'The controller sends half the switching current down one X wire and half down one Y wire. Fourteen cores feel one half and stay put. Only the core where the two wires cross gets the full current and flips. This is called coincident-current selection.',
+  cmH3Read: 'Reading erases the bit',
+  cmPRead1: 'A core cannot be asked which way it is magnetised. To read it, the controller tries to write a 0. If the core held a 1, it flips and induces a short voltage pulse in the sense wire, which runs through every core. If it held a 0, nothing happens and the sense wire stays quiet.',
+  cmPRead2: 'The bit is known now, but the core holds 0. So every read is followed by a write that puts the bit back. Untick <i>write back after read</i> and use <i>Read all</i> to see what happens without it.',
+  cmH3Write: 'Writing needs a fourth wire',
+  cmPWrite1: 'Every write starts by clearing the core to 0. Then the controller drives X and Y towards 1. To store a 0 instead, the inhibit wire carries half a current in the opposite direction, so the chosen core only gets half and stays 0.',
+  cmPWrite2: 'In a real machine there was one plane per bit of the word. A whole word was read and written at once, all its bits sharing the same X and Y wires. Here one plane is shown, and each row holds one byte (most significant bit on the left).',
+  cmTapDoesH: 'Tap does', cmTapToggle: 'toggle', cmTapRead: 'read', cmTapW1: 'write 1', cmTapW0: 'write 0',
+  cmCurLbl: 'current per wire (× switching current)',
+  cmWinWeak: 'too weak', cmWinWorks: 'works: ½ < 1 ≤ full', cmWinStrong: 'too strong',
+  cmSpeedLbl: 'speed', cmWriteBackChk: 'write back after read',
+  cmWholePlaneH: 'Whole plane', cmStoreBtn: 'store', cmReadAllBtn: 'read all', cmHeartBtn: 'heart', cmClearBtn: 'clear', cmStopBtn: 'stop',
+  cmSenseAmpDefault: 'sense amp: ________', cmSenseAmpPrefix: 'sense amp: ',
+  cmHystH: 'Hysteresis loop',
+  cmHystCap: '<span style="color:var(--accent)">●</span> selected core &nbsp; <span style="color:var(--sense)">●</span> a half-selected neighbour. Dashed lines: ½ and full current. A core flips only past ±1.',
+  cmSenseH: 'Sense wire',
+  cmSenseCap: 'A tall spike during a read means the core held 1. Dotted line: sense amplifier threshold.',
+  cmFooter: '© 2026 Presker.at · runs in your browser',
+  cmAriaPlane: '8 by 8 core memory plane. Tap a core to operate on it.',
+  cmAriaCur: 'Half-select current', cmAriaTxt: 'Text to store, up to 8 characters',
+  cmAriaLoop: 'B-H hysteresis loop of the selected core', cmAriaScope: 'Voltage on the sense wire over time',
+  cmWhatRead: 'driving −½ on both wires towards 0; watching the sense wire',
+  cmWhatClear: 'clearing to 0 before the write',
+  cmWhatWriteInhibit: 'driving +½ on both wires, inhibit opposing → stays 0',
+  cmWhatWriteFull: 'driving +½ on both wires → core gets full current',
+  cmLabelRead: 'read', cmLabelClear: 'clear to 0', cmLabelWrite: 'write {bit}', cmLabelWriteBack: 'write back {bit}',
+  cmStatusPhase: '<b>{name}</b> · {label}: {what}',
+  cmStatusQueued: '{n} phase(s) queued',
+  cmStatusSelected: 'selected <b>{name}</b> holds {bit} · {cycles} drive cycles so far',
+  cmLogReadWB: 'read {name} → sense {bit}, written back',
+  cmLogReadNoWB: 'read {name} → sense {bit}, core now 0',
+  cmLogWrite: 'write {bit} → {name}',
+  cmLogToggle: 'toggle {name}: sensed {bit}, wrote {inv}',
+  cmLogStoring: 'storing {n} bits, row by row',
+  cmLogReadAllWB: 'reading all 64 bits with write-back',
+  cmLogReadAllNoWB: 'reading all 64 bits, no write-back!',
+  cmLogGreeting: 'plane holds "{word}", tap any core',
+  cmLogQueueStopped: 'queue stopped',
+  cmExp1Title: 'Half a push',
+  cmExp1Q: 'Normal current: each wire carries 0.6× the switching current. We write a 1 into the core at X3·Y4 in an empty plane. What happens to the other 14 cores on those two wires?',
+  cmExp1Opt1: 'They flip to 1 as well', cmExp1Opt2: 'They twitch, but stay 0', cmExp1Opt3: 'They flip to 1, then back to 0',
+  cmExp1Explain: '{n} core holds 1. The 14 neighbours each felt 0.6, which is below the threshold of 1, so they moved a little along the flat top of the loop and settled back. Only X3·Y4 got 0.6 + 0.6 = 1.2 and switched. Watch the blue dot on the hysteresis loop: it never gets past the steep edge.',
+  cmExp1Think: 'Why do the designers want each wire\'s current to stay below the threshold, but not too far below?',
+  cmExp2Title: 'Reading erases',
+  cmExp2Q: 'The plane holds a smiley. The core at X2·Y0 holds a 1. We read it with write-back switched off. What is stored in that core afterwards?',
+  cmExp2Opt1: 'Still 1', cmExp2Opt2: '0', cmExp2Opt3: 'It depends on its neighbours',
+  cmExp2Explain: 'The core now holds {bit}. A read is really "write 0 and see if anything changed". The core flipped from 1 to 0, and the spike on the sense wire told the controller it had held a 1. The answer is known, but the bit is gone, so real machines always write it back straight after the read.',
+  cmExp2Think: 'If a read always ends in a write, how does that affect how fast the memory can be read?',
+  cmExp3Title: 'Too much current',
+  cmExp3Q: 'Now each wire carries 1.1× the switching current. We write a 1 into X3·Y3 in an empty plane. How many cores end up holding 1?',
+  cmExp3Explain: '{n} cores hold 1: the whole of row X3 and column Y3. Each wire alone was already above the threshold, so every core it passes through flipped, not just the crossing. Selection only works when one wire\'s current stays below the threshold.',
+  cmExp3Think: 'Real core planes warmed up in use and their threshold changed with temperature. What could that do to a memory that was set up close to the edge?',
+  cmExp4Title: 'Too little current',
+  cmExp4Q: 'Now each wire carries only 0.4×. Together that is 0.8× at the crossing. We write a 1 into X4·Y2. What happens?',
+  cmExp4Opt1: 'X4·Y2 flips to 1', cmExp4Opt2: 'Nothing flips', cmExp4Opt3: 'The whole row flips',
+  cmExp4Explain: '{status} switched. 0.4 + 0.4 = 0.8 never reaches the threshold of 1. The safe window is between: one wire must stay below 1, and two wires together must reach at least 1. That is the green band under the current slider.',
+  cmExp4Think: 'With a threshold of exactly 1, which single current per wire gives the most margin on both sides?',
+  cmNoCoreSwitched: 'No core', cmNCores: '{n} core(s)',
+  cmExpSectionDone: 'Experiments',
+  cmExpSummary: 'That\'s all four. You predicted {score} of 4 right, but the point was to notice what surprised you.',
+  cmExpBestAnswer: 'The best answer to the last question is 2/3: one wire at 0.67 stays a third below the threshold, two wires reach 1.33, a third above it.',
+  cmExpAgainBtn: 'start again',
+  cmExpHeader: 'Experiment {i} / {total} · {title}',
+  cmExpStepsDefault: 'Make your guess first. Then watch the plane, the loop and the sense wire.',
+  cmExpWait: 'Wait for the plane to finish its current work (or press stop).',
+  cmExpRunning: 'Running at 1× …',
+  cmExpRight: 'You called it.',
+  cmExpWrong: 'Not what you guessed, which is the interesting part.',
+  cmExpThinkPrefix: 'Think about it: {think}',
+  cmExpReplayBtn: 'watch again', cmExpNextBtn: 'next experiment →',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  cmIntro: 'Vierundsechzig winzige Ferritringe auf einem Gitter aus Drähten — so speicherten Computer ihre Bits von den 1950ern bis in die 1970er. Tippe auf einen Ring, um sein Bit umzuschalten. Jeder Draht führt nur die halbe Stromstärke, die zum Umschalten eines Rings nötig ist, sodass nur der Ring an der Kreuzung der beiden stromführenden Drähte genug abbekommt, um zu kippen.',
+  cmKidsNote: 'Für Kinder: <a href="/lab/bit-blocks/">Bit Blocks</a> erzählt dieselbe Geschichte mit Blöcken und Wasser, auf Englisch und Deutsch →',
+  cmLegX: 'X-/Y-Treiberdrähte', cmLegInhibit: 'Hemmdraht', cmLegSense: 'Lesedraht', cmLegOne: 'Kern mit 1',
+  cmStatusHint: 'Tippe auf einen Kern. Tasten: Pfeile bewegen, <kbd>Leertaste</kbd> umschalten, <kbd>R</kbd> lesen, <kbd>1</kbd>/<kbd>0</kbd> schreiben.',
+  cmH3Flip: 'Warum nur ein Ring kippt',
+  cmPFlip1: 'Ein Ferritkern hat eine fast rechteckige Hystereseschleife. Unterhalb einer scharfen Schwelle stört das Feld ihn kaum; darüber schnappt der ganze Ring in die andere Magnetisierungsrichtung — und bleibt dort, ganz ohne Strom.',
+  cmPFlip2: 'Die Steuerung schickt den halben Schaltstrom über einen X-Draht und den halben über einen Y-Draht. Vierzehn Kerne spüren nur die Hälfte und bleiben, wie sie sind. Nur der Kern an der Kreuzung der beiden Drähte bekommt den vollen Strom und kippt. Das nennt man Koinzidenzstrom-Auswahl.',
+  cmH3Read: 'Lesen löscht das Bit',
+  cmPRead1: 'Man kann einen Kern nicht fragen, in welche Richtung er magnetisiert ist. Zum Lesen versucht die Steuerung, eine 0 zu schreiben. Hielt der Kern eine 1, kippt er und erzeugt einen kurzen Spannungsimpuls auf dem Lesedraht, der durch jeden Kern läuft. Hielt er eine 0, passiert nichts und der Lesedraht bleibt still.',
+  cmPRead2: 'Das Bit ist jetzt bekannt, aber der Kern hält 0. Deshalb folgt jedem Lesen ein Schreiben, das das Bit zurückschreibt. Entferne das Häkchen bei <i>write back after read</i> und nutze <i>Read all</i>, um zu sehen, was sonst passiert.',
+  cmH3Write: 'Schreiben braucht einen vierten Draht',
+  cmPWrite1: 'Jedes Schreiben beginnt damit, den Kern auf 0 zu löschen. Dann treibt die Steuerung X und Y Richtung 1. Um stattdessen eine 0 zu speichern, führt der Hemmdraht die halbe Stromstärke in die Gegenrichtung, sodass der ausgewählte Kern nur die Hälfte bekommt und bei 0 bleibt.',
+  cmPWrite2: 'In einer echten Maschine gab es eine Ebene pro Bit des Worts. Ein ganzes Wort wurde auf einmal gelesen und geschrieben, alle Bits teilten sich dieselben X- und Y-Drähte. Hier wird eine Ebene gezeigt, und jede Zeile hält ein Byte (höchstwertiges Bit links).',
+  cmTapDoesH: 'Tippen bewirkt', cmTapToggle: 'umschalten', cmTapRead: 'lesen', cmTapW1: 'schreibe 1', cmTapW0: 'schreibe 0',
+  cmCurLbl: 'Strom pro Draht (× Schaltstrom)',
+  cmWinWeak: 'zu schwach', cmWinWorks: 'funktioniert: ½ < 1 ≤ voll', cmWinStrong: 'zu stark',
+  cmSpeedLbl: 'Geschwindigkeit', cmWriteBackChk: 'nach dem Lesen zurückschreiben',
+  cmWholePlaneH: 'Ganze Ebene', cmStoreBtn: 'speichern', cmReadAllBtn: 'alles lesen', cmHeartBtn: 'Herz', cmClearBtn: 'löschen', cmStopBtn: 'stopp',
+  cmSenseAmpDefault: 'Leseverstärker: ________', cmSenseAmpPrefix: 'Leseverstärker: ',
+  cmHystH: 'Hystereseschleife',
+  cmHystCap: '<span style="color:var(--accent)">●</span> gewählter Kern &nbsp; <span style="color:var(--sense)">●</span> ein halb ausgewählter Nachbar. Gestrichelte Linien: ½ und voller Strom. Ein Kern kippt erst jenseits von ±1.',
+  cmSenseH: 'Lesedraht',
+  cmSenseCap: 'Ein hoher Ausschlag während eines Lesevorgangs bedeutet, der Kern hielt 1. Punktierte Linie: Schwelle des Leseverstärkers.',
+  cmFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  cmAriaPlane: '8-mal-8-Kernspeicherebene. Tippe auf einen Kern, um ihn zu bedienen.',
+  cmAriaCur: 'Halbauswahl-Strom', cmAriaTxt: 'Zu speichernder Text, bis zu 8 Zeichen',
+  cmAriaLoop: 'B-H-Hystereseschleife des ausgewählten Kerns', cmAriaScope: 'Spannung auf dem Lesedraht über die Zeit',
+  cmWhatRead: 'treibt −½ auf beiden Drähten Richtung 0; beobachtet den Lesedraht',
+  cmWhatClear: 'löscht auf 0 vor dem Schreiben',
+  cmWhatWriteInhibit: 'treibt +½ auf beiden Drähten, Hemmdraht wirkt entgegen → bleibt 0',
+  cmWhatWriteFull: 'treibt +½ auf beiden Drähten → Kern bekommt vollen Strom',
+  cmLabelRead: 'lesen', cmLabelClear: 'auf 0 löschen', cmLabelWrite: 'schreibe {bit}', cmLabelWriteBack: 'schreibe {bit} zurück',
+  cmStatusPhase: '<b>{name}</b> · {label}: {what}',
+  cmStatusQueued: '{n} Phase(n) in der Warteschlange',
+  cmStatusSelected: 'ausgewählt <b>{name}</b> hält {bit} · {cycles} Schaltzyklen bisher',
+  cmLogReadWB: 'lesen {name} → Sensor {bit}, zurückgeschrieben',
+  cmLogReadNoWB: 'lesen {name} → Sensor {bit}, Kern jetzt 0',
+  cmLogWrite: 'schreibe {bit} → {name}',
+  cmLogToggle: 'umschalten {name}: gelesen {bit}, geschrieben {inv}',
+  cmLogStoring: 'speichere {n} Bits, Zeile für Zeile',
+  cmLogReadAllWB: 'lese alle 64 Bits mit Zurückschreiben',
+  cmLogReadAllNoWB: 'lese alle 64 Bits, ohne Zurückschreiben!',
+  cmLogGreeting: 'Ebene hält „{word}", tippe auf einen Kern',
+  cmLogQueueStopped: 'Warteschlange gestoppt',
+  cmExp1Title: 'Ein halber Stoß',
+  cmExp1Q: 'Normaler Strom: Jeder Draht führt 0,6× den Schaltstrom. Wir schreiben eine 1 in den Kern bei X3·Y4 auf einer leeren Ebene. Was passiert mit den anderen 14 Kernen auf diesen beiden Drähten?',
+  cmExp1Opt1: 'Sie kippen auch auf 1', cmExp1Opt2: 'Sie zucken, bleiben aber bei 0', cmExp1Opt3: 'Sie kippen auf 1 und dann zurück auf 0',
+  cmExp1Explain: '{n} Kern hält 1. Die 14 Nachbarn spürten jeweils 0,6 — unter der Schwelle von 1 — bewegten sich also nur ein Stück entlang des flachen Teils der Schleife und kehrten zurück. Nur X3·Y4 bekam 0,6 + 0,6 = 1,2 und kippte. Beobachte den blauen Punkt auf der Hystereseschleife: er kommt nie über die steile Kante hinaus.',
+  cmExp1Think: 'Warum wollen die Entwickler, dass der Strom jedes Drahts unter der Schwelle bleibt, aber nicht zu weit darunter?',
+  cmExp2Title: 'Lesen löscht',
+  cmExp2Q: 'Die Ebene zeigt ein Smiley. Der Kern bei X2·Y0 hält eine 1. Wir lesen ihn bei ausgeschaltetem Zurückschreiben. Was steht danach in diesem Kern?',
+  cmExp2Opt1: 'Immer noch 1', cmExp2Opt2: '0', cmExp2Opt3: 'Kommt auf die Nachbarn an',
+  cmExp2Explain: 'Der Kern hält jetzt {bit}. Lesen heißt eigentlich „0 schreiben und schauen, ob sich etwas geändert hat". Der Kern kippte von 1 auf 0, und der Ausschlag auf dem Lesedraht sagte der Steuerung, dass er eine 1 gehalten hatte. Die Antwort ist bekannt, aber das Bit ist weg — deshalb schreiben echte Maschinen es sofort nach dem Lesen zurück.',
+  cmExp2Think: 'Wenn ein Lesen immer mit einem Schreiben endet, wie wirkt sich das auf die Lesegeschwindigkeit des Speichers aus?',
+  cmExp3Title: 'Zu viel Strom',
+  cmExp3Q: 'Jetzt führt jeder Draht 1,1× den Schaltstrom. Wir schreiben eine 1 in X3·Y3 auf einer leeren Ebene. Wie viele Kerne halten am Ende eine 1?',
+  cmExp3Explain: '{n} Kerne halten 1: die ganze Zeile X3 und die ganze Spalte Y3. Jeder Draht allein lag schon über der Schwelle, also kippte jeder Kern, durch den er läuft — nicht nur der an der Kreuzung. Auswahl funktioniert nur, wenn der Strom eines einzelnen Drahts unter der Schwelle bleibt.',
+  cmExp3Think: 'Echte Kernebenen erwärmten sich im Betrieb, und ihre Schwelle änderte sich mit der Temperatur. Was könnte das für einen Speicher bedeuten, der knapp an der Grenze eingestellt war?',
+  cmExp4Title: 'Zu wenig Strom',
+  cmExp4Q: 'Jetzt führt jeder Draht nur 0,4×. Zusammen sind das 0,8× an der Kreuzung. Wir schreiben eine 1 in X4·Y2. Was passiert?',
+  cmExp4Opt1: 'X4·Y2 kippt auf 1', cmExp4Opt2: 'Nichts kippt', cmExp4Opt3: 'Die ganze Zeile kippt',
+  cmExp4Explain: '{status} gekippt. 0,4 + 0,4 = 0,8 erreicht die Schwelle von 1 nie. Das sichere Fenster liegt dazwischen: ein Draht muss unter 1 bleiben, und zwei Drähte zusammen müssen mindestens 1 erreichen. Das ist das grüne Band unter dem Stromregler.',
+  cmExp4Think: 'Bei einer Schwelle von genau 1 — welcher einzelne Strom pro Draht gibt den größten Spielraum auf beiden Seiten?',
+  cmNoCoreSwitched: 'Kein Kern', cmNCores: '{n} Kern(e)',
+  cmExpSectionDone: 'Experimente',
+  cmExpSummary: 'Das waren alle vier. Du hast {score} von 4 richtig vorhergesagt — aber es ging darum, zu merken, was dich überrascht hat.',
+  cmExpBestAnswer: 'Die beste Antwort auf die letzte Frage ist 2/3: ein Draht bei 0,67 bleibt ein Drittel unter der Schwelle, zwei Drähte erreichen 1,33, ein Drittel darüber.',
+  cmExpAgainBtn: 'noch einmal',
+  cmExpHeader: 'Experiment {i} / {total} · {title}',
+  cmExpStepsDefault: 'Rate zuerst. Dann beobachte die Ebene, die Schleife und den Lesedraht.',
+  cmExpWait: 'Warte, bis die Ebene ihre aktuelle Arbeit beendet hat (oder drücke stopp).',
+  cmExpRunning: 'Läuft mit 1× …',
+  cmExpRight: 'Genau getroffen.',
+  cmExpWrong: 'Nicht das, was du geraten hast — das ist das Interessante daran.',
+  cmExpThinkPrefix: 'Denk darüber nach: {think}',
+  cmExpReplayBtn: 'noch einmal ansehen', cmExpNextBtn: 'nächstes Experiment →',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  cmIntro: 'Štiriinšestdeset drobnih feritnih obročkov na mreži žic — tako so računalniki od petdesetih do sedemdesetih let shranjevali svoje bite. Tapni na obroček, da preklopiš njegov bit. Vsaka žica nosi le polovico toka, potrebnega za preklop obročka, zato dovolj dobi samo tisti, kjer se pod tokom križata obe žici.',
+  cmKidsNote: 'Za otroke: <a href="/lab/bit-blocks/">Bit Blocks</a> pove isto zgodbo s kockami in vodo, v angleščini in nemščini →',
+  cmLegX: 'žici X / Y', cmLegInhibit: 'zaporna žica', cmLegSense: 'bralna žica', cmLegOne: 'jedro z 1',
+  cmStatusHint: 'Tapni na jedro. Tipke: puščice premikajo, <kbd>preslednica</kbd> preklopi, <kbd>R</kbd> branje, <kbd>1</kbd>/<kbd>0</kbd> pisanje.',
+  cmH3Flip: 'Zakaj preklopi le en obroček',
+  cmPFlip1: 'Feritno jedro ima skoraj pravokotno histerezno zanko. Pod ostro mejo ga polje komaj moti; nad njo pa celoten obroček preskoči v nasprotno smer magnetenja in tam ostane brez napajanja.',
+  cmPFlip2: 'Krmilnik pošlje polovico preklopnega toka po eni žici X in polovico po eni žici Y. Štirinajst jeder začuti le polovico in ostane nespremenjenih. Le jedro na križišču obeh žic dobi poln tok in preklopi. To imenujemo izbira s sočasnim tokom.',
+  cmH3Read: 'Branje zbriše bit',
+  cmPRead1: 'Jedra ne moremo vprašati, v katero smer je magnetizirano. Za branje krmilnik poskusi zapisati 0. Če je jedro hranilo 1, preklopi in v bralni žici, ki teče skozi vsa jedra, povzroči kratek napetostni sunek. Če je hranilo 0, se nič ne zgodi in bralna žica je tiha.',
+  cmPRead2: 'Bit je zdaj znan, jedro pa hrani 0. Zato vsakemu branju sledi pisanje, ki bit vrne nazaj. Odkljukaj <i>write back after read</i> in uporabi <i>Read all</i>, da videš, kaj se zgodi brez tega.',
+  cmH3Write: 'Pisanje potrebuje četrto žico',
+  cmPWrite1: 'Vsako pisanje se začne s brisanjem jedra na 0. Nato krmilnik poganja X in Y proti 1. Za shranjevanje 0 pa zaporna žica nosi polovico toka v nasprotni smeri, tako da izbrano jedro dobi le polovico in ostane pri 0.',
+  cmPWrite2: 'V resnični napravi je bila ena ravnina na bit besede. Celotna beseda je bila prebrana in zapisana hkrati, vsi njeni biti so si delili isti žici X in Y. Tu je prikazana ena ravnina, vsaka vrstica pa hrani en bajt (najpomembnejši bit levo).',
+  cmTapDoesH: 'Dotik naredi', cmTapToggle: 'preklopi', cmTapRead: 'branje', cmTapW1: 'zapiši 1', cmTapW0: 'zapiši 0',
+  cmCurLbl: 'tok na žico (× preklopni tok)',
+  cmWinWeak: 'prešibko', cmWinWorks: 'deluje: ½ < 1 ≤ polno', cmWinStrong: 'premočno',
+  cmSpeedLbl: 'hitrost', cmWriteBackChk: 'po branju zapiši nazaj',
+  cmWholePlaneH: 'Cela ravnina', cmStoreBtn: 'shrani', cmReadAllBtn: 'preberi vse', cmHeartBtn: 'srček', cmClearBtn: 'počisti', cmStopBtn: 'ustavi',
+  cmSenseAmpDefault: 'bralni ojačevalnik: ________', cmSenseAmpPrefix: 'bralni ojačevalnik: ',
+  cmHystH: 'Histerezna zanka',
+  cmHystCap: '<span style="color:var(--accent)">●</span> izbrano jedro &nbsp; <span style="color:var(--sense)">●</span> polovično izbran sosed. Črtkane črte: ½ in polni tok. Jedro preklopi šele čez ±1.',
+  cmSenseH: 'Bralna žica',
+  cmSenseCap: 'Visok sunek med branjem pomeni, da je jedro hranilo 1. Pikčasta črta: prag bralnega ojačevalnika.',
+  cmFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  cmAriaPlane: 'Ravnina pomnilnika 8 × 8. Tapni na jedro, da ga upravljaš.',
+  cmAriaCur: 'Tok polovične izbire', cmAriaTxt: 'Besedilo za shranjevanje, do 8 znakov',
+  cmAriaLoop: 'Histerezna zanka B-H izbranega jedra', cmAriaScope: 'Napetost na bralni žici skozi čas',
+  cmWhatRead: 'poganja −½ na obeh žicah proti 0; opazuje bralno žico',
+  cmWhatClear: 'čisti na 0 pred pisanjem',
+  cmWhatWriteInhibit: 'poganja +½ na obeh žicah, zaporna žica nasprotuje → ostane 0',
+  cmWhatWriteFull: 'poganja +½ na obeh žicah → jedro dobi poln tok',
+  cmLabelRead: 'branje', cmLabelClear: 'počisti na 0', cmLabelWrite: 'zapiši {bit}', cmLabelWriteBack: 'zapiši {bit} nazaj',
+  cmStatusPhase: '<b>{name}</b> · {label}: {what}',
+  cmStatusQueued: '{n} faz(e) v vrsti',
+  cmStatusSelected: 'izbrano <b>{name}</b> hrani {bit} · {cycles} ciklov doslej',
+  cmLogReadWB: 'branje {name} → zaznano {bit}, zapisano nazaj',
+  cmLogReadNoWB: 'branje {name} → zaznano {bit}, jedro zdaj 0',
+  cmLogWrite: 'zapis {bit} → {name}',
+  cmLogToggle: 'preklop {name}: zaznano {bit}, zapisano {inv}',
+  cmLogStoring: 'shranjujem {n} bitov, vrstico za vrstico',
+  cmLogReadAllWB: 'berem vseh 64 bitov z zapisom nazaj',
+  cmLogReadAllNoWB: 'berem vseh 64 bitov, brez zapisa nazaj!',
+  cmLogGreeting: 'ravnina hrani „{word}", tapni na katero koli jedro',
+  cmLogQueueStopped: 'vrsta ustavljena',
+  cmExp1Title: 'Polovičen sunek',
+  cmExp1Q: 'Običajen tok: vsaka žica nosi 0,6× preklopnega toka. V jedro pri X3·Y4 na prazni ravnini zapišemo 1. Kaj se zgodi z ostalimi 14 jedri na teh dveh žicah?',
+  cmExp1Opt1: 'Tudi ona preklopijo na 1', cmExp1Opt2: 'Zatrepetajo, a ostanejo pri 0', cmExp1Opt3: 'Preklopijo na 1, nato spet na 0',
+  cmExp1Explain: '{n} jedro hrani 1. Štirinajst sosedov je vsak začutilo 0,6, kar je pod pragom 1, zato so se le malo premaknili po ravnem delu zanke in se vrnili. Samo X3·Y4 je dobil 0,6 + 0,6 = 1,2 in preklopil. Opazuj modro pikico na histerezni zanki: nikoli ne pride čez strmi rob.',
+  cmExp1Think: 'Zakaj si snovalci želijo, da tok vsake žice ostane pod pragom, a ne preveč pod njim?',
+  cmExp2Title: 'Branje zbriše',
+  cmExp2Q: 'Ravnina hrani smeška. Jedro pri X2·Y0 hrani 1. Preberemo ga z izklopljenim zapisovanjem nazaj. Kaj je po tem shranjeno v tem jedru?',
+  cmExp2Opt1: 'Še vedno 1', cmExp2Opt2: '0', cmExp2Opt3: 'Odvisno od sosedov',
+  cmExp2Explain: 'Jedro zdaj hrani {bit}. Branje je pravzaprav „zapiši 0 in poglej, če se je kaj spremenilo". Jedro je preklopilo z 1 na 0, sunek na bralni žici pa je krmilniku povedal, da je hranilo 1. Odgovor je znan, bit pa je izgubljen — zato ga resnične naprave vedno takoj po branju zapišejo nazaj.',
+  cmExp2Think: 'Če se branje vedno konča s pisanjem, kako to vpliva na hitrost branja pomnilnika?',
+  cmExp3Title: 'Preveč toka',
+  cmExp3Q: 'Zdaj vsaka žica nosi 1,1× preklopnega toka. V X3·Y3 na prazni ravnini zapišemo 1. Koliko jeder na koncu hrani 1?',
+  cmExp3Explain: '{n} jeder hrani 1: cela vrstica X3 in cel stolpec Y3. Vsaka žica je bila sama že nad pragom, zato je preklopilo vsako jedro, skozi katero teče — ne le tisto na križišču. Izbira deluje le, če tok ene žice ostane pod pragom.',
+  cmExp3Think: 'Resnične ravnine jeder so se med delovanjem segrele in njihov prag se je spremenil s temperaturo. Kaj bi to lahko pomenilo za pomnilnik, nastavljen tesno ob robu?',
+  cmExp4Title: 'Premalo toka',
+  cmExp4Q: 'Zdaj vsaka žica nosi le 0,4×. Skupaj je to 0,8× na križišču. V X4·Y2 zapišemo 1. Kaj se zgodi?',
+  cmExp4Opt1: 'X4·Y2 preklopi na 1', cmExp4Opt2: 'Nič ne preklopi', cmExp4Opt3: 'Preklopi cela vrstica',
+  cmExp4Explain: '{status} preklopilo. 0,4 + 0,4 = 0,8 nikoli ne doseže praga 1. Varno okno je med tem: ena žica mora ostati pod 1, dve žici skupaj pa morata doseči vsaj 1. To je zeleni pas pod drsnikom za tok.',
+  cmExp4Think: 'Pri pragu natanko 1 — kateri posamezni tok na žico daje največjo varnost na obeh straneh?',
+  cmNoCoreSwitched: 'Nobeno jedro', cmNCores: '{n} jedro/jeder',
+  cmExpSectionDone: 'Eksperimenti',
+  cmExpSummary: 'To je bilo vseh štirih. Pravilno si napovedal/-a {score} od 4, a bistvo je bilo opaziti, kaj te je presenetilo.',
+  cmExpBestAnswer: 'Najboljši odgovor na zadnje vprašanje je 2/3: ena žica pri 0,67 ostane tretjino pod pragom, dve žici dosežeta 1,33, tretjino nad njim.',
+  cmExpAgainBtn: 'začni znova',
+  cmExpHeader: 'Eksperiment {i} / {total} · {title}',
+  cmExpStepsDefault: 'Najprej ugibaj. Potem opazuj ravnino, zanko in bralno žico.',
+  cmExpWait: 'Počakaj, da ravnina konča trenutno delo (ali pritisni ustavi).',
+  cmExpRunning: 'Teče pri 1× …',
+  cmExpRight: 'Uganil/-a si.',
+  cmExpWrong: 'Ni to, kar si uganil/-a — in prav to je zanimivo.',
+  cmExpThinkPrefix: 'Pomisli: {think}',
+  cmExpReplayBtn: 'poglej še enkrat', cmExpNextBtn: 'naslednji eksperiment →',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <header>
+    <h1>Core <span>Memory</span></h1>
+    <p data-i18n="cmIntro">Sixty-four tiny ferrite rings on a grid of wires, the way computers stored their bits from the 1950s into the 1970s. Tap a ring to flip its bit. Each wire carries only half the current needed to switch a ring, so only the ring where the two energised wires cross gets enough to flip.</p>
+    <p class="kids" data-i18n-html="cmKidsNote">For kids: <a href="/lab/bit-blocks/">Bit Blocks</a> tells the same story with blocks and water, in English and German →</p>
+  </header>
+
+  <div class="app">
+    <div>
+      <div class="stage">
+        <canvas id="plane" aria-label="8 by 8 core memory plane. Tap a core to operate on it."></canvas>
+        <div class="legend">
+          <span><i style="background:#e8e8e8"></i><span data-i18n="cmLegX">X / Y drive wires</span></span>
+          <span><i style="background:var(--inhibit)"></i><span data-i18n="cmLegInhibit">inhibit wire</span></span>
+          <span><i style="background:var(--sense)"></i><span data-i18n="cmLegSense">sense wire</span></span>
+          <span><i style="background:var(--accent)"></i><span data-i18n="cmLegOne">core holding 1</span></span>
+        </div>
+        <div class="status" id="status" data-i18n-html="cmStatusHint">Tap any core. Keys: arrows move, <kbd>space</kbd> toggle, <kbd>R</kbd> read, <kbd>1</kbd>/<kbd>0</kbd> write.</div>
+      </div>
+
+      <section class="explain">
+        <div>
+          <h3 data-i18n="cmH3Flip">Why only one ring flips</h3>
+          <p data-i18n="cmPFlip1">A ferrite core has a nearly square hysteresis loop. Below a sharp threshold the field barely disturbs it; above it, the whole ring snaps to the other direction of magnetisation, and it stays there with no power.</p>
+          <p data-i18n="cmPFlip2">The controller sends half the switching current down one X wire and half down one Y wire. Fourteen cores feel one half and stay put. Only the core where the two wires cross gets the full current and flips. This is called coincident-current selection.</p>
+        </div>
+        <div>
+          <h3 data-i18n="cmH3Read">Reading erases the bit</h3>
+          <p data-i18n="cmPRead1">A core cannot be asked which way it is magnetised. To read it, the controller tries to write a 0. If the core held a 1, it flips and induces a short voltage pulse in the sense wire, which runs through every core. If it held a 0, nothing happens and the sense wire stays quiet.</p>
+          <p data-i18n-html="cmPRead2">The bit is known now, but the core holds 0. So every read is followed by a write that puts the bit back. Untick <i>write back after read</i> and use <i>Read all</i> to see what happens without it.</p>
+        </div>
+        <div>
+          <h3 data-i18n="cmH3Write">Writing needs a fourth wire</h3>
+          <p data-i18n="cmPWrite1">Every write starts by clearing the core to 0. Then the controller drives X and Y towards 1. To store a 0 instead, the inhibit wire carries half a current in the opposite direction, so the chosen core only gets half and stays 0.</p>
+          <p data-i18n="cmPWrite2">In a real machine there was one plane per bit of the word. A whole word was read and written at once, all its bits sharing the same X and Y wires. Here one plane is shown, and each row holds one byte (most significant bit on the left).</p>
+        </div>
+      </section>
+    </div>
+
+    <aside>
+      <div class="box">
+        <h2 data-i18n="cmTapDoesH">Tap does</h2>
+        <div class="seg" id="tapMode">
+          <button data-m="toggle" class="on" data-i18n="cmTapToggle">toggle</button>
+          <button data-m="read" data-i18n="cmTapRead">read</button>
+          <button data-m="w1" data-i18n="cmTapW1">write 1</button>
+          <button data-m="w0" data-i18n="cmTapW0">write 0</button>
+        </div>
+        <div class="lbl"><span data-i18n="cmCurLbl">current per wire (× switching current)</span><output id="curOut">0.60</output></div>
+        <input type="range" id="cur" min="0.3" max="1.2" step="0.05" value="0.6" aria-label="Half-select current">
+        <div class="window"><b class="lo"></b><b class="ok"></b><b class="hi"></b></div>
+        <div class="wtxt"><span data-i18n="cmWinWeak">too weak</span><span data-i18n="cmWinWorks">works: ½ &lt; 1 ≤ full</span><span data-i18n="cmWinStrong">too strong</span></div>
+        <div class="lbl"><span data-i18n="cmSpeedLbl">speed</span></div>
+        <div class="seg" id="speed">
+          <button data-s="1">1×</button>
+          <button data-s="3" class="on">3×</button>
+          <button data-s="10">10×</button>
+          <button data-s="40">40×</button>
+        </div>
+        <label class="chk"><input type="checkbox" id="wb" checked> <span data-i18n="cmWriteBackChk">write back after read</span></label>
+      </div>
+
+      <div class="box">
+        <h2 data-i18n="cmWholePlaneH">Whole plane</h2>
+        <div class="row" style="margin-top:0">
+          <input type="text" id="txt" maxlength="8" value="HELLO :)" aria-label="Text to store, up to 8 characters" spellcheck="false" autocomplete="off">
+          <button id="store" class="primary" data-i18n="cmStoreBtn">store</button>
+        </div>
+        <div class="row">
+          <button id="readAll" data-i18n="cmReadAllBtn">read all</button>
+          <button id="heart" data-i18n="cmHeartBtn">heart</button>
+          <button id="clear" data-i18n="cmClearBtn">clear</button>
+          <button id="stop" data-i18n="cmStopBtn">stop</button>
+        </div>
+        <div class="readout" id="readout" title="What the sense amplifier read back" data-i18n="cmSenseAmpDefault">sense amp: ________</div>
+        <ul class="log" id="log"></ul>
+      </div>
+
+      <div class="box">
+        <h2 data-i18n="cmHystH">Hysteresis loop</h2>
+        <canvas id="loop" aria-label="B-H hysteresis loop of the selected core"></canvas>
+        <p class="cap" data-i18n-html="cmHystCap"><span style="color:var(--accent)">●</span> selected core &nbsp; <span style="color:var(--sense)">●</span> a half-selected neighbour. Dashed lines: ½ and full current. A core flips only past ±1.</p>
+      </div>
+
+      <div class="box">
+        <h2 data-i18n="cmSenseH">Sense wire</h2>
+        <canvas id="scope" aria-label="Voltage on the sense wire over time"></canvas>
+        <p class="cap" data-i18n="cmSenseCap">A tall spike during a read means the core held 1. Dotted line: sense amplifier threshold.</p>
+      </div>
+
+      <div class="box exp" id="exp"></div>
+    </aside>
+  </div>
+
+  <footer class="site-foot">
+    <span data-i18n="cmFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function applyAria() {
+  const map = { plane: 'cmAriaPlane', cur: 'cmAriaCur', txt: 'cmAriaTxt', loop: 'cmAriaLoop', scope: 'cmAriaScope' };
+  for (const id in map) { const n = document.getElementById(id); if (n) n.setAttribute('aria-label', t(map[id])); }
+}
+document.addEventListener('presker-lang-change', applyAria);
+/* ------------------------------------------------------------------
+   Model
+   Each core is a ferrite ring with an ideal square loop: it switches
+   when the field H through it reaches +1 (to state 1) or -1 (to 0),
+   measured in units of the switching threshold. The drive currents
+   are expressed in the same units, so with current s per wire a
+   half-selected core sees s and the fully selected one sees 2s.
+   ------------------------------------------------------------------ */
+const N = 8;
+const STEPS = 40;          // simulation steps per drive phase
+const ELASTIC = 0.08;      // small reversible slope of the loop
+const SENSE_THRESHOLD = 0.3;
+const BASE_PHASE_MS = 900; // duration of one phase at 1× speed
+
+const bits = [];   // 0 / 1 per core
+const mag = [];    // displayed flux, roughly -1 .. +1
+const flash = [];  // flip highlight, fades from 1 to 0
+for (let r = 0; r < N; r++) {
+  bits.push(new Array(N).fill(0));
+  mag.push(new Array(N).fill(-1));
+  flash.push(new Array(N).fill(0));
+}
+
+let current = 0.6;
+let speed = 3;
+let writeBack = true;
+let tapMode = 'toggle';
+let sel = { r: 3, c: 4 };
+let hover = null;
+
+const queue = [];   // pending drive phases
+let phase = null;   // the phase being driven now
+let acc = 0;        // fractional simulation steps carried between frames
+let cycles = 0;
+
+// rolling scope trace: value and the kind of phase it was sampled in
+const SCOPE_LEN = 220;
+const scope = [];
+
+// sense wire polarity alternates like a checkerboard, so small
+// pulses from half-selected cores mostly cancel each other out
+const pol = (r, c) => ((r + c) % 2 ? -1 : 1);
+
+// drive current envelope over one phase: ramp up, hold, ramp down, settle
+function envelope(u) {
+  if (u < 0.2) return u / 0.2;
+  if (u < 0.7) return 1;
+  if (u < 0.9) return (0.9 - u) / 0.2;
+  return 0;
+}
+
+// field through core (r,c) while phase p is driven at amplitude a
+function field(p, r, c, a) {
+  if (!p) return 0;
+  const n = (r === p.r ? 1 : 0) + (c === p.c ? 1 : 0);
+  let h = p.sign * a * current * n;
+  if (p.inhibit) h -= a * current;
+  return h;
+}
+
+function simStep() {
+  const p = phase;
+  const a = envelope(p.step / STEPS);
+  let sense = 0;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const h = field(p, r, c, a);
+    if (bits[r][c] === 0 && h >= 1) { bits[r][c] = 1; flash[r][c] = 1; }
+    else if (bits[r][c] === 1 && h <= -1) { bits[r][c] = 0; flash[r][c] = 1; }
+    const target = (bits[r][c] ? 1 : -1) + ELASTIC * h;
+    const m = mag[r][c] + (target - mag[r][c]) * 0.35;
+    sense += pol(r, c) * (m - mag[r][c]);
+    mag[r][c] = m;
+  }
+  scope.push({ v: sense, k: p.kind });
+  if (scope.length > SCOPE_LEN) scope.shift();
+  if (p.kind === 'read') p.peak = Math.max(p.peak, Math.abs(sense));
+  p.step++;
+  if (p.step > STEPS) {
+    cycles++;
+    phase = null;
+    if (p.kind === 'read') p.then(p.peak > SENSE_THRESHOLD ? 1 : 0);
+    else if (p.done) p.done();
+  }
+}
+
+// with nothing driven, flux relaxes to its remanent value
+function relax() {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const target = bits[r][c] ? 1 : -1;
+    mag[r][c] += (target - mag[r][c]) * 0.3;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Operations, built from drive phases.
+   read  : drive towards 0, watch the sense wire, then (optionally)
+           write the bit back.
+   write : clear to 0, then drive towards 1 with the inhibit wire
+           opposing when the bit to store is 0.
+   ------------------------------------------------------------------ */
+const name = (r, c) => `X${r}·Y${c}`;
+
+function writePhase(r, c, bit, bulk, label) {
+  return { r, c, sign: 1, inhibit: !bit, kind: 'write', bulk, label: label || t('cmLabelWrite', { bit }) };
+}
+
+function opRead(r, c, opts = {}) {
+  queue.push({
+    r, c, sign: -1, inhibit: false, kind: 'read', bulk: opts.bulk, label: 'read', peak: 0,
+    then(bit) {
+      if (opts.onBit) opts.onBit(bit);
+      if (writeBack) {
+        queue.unshift(writePhase(r, c, bit, opts.bulk, t('cmLabelWriteBack', { bit })));
+        if (!opts.bulk) log(t('cmLogReadWB', { name: name(r, c), bit }));
+      } else if (!opts.bulk) {
+        log(t('cmLogReadNoWB', { name: name(r, c), bit }));
+      }
+    },
+  });
+}
+
+function opWrite(r, c, bit, opts = {}) {
+  queue.push({ r, c, sign: -1, inhibit: false, kind: 'clear', bulk: opts.bulk, label: t('cmLabelClear') });
+  const w = writePhase(r, c, bit, opts.bulk);
+  if (!opts.bulk) w.done = () => log(t('cmLogWrite', { bit, name: name(r, c) }));
+  queue.push(w);
+}
+
+// toggle: read the bit (which clears it), then write its opposite
+function opToggle(r, c) {
+  queue.push({
+    r, c, sign: -1, inhibit: false, kind: 'read', label: t('cmLabelRead'), peak: 0,
+    then(bit) {
+      queue.unshift(writePhase(r, c, 1 - bit, false));
+      log(t('cmLogToggle', { name: name(r, c), bit, inv: 1 - bit }));
+    },
+  });
+}
+
+function storeBytes(bytes) {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    opWrite(r, c, (bytes[r] >> (7 - c)) & 1, { bulk: true });
+  }
+  log(t('cmLogStoring', { n: N * N }));
+}
+
+function textBytes(s) {
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const ch = s.charCodeAt(i);
+    out.push(isNaN(ch) ? 0x20 : (ch >= 32 && ch < 127 ? ch : 0x3f));
+  }
+  return out;
+}
+
+const readBuf = new Array(N).fill(null);
+function readAll() {
+  for (let r = 0; r < N; r++) readBuf[r] = [];
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    opRead(r, c, { bulk: true, onBit: bit => { readBuf[r].push(bit); showReadout(); } });
+  }
+  log(writeBack ? t('cmLogReadAllWB') : t('cmLogReadAllNoWB'));
+  showReadout();
+}
+
+function byteChar(b) { return b >= 32 && b < 127 ? String.fromCharCode(b) : '·'; }
+
+function showReadout() {
+  let s = '';
+  for (let r = 0; r < N; r++) {
+    const row = readBuf[r];
+    if (!row || row.length < N) { s += '_'; continue; }
+    s += byteChar(row.reduce((v, b) => (v << 1) | b, 0));
+  }
+  el.readout.textContent = t('cmSenseAmpPrefix') + s;
+}
+
+function busy() { return phase !== null || queue.length > 0; }
+
+/* ------------------------------------------------------------------
+   UI wiring
+   ------------------------------------------------------------------ */
+const $ = id => document.getElementById(id);
+const el = {
+  plane: $('plane'), loop: $('loop'), scope: $('scope'), status: $('status'),
+  log: $('log'), readout: $('readout'), cur: $('cur'), curOut: $('curOut'),
+  wb: $('wb'), txt: $('txt'), exp: $('exp'),
+};
+
+const logLines = [];
+function log(s) {
+  logLines.unshift(s);
+  logLines.length = Math.min(logLines.length, 5);
+  el.log.innerHTML = logLines.map(l => `<li>${l.replace(/</g, '&lt;')}</li>`).join('');
+}
+
+function setCurrent(v) {
+  current = Math.round(v * 100) / 100;
+  el.cur.value = current;
+  el.curOut.textContent = current.toFixed(2);
+}
+
+function segment(id, attr, onPick) {
+  const box = $(id);
+  box.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b || b.disabled) return;
+    box.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b));
+    onPick(b.dataset[attr]);
+  });
+}
+segment('tapMode', 'm', m => { tapMode = m; });
+segment('speed', 's', s => { speed = +s; });
+el.cur.addEventListener('input', () => setCurrent(+el.cur.value));
+el.wb.addEventListener('change', () => { writeBack = el.wb.checked; });
+
+$('store').addEventListener('click', () => { if (!exp.running) storeBytes(textBytes(el.txt.value)); });
+el.txt.addEventListener('keydown', e => { if (e.key === 'Enter') $('store').click(); e.stopPropagation(); });
+$('readAll').addEventListener('click', () => { if (!exp.running) readAll(); });
+$('heart').addEventListener('click', () => {
+  if (!exp.running) storeBytes([0x00, 0x66, 0xff, 0xff, 0xff, 0x7e, 0x3c, 0x18]);
+});
+$('clear').addEventListener('click', () => {
+  if (!exp.running) storeBytes(new Array(N).fill(0));
+});
+$('stop').addEventListener('click', () => {
+  if (exp.running) return;
+  queue.length = 0;
+  log(t('cmLogQueueStopped'));
+});
+
+function act(r, c) {
+  if (exp.running) return;
+  sel = { r, c };
+  if (queue.length > 24) return; // don't let frantic tapping pile up minutes of work
+  if (tapMode === 'toggle') opToggle(r, c);
+  else if (tapMode === 'read') opRead(r, c);
+  else opWrite(r, c, tapMode === 'w1' ? 1 : 0);
+}
+
+// plane geometry, recomputed on resize
+const G = { w: 0, h: 0, L: 0, T: 0, p: 0, dpr: 1 };
+
+function coreAt(ev) {
+  const rect = el.plane.getBoundingClientRect();
+  const x = (ev.clientX - rect.left) * (G.w / rect.width);
+  const y = (ev.clientY - rect.top) * (G.h / rect.height);
+  const c = Math.floor((x - G.L) / G.p), r = Math.floor((y - G.T) / G.p);
+  return r >= 0 && r < N && c >= 0 && c < N ? { r, c } : null;
+}
+el.plane.addEventListener('pointerdown', ev => {
+  const hit = coreAt(ev);
+  if (hit) act(hit.r, hit.c);
+});
+el.plane.addEventListener('pointermove', ev => { hover = ev.pointerType === 'mouse' ? coreAt(ev) : null; });
+el.plane.addEventListener('pointerleave', () => { hover = null; });
+
+window.addEventListener('keydown', ev => {
+  if (ev.target.tagName === 'INPUT' && ev.target.type === 'text') return;
+  const k = ev.key;
+  const moves = { ArrowUp: [-1, 0], ArrowDown: [1, 0], ArrowLeft: [0, -1], ArrowRight: [0, 1] };
+  if (moves[k]) {
+    sel = { r: (sel.r + moves[k][0] + N) % N, c: (sel.c + moves[k][1] + N) % N };
+    ev.preventDefault();
+  } else if (k === ' ' && !exp.running) { opToggle(sel.r, sel.c); ev.preventDefault(); }
+  else if ((k === 'r' || k === 'R') && !exp.running) opRead(sel.r, sel.c);
+  else if (k === '1' && !exp.running) opWrite(sel.r, sel.c, 1);
+  else if (k === '0' && !exp.running) opWrite(sel.r, sel.c, 0);
+});
+
+/* ------------------------------------------------------------------
+   Experiments: predict first, then watch it happen, then explain.
+   ------------------------------------------------------------------ */
+function setPlane(bytes) {
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    bits[r][c] = (bytes[r] >> (7 - c)) & 1;
+    mag[r][c] = bits[r][c] ? 1 : -1;
+    flash[r][c] = 0;
+  }
+}
+const countOnes = () => bits.flat().reduce((a, b) => a + b, 0);
+
+const EXPERIMENTS = [
+  {
+    title: () => t('cmExp1Title'),
+    q: () => t('cmExp1Q'),
+    options: () => [t('cmExp1Opt1'), t('cmExp1Opt2'), t('cmExp1Opt3')],
+    answer: 1,
+    setup() { setPlane(new Array(N).fill(0)); setCurrent(0.6); sel = { r: 3, c: 4 }; },
+    run() { opWrite(3, 4, 1); },
+    explain: () => t('cmExp1Explain', { n: countOnes() }),
+    think: () => t('cmExp1Think'),
+  },
+  {
+    title: () => t('cmExp2Title'),
+    q: () => t('cmExp2Q'),
+    options: () => [t('cmExp2Opt1'), t('cmExp2Opt2'), t('cmExp2Opt3')],
+    answer: 1,
+    setup() {
+      setPlane([0x3c, 0x42, 0xa5, 0x81, 0xa5, 0x99, 0x42, 0x3c]);
+      setCurrent(0.6); exp.savedWB = writeBack; writeBack = false; el.wb.checked = false; sel = { r: 2, c: 0 };
+    },
+    run() { opRead(2, 0); },
+    restore() { writeBack = exp.savedWB; el.wb.checked = writeBack; },
+    explain: () => t('cmExp2Explain', { bit: bits[2][0] }),
+    think: () => t('cmExp2Think'),
+  },
+  {
+    title: () => t('cmExp3Title'),
+    q: () => t('cmExp3Q'),
+    options: () => ['1', '8', '15', '64'],
+    answer: 2,
+    setup() { setPlane(new Array(N).fill(0)); exp.savedCur = current; setCurrent(1.1); sel = { r: 3, c: 3 }; },
+    run() { opWrite(3, 3, 1); },
+    restore() { setCurrent(exp.savedCur); },
+    explain: () => t('cmExp3Explain', { n: countOnes() }),
+    think: () => t('cmExp3Think'),
+  },
+  {
+    title: () => t('cmExp4Title'),
+    q: () => t('cmExp4Q'),
+    options: () => [t('cmExp4Opt1'), t('cmExp4Opt2'), t('cmExp4Opt3')],
+    answer: 1,
+    setup() { setPlane(new Array(N).fill(0)); exp.savedCur = current; setCurrent(0.4); sel = { r: 4, c: 2 }; },
+    run() { opWrite(4, 2, 1); },
+    restore() { setCurrent(exp.savedCur); },
+    explain: () => t('cmExp4Explain', { status: countOnes() === 0 ? t('cmNoCoreSwitched') : t('cmNCores', { n: countOnes() }) }),
+    think: () => t('cmExp4Think'),
+  },
+];
+
+const exp = { i: 0, running: false, picked: -1, savedCur: 0.6, savedWB: true, score: 0 };
+
+function renderExp() {
+  const e = EXPERIMENTS[exp.i];
+  if (!e) {
+    el.exp.innerHTML = `<h2>${t('cmExpSectionDone')}</h2>
+      <p class="q">${t('cmExpSummary', { score: exp.score })}</p>
+      <p class="think">${t('cmExpBestAnswer')}</p>
+      <div class="row"><button id="expAgain">${t('cmExpAgainBtn')}</button></div>`;
+    $('expAgain').onclick = () => { exp.i = 0; exp.score = 0; exp.picked = -1; renderExp(); };
+    return;
+  }
+  const opts = e.options();
+  el.exp.innerHTML = `<h2>${t('cmExpHeader', { i: exp.i + 1, total: EXPERIMENTS.length, title: e.title() })}</h2>
+    <p class="q">${e.q()}</p>
+    <div class="opts">${opts.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div>
+    <p class="steps" id="expSteps">${t('cmExpStepsDefault')}</p>
+    <div id="expRes"></div>`;
+  el.exp.querySelectorAll('.opts button').forEach(b => {
+    b.onclick = () => startExp(+b.dataset.k);
+  });
+}
+
+function startExp(k) {
+  if (exp.running || busy()) { $('expSteps').textContent = t('cmExpWait'); return; }
+  const e = EXPERIMENTS[exp.i];
+  exp.picked = k;
+  exp.running = true;
+  exp.prevSpeed = speed;
+  speed = 1;
+  el.exp.querySelectorAll('.opts button').forEach(b => {
+    b.disabled = true;
+    if (+b.dataset.k === k) b.classList.add('picked');
+  });
+  $('expSteps').textContent = t('cmExpRunning');
+  e.setup();
+  e.run();
+}
+
+function finishExp() {
+  const e = EXPERIMENTS[exp.i];
+  exp.running = false;
+  speed = exp.prevSpeed;
+  const right = exp.picked === e.answer;
+  if (right) exp.score++;
+  const text = e.explain();
+  if (e.restore) e.restore();
+  el.exp.querySelectorAll('.opts button').forEach(b => {
+    const k = +b.dataset.k;
+    if (k === e.answer) b.classList.add('right');
+    else if (k === exp.picked) b.classList.add('wrong');
+  });
+  $('expSteps').textContent = '';
+  $('expRes').innerHTML = `<div class="result ${right ? '' : 'miss'}">
+      <p><b>${right ? t('cmExpRight') : t('cmExpWrong')}</b></p>
+      <p>${text}</p>
+      <p class="think">${t('cmExpThinkPrefix', { think: e.think() })}</p>
+    </div>
+    <div class="row"><button id="expReplay">${t('cmExpReplayBtn')}</button><button id="expNext" class="primary">${t('cmExpNextBtn')}</button></div>`;
+  $('expNext').onclick = () => { exp.i++; exp.picked = -1; renderExp(); };
+  $('expReplay').onclick = () => {
+    if (busy()) return;
+    exp.running = true; exp.replay = true; exp.prevSpeed = speed; speed = 1;
+    e.setup(); e.run();
+  };
+}
+
+/* ------------------------------------------------------------------
+   Drawing
+   ------------------------------------------------------------------ */
+function fitCanvas(cv, cssH) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = cv.clientWidth;
+  cv.style.height = cssH + 'px';
+  cv.width = Math.round(w * dpr);
+  cv.height = Math.round(cssH * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h: cssH };
+}
+
+let P, LP, SP; // canvas contexts with sizes
+function layout() {
+  const w = el.plane.clientWidth;
+  // plane: label margins left/top, byte readout on the right
+  G.p = w / (N + 3.2);
+  G.L = G.p * 0.95; G.T = G.p * 0.8;
+  G.w = w; G.h = G.T + G.p * N + G.p * 0.35;
+  P = fitCanvas(el.plane, G.h);
+  LP = fitCanvas(el.loop, Math.round(el.loop.clientWidth * 0.56));
+  SP = fitCanvas(el.scope, Math.round(el.scope.clientWidth * 0.36));
+}
+window.addEventListener('resize', layout);
+
+const lerp = (a, b, t) => a + (b - a) * t;
+function mix(c0, c1, t) {
+  return `rgb(${Math.round(lerp(c0[0], c1[0], t))},${Math.round(lerp(c0[1], c1[1], t))},${Math.round(lerp(c0[2], c1[2], t))})`;
+}
+const C0 = [70, 70, 70], C1 = [184, 245, 122];
+
+let dashT = 0;
+function drawPlane() {
+  const { ctx } = P;
+  const { p, L, T, w, h } = G;
+  ctx.clearRect(0, 0, w, h);
+  const a = phase ? envelope(phase.step / STEPS) : 0;
+  const cx = c => L + p * (c + 0.5), cy = r => T + p * (r + 0.5);
+  const x0 = L - p * 0.25, x1 = L + p * N + p * 0.1;
+  const y0 = T - p * 0.2, y1 = T + p * N + p * 0.15;
+
+  // inhibit wire: one serpentine through every core, alongside the columns
+  ctx.lineWidth = 1.2;
+  const inhOn = phase && phase.inhibit ? a : 0;
+  ctx.strokeStyle = `rgba(245,194,107,${0.22 + 0.7 * inhOn})`;
+  ctx.beginPath();
+  for (let c = 0; c < N; c++) {
+    const x = cx(c) + p * 0.07;
+    ctx.lineTo(x, c % 2 ? y1 : y0);
+    ctx.lineTo(x, c % 2 ? y0 : y1);
+  }
+  ctx.stroke();
+
+  // sense wire: serpentine alongside the rows; glows with the pulse
+  const sLast = scope.length ? Math.abs(scope[scope.length - 1].v) : 0;
+  const sOn = phase ? Math.min(1, sLast * 3) : 0;
+  ctx.strokeStyle = `rgba(122,184,245,${0.22 + 0.75 * sOn})`;
+  ctx.lineWidth = 1.2 + 2 * sOn;
+  ctx.beginPath();
+  for (let r = 0; r < N; r++) {
+    const y = cy(r) + p * 0.07;
+    ctx.lineTo(r % 2 ? x1 : x0, y);
+    ctx.lineTo(r % 2 ? x0 : x1, y);
+  }
+  ctx.stroke();
+
+  // X (rows) and Y (columns) drive wires
+  dashT += 0.6;
+  for (let i = 0; i < N; i++) {
+    for (const axis of ['x', 'y']) {
+      const active = phase && (axis === 'x' ? phase.r === i : phase.c === i);
+      const lvl = active ? a : 0;
+      ctx.setLineDash(lvl > 0.02 ? [p * 0.18, p * 0.12] : []);
+      // dashes march in the direction of the current
+      ctx.lineDashOffset = phase ? -phase.sign * dashT : 0;
+      ctx.lineWidth = 1 + 2.2 * lvl;
+      ctx.strokeStyle = lvl > 0.02 ? `rgba(232,232,232,${0.35 + 0.65 * lvl})` : '#333';
+      ctx.beginPath();
+      if (axis === 'x') { ctx.moveTo(L - p * 0.5, cy(i)); ctx.lineTo(x1, cy(i)); }
+      else { ctx.moveTo(cx(i), T - p * 0.45); ctx.lineTo(cx(i), y1); }
+      ctx.stroke();
+    }
+  }
+  ctx.setLineDash([]);
+
+  // cores
+  const rx = p * 0.3, ry = p * 0.14;
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    const x = cx(c), y = cy(r);
+    const t = Math.max(0, Math.min(1, (mag[r][c] + 1) / 2));
+    const h0 = phase ? Math.abs(field(phase, r, c, a)) : 0;
+    const wob = h0 > 0 ? Math.sin(dashT * 1.3 + r + c) * 0.04 * h0 : 0;
+    const ang = ((r + c) % 2 ? -1 : 1) * Math.PI / 4 + wob;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    if (flash[r][c] > 0) {
+      ctx.strokeStyle = `rgba(255,255,255,${flash[r][c] * 0.8})`;
+      ctx.lineWidth = 2;
+      const k = 1 + (1 - flash[r][c]) * 0.6;
+      ctx.beginPath(); ctx.ellipse(0, 0, rx * k, ry * k, 0, 0, Math.PI * 2); ctx.stroke();
+    }
+    ctx.lineWidth = Math.max(3, p * 0.09);
+    ctx.strokeStyle = mix(C0, C1, t);
+    ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.stroke();
+    // arrowheads show which way the flux circulates around the ring
+    const dir = mag[r][c] >= 0 ? 1 : -1;
+    ctx.fillStyle = t > 0.5 ? '#0e0e0e' : '#9a9a9a';
+    for (const th of [Math.PI / 2, -Math.PI / 2]) {
+      const px = rx * Math.cos(th), py = ry * Math.sin(th);
+      const tx = -rx * Math.sin(th) * dir, ty = ry * Math.cos(th) * dir;
+      const tl = Math.hypot(tx, ty) || 1;
+      const ux = tx / tl, uy = ty / tl, s = Math.max(2.2, p * 0.06);
+      ctx.beginPath();
+      ctx.moveTo(px + ux * s, py + uy * s);
+      ctx.lineTo(px - ux * s - uy * s * 0.8, py - uy * s + ux * s * 0.8);
+      ctx.lineTo(px - ux * s + uy * s * 0.8, py - uy * s - ux * s * 0.8);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // selection and hover rings
+  const ring = (q, style, wdt) => {
+    ctx.strokeStyle = style; ctx.lineWidth = wdt;
+    ctx.strokeRect(L + q.c * p + p * 0.08, T + q.r * p + p * 0.08, p * 0.84, p * 0.84);
+  };
+  if (hover) ring(hover, 'rgba(232,232,232,.25)', 1);
+  const target = phase ? { r: phase.r, c: phase.c } : sel;
+  ring(target, 'rgba(184,245,122,.55)', 1.5);
+
+  // labels: X drivers on the left, Y drivers on top, bytes on the right
+  const fs = Math.max(9, Math.min(13, p * 0.26));
+  ctx.font = `${fs}px ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace`;
+  ctx.textBaseline = 'middle';
+  for (let i = 0; i < N; i++) {
+    const xa = phase && phase.r === i, ya = phase && phase.c === i;
+    ctx.fillStyle = xa ? '#e8e8e8' : '#8a8a8a';
+    ctx.textAlign = 'right';
+    ctx.fillText('X' + i, L - p * 0.55, cy(i));
+    ctx.fillStyle = ya ? '#e8e8e8' : '#8a8a8a';
+    ctx.textAlign = 'center';
+    ctx.fillText('Y' + i, cx(i), T - p * 0.6);
+    // the byte stored in this row
+    let b = 0;
+    for (let c = 0; c < N; c++) b = (b << 1) | bits[i][c];
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#8a8a8a';
+    ctx.fillText(b.toString(16).toUpperCase().padStart(2, '0'), x1 + p * 0.3, cy(i));
+    ctx.fillStyle = '#b8f57a';
+    ctx.fillText(byteChar(b), x1 + p * 0.3 + fs * 1.9, cy(i));
+  }
+  ctx.fillStyle = '#8a8a8a';
+  ctx.textAlign = 'left';
+  ctx.fillText('hex chr', x1 + p * 0.3, T - p * 0.6);
+}
+
+function drawLoop() {
+  const { ctx, w, h } = LP;
+  ctx.clearRect(0, 0, w, h);
+  const HM = 2.6, pad = 14;
+  const X = v => pad + (v + HM) / (2 * HM) * (w - 2 * pad);
+  const Y = b => h / 2 - b * (h / 2 - pad) * 0.8;
+  // axes
+  ctx.strokeStyle = '#262626'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad, Y(0)); ctx.lineTo(w - pad, Y(0)); ctx.moveTo(X(0), pad - 6); ctx.lineTo(X(0), h - pad + 6); ctx.stroke();
+  // switching zones beyond the threshold
+  ctx.fillStyle = 'rgba(184,245,122,.05)';
+  ctx.fillRect(X(1), pad - 6, X(HM) - X(1), h - 2 * pad + 12);
+  ctx.fillRect(X(-HM), pad - 6, X(-1) - X(-HM), h - 2 * pad + 12);
+  // the square loop
+  ctx.strokeStyle = '#8a8a8a'; ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(X(-HM), Y(-1 - ELASTIC * HM));
+  ctx.lineTo(X(1), Y(-1 + ELASTIC));
+  ctx.lineTo(X(1), Y(1 + ELASTIC));
+  ctx.lineTo(X(HM), Y(1 + ELASTIC * HM));
+  ctx.moveTo(X(1), Y(1 + ELASTIC));
+  ctx.lineTo(X(-1), Y(1 - ELASTIC));
+  ctx.lineTo(X(-1), Y(-1 - ELASTIC));
+  ctx.lineTo(X(1), Y(-1 + ELASTIC));
+  ctx.stroke();
+  // current markers
+  ctx.setLineDash([3, 4]); ctx.lineWidth = 1;
+  ctx.font = '10px ui-monospace, Consolas, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  const marks = [[current, '½', '#7ab8f5'], [2 * current, 'full', '#b8f57a']];
+  for (const [v, t, col] of marks) for (const sgn of [1, -1]) {
+    const xv = X(Math.min(HM, v) * sgn);
+    ctx.strokeStyle = col; ctx.globalAlpha = 0.5;
+    ctx.beginPath(); ctx.moveTo(xv, pad); ctx.lineTo(xv, h - pad); ctx.stroke();
+    ctx.globalAlpha = 1; ctx.fillStyle = col;
+    if (v <= HM) ctx.fillText(t, xv, h - pad + 1);
+  }
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#8a8a8a'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('B', X(0) + 4, 2);
+  ctx.textAlign = 'right'; ctx.textBaseline = 'bottom';
+  ctx.fillText('H', w - 2, Y(0) - 2);
+  ctx.fillText('+1', X(1) - 2, Y(0) - 2);
+  // dots: selected core and one half-selected neighbour on the same X wire
+  const a = phase ? envelope(phase.step / STEPS) : 0;
+  const s = phase ? { r: phase.r, c: phase.c } : sel;
+  const nb = { r: s.r, c: (s.c + 1) % N };
+  for (const [q, col] of [[nb, '#7ab8f5'], [s, '#b8f57a']]) {
+    const hv = phase ? field(phase, q.r, q.c, a) : 0;
+    ctx.fillStyle = col;
+    ctx.beginPath(); ctx.arc(X(hv), Y(mag[q.r][q.c]), 5, 0, Math.PI * 2); ctx.fill();
+  }
+}
+
+function drawScope() {
+  const { ctx, w, h } = SP;
+  ctx.clearRect(0, 0, w, h);
+  const mid = h / 2, k = (h / 2 - 6) / 0.8;
+  const dx = w / SCOPE_LEN;
+  const off = SCOPE_LEN - scope.length;
+  // tint the background by what the drive was doing
+  const tint = { read: 'rgba(122,184,245,.09)', write: 'rgba(184,245,122,.07)', clear: 'rgba(255,255,255,.04)' };
+  for (let i = 0; i < scope.length; i++) {
+    ctx.fillStyle = tint[scope[i].k];
+    ctx.fillRect((off + i) * dx, 0, dx + 0.5, h);
+  }
+  ctx.strokeStyle = '#262626'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, mid); ctx.lineTo(w, mid); ctx.stroke();
+  ctx.setLineDash([2, 4]); ctx.strokeStyle = '#4a6a8a';
+  for (const sg of [1, -1]) {
+    ctx.beginPath(); ctx.moveTo(0, mid - sg * SENSE_THRESHOLD * k); ctx.lineTo(w, mid - sg * SENSE_THRESHOLD * k); ctx.stroke();
+  }
+  ctx.setLineDash([]);
+  ctx.strokeStyle = '#7ab8f5'; ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  for (let i = 0; i < scope.length; i++) {
+    const y = mid - Math.max(-0.8, Math.min(0.8, scope[i].v)) * k;
+    if (i === 0) ctx.moveTo((off + i) * dx, y); else ctx.lineTo((off + i) * dx, y);
+  }
+  ctx.stroke();
+  ctx.font = '10px ui-monospace, Consolas, monospace'; ctx.fillStyle = '#8a8a8a';
+  ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillText('read', 4, 3);
+  ctx.fillStyle = '#b8f57a'; ctx.fillText('write', 36, 3);
+  ctx.fillStyle = '#8a8a8a'; ctx.fillText('clear', 76, 3);
+}
+
+function updateStatus() {
+  let s;
+  if (phase) {
+    const what = {
+      read: t('cmWhatRead'),
+      clear: t('cmWhatClear'),
+      write: phase.inhibit ? t('cmWhatWriteInhibit') : t('cmWhatWriteFull'),
+    }[phase.kind];
+    s = t('cmStatusPhase', { name: name(phase.r, phase.c), label: phase.label, what });
+    if (queue.length) s += ' · ' + t('cmStatusQueued', { n: queue.length });
+  } else {
+    s = t('cmStatusSelected', { name: name(sel.r, sel.c), bit: bits[sel.r][sel.c], cycles });
+  }
+  if (el.status._s !== s) { el.status.innerHTML = s; el.status._s = s; }
+}
+
+/* ------------------------------------------------------------------
+   Main loop
+   ------------------------------------------------------------------ */
+let last = performance.now();
+function frame(now) {
+  const dt = Math.max(0, Math.min(100, now - last));
+  last = now;
+  // bulk jobs always run at least at 10×, so storing 64 bits doesn't take minutes
+  const head = phase || queue[0];
+  const sp = head && head.bulk ? Math.max(speed, 10) : speed;
+  acc += dt / (BASE_PHASE_MS / sp) * STEPS;
+  let guard = 0;
+  while (acc >= 1 && guard++ < 2000) {
+    if (!phase) {
+      if (!queue.length) { acc = 0; break; }
+      phase = queue.shift();
+      phase.step = 0;
+      if (phase.kind === 'read') phase.peak = 0;
+    }
+    simStep();
+    acc -= 1;
+  }
+  if (!phase) relax();
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) flash[r][c] = Math.max(0, flash[r][c] - dt / 500);
+
+  if (exp.running && !busy()) {
+    if (exp.replay) {
+      exp.running = false; exp.replay = false; speed = exp.prevSpeed;
+      const e = EXPERIMENTS[exp.i];
+      if (e.restore) e.restore();
+    } else finishExp();
+  }
+
+  drawPlane();
+  drawLoop();
+  drawScope();
+  updateStatus();
+  requestAnimationFrame(frame);
+}
+
+layout();
+renderExp();
+applyAria();
+document.addEventListener('presker-lang-change', () => { if (!exp.running) renderExp(); });
+// greet the visitor with a word already in memory
+setPlane(textBytes('CORE MEM'));
+log(t('cmLogGreeting', { word: 'CORE MEM' }));
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

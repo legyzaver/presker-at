@@ -26,3 +26,12 @@ jobs:
             **/.claude/**
             README.md
             deploy.yml
+
+      - name: Fix CGI permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host:     ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key:      ${{ secrets.SSH_KEY }}
+          script: |
+            chmod 755 ~/www/test/*.py ~/www/feedback/*.py

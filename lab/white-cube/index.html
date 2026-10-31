@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>White Cube — learn installation art by walking into it</title>
+<meta name="description" content="A 3D gallery for learning installation art by doing it: find the one spot where a painting across a whole room snaps together, make coloured shadows from red, green and blue light, and turn a heap of blocks until its shadow speaks.">
+<link rel="canonical" href="https://www.presker.at/lab/white-cube/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/white-cube/">
+<meta property="og:title" content="White Cube">
+<meta property="og:description" content="Learn installation art by walking into it: viewpoint, light as material, and the shadow as the artwork.">
+<meta name="twitter:card" content="summary">
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  wcHowTeaches: 'How this teaches →',
+  wcControlsBtn: 'Controls',
+  wcLampWord: 'Lamp',
+  wcLampRed: 'Red', wcLampGreen: 'Green', wcLampBlue: 'Blue',
+  wcTipWalk: 'drag to look around · WASD or arrow keys to walk',
+  wcTipLamp: 'tap a lamp to switch it · slide to move it · drag the room to look',
+  wcTipSculpt: 'turn the sculpture · drag the room to look around',
+  wcTurnLabel: 'turn',
+  wcPhotoBtn: 'photo',
+  wcExerciseWord: 'Exercise',
+  wcYourPrediction: 'Your prediction: {opt}',
+  wcIntroH2: 'Learn installation art by walking into it',
+  wcIntroP1: "Installation art isn't a picture on a wall. It's a whole situation: a room, its light, and you moving through it. Three short exercises explore three ideas that much installation art is built on, and then the studio is yours.",
+  wcIntroP2: 'Before each exercise you predict what will happen, then you find out with your own eyes. Wrong guesses are welcome: those are the moments where looking changes.',
+  wcIntroKeys: 'Exercise 1: drag to look, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or the arrow pad to walk.<br>Exercises 2–3: drag to look around the room, use the sliders and buttons below.',
+  wcNotesBtn: 'Notes for teachers',
+  wcEnterGallery: 'Enter the gallery',
+  wcHelpH2: 'Moving around',
+  wcHelpP1: '<b>Exercise 1</b>: you walk through the gallery. Drag to look, and walk with <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, the arrow keys or the pad at the bottom.',
+  wcHelpP2: '<b>Exercises 2, 3 and the studio</b>: you look into the room from outside, like a model. Drag to look around, use the mouse wheel or pinch to zoom. Lamps: tap to switch on or off (in the studio, tap to change colour), and slide to move them. Sculpture: the slider, the ‹ › buttons, or <kbd>←</kbd> <kbd>→</kbd>.',
+  wcBackBtn: 'Back',
+  wcPredictFirst: 'Exercise {n} · predict first',
+  wcGuessHint: 'Just guess. A surprise teaches more than a correct guess.',
+  wcSeenIt: 'Exercise {n} · seen it',
+  wcVerdictYes: 'You predicted "{guess}", and that\'s what happened.',
+  wcVerdictNo: 'You predicted "{guess}". It was "{correct}". Hold on to that surprise; here\'s why.',
+  wcLookAgain: 'Look again: {q}',
+  wcShowAnswer: 'Show answer',
+  wcKeepLooking: 'Keep looking',
+  wcWrapUp: 'Wrap up',
+  wcExerciseBtn: 'Exercise {n}',
+  wcSummaryH2: 'Three ways a room becomes a work',
+  wcSummaryP: 'Viewpoint, light and projection are some of the basic tools of installation art. They have one thing in common: the work happens between the object and the person looking at it, not inside the object.',
+  wcSummarySmall: 'The studio is next: coloured lamps on the shadow sculpture, with nothing to solve. For real installations about perception, projected images and light, see this site\'s <a href="/art/">art archive</a>.',
+  wcOpenStudio: 'Open the studio',
+  wcPredictedMark: '✓ predicted', wcSurprisedMark: '✗ surprised', wcDashMark: '–',
+  wcRightSpotLook: 'right spot, now look',
+  wcAlignedPct: '{pct}% aligned',
+  wcStandingNote: 'You are standing in the right place. Now turn until you face the painting.',
+  wcLampsOnLabel: '{n}/3 lamps on',
+  wcOneLampNote: 'One lamp: an ordinary dark shadow. What happens when you add a second?',
+  wcTwoLampNote: 'Two lamps: look at the colour of each shadow. Which lamp is missing from it?',
+  wcThreeLampCloseNote: 'All three lamps are on, but they stand almost in one place, so their shadows land on top of each other. Move them apart.',
+  wcSharpLabel: 'sharp', wcAlmostLabel: 'almost',
+  wcMirroredNote: 'The edges line up, but the word is mirrored: the sculpture faces away from the lamp. Turn it halfway round.',
+  wcFineTuneNote: 'Very close. Fine-tune with the ‹ › buttons and watch the edges on the wall.',
+  wcHintPrefix: 'Hint: {hint}',
+  wcFooter: '© 2026 Presker.at · runs in your browser',
+  wcEx0Title: 'Viewpoint',
+  wcEx0Goal: 'A red figure is painted across the walls, floor and pillars. Find the one spot where it snaps together.',
+  wcEx0PredictQ: 'This shape is painted across three walls, the floor and several pillars. When will it look whole?',
+  wcEx0PredictOpt0: 'From far away, when everything looks small',
+  wcEx0PredictOpt1: 'From one exact spot in the room',
+  wcEx0PredictOpt2: 'Never: it is meant to stay in pieces',
+  wcEx0Hint: 'Follow the bar: it fills up as you get closer. When it is nearly full, look for green footprints on the floor and stand on them.',
+  wcEx0Takeaway: 'Where you stand is part of the work.',
+  wcEx0Text: 'This is anamorphosis: an image stretched over surfaces at different distances, so that it only comes together from one point. Fragments that look unrelated are really one picture, cut up by depth. From anywhere else your own movement keeps breaking it apart again.',
+  wcEx0Context: 'Painters have played with this for centuries. Hans Holbein\'s <em>The Ambassadors</em> (1533) hides a stretched skull that only takes shape when you look from the side. Today, artists such as Felice Varini paint geometric shapes across whole buildings that come together from a single vantage point. A common method is the one this room used: put a projector at the viewpoint and paint what it lights.',
+  wcEx0Q: 'Why are the patches hidden behind the pillars not painted?',
+  wcEx0A: "From the viewpoint you can't see them, so the projector never reached them. The painting only exists where the viewer's eye can reach. Walk behind a pillar and you'll find the gap.",
+  wcEx1Title: 'Light as material',
+  wcEx1Goal: 'Switch on all three lamps and move them apart until the figure throws three coloured shadows.',
+  wcEx1PredictQ: 'A red, a green and a blue lamp all shine on the same white wall from different places. What will you see?',
+  wcEx1PredictOpt0: 'A muddy brown wall with black shadows',
+  wcEx1PredictOpt1: 'A white wall with coloured shadows',
+  wcEx1PredictOpt2: 'A white wall with black shadows',
+  wcEx1Hint: 'Turn on Green and Blue, then drag their sliders so the three lamps stand well apart, for example left, middle and right.',
+  wcEx1Takeaway: 'Light is a material. A shadow is made of the light that is left.',
+  wcEx1Text: 'Light mixes by adding: red, green and blue together make white. Where the figure blocks one lamp, you see the other two added together. Block the red and you get cyan, block the green and you get magenta, block the blue and you get yellow. A coloured shadow is not darkness; it is a precise colour made by subtraction.',
+  wcEx1Context: 'Goethe described coloured shadows in his <em>Theory of Colours</em> (1810). In installation art, light itself became the sculptural material: James Turrell builds rooms out of nothing but light, and Olafur Eliasson\'s <em>Room for one colour</em> (1997) floods a space with a single yellow wavelength until everything in it looks black and yellow.',
+  wcEx1Q: 'Where two shadows overlap, two lamps are blocked at once. What colour do you see there?',
+  wcEx1A: 'The colour of the one lamp that is still reaching the wall: pure red, green or blue. And where all three are blocked, it is black. Look closely where the shadows cross.',
+  wcEx2Title: 'The shadow is the work',
+  wcEx2Goal: 'The sculpture looks like a random heap. Turn it until its shadow on the wall becomes clear.',
+  wcEx2PredictQ: 'This sculpture looks like a random heap of blocks. What will its shadow on the wall look like?',
+  wcEx2PredictOpt0: 'Always a random heap, whatever you do',
+  wcEx2PredictOpt1: 'Clear writing, from one exact angle',
+  wcEx2PredictOpt2: 'A soft grey blob',
+  wcEx2Hint: 'Turn slowly and watch the wall, not the sculpture. When the edges suddenly sharpen, use the small ‹ › buttons for the last few degrees.',
+  wcEx2Takeaway: 'The work can be the shadow, not the object.',
+  wcEx2Text: 'From almost every angle the sculpture is chaos. Lined up with the lamp, every block hides behind the one in front of it, and their combined outline becomes a word. The object is just the means. The image exists only on the wall, only in this light, and only while the lamp is on.',
+  wcEx2Context: 'Tim Noble and Sue Webster built shadow sculptures from heaps of rubbish that throw precise portraits onto the wall. Kumi Yamashita makes figures out of the shadows of carefully placed simple objects. In both, the viewer sees the heap and the image at the same time, and that tension is the work.',
+  wcEx2Q: 'If you moved the lamp instead of the sculpture, would it still work?',
+  wcEx2A: 'Yes. Only the angle between the lamp and the sculpture matters. Artists usually fix the light first and then build the object for that one beam.',
+  wcEx3Title: 'Studio',
+  wcEx3Goal: 'Your own installation: the shadow sculpture, three lamps in any colour. Compose a light situation and take a photo.',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  wcHowTeaches: 'Wie das lehrt →',
+  wcControlsBtn: 'Steuerung',
+  wcLampWord: 'Lampe',
+  wcLampRed: 'Rot', wcLampGreen: 'Grün', wcLampBlue: 'Blau',
+  wcTipWalk: 'Ziehen, um sich umzuschauen · WASD oder Pfeiltasten zum Gehen',
+  wcTipLamp: 'Lampe antippen, um sie zu schalten · ziehen, um sie zu bewegen · den Raum ziehen, um sich umzuschauen',
+  wcTipSculpt: 'Skulptur drehen · den Raum ziehen, um sich umzuschauen',
+  wcTurnLabel: 'drehen',
+  wcPhotoBtn: 'Foto',
+  wcExerciseWord: 'Übung',
+  wcYourPrediction: 'Deine Vorhersage: {opt}',
+  wcIntroH2: 'Installationskunst lernen, indem du hineingehst',
+  wcIntroP1: 'Installationskunst ist kein Bild an der Wand. Es ist eine ganze Situation: ein Raum, sein Licht, und du, die/der sich darin bewegt. Drei kurze Übungen erkunden drei Ideen, auf denen viel Installationskunst aufbaut, und dann gehört das Studio dir.',
+  wcIntroP2: 'Vor jeder Übung sagst du voraus, was passieren wird, dann findest du es mit eigenen Augen heraus. Falsche Vermutungen sind willkommen: Das sind die Momente, in denen sich das Sehen verändert.',
+  wcIntroKeys: 'Übung 1: ziehen, um zu schauen, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> oder das Pfeilkreuz zum Gehen.<br>Übungen 2–3: den Raum ziehen, um sich umzuschauen, die Regler und Buttons unten verwenden.',
+  wcNotesBtn: 'Notizen für Lehrkräfte',
+  wcEnterGallery: 'Die Galerie betreten',
+  wcHelpH2: 'Sich bewegen',
+  wcHelpP1: '<b>Übung 1</b>: Du gehst durch die Galerie. Ziehen zum Schauen, Gehen mit <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, den Pfeiltasten oder dem Pad unten.',
+  wcHelpP2: '<b>Übungen 2, 3 und das Studio</b>: Du schaust von außen in den Raum, wie ein Modell. Ziehen, um sich umzuschauen, Mausrad oder Zwei-Finger-Geste zum Zoomen. Lampen: Antippen zum Ein-/Ausschalten (im Studio: Antippen ändert die Farbe), und Ziehen zum Bewegen. Skulptur: der Regler, die ‹ › Buttons oder <kbd>←</kbd> <kbd>→</kbd>.',
+  wcBackBtn: 'Zurück',
+  wcPredictFirst: 'Übung {n} · erst vorhersagen',
+  wcGuessHint: 'Rate einfach. Eine Überraschung lehrt mehr als eine richtige Vermutung.',
+  wcSeenIt: 'Übung {n} · gesehen',
+  wcVerdictYes: 'Du hast „{guess}" vorhergesagt, und genau das ist passiert.',
+  wcVerdictNo: 'Du hast „{guess}" vorhergesagt. Es war „{correct}". Halte diese Überraschung fest; hier ist das Warum.',
+  wcLookAgain: 'Schau noch einmal hin: {q}',
+  wcShowAnswer: 'Antwort zeigen',
+  wcKeepLooking: 'Weiterschauen',
+  wcWrapUp: 'Zusammenfassung',
+  wcExerciseBtn: 'Übung {n}',
+  wcSummaryH2: 'Drei Arten, wie ein Raum zum Werk wird',
+  wcSummaryP: 'Blickpunkt, Licht und Projektion sind einige der Grundwerkzeuge der Installationskunst. Sie haben eines gemeinsam: Das Werk geschieht zwischen dem Objekt und der Person, die es betrachtet, nicht im Objekt selbst.',
+  wcSummarySmall: 'Als Nächstes kommt das Studio: farbige Lampen auf der Schattenskulptur, ohne etwas zu lösen. Für echte Installationen über Wahrnehmung, projizierte Bilder und Licht siehe das <a href="/art/">Kunstarchiv</a> dieser Seite.',
+  wcOpenStudio: 'Das Studio öffnen',
+  wcPredictedMark: '✓ vorhergesagt', wcSurprisedMark: '✗ überrascht', wcDashMark: '–',
+  wcRightSpotLook: 'richtige Stelle, jetzt hinschauen',
+  wcAlignedPct: '{pct}% ausgerichtet',
+  wcStandingNote: 'Du stehst am richtigen Ort. Dreh dich jetzt, bis du zum Gemälde schaust.',
+  wcLampsOnLabel: '{n}/3 Lampen an',
+  wcOneLampNote: 'Eine Lampe: ein gewöhnlicher dunkler Schatten. Was passiert, wenn du eine zweite hinzufügst?',
+  wcTwoLampNote: 'Zwei Lampen: Schau dir die Farbe jedes Schattens an. Welche Lampe fehlt darin?',
+  wcThreeLampCloseNote: 'Alle drei Lampen sind an, aber sie stehen fast an derselben Stelle, sodass ihre Schatten übereinanderfallen. Bewege sie auseinander.',
+  wcSharpLabel: 'scharf', wcAlmostLabel: 'fast',
+  wcMirroredNote: 'Die Kanten passen, aber das Wort ist gespiegelt: Die Skulptur schaut von der Lampe weg. Dreh sie halb herum.',
+  wcFineTuneNote: 'Sehr nah. Feinjustiere mit den ‹ › Buttons und beobachte die Kanten an der Wand.',
+  wcHintPrefix: 'Hinweis: {hint}',
+  wcFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  wcEx0Title: 'Blickpunkt',
+  wcEx0Goal: 'Eine rote Figur ist über die Wände, den Boden und die Säulen gemalt. Finde die eine Stelle, an der sie sich zusammenfügt.',
+  wcEx0PredictQ: 'Diese Form ist über drei Wände, den Boden und mehrere Säulen gemalt. Wann wird sie vollständig aussehen?',
+  wcEx0PredictOpt0: 'Von weit weg, wenn alles klein aussieht',
+  wcEx0PredictOpt1: 'Von einer genauen Stelle im Raum',
+  wcEx0PredictOpt2: 'Nie: Sie soll in Stücken bleiben',
+  wcEx0Hint: 'Folge dem Balken: Er füllt sich, je näher du kommst. Wenn er fast voll ist, suche grüne Fußspuren auf dem Boden und stelle dich darauf.',
+  wcEx0Takeaway: 'Wo du stehst, ist Teil des Werks.',
+  wcEx0Text: 'Das ist Anamorphose: ein Bild, über Flächen in unterschiedlichen Entfernungen gestreckt, sodass es sich nur von einem Punkt aus zusammenfügt. Fragmente, die unzusammenhängend wirken, sind wirklich ein Bild, durch die Tiefe zerschnitten. Von überall sonst zerlegt deine eigene Bewegung es immer wieder.',
+  wcEx0Context: 'Maler spielen damit seit Jahrhunderten. Hans Holbeins <em>Die Gesandten</em> (1533) versteckt einen gestreckten Schädel, der nur von der Seite betrachtet Gestalt annimmt. Heute malen Künstler wie Felice Varini geometrische Formen über ganze Gebäude, die sich von einem einzigen Blickpunkt aus zusammenfügen. Eine gängige Methode ist die, die dieser Raum verwendet hat: einen Projektor an den Blickpunkt stellen und malen, was er beleuchtet.',
+  wcEx0Q: 'Warum sind die hinter den Säulen verborgenen Stellen nicht bemalt?',
+  wcEx0A: 'Vom Blickpunkt aus kannst du sie nicht sehen, also hat der Projektor sie nie erreicht. Das Gemälde existiert nur dort, wo das Auge des Betrachters hinreicht. Geh hinter eine Säule, und du findest die Lücke.',
+  wcEx1Title: 'Licht als Material',
+  wcEx1Goal: 'Schalte alle drei Lampen ein und bewege sie auseinander, bis die Figur drei farbige Schatten wirft.',
+  wcEx1PredictQ: 'Eine rote, eine grüne und eine blaue Lampe scheinen alle von unterschiedlichen Stellen auf dieselbe weiße Wand. Was wirst du sehen?',
+  wcEx1PredictOpt0: 'Eine schmutzig braune Wand mit schwarzen Schatten',
+  wcEx1PredictOpt1: 'Eine weiße Wand mit farbigen Schatten',
+  wcEx1PredictOpt2: 'Eine weiße Wand mit schwarzen Schatten',
+  wcEx1Hint: 'Schalte Grün und Blau ein, dann zieh ihre Regler so, dass die drei Lampen gut auseinanderstehen, zum Beispiel links, Mitte und rechts.',
+  wcEx1Takeaway: 'Licht ist ein Material. Ein Schatten besteht aus dem Licht, das übrig bleibt.',
+  wcEx1Text: 'Licht mischt sich additiv: Rot, Grün und Blau zusammen ergeben Weiß. Wo die Figur eine Lampe blockiert, siehst du die anderen beiden zusammen. Blockiere das Rot, und du bekommst Cyan, blockiere das Grün, und du bekommst Magenta, blockiere das Blau, und du bekommst Gelb. Ein farbiger Schatten ist keine Dunkelheit; er ist eine präzise Farbe, die durch Subtraktion entsteht.',
+  wcEx1Context: 'Goethe beschrieb farbige Schatten in seiner <em>Farbenlehre</em> (1810). In der Installationskunst wurde das Licht selbst zum bildhauerischen Material: James Turrell baut Räume aus nichts als Licht, und Olafur Eliassons <em>Room for one colour</em> (1997) flutet einen Raum mit einer einzigen gelben Wellenlänge, bis alles darin schwarz und gelb aussieht.',
+  wcEx1Q: 'Wo sich zwei Schatten überlappen, sind zwei Lampen gleichzeitig blockiert. Welche Farbe siehst du dort?',
+  wcEx1A: 'Die Farbe der einen Lampe, die die Wand noch erreicht: reines Rot, Grün oder Blau. Und wo alle drei blockiert sind, ist es schwarz. Schau genau hin, wo sich die Schatten kreuzen.',
+  wcEx2Title: 'Der Schatten ist das Werk',
+  wcEx2Goal: 'Die Skulptur sieht aus wie ein zufälliger Haufen. Dreh sie, bis ihr Schatten an der Wand klar wird.',
+  wcEx2PredictQ: 'Diese Skulptur sieht aus wie ein zufälliger Haufen von Blöcken. Wie wird ihr Schatten an der Wand aussehen?',
+  wcEx2PredictOpt0: 'Immer ein zufälliger Haufen, was auch immer du tust',
+  wcEx2PredictOpt1: 'Klare Schrift, aus einem genauen Winkel',
+  wcEx2PredictOpt2: 'Ein weicher grauer Fleck',
+  wcEx2Hint: 'Dreh langsam und beobachte die Wand, nicht die Skulptur. Wenn die Kanten plötzlich scharf werden, nutze die kleinen ‹ › Buttons für die letzten Grade.',
+  wcEx2Takeaway: 'Das Werk kann der Schatten sein, nicht das Objekt.',
+  wcEx2Text: 'Aus fast jedem Winkel ist die Skulptur Chaos. Mit der Lampe ausgerichtet versteckt sich jeder Block hinter dem davor, und ihr gemeinsamer Umriss wird zu einem Wort. Das Objekt ist nur das Mittel. Das Bild existiert nur an der Wand, nur in diesem Licht, und nur solange die Lampe an ist.',
+  wcEx2Context: 'Tim Noble und Sue Webster bauten Schattenskulpturen aus Müllhaufen, die präzise Porträts an die Wand werfen. Kumi Yamashita macht Figuren aus den Schatten sorgfältig platzierter einfacher Objekte. In beiden Fällen sieht der Betrachter den Haufen und das Bild gleichzeitig, und diese Spannung ist das Werk.',
+  wcEx2Q: 'Würde es noch funktionieren, wenn du die Lampe statt der Skulptur bewegt hättest?',
+  wcEx2A: 'Ja. Nur der Winkel zwischen Lampe und Skulptur zählt. Künstler legen meist zuerst das Licht fest und bauen dann das Objekt für genau diesen einen Strahl.',
+  wcEx3Title: 'Studio',
+  wcEx3Goal: 'Deine eigene Installation: die Schattenskulptur, drei Lampen in beliebiger Farbe. Komponiere eine Lichtsituation und mach ein Foto.',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  wcHowTeaches: 'Kako to uči →',
+  wcControlsBtn: 'Upravljanje',
+  wcLampWord: 'Svetilka',
+  wcLampRed: 'Rdeča', wcLampGreen: 'Zelena', wcLampBlue: 'Modra',
+  wcTipWalk: 'povleci, da se ozreš · WASD ali smerne tipke za hojo',
+  wcTipLamp: 'tapni svetilko, da jo prižgeš · povleci, da jo premakneš · povleci prostor, da se ozreš',
+  wcTipSculpt: 'obrni skulpturo · povleci prostor, da se ozreš',
+  wcTurnLabel: 'obrni',
+  wcPhotoBtn: 'fotografija',
+  wcExerciseWord: 'Vaja',
+  wcYourPrediction: 'Tvoja napoved: {opt}',
+  wcIntroH2: 'Nauči se instalacijske umetnosti, tako da vstopiš vanjo',
+  wcIntroP1: 'Instalacijska umetnost ni slika na steni. Je celotna situacija: prostor, njegova svetloba in ti, ki se gibaš skoznjo. Tri kratke vaje raziščejo tri ideje, na katerih je zgrajen velik del instalacijske umetnosti, nato pa je studio tvoj.',
+  wcIntroP2: 'Pred vsako vajo napoveš, kaj se bo zgodilo, nato pa to preveriš z lastnimi očmi. Napačne uganke so zaželene: to so trenutki, ko se gledanje spremeni.',
+  wcIntroKeys: 'Vaja 1: povleci, da se ozreš, <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ali smerna ploščica za hojo.<br>Vaji 2–3: povleci prostor, da se ozreš, uporabi drsnike in gumbe spodaj.',
+  wcNotesBtn: 'Napotki za učitelje',
+  wcEnterGallery: 'Vstopi v galerijo',
+  wcHelpH2: 'Premikanje',
+  wcHelpP1: '<b>Vaja 1</b>: hodiš po galeriji. Povleci za gledanje, hodi z <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>, smernimi tipkami ali ploščico spodaj.',
+  wcHelpP2: '<b>Vaje 2, 3 in studio</b>: v prostor gledaš od zunaj, kot model. Povleci, da se ozreš, uporabi miškin kolešček ali približanje s prsti za povečavo. Svetilke: tapni za vklop/izklop (v studiu tap spremeni barvo), povleci za premik. Skulptura: drsnik, gumbi ‹ › ali <kbd>←</kbd> <kbd>→</kbd>.',
+  wcBackBtn: 'Nazaj',
+  wcPredictFirst: 'Vaja {n} · najprej napovej',
+  wcGuessHint: 'Samo ugani. Presenečenje nauči več kot pravilna uganka.',
+  wcSeenIt: 'Vaja {n} · videno',
+  wcVerdictYes: 'Napovedal/-a si „{guess}", in prav to se je zgodilo.',
+  wcVerdictNo: 'Napovedal/-a si „{guess}". Bilo je „{correct}". Zapomni si to presenečenje; tukaj je razlaga.',
+  wcLookAgain: 'Poglej še enkrat: {q}',
+  wcShowAnswer: 'Pokaži odgovor',
+  wcKeepLooking: 'Glej naprej',
+  wcWrapUp: 'Povzetek',
+  wcExerciseBtn: 'Vaja {n}',
+  wcSummaryH2: 'Trije načini, kako prostor postane delo',
+  wcSummaryP: 'Gledišče, svetloba in projekcija so nekatera osnovna orodja instalacijske umetnosti. Vsa imajo nekaj skupnega: delo se zgodi med predmetom in osebo, ki ga opazuje, ne v predmetu samem.',
+  wcSummarySmall: 'Naslednji je studio: barvne svetilke na senčni skulpturi, brez česar koli za rešiti. Za resnične instalacije o zaznavanju, projiciranih slikah in svetlobi glej <a href="/art/">umetniški arhiv</a> te strani.',
+  wcOpenStudio: 'Odpri studio',
+  wcPredictedMark: '✓ napovedano', wcSurprisedMark: '✗ presenečen', wcDashMark: '–',
+  wcRightSpotLook: 'pravo mesto, zdaj poglej',
+  wcAlignedPct: '{pct} % usklajeno',
+  wcStandingNote: 'Stojiš na pravem mestu. Zdaj se obrni, dokler ne pogledaš proti slikariji.',
+  wcLampsOnLabel: '{n}/3 svetilk prižganih',
+  wcOneLampNote: 'Ena svetilka: navadna temna senca. Kaj se zgodi, ko dodaš drugo?',
+  wcTwoLampNote: 'Dve svetilki: poglej barvo vsake sence. Katera svetilka manjka v njej?',
+  wcThreeLampCloseNote: 'Vse tri svetilke so prižgane, a stojijo skoraj na istem mestu, zato se njihove sence prekrivajo. Premakni jih narazen.',
+  wcSharpLabel: 'ostro', wcAlmostLabel: 'skoraj',
+  wcMirroredNote: 'Robovi se ujemajo, a beseda je zrcalna: skulptura je obrnjena stran od svetilke. Obrni jo za pol kroga.',
+  wcFineTuneNote: 'Zelo blizu. Fino nastavi z gumbi ‹ › in opazuj robove na steni.',
+  wcHintPrefix: 'Namig: {hint}',
+  wcFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  wcEx0Title: 'Gledišče',
+  wcEx0Goal: 'Rdeča figura je naslikana čez stene, tla in stebre. Najdi eno mesto, kjer se sestavi.',
+  wcEx0PredictQ: 'Ta oblika je naslikana čez tri stene, tla in več stebrov. Kdaj bo videti celovita?',
+  wcEx0PredictOpt0: 'Od daleč, ko je vse videti majhno',
+  wcEx0PredictOpt1: 'Z enega natančnega mesta v prostoru',
+  wcEx0PredictOpt2: 'Nikoli: namenjena je, da ostane razkosana',
+  wcEx0Hint: 'Sledi traku: polni se, ko se približuješ. Ko je skoraj poln, poišči zelene stopinje na tleh in stopi nanje.',
+  wcEx0Takeaway: 'Kje stojiš, je del dela.',
+  wcEx0Text: 'To je anamorfoza: slika, razpotegnjena čez površine na različnih razdaljah, tako da se sestavi le z ene točke. Fragmenti, ki se zdijo nepovezani, so v resnici ena slika, razrezana po globini. Od koderkoli drugje jo tvoje lastno gibanje spet razbije.',
+  wcEx0Context: 'Slikarji se s tem igrajo že stoletja. Slika Hansa Holbeina <em>Ambasadorji</em> (1533) skriva razpotegnjeno lobanjo, ki dobi obliko le, če jo gledaš s strani. Danes umetniki, kot je Felice Varini, slikajo geometrijske oblike čez cele stavbe, ki se sestavijo z ene same točke gledanja. Pogosta metoda je ta, ki jo je uporabil ta prostor: postaviti projektor na gledišče in naslikati, kar osvetli.',
+  wcEx0Q: 'Zakaj zaplate, skrite za stebri, niso naslikane?',
+  wcEx0A: 'Z gledišča jih ne moreš videti, zato jih projektor nikoli ni dosegel. Slika obstaja le tam, kamor lahko seže oko opazovalca. Stopi za steber in našel boš vrzel.',
+  wcEx1Title: 'Svetloba kot material',
+  wcEx1Goal: 'Prižgi vse tri svetilke in jih premakni narazen, dokler figura ne vrže treh barvnih senc.',
+  wcEx1PredictQ: 'Rdeča, zelena in modra svetilka vse sijejo na isto belo steno z različnih mest. Kaj boš videl?',
+  wcEx1PredictOpt0: 'Umazano rjavo steno s črnimi sencami',
+  wcEx1PredictOpt1: 'Belo steno z barvnimi sencami',
+  wcEx1PredictOpt2: 'Belo steno s črnimi sencami',
+  wcEx1Hint: 'Prižgi Zeleno in Modro, nato povleci njuna drsnika, tako da vse tri svetilke stojijo dobro narazen, na primer levo, na sredini in desno.',
+  wcEx1Takeaway: 'Svetloba je material. Senca je narejena iz svetlobe, ki je ostala.',
+  wcEx1Text: 'Svetloba se meša seštevalno: rdeča, zelena in modra skupaj ustvarijo belo. Kjer figura blokira eno svetilko, vidiš drugi dve seštete skupaj. Blokiraj rdečo in dobiš cian, blokiraj zeleno in dobiš magento, blokiraj modro in dobiš rumeno. Barvna senca ni tema; je natančna barva, ustvarjena z odštevanjem.',
+  wcEx1Context: 'Goethe je barvne sence opisal v svoji <em>Teoriji barv</em> (1810). V instalacijski umetnosti je svetloba sama postala kiparski material: James Turrell gradi prostore samo iz svetlobe, Olafur Eliassonov <em>Room for one colour</em> (1997) pa poplavi prostor z eno samo rumeno valovno dolžino, dokler vse v njem ni videti črno-rumeno.',
+  wcEx1Q: 'Kjer se prekrivata dve senci, sta blokirani dve svetilki hkrati. Kakšno barvo vidiš tam?',
+  wcEx1A: 'Barvo tiste ene svetilke, ki še doseže steno: čisto rdečo, zeleno ali modro. In kjer so blokirane vse tri, je črno. Poglej natančno, kjer se sence križajo.',
+  wcEx2Title: 'Senca je delo',
+  wcEx2Goal: 'Skulptura je videti kot naključen kup. Obrni jo, dokler njena senca na steni ne postane jasna.',
+  wcEx2PredictQ: 'Ta skulptura je videti kot naključen kup kock. Kako bo videti njena senca na steni?',
+  wcEx2PredictOpt0: 'Vedno naključen kup, kar koli naredis',
+  wcEx2PredictOpt1: 'Jasna pisava, iz enega natančnega kota',
+  wcEx2PredictOpt2: 'Mehka siva lisa',
+  wcEx2Hint: 'Obračaj počasi in opazuj steno, ne skulpture. Ko se robovi nenadoma izostrijo, uporabi majhne gumbe ‹ › za zadnje stopinje.',
+  wcEx2Takeaway: 'Delo je lahko senca, ne predmet.',
+  wcEx2Text: 'Iz skoraj vsakega kota je skulptura kaos. Usklajena s svetilko se vsaka kocka skrije za tisto pred njo, njihov skupni obris pa postane beseda. Predmet je le sredstvo. Slika obstaja le na steni, le v tej svetlobi in le, dokler je svetilka prižgana.',
+  wcEx2Context: 'Tim Noble in Sue Webster sta iz kupov smeti zgradila senčne skulpture, ki na steno mečejo natančne portrete. Kumi Yamashita ustvarja figure iz senc skrbno postavljenih preprostih predmetov. V obeh primerih opazovalec hkrati vidi kup in sliko, in prav ta napetost je delo.',
+  wcEx2Q: 'Če bi premaknil svetilko namesto skulpture, bi še delovalo?',
+  wcEx2A: 'Da. Pomemben je le kot med svetilko in skulpturo. Umetniki navadno najprej določijo svetlobo in nato zanjo zgradijo predmet.',
+  wcEx3Title: 'Studio',
+  wcEx3Goal: 'Tvoja lastna instalacija: senčna skulptura, tri svetilke v poljubni barvi. Sestavi svetlobno situacijo in posnemi fotografijo.',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+<!--
+  White Cube - a predict / observe / explain game about three ideas of installation art:
+    1. viewpoint   - an anamorphic painting that only resolves from one spot
+    2. light       - additive colour and coloured shadows
+    3. projection  - a sculpture whose shadow, not its body, is the image
+  One HTML file plus a self-hosted copy of three.js r178 (MIT, see vendor/three-LICENSE.txt).
+
+  The anamorphic painting is made the way artists make them: a virtual projector stands at the
+  viewpoint. A depth map rendered from there decides which surfaces it can reach, so anything
+  hidden behind a pillar stays unpainted, exactly as in a real room.
+-->
+<style>
+:root {
+  --bg: #0e0e0e; --panel: rgba(16,16,16,.84); --solid: #141414; --ink: #e8e8e8; --muted: #8a8a8a;
+  --line: #262626; --accent: #b8f57a; --paint: #e5322b;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--ink);
+  font: 14px/1.45 system-ui, "Segoe UI", Roboto, sans-serif; }
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+a { color: var(--accent); }
+button { font: inherit; color: var(--ink); background: var(--solid); border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+button:hover { border-color: #444; }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); }
+.hud { position: fixed; top: 12px; left: 12px; width: 340px; max-width: calc(100% - 24px); }
+.home { font: 12px var(--mono); color: var(--muted); text-decoration: none; }
+.home:hover { color: var(--accent); }
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--solid); border: 1px solid var(--line); border-radius: 7px; padding: 2px; margin-top: 6px; width: fit-content; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { border: 1px solid var(--accent); color: var(--accent); font-weight: 700; }
+h1 { font: 700 18px var(--mono); margin: 4px 0 8px; letter-spacing: -.01em; }
+.chips { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+.chip { font: 12px var(--mono); padding: 3px 9px; border-radius: 999px; }
+.chip.cur { border-color: var(--accent); color: var(--accent); }
+.chip.done::after { content: " ✓"; color: var(--accent); }
+.m-title { font: 600 15px var(--mono); }
+.m-goal { color: #cfcfcf; margin: 4px 0 8px; }
+.m-progress { display: flex; align-items: center; gap: 10px; font: 12px var(--mono); color: var(--muted); }
+.bar { flex: 1; height: 6px; background: #222; border-radius: 3px; overflow: hidden; min-width: 60px; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .15s; }
+.m-note { font-size: 12.5px; margin-top: 8px; color: #ffcf8a; }
+.m-note:empty { display: none; }
+.m-pred { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.m-pred:empty { display: none; }
+.m-hint { font-size: 12.5px; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #1b2412; color: #d9f5bd; }
+.m-links { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font: 12px var(--mono); }
+.m-links a { text-decoration: none; }
+.collapse { display: none; padding: 2px 8px; font-size: 12px; }
+
+.dock { position: fixed; left: 50%; transform: translateX(-50%); bottom: max(14px, env(safe-area-inset-bottom));
+  width: min(620px, calc(100% - 24px)); }
+.dock .panel { padding: 10px 12px; }
+.dock .row { display: flex; align-items: center; gap: 10px; margin: 4px 0; flex-wrap: nowrap; }
+.dock .row label { font: 12px var(--mono); color: var(--muted); min-width: 64px; }
+.dock input[type=range] { flex: 1; accent-color: var(--accent); min-width: 0; }
+.dock .tip { font: 11.5px var(--mono); color: var(--muted); text-align: center; margin-top: 4px; }
+.lamp { min-width: 92px; font: 600 12.5px var(--mono); display: inline-flex; align-items: center; gap: 7px; justify-content: flex-start; }
+.lamp i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid #555; }
+.lamp.off { color: var(--muted); }
+.lamp.off i { background: transparent !important; }
+.pad { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.hold { padding: 12px 6px; font: 600 14px var(--mono); user-select: none; -webkit-user-select: none; touch-action: none; }
+.hold.active { background: #2a3a18; border-color: var(--accent); color: var(--accent); }
+.mini { padding: 6px 10px; font: 13px var(--mono); touch-action: none; user-select: none; -webkit-user-select: none; }
+.mini.active { border-color: var(--accent); color: var(--accent); }
+
+.cross { position: fixed; left: 50%; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; pointer-events: none; opacity: .6; }
+.cross::before, .cross::after { content: ""; position: absolute; background: #fff; mix-blend-mode: difference; }
+.cross::before { left: 6px; top: 0; width: 2px; height: 14px; }
+.cross::after { top: 6px; left: 0; height: 2px; width: 14px; }
+
+.modal { position: fixed; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 10; }
+.modal[hidden] { display: none; }
+.card { background: var(--solid); border: 1px solid var(--line); border-radius: 14px; padding: 22px 22px 18px;
+  width: min(560px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.card .eyebrow { font: 12px var(--mono); color: var(--accent); text-transform: uppercase; letter-spacing: .08em; }
+.card h2 { font: 700 20px var(--mono); margin: 6px 0 10px; }
+.card p { margin: 0 0 12px; color: #d6d6d6; }
+.card .opts { display: grid; gap: 8px; margin: 14px 0 6px; }
+.card .opts button { text-align: left; padding: 12px 14px; font-size: 14.5px; }
+.card .opts button:hover { border-color: var(--accent); }
+.card .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; flex-wrap: wrap; }
+.card .actions .go { background: var(--accent); color: #0e0e0e; border-color: var(--accent); font-weight: 700; }
+.verdict { padding: 10px 12px; border-radius: 10px; margin: 0 0 12px; font-size: 14px; }
+.verdict.yes { background: #1b2412; color: #d9f5bd; }
+.verdict.no { background: #2a1d0c; color: #ffd9a3; }
+.takeaway { border-left: 3px solid var(--accent); padding: 4px 0 4px 12px; margin: 0 0 12px; font: 600 14px var(--mono); }
+.context { font-size: 13.5px; color: #bdbdbd; border-top: 1px solid var(--line); padding-top: 10px; }
+.reflect { background: #181818; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; margin-bottom: 4px; }
+.reflect .q { font-weight: 600; }
+.reflect .a { margin-top: 6px; color: #cfcfcf; }
+.reflect button { margin-top: 8px; font-size: 12.5px; padding: 5px 10px; }
+.small { font-size: 12.5px; color: var(--muted); }
+.keys { font: 12px var(--mono); color: var(--muted); line-height: 1.8; }
+kbd { font: 11px var(--mono); border: 1px solid #333; border-radius: 4px; padding: 0 5px; color: #ccc; }
+.summary { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 6px 0 12px; }
+.summary td { padding: 6px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+.site-foot { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--line); display: flex;
+  flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: #181818; border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: #3a3a3a; }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 760px) {
+  .hud { top: 8px; left: 8px; max-width: calc(100% - 16px); width: calc(100% - 16px); padding: 9px 11px; }
+  h1 { font-size: 15px; margin: 2px 0 6px; }
+  .collapse { display: inline-block; }
+  .hud.min .chips, .hud.min .m-goal, .hud.min .m-pred, .hud.min .m-links { display: none; }
+  .dock { bottom: max(8px, env(safe-area-inset-bottom)); width: calc(100% - 16px); }
+  .lamp { min-width: 78px; }
+  .dock .row label { min-width: 52px; }
+}
+</style>
+</head>
+<body>
+<canvas id="scene"></canvas>
+<div class="cross" id="cross" hidden></div>
+
+<div class="panel hud" id="hud">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <button class="collapse" id="btnCollapse" aria-label="Collapse panel">–</button>
+  </div>
+  <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+    <button class="pill-btn" data-lang-set="auto">Auto</button>
+    <button class="pill-btn" data-lang-set="en">EN</button>
+    <button class="pill-btn" data-lang-set="de">DE</button>
+    <button class="pill-btn" data-lang-set="sl">SL</button>
+  </div>
+  <h1>White Cube</h1>
+  <div class="chips" id="chips"></div>
+  <div class="m-title" id="mTitle"></div>
+  <div class="m-goal" id="mGoal"></div>
+  <div class="m-progress" id="mProgress"><div class="bar"><i id="mBar"></i></div><span id="mProg"></span></div>
+  <div class="m-note" id="mNote"></div>
+  <div class="m-hint" id="mHint" hidden></div>
+  <div class="m-pred" id="mPred"></div>
+  <div class="m-links">
+    <a href="/lab/white-cube-notes.html" data-i18n="wcHowTeaches">How this teaches →</a>
+    <button id="btnHelp" style="padding:3px 9px;font-size:12px" data-i18n="wcControlsBtn">Controls</button>
+  </div>
+</div>
+
+<div class="dock" id="dock"></div>
+
+<div class="modal" id="modal" hidden><div class="card" id="card" role="dialog" aria-modal="true"></div></div>
+
+<script type="module">
+import * as THREE from './vendor/three.module.min.js';
+
+const $ = id => document.getElementById(id);
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const DEG = Math.PI / 180;
+const wrap180 = a => ((a + 180) % 360 + 360) % 360 - 180;
+
+// ---------- renderer, camera, room ----------
+const canvas = $('scene');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0a0a0a);
+const camera = new THREE.PerspectiveCamera(68, 1, 0.05, 80);
+camera.rotation.order = 'YXZ';
+
+const RW = 12, RD = 10, RH = 4.5;                 // the gallery: 12 m wide, 10 m deep, 4.5 m high
+const wallMat = new THREE.MeshStandardMaterial({ color: 0xf2f1ec, roughness: 0.95 });
+const floorMat = new THREE.MeshStandardMaterial({ color: 0xcfccc4, roughness: 0.85 });
+function surface(w, h, mat, x, y, z, rx, ry) {
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+  m.position.set(x, y, z); m.rotation.set(rx, ry, 0, 'YXZ');
+  m.receiveShadow = true; scene.add(m);
+  return m;
+}
+const room = {
+  floor: surface(RW, RD, floorMat, 0, 0, 0, -Math.PI / 2, 0),
+  ceiling: surface(RW, RD, wallMat, 0, RH, 0, Math.PI / 2, 0),
+  back: surface(RW, RH, wallMat, 0, RH / 2, -RD / 2, 0, 0),
+  front: surface(RW, RH, wallMat, 0, RH / 2, RD / 2, 0, Math.PI),
+  left: surface(RD, RH, wallMat, -RW / 2, RH / 2, 0, 0, Math.PI / 2),
+  right: surface(RD, RH, wallMat, RW / 2, RH / 2, 0, 0, -Math.PI / 2),
+};
+
+const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+const hemi = new THREE.HemisphereLight(0xffffff, 0x9a968c, 1.6);
+scene.add(ambient, hemi);
+
+// ---------- exercise 1: the anamorphic painting ----------
+const VIEW = new THREE.Vector3(3.7, 1.6, 3.3);    // the one spot where the painting resolves
+const VIEW_AT = new THREE.Vector3(-2.6, 1.25, -3.6);
+const ex1 = new THREE.Group(); scene.add(ex1);
+const ex1Boxes = [];
+function block(group, w, h, d, x, z, mat = wallMat, list) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat);
+  m.position.set(x, h / 2, z); m.castShadow = m.receiveShadow = true;
+  group.add(m); if (list) list.push(m);
+  return m;
+}
+block(ex1, 0.6, RH, 0.6, 1.15, -0.35, wallMat, ex1Boxes);   // pillars and a plinth break the painting up
+block(ex1, 0.5, RH, 0.5, -3.3, -1.6, wallMat, ex1Boxes);
+block(ex1, 1.0, 0.9, 1.0, 2.4, -2.5, wallMat, ex1Boxes);
+block(ex1, 0.8, 1.6, 0.8, -1.0, 1.2, wallMat, ex1Boxes);
+
+// depth map seen from the viewpoint = which surfaces the "projector" can reach
+const vcam = new THREE.PerspectiveCamera(62, 1, 0.1, 30);
+const depthRT = new THREE.WebGLRenderTarget(1024, 1024, { depthTexture: new THREE.DepthTexture(1024, 1024) });
+const paintUniforms = {
+  uV: { value: VIEW.clone() }, uR: { value: new THREE.Vector3() }, uU: { value: new THREE.Vector3() }, uF: { value: new THREE.Vector3() },
+  uVP: { value: new THREE.Matrix4() }, uDepth: { value: depthRT.depthTexture },
+  uNear: { value: vcam.near }, uFar: { value: vcam.far }, uColor: { value: new THREE.Color(0xe5322b) },
+};
+const paintMat = new THREE.ShaderMaterial({
+  uniforms: paintUniforms,
+  polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4,
+  vertexShader: `varying vec3 vW;
+    void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; gl_Position = projectionMatrix * viewMatrix * w; }`,
+  fragmentShader: `uniform vec3 uV, uR, uU, uF, uColor; uniform mat4 uVP; uniform sampler2D uDepth; uniform float uNear, uFar;
+    varying vec3 vW;
+    void main(){
+      vec3 d = vW - uV; float z = dot(d, uF);
+      if (z <= 0.05) discard;
+      vec2 p = vec2(dot(d, uR), dot(d, uU)) / z;            // where this point lands in the viewer's picture
+      float r = length(p); vec2 a = abs(p); float m = max(a.x, a.y);
+      bool ring = r > 0.300 && r < 0.352;
+      bool square = m > 0.140 && m < 0.182;
+      bool bar = a.y < 0.022 && a.x > 0.182 && a.x < 0.300;   // two arms joining square and circle
+      if (!(ring || square || bar)) discard;
+      vec4 c = uVP * vec4(vW, 1.0); vec3 n = c.xyz / c.w;
+      if (abs(n.x) > 1.0 || abs(n.y) > 1.0) discard;
+      float sd = texture2D(uDepth, n.xy * 0.5 + 0.5).x;
+      float occ = (uNear * uFar) / (uFar - sd * (uFar - uNear));   // linear distance of the nearest surface
+      if (c.w > occ + 0.04) discard;                         // hidden from the viewpoint: unpainted
+      gl_FragColor = vec4(uColor, 1.0);
+    }`,
+});
+const overlays = [];
+for (const m of [...Object.values(room), ...ex1Boxes]) {
+  const o = new THREE.Mesh(m.geometry, paintMat);
+  m.add(o); overlays.push(o);
+}
+// footprints, revealed by the hint
+const steps = new THREE.Group();
+for (const s of [-1, 1]) {
+  const f = new THREE.Mesh(new THREE.CircleGeometry(0.09, 20), new THREE.MeshBasicMaterial({ color: 0xb8f57a }));
+  f.scale.set(0.7, 1.6, 1); f.rotation.x = -Math.PI / 2; f.position.set(s * 0.12, 0.005, 0);
+  steps.add(f);
+}
+steps.position.set(VIEW.x, 0, VIEW.z);
+steps.rotation.y = Math.atan2(VIEW.x - VIEW_AT.x, VIEW.z - VIEW_AT.z);
+steps.visible = false; scene.add(steps);
+
+function bakeViewpoint() {
+  for (const o of overlays) o.visible = false;
+  const was = steps.visible; steps.visible = false;
+  vcam.position.copy(VIEW); vcam.lookAt(VIEW_AT); vcam.updateMatrixWorld(); vcam.updateProjectionMatrix();
+  renderer.setRenderTarget(depthRT); renderer.render(scene, vcam); renderer.setRenderTarget(null);
+  paintUniforms.uVP.value.multiplyMatrices(vcam.projectionMatrix, vcam.matrixWorldInverse);
+  const e = vcam.matrixWorld.elements;
+  paintUniforms.uR.value.set(e[0], e[1], e[2]);
+  paintUniforms.uU.value.set(e[4], e[5], e[6]);
+  paintUniforms.uF.value.set(-e[8], -e[9], -e[10]);
+  for (const o of overlays) o.visible = true;
+  steps.visible = was;
+}
+
+// ---------- shared plinth and lamps for exercises 2-4 ----------
+const STAGE = new THREE.Vector3(0, 0, -1.6);
+const lampGroup = new THREE.Group(); scene.add(lampGroup);
+const plinth = block(lampGroup, 0.9, 0.8, 0.9, STAGE.x, STAGE.z);
+const LAMP_R = 4.4, LAMP_Y = 1.55;
+function makeLamp(hex) {
+  const g = new THREE.Group();
+  const stand = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, LAMP_Y, 8), new THREE.MeshStandardMaterial({ color: 0x333333 }));
+  stand.position.y = -LAMP_Y / 2;
+  const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.25, 0.03, 20), stand.material);
+  foot.position.y = -LAMP_Y + 0.015;
+  const headMat = new THREE.MeshStandardMaterial({ color: 0x222222, emissive: hex, emissiveIntensity: 1 });
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.17, 0.32, 20), headMat);
+  head.rotation.x = Math.PI / 2;
+  g.add(stand, foot, head);
+  const light = new THREE.SpotLight(hex, 3.2, 0, 1.05, 0.45, 0);
+  light.castShadow = true; light.shadow.mapSize.set(1024, 1024); light.shadow.bias = -0.0004;
+  light.shadow.camera.near = 0.5; light.shadow.camera.far = 20;
+  scene.add(light.target);
+  g.add(light);
+  lampGroup.add(g);
+  return { g, head, headMat, light, on: true, az: 0, hex };
+}
+const lamps = [makeLamp(0xff0000), makeLamp(0x00ff00), makeLamp(0x0000ff)];
+const LAMP_NAMES = () => [t('wcLampRed'), t('wcLampGreen'), t('wcLampBlue')];
+function placeLamp(L, az) {
+  L.az = az;
+  L.g.position.set(STAGE.x + Math.sin(az * DEG) * LAMP_R, LAMP_Y, STAGE.z + Math.cos(az * DEG) * LAMP_R);
+  L.g.lookAt(STAGE.x, 1.35, STAGE.z);
+  L.light.target.position.set(STAGE.x, 1.35, STAGE.z - 0.5);
+}
+function setLamp(L, on, hex = L.hex) {
+  L.on = on; L.hex = hex;
+  L.light.visible = on; L.light.color.set(hex);
+  L.headMat.emissive.set(on ? hex : 0x000000);
+}
+
+// exercise 2's figure: a simple abstract body
+const figure = new THREE.Group();
+{
+  const mat = new THREE.MeshStandardMaterial({ color: 0xf2f1ec, roughness: 0.9 });
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.24, 0.9, 24), mat); body.position.y = 0.8 + 0.45;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 24, 16), mat); head.position.y = 0.8 + 1.08;
+  for (const m of [body, head]) { m.castShadow = m.receiveShadow = true; figure.add(m); }
+  figure.position.set(STAGE.x, 0, STAGE.z);
+}
+lampGroup.add(figure);
+
+// exercise 3's sculpture: blocks whose silhouette along one axis spells a word
+const WORD = 'YOU';
+const sculpture = new THREE.Group();
+sculpture.position.set(STAGE.x, 0.8, STAGE.z);
+lampGroup.add(sculpture);
+let sculptureBlocks = 0;
+{
+  const cw = 34, ch = 14, c = document.createElement('canvas');
+  c.width = cw; c.height = ch;
+  const g = c.getContext('2d');
+  g.fillStyle = '#fff'; g.font = 'bold 15px Arial, Helvetica, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.fillText(WORD, cw / 2, ch / 2 + 1);
+  const px = g.getImageData(0, 0, cw, ch).data;
+  const S = 0.068, cells = [];
+  for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (px[(y * cw + x) * 4 + 3] > 110) cells.push([x, y]);
+  // a seeded random so the heap looks the same for everyone
+  let seed = 7; const rnd = () => ((seed = Math.imul(seed ^ (seed >>> 15), 2246822507) + 0x9e3779b9 | 0) >>> 0) / 4294967296;
+  const geo = new THREE.BoxGeometry(1, 1, 1);
+  const mat = new THREE.MeshStandardMaterial({ color: 0xe9e7e0, roughness: 0.8 });
+  const inst = new THREE.InstancedMesh(geo, mat, cells.length);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), p = new THREE.Vector3(), s = new THREE.Vector3();
+  cells.forEach(([x, y], i) => {
+    const depth = 0.04 + rnd() * 0.3;                        // length along the projection axis
+    p.set((x - cw / 2 + 0.5) * S, (ch - y) * S + 0.1, (rnd() - 0.5) * 1.3);
+    s.set(S * 1.02, S * 1.02, depth);
+    inst.setMatrixAt(i, m4.compose(p, q, s));
+  });
+  inst.castShadow = inst.receiveShadow = true;
+  sculpture.add(inst);
+  // a turntable under it
+  const tt = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.62, 0.04, 40), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.6 }));
+  tt.position.y = 0.02; tt.receiveShadow = true; sculpture.add(tt);
+  sculptureBlocks = cells.length;
+}
+// the single shadow lamp: horizontal light, 26° off the wall's normal
+const SHADOW_AZ = 26;
+const sun = new THREE.DirectionalLight(0xffffff, 2.4);
+sun.castShadow = true; sun.shadow.mapSize.set(2048, 2048); sun.shadow.bias = -0.0005;
+Object.assign(sun.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 0.5, far: 20 });
+sun.shadow.camera.updateProjectionMatrix();
+scene.add(sun, sun.target);
+const sunLamp = makeLamp(0xffffff); sunLamp.light.visible = false;    // only the fixture is used
+const TARGET_YAW = SHADOW_AZ;            // the blocks line up when their depth axis points along the light
+function placeSun() {
+  const d = new THREE.Vector3(Math.sin(SHADOW_AZ * DEG), 0, Math.cos(SHADOW_AZ * DEG));
+  const h = 1.15;
+  sun.position.set(STAGE.x + d.x * 7, h, STAGE.z + d.z * 7);
+  sun.target.position.set(STAGE.x, h, STAGE.z);
+  sunLamp.g.position.set(STAGE.x + d.x * LAMP_R, h, STAGE.z + d.z * LAMP_R);
+  sunLamp.g.lookAt(STAGE.x, h, STAGE.z);
+  sunLamp.headMat.emissive.set(0xffffff);
+}
+placeSun();
+
+// ---------- exercises ----------
+function buildEX() { return [
+  {
+    title: t('wcEx0Title'),
+    goal: t('wcEx0Goal'),
+    predict: {
+      q: t('wcEx0PredictQ'),
+      options: [t('wcEx0PredictOpt0'), t('wcEx0PredictOpt1'), t('wcEx0PredictOpt2')],
+      correct: 1,
+    },
+    hint: t('wcEx0Hint'),
+    debrief: {
+      takeaway: t('wcEx0Takeaway'),
+      text: t('wcEx0Text'),
+      context: t('wcEx0Context'),
+      q: t('wcEx0Q'),
+      a: t('wcEx0A'),
+    },
+  },
+  {
+    title: t('wcEx1Title'),
+    goal: t('wcEx1Goal'),
+    predict: {
+      q: t('wcEx1PredictQ'),
+      options: [t('wcEx1PredictOpt0'), t('wcEx1PredictOpt1'), t('wcEx1PredictOpt2')],
+      correct: 1,
+    },
+    hint: t('wcEx1Hint'),
+    debrief: {
+      takeaway: t('wcEx1Takeaway'),
+      text: t('wcEx1Text'),
+      context: t('wcEx1Context'),
+      q: t('wcEx1Q'),
+      a: t('wcEx1A'),
+    },
+  },
+  {
+    title: t('wcEx2Title'),
+    goal: t('wcEx2Goal'),
+    predict: {
+      q: t('wcEx2PredictQ'),
+      options: [t('wcEx2PredictOpt0'), t('wcEx2PredictOpt1'), t('wcEx2PredictOpt2')],
+      correct: 1,
+    },
+    hint: t('wcEx2Hint'),
+    debrief: {
+      takeaway: t('wcEx2Takeaway'),
+      text: t('wcEx2Text'),
+      context: t('wcEx2Context'),
+      q: t('wcEx2Q'),
+      a: t('wcEx2A'),
+    },
+  },
+  {
+    title: t('wcEx3Title'),
+    goal: t('wcEx3Goal'),
+  },
+]; }
+let EX = buildEX();
+
+let ei = 0, mode = 'intro';
+const predictions = {};
+let done = new Set();
+try { done = new Set(JSON.parse(localStorage.getItem('white-cube-done') || '[]')); } catch (_) {}
+let clock = 0, hintShown = false, sculptYaw = 0, winHold = 0;
+
+// first-person state (exercise 1)
+const fp = { x: -3.6, z: 3.4, yaw: 0, pitch: 0 };
+const move = { f: false, b: false, l: false, r: false };
+// orbit state (exercises 2-4)
+const orb = { az: 0.35, el: 0.28, dist: 8.2, zoom: 1 };
+
+function setVisibility() {
+  const first = ei === 0;
+  ex1.visible = first;
+  for (const o of overlays) o.visible = first;
+  room.front.visible = room.ceiling.visible = first;
+  lampGroup.visible = !first;
+  figure.visible = ei === 1;
+  sculpture.visible = ei >= 2;
+  const coloured = ei === 1 || ei === 3;
+  for (const L of lamps) { L.g.visible = coloured; L.light.visible = coloured && L.on; }
+  sunLamp.g.visible = sun.visible = ei === 2;
+  steps.visible = false;
+  hemi.intensity = first ? 2.5 : ei === 2 ? 0.25 : 0;
+  ambient.intensity = first ? 0.6 : ei === 2 ? 0.12 : 0.025;
+  scene.background.set(first ? 0x0a0a0a : 0x050505);
+  $('cross').hidden = !first;
+}
+
+// ---------- dock (controls per exercise) ----------
+function holdButton(el, on, off) {
+  el.addEventListener('pointerdown', e => { e.preventDefault(); el.setPointerCapture(e.pointerId); el.classList.add('active'); on(); });
+  for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture']) el.addEventListener(ev, () => { el.classList.remove('active'); off(); });
+  el.addEventListener('contextmenu', e => e.preventDefault());
+}
+let turnHeld = 0;
+function buildDock() {
+  const d = $('dock'); d.innerHTML = '';
+  const panel = document.createElement('div'); panel.className = 'panel'; d.appendChild(panel);
+  if (ei === 0) {
+    panel.innerHTML = `<div class="pad">
+      <button class="hold" data-m="l">◀</button><button class="hold" data-m="f">▲</button>
+      <button class="hold" data-m="b">▼</button><button class="hold" data-m="r">▶</button></div>
+      <div class="tip">${t('wcTipWalk')}</div>`;
+    for (const b of panel.querySelectorAll('.hold')) holdButton(b, () => (move[b.dataset.m] = true), () => (move[b.dataset.m] = false));
+  } else if (ei === 1 || ei === 3) {
+    lamps.forEach((L, i) => {
+      const row = document.createElement('div'); row.className = 'row';
+      row.innerHTML = `<button class="lamp${L.on ? '' : ' off'}"><i></i>${ei === 3 ? t('wcLampWord') + ' ' + (i + 1) : LAMP_NAMES()[i]}</button>
+        <input type="range" min="-70" max="70" step="1" value="${L.az}" aria-label="Lamp ${i + 1} position">`;
+      const btn = row.querySelector('button'), dotEl = row.querySelector('i'), range = row.querySelector('input');
+      const paint = () => { btn.classList.toggle('off', !L.on); dotEl.style.background = '#' + new THREE.Color(L.hex).getHexString(); };
+      paint();
+      btn.addEventListener('click', () => {
+        if (ei === 3) {           // studio: the button cycles colours, the last step is "off"
+          const k = (STUDIO_COLORS.indexOf(L.on ? L.hex : null) + 1) % STUDIO_COLORS.length;
+          const next = STUDIO_COLORS[k];
+          setLamp(L, next !== null, next ?? L.hex);
+        } else setLamp(L, !L.on);
+        paint();
+      });
+      range.addEventListener('input', () => placeLamp(L, +range.value));
+      panel.appendChild(row);
+    });
+    if (ei === 3) addTurntable(panel, true);
+    else panel.insertAdjacentHTML('beforeend', `<div class="tip">${t('wcTipLamp')}</div>`);
+  } else if (ei === 2) {
+    addTurntable(panel, false);
+    panel.insertAdjacentHTML('beforeend', `<div class="tip">${t('wcTipSculpt')}</div>`);
+  }
+}
+function addTurntable(panel, studio) {
+  const row = document.createElement('div'); row.className = 'row';
+  row.innerHTML = `<label>${t('wcTurnLabel')}</label><button class="mini" data-t="-1">‹</button>
+    <input type="range" min="0" max="360" step="0.5" value="${((sculptYaw % 360) + 360) % 360}" aria-label="Turn the sculpture">
+    <button class="mini" data-t="1">›</button>${studio ? `<button class="mini" id="btnPhoto">${t('wcPhotoBtn')}</button>` : ''}`;
+  const range = row.querySelector('input');
+  range.addEventListener('input', () => { sculptYaw = +range.value; });
+  for (const b of row.querySelectorAll('[data-t]')) holdButton(b, () => (turnHeld = +b.dataset.t), () => (turnHeld = 0));
+  panel.appendChild(row);
+  if (studio) row.querySelector('#btnPhoto').addEventListener('click', photo);
+  panel._range = range;
+}
+const STUDIO_COLORS = [0xff0000, 0x00ff00, 0x0000ff, 0xffffff, 0xffa000, 0xff00ff, 0x00ffff, null];
+
+function photo() {
+  renderer.render(scene, camera);
+  canvas.toBlob(b => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(b);
+    a.download = 'white-cube-' + new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-') + '.png';
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }, 'image/png');
+}
+
+// ---------- pointer: drag to look (first person) or orbit ----------
+const pointers = new Map(); let pinch0 = 0, zoom0 = 1;
+canvas.addEventListener('pointerdown', e => {
+  canvas.setPointerCapture(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]);
+  if (pointers.size === 2) { const [a, b] = [...pointers.values()]; pinch0 = Math.hypot(a[0] - b[0], a[1] - b[1]); zoom0 = orb.zoom; }
+});
+canvas.addEventListener('pointermove', e => {
+  if (!pointers.has(e.pointerId)) return;
+  const prev = pointers.get(e.pointerId); pointers.set(e.pointerId, [e.clientX, e.clientY]);
+  const dx = e.clientX - prev[0], dy = e.clientY - prev[1];
+  if (pointers.size === 1) {
+    if (ei === 0) { fp.yaw -= dx * 0.004; fp.pitch = Math.max(-1.3, Math.min(1.3, fp.pitch - dy * 0.004)); }
+    else { orb.az = Math.max(-1.25, Math.min(1.25, orb.az - dx * 0.005)); orb.el = Math.max(0.02, Math.min(0.95, orb.el + dy * 0.004)); }
+  } else if (pointers.size === 2 && ei !== 0) {
+    const [a, b] = [...pointers.values()];
+    orb.zoom = Math.max(0.55, Math.min(1.35, zoom0 * pinch0 / (Math.hypot(a[0] - b[0], a[1] - b[1]) || 1)));
+  }
+});
+const endPointer = e => pointers.delete(e.pointerId);
+canvas.addEventListener('pointerup', endPointer);
+canvas.addEventListener('pointercancel', endPointer);
+canvas.addEventListener('wheel', e => { e.preventDefault(); if (ei !== 0) orb.zoom = Math.max(0.55, Math.min(1.35, orb.zoom * Math.exp(e.deltaY * 0.001))); }, { passive: false });
+
+const KEYS = { w: 'f', arrowup: 'f', s: 'b', arrowdown: 'b', a: 'l', arrowleft: 'l', d: 'r', arrowright: 'r' };
+addEventListener('keydown', e => {
+  if (mode !== 'play') return;
+  const k = e.key.toLowerCase();
+  if (ei === 0 && KEYS[k]) { e.preventDefault(); move[KEYS[k]] = true; }
+  if (ei >= 2 && (k === 'arrowleft' || k === 'a')) { e.preventDefault(); turnHeld = -1; }
+  if (ei >= 2 && (k === 'arrowright' || k === 'd')) { e.preventDefault(); turnHeld = 1; }
+});
+addEventListener('keyup', e => {
+  const k = e.key.toLowerCase();
+  if (KEYS[k]) move[KEYS[k]] = false;
+  if (['arrowleft', 'arrowright', 'a', 'd'].includes(k)) turnHeld = 0;
+});
+addEventListener('blur', () => { for (const k in move) move[k] = false; turnHeld = 0; });
+
+// ---------- flow ----------
+function renderChips() {
+  const host = $('chips'); host.innerHTML = '';
+  EX.forEach((x, i) => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i === ei ? ' cur' : '') + (done.has(i) ? ' done' : '');
+    b.textContent = i < 3 ? String(i + 1) : t('wcEx3Title').toLowerCase();
+    b.title = x.title;
+    b.addEventListener('click', () => start(i, true));
+    host.appendChild(b);
+  });
+}
+
+function start(i, ask) {
+  EX = buildEX();
+  ei = i; const x = EX[i];
+  clock = 0; hintShown = false; winHold = 0;
+  for (const k in move) move[k] = false; turnHeld = 0;
+  if (i === 0) { Object.assign(fp, { x: -3.6, z: 3.4, yaw: -0.35, pitch: -0.05 }); }
+  if (i === 1) { [-8, 0, 8].forEach((az, k) => placeLamp(lamps[k], az)); lamps.forEach((L, k) => setLamp(L, k === 0, [0xff0000, 0x00ff00, 0x0000ff][k])); }
+  if (i === 2) sculptYaw = TARGET_YAW + 118;
+  if (i === 3) { [-45, 0, 45].forEach((az, k) => placeLamp(lamps[k], az)); lamps.forEach((L, k) => setLamp(L, true, [0xff0000, 0x00ff00, 0x0000ff][k])); sculptYaw = TARGET_YAW + 25; }
+  Object.assign(orb, { az: i === 2 ? -0.62 : 0.3, el: 0.22, zoom: 1 });   // ex 3: stand opposite the lamp, or the sculpture hides its own shadow
+  setVisibility();
+  if (i === 0) bakeViewpoint();
+  $('mTitle').textContent = (i < 3 ? `${t('wcExerciseWord')} ${i + 1} · ` : '') + x.title;
+  $('mGoal').textContent = x.goal;
+  $('mHint').hidden = true;
+  $('mProgress').style.display = i === 3 ? 'none' : '';
+  $('mPred').textContent = predictions[i] != null ? t('wcYourPrediction', { opt: x.predict.options[predictions[i]] }) : '';
+  renderChips(); buildDock();
+  if (ask && x.predict && predictions[i] == null) showPredict();
+  else { closeModal(); mode = 'play'; }
+}
+
+function openModal(html) {
+  $('card').innerHTML = html; $('modal').hidden = false;
+  const first = $('card').querySelector('.go, .opts button');
+  if (first) first.focus({ preventScroll: true });
+}
+function closeModal() { $('modal').hidden = true; }
+const FOOTER = () => `<div class="site-foot"><span>${t('wcFooter')}</span>
+  <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a></div>`;
+
+function showIntro() {
+  mode = 'intro';
+  openModal(`<div class="eyebrow">White Cube</div>
+    <h2>${t('wcIntroH2')}</h2>
+    <p>${t('wcIntroP1')}</p>
+    <p>${t('wcIntroP2')}</p>
+    <div class="keys">${t('wcIntroKeys')}</div>
+    <div class="actions"><button onclick="location.href='/lab/white-cube-notes.html'">${t('wcNotesBtn')}</button>
+      <button class="go" id="goStart">${t('wcEnterGallery')}</button></div>${FOOTER()}`);
+  $('goStart').addEventListener('click', () => start(0, true));
+}
+
+let helpReturn = 'play';
+function showHelp() {
+  if (mode !== 'help') helpReturn = mode;
+  mode = 'help';
+  openModal(`<div class="eyebrow">${t('wcControlsBtn')}</div><h2>${t('wcHelpH2')}</h2>
+    <p>${t('wcHelpP1')}</p>
+    <p>${t('wcHelpP2')}</p>
+    <div class="actions"><button class="go" id="goBack">${t('wcBackBtn')}</button></div>`);
+  $('goBack').addEventListener('click', () => { closeModal(); mode = helpReturn; });
+}
+
+function showPredict() {
+  mode = 'predict';
+  const p = EX[ei].predict;
+  openModal(`<div class="eyebrow">${t('wcPredictFirst', { n: ei + 1 })}</div>
+    <h2>${EX[ei].title}</h2><p>${p.q}</p>
+    <div class="opts">${p.options.map((o, k) => `<button data-k="${k}">${o}</button>`).join('')}</div>
+    <p class="small">${t('wcGuessHint')}</p>`);
+  for (const b of $('card').querySelectorAll('.opts button')) b.addEventListener('click', () => {
+    predictions[ei] = +b.dataset.k;
+    $('mPred').textContent = t('wcYourPrediction', { opt: p.options[predictions[ei]] });
+    closeModal(); mode = 'play';
+  });
+}
+
+function showDebrief() {
+  mode = 'debrief';
+  done.add(ei);
+  try { localStorage.setItem('white-cube-done', JSON.stringify([...done])); } catch (_) {}
+  renderChips();
+  const x = EX[ei], p = x.predict, d = x.debrief, g = predictions[ei];
+  const verdict = g == null ? '' : g === p.correct
+    ? `<div class="verdict yes">${t('wcVerdictYes', { guess: p.options[g] })}</div>`
+    : `<div class="verdict no">${t('wcVerdictNo', { guess: p.options[g], correct: p.options[p.correct] })}</div>`;
+  openModal(`<div class="eyebrow">${t('wcSeenIt', { n: ei + 1 })}</div>
+    <h2>${x.title}</h2>${verdict}
+    <div class="takeaway">${d.takeaway}</div>
+    <p>${d.text}</p>
+    <div class="reflect"><div class="q">${t('wcLookAgain', { q: d.q })}</div>
+      <div class="a" hidden>${d.a}</div><button id="goReveal">${t('wcShowAnswer')}</button></div>
+    <p class="context" style="margin-top:12px">${d.context}</p>
+    <div class="actions"><button id="goStay">${t('wcKeepLooking')}</button><button class="go" id="goNext">${ei < 2 ? t('wcExerciseBtn', { n: ei + 2 }) : t('wcWrapUp')}</button></div>`);
+  $('goReveal').addEventListener('click', e => { $('card').querySelector('.reflect .a').hidden = false; e.target.remove(); });
+  $('goStay').addEventListener('click', () => { closeModal(); mode = 'explore'; });
+  $('goNext').addEventListener('click', () => ei < 2 ? start(ei + 1, true) : showSummary());
+}
+
+function showSummary() {
+  mode = 'summary';
+  const rows = EX.slice(0, 3).map((x, i) => {
+    const g = predictions[i];
+    const mark = g == null ? t('wcDashMark') : g === x.predict.correct ? t('wcPredictedMark') : t('wcSurprisedMark');
+    return `<tr><td>${i + 1}. ${x.title}</td><td>${x.debrief.takeaway}</td><td style="white-space:nowrap">${mark}</td></tr>`;
+  }).join('');
+  openModal(`<div class="eyebrow">White Cube</div><h2>${t('wcSummaryH2')}</h2>
+    <table class="summary">${rows}</table>
+    <p>${t('wcSummaryP')}</p>
+    <p class="small">${t('wcSummarySmall')}</p>
+    <div class="actions"><button onclick="location.href='/lab/white-cube-notes.html'">${t('wcNotesBtn')}</button>
+      <button class="go" id="goStudio">${t('wcOpenStudio')}</button></div>${FOOTER()}`);
+  $('goStudio').addEventListener('click', () => start(3, false));
+}
+
+$('btnHelp').addEventListener('click', showHelp);
+$('btnCollapse').addEventListener('click', () => { const m = $('hud').classList.toggle('min'); $('btnCollapse').textContent = m ? '+' : '–'; });
+
+// ---------- per-frame logic ----------
+const pillarsXZ = ex1Boxes.map(b => ({ x: b.position.x, z: b.position.z, hx: b.geometry.parameters.width / 2 + 0.28, hz: b.geometry.parameters.depth / 2 + 0.28 }));
+const viewDir = VIEW_AT.clone().sub(VIEW).normalize();
+const look = new THREE.Vector3();
+
+function walk(dt) {
+  const sp = 2.4 * dt;
+  const fx = -Math.sin(fp.yaw), fz = -Math.cos(fp.yaw);
+  let mx = 0, mz = 0;
+  if (move.f) { mx += fx; mz += fz; } if (move.b) { mx -= fx; mz -= fz; }
+  if (move.l) { mx += fz; mz -= fx; } if (move.r) { mx -= fz; mz += fx; }
+  const L = Math.hypot(mx, mz); if (L) { fp.x += mx / L * sp; fp.z += mz / L * sp; }
+  fp.x = Math.max(-RW / 2 + 0.3, Math.min(RW / 2 - 0.3, fp.x));
+  fp.z = Math.max(-RD / 2 + 0.3, Math.min(RD / 2 - 0.3, fp.z));
+  for (const p of pillarsXZ) {         // slide out of pillars along the shallower side
+    const dx = fp.x - p.x, dz = fp.z - p.z;
+    if (Math.abs(dx) < p.hx && Math.abs(dz) < p.hz) {
+      if (p.hx - Math.abs(dx) < p.hz - Math.abs(dz)) fp.x = p.x + Math.sign(dx || 1) * p.hx; else fp.z = p.z + Math.sign(dz || 1) * p.hz;
+    }
+  }
+}
+
+function tick(dt) {
+  clock += mode === 'play' ? dt : 0;
+  let progress = 0, note = '', label = '';
+
+  if (ei === 0) {
+    if (mode === 'play' || mode === 'explore') walk(dt);
+    camera.position.set(fp.x, 1.6, fp.z);
+    camera.rotation.set(fp.pitch, fp.yaw, 0);
+    camera.getWorldDirection(look);
+    const dist = Math.hypot(fp.x - VIEW.x, fp.z - VIEW.z);
+    const ang = Math.acos(Math.max(-1, Math.min(1, look.dot(viewDir)))) / DEG;
+    progress = 0.7 * clamp01(1 - dist / 7) ** 1.5 + 0.3 * clamp01(1 - ang / 50);
+    label = dist < 0.6 && ang > 12 ? t('wcRightSpotLook') : t('wcAlignedPct', { pct: Math.round(progress * 100) });
+    if (dist < 0.6 && ang > 12) note = t('wcStandingNote');
+    if (mode === 'play' && dist < 0.33 && ang < 7) { winHold += dt; if (winHold > 0.35) showDebrief(); } else winHold = 0;
+  } else {
+    // orbit camera looking into the room through the missing front wall
+    const target = new THREE.Vector3(STAGE.x, 1.2, STAGE.z - 0.8);
+    const d = orb.dist * orb.zoom * (innerWidth < innerHeight ? 1.35 : 1);
+    camera.position.set(target.x + Math.sin(orb.az) * Math.cos(orb.el) * d, target.y + Math.sin(orb.el) * d, target.z + Math.cos(orb.az) * Math.cos(orb.el) * d);
+    camera.lookAt(target);
+  }
+
+  if (ei === 1) {
+    const on = lamps.filter(L => L.on);
+    let minSep = 999;
+    for (let a = 0; a < 3; a++) for (let b = a + 1; b < 3; b++) minSep = Math.min(minSep, Math.abs(lamps[a].az - lamps[b].az));
+    progress = on.length / 3 * 0.55 + (on.length === 3 ? 0.45 * clamp01(minSep / 22) : 0);
+    label = t('wcLampsOnLabel', { n: on.length });
+    if (on.length === 1) note = t('wcOneLampNote');
+    else if (on.length === 2) note = t('wcTwoLampNote');
+    else if (minSep < 22) note = t('wcThreeLampCloseNote');
+    if (mode === 'play' && on.length === 3 && minSep >= 22) { winHold += dt; if (winHold > 0.6) showDebrief(); } else winHold = 0;
+  }
+
+  if (ei >= 2) {
+    if (turnHeld && (mode === 'play' || mode === 'explore')) {
+      sculptYaw = (sculptYaw + turnHeld * dt * (pointers.size ? 12 : 12)) % 360;
+      const r = $('dock').querySelector('.panel')?._range; if (r) r.value = ((sculptYaw % 360) + 360) % 360;
+    }
+    sculpture.rotation.y = sculptYaw * DEG;
+  }
+  if (ei === 2) {
+    const err = Math.abs(wrap180(sculptYaw - TARGET_YAW));
+    const mirrorErr = Math.abs(wrap180(sculptYaw - TARGET_YAW - 180));
+    progress = clamp01(1 - err / 90) ** 2;
+    label = err < 1.5 ? t('wcSharpLabel') : err < 10 ? t('wcAlmostLabel') : '';
+    if (mirrorErr < 4) note = t('wcMirroredNote');
+    else if (err < 12 && err >= 2.5) note = t('wcFineTuneNote');
+    if (mode === 'play' && err < 2.5) { winHold += dt; if (winHold > 0.5) showDebrief(); } else winHold = 0;
+  }
+
+  if (mode === 'play' && ei < 3 && !hintShown && clock > 40) {
+    hintShown = true; $('mHint').hidden = false; $('mHint').textContent = t('wcHintPrefix', { hint: EX[ei].hint });
+    if (ei === 0) steps.visible = true;
+  }
+  return { progress, note, label };
+}
+
+let last = performance.now(), uiClock = 0;
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000); last = now;
+  const st = tick(dt);
+  uiClock += dt;
+  if (uiClock > 0.1) {
+    uiClock = 0;
+    $('mBar').style.width = st.progress * 100 + '%';
+    $('mProg').textContent = st.label;
+    $('mNote').textContent = mode === 'play' ? st.note : '';
+  }
+  renderer.render(scene, camera);
+  requestAnimationFrame(frame);
+}
+
+function resize() {
+  renderer.setSize(innerWidth, innerHeight, false);
+  camera.aspect = innerWidth / innerHeight;
+  camera.fov = innerWidth < innerHeight ? 78 : 62;
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize', resize);
+resize();
+
+window.__wc = { start, get ei() { return ei; }, get mode() { return mode; }, lamps, placeLamp, setLamp, fp, VIEW, VIEW_AT, TARGET_YAW,
+  set yaw(v) { sculptYaw = v; }, renderer, scene, camera, blocks: () => sculptureBlocks };
+
+// ---------- re-render JS-built UI (HUD, dock, open modal) on language switch ----------
+// Static data-i18n elements are retranslated by i18n.js itself; everything the game
+// builds with textContent/innerHTML has to be redrawn here instead.
+document.addEventListener('presker-lang-change', () => {
+  EX = buildEX();
+  renderChips();
+  buildDock();
+  if (mode === 'intro') showIntro();
+  else if (mode === 'help') showHelp();
+  else if (mode === 'predict') showPredict();
+  else if (mode === 'debrief') showDebrief();
+  else if (mode === 'summary') showSummary();
+  else {
+    $('mTitle').textContent = (ei < 3 ? `${t('wcExerciseWord')} ${ei + 1} · ` : '') + EX[ei].title;
+    $('mGoal').textContent = EX[ei].goal;
+    $('mPred').textContent = predictions[ei] != null ? t('wcYourPrediction', { opt: EX[ei].predict.options[predictions[ei]] }) : '';
+    if (hintShown) $('mHint').textContent = t('wcHintPrefix', { hint: EX[ei].hint });
+  }
+});
+
+start(0, false);
+showIntro();
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

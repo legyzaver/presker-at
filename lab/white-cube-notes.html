@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>White Cube — teaching installation art in 3D — PRESKER.AT</title>
+  <meta name="description" content="Design notes for White Cube, a 3D browser game that teaches installation art through viewpoint, light and shadow: experience before vocabulary, predict-observe-explain for perception, and real-world follow-ups for the classroom.">
+  <link rel="canonical" href="https://www.presker.at/lab/white-cube-notes.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.presker.at/lab/white-cube-notes.html">
+  <meta property="og:title" content="White Cube — teaching installation art in 3D">
+  <meta property="og:description" content="Viewpoint, light and shadow: how a small 3D game teaches the basics of installation art by letting you do them.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      wcnPlayFull: 'Play full screen →',
+      wcnEyebrow: 'Digital Lab · Learning',
+      wcnH1: "White Cube — teaching installation art by letting you stand inside it.",
+      wcnSub: "A small 3D gallery in the browser with three exercises and a studio. This page covers what it teaches, why it's built this way, and how to use it with a class.",
+      wcnFullscreen: '⛶ Fullscreen',
+      wcnProblemH: 'The teaching problem',
+      wcnProblemP1: 'Installation art is notoriously hard to teach from pictures. A photo of an installation picks one viewpoint, freezes one light condition and leaves out the visitor, and those are exactly the things the work is made of. Students learn the names (site-specific, immersive, participatory) without ever having had the experience the names describe.',
+      wcnProblemP2: "A 3D scene can't replace a real room, but it can give back the parts a photo removes: you can move, the light can change, and what you see depends on where you stand. White Cube uses that to let learners <em>have</em> three basic experiences of installation art before they get the vocabulary for them.",
+      wcnThreeH: 'Three ideas, three exercises',
+      wcnTrio1: '<b>1 · Viewpoint</b>A red figure is painted across walls, floor and pillars. You walk through the room until it snaps together. <em>Where you stand is part of the work.</em>',
+      wcnTrio2: '<b>2 · Light as material</b>Red, green and blue lamps on a white figure. Spread them apart and the shadows turn cyan, magenta and yellow. <em>A shadow is made of the light that is left.</em>',
+      wcnTrio3: '<b>3 · Projection</b>A heap of blocks on a turntable. Turn it until its shadow on the wall spells a word. <em>The work can be the shadow, not the object.</em>',
+      wcnTrioP: 'These three were chosen because each is a <strong>perceptual fact you can check with your own eyes</strong>, and each one surprises most people the first time. That matters for the method below. Questions of taste have no right answer to predict, but "what colour will the shadow be?" does. The exercises use the checkable side of art (how seeing works) as a way into the open side (what artists do with it).',
+      wcnExpH: 'Experience first, vocabulary after',
+      wcnExpP: "John Dewey argued in <em>Art as Experience</em> (1934) that art lives in experience, not in the object on its own. White Cube follows that order strictly. No exercise starts with a term or an artist's name. You first walk, switch lamps and turn a sculpture. The word <em>anamorphosis</em>, Goethe's coloured shadows, and names like Felice Varini, James Turrell, Olafur Eliasson, Tim Noble &amp; Sue Webster and Kumi Yamashita appear only in the debrief, once you already have the experience they name.",
+      wcnPoeH: 'Predict → Observe → Explain, for perception',
+      wcnPoeP: 'Each exercise uses the Predict–Observe–Explain sequence from science teaching (White &amp; Gunstone), adapted for looking:',
+      wcnPoeLi1: '<strong>Predict.</strong> One question before you start: "Red, green and blue lamps shine on a white wall. What will you see?" Most people choose "a muddy brown wall", because that\'s what mixing paint does. The prediction brings that paint-box intuition into the open.',
+      wcnPoeLi2: '<strong>Observe.</strong> Your answer stays visible while you work. Feedback is mostly visual, because in art the evidence should be the image: the shadows change colour as you move the lamps.',
+      wcnPoeLi3: '<strong>Explain.</strong> The debrief gives a one-line principle, a short explanation, then a <strong>"Look again"</strong> question, for example "where two shadows overlap, what colour is it?" Its answer is hidden, and the <em>Keep looking</em> button sends you back into the room to check. Looking is the activity, not reading.',
+      wcnFeedbackH: 'Feedback that points without telling',
+      wcnFeedbackLi1: '<strong>A warm/cold bar</strong> in the viewpoint exercise fills up as you approach the right spot. It turns a needle-in-a-haystack search into guided exploration, without saying where to go.',
+      wcnFeedbackLi2: '<strong>Notes that react to what you\'re doing.</strong> "Two lamps: look at the colour of each shadow. Which lamp is missing from it?" or "All three lamps are on, but they stand almost in one place." The notes ask you to look again; they don\'t give the answer.',
+      wcnFeedbackLi3: '<strong>Mistakes worth making.</strong> Turn the sculpture halfway round and the wall reads <em>UOY</em>: the edges line up but the word is mirrored. The game names the effect instead of treating it as a failure, because it\'s a small lesson about projection in its own right.',
+      wcnFeedbackLi4: '<strong>Hints only after struggle.</strong> After 40 seconds a hint appears. In the first exercise it also reveals footprints on the floor at the viewpoint.',
+      wcnStudioH: 'From understanding to making: the studio',
+      wcnStudioP: 'After the three guided exercises, the studio removes the goals: the shadow sculpture, three lamps you can recolour and move, and a photo button. The sequence goes from <em>perceiving</em> to <em>understanding</em> to <em>composing</em>. The photo button is a deliberate small lesson too: installations usually survive only as documentation, and choosing the angle for that photo is itself an artistic decision.',
+      wcnClassH: 'Using it in a class',
+      wcnClassP: 'A 45-minute lesson, suitable from about age 11:',
+      wcnClassLi1: '<strong>10 min, projected:</strong> show exercise 2\'s prediction and let everyone vote by hand before touching anything. Then play it live. The jump from "brown" to "white with coloured shadows" usually gets an audible reaction.',
+      wcnClassLi2: '<strong>15 min, in pairs on laptops or tablets:</strong> exercises 1 and 3. Pairs work better than individuals, because one walks while the other directs: "left… no, back… there!"',
+      wcnClassLi3: '<strong>15 min, in the real room:</strong> repeat it with real things. Three phone torches behind red, green and blue cellophane on a white sheet of paper give coloured shadows. A desk lamp and a heap of pencil cases, scissors and staplers make a shadow sculpture. Tape on two walls and the floor, traced from a phone torch held at one spot, makes an anamorphosis.',
+      wcnClassLi4: '<strong>5 min:</strong> look at real installations together. The artists named in the debriefs are a good starting point, as is this site\'s own <a class="lab-link" href="/art/">art archive</a> of installations about perception, projected images and light.',
+      wcnClassP2: 'Step 3 matters most. The digital room is a rehearsal; the point is to make students notice viewpoint, light and shadow in real space afterwards.',
+      wcnHoodH: 'Under the hood',
+      wcnHoodP: 'One HTML file plus a self-hosted copy of <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT licence). No build step, no external requests, no tracking.',
+      wcnHoodLi1: '<strong>The anamorphic painting</strong> is made the way artists often make them: a virtual projector stands at the viewpoint. A depth map rendered once from there tells a small shader which surfaces the projector can reach, so patches hidden behind pillars stay unpainted, exactly as in a real room. Each surface point is mapped into the viewer\'s picture plane, and the circle and square are drawn there.',
+      wcnHoodLi2: '<strong>The coloured light</strong> is three ordinary spotlights with shadow maps and no tone mapping, so the colours add up to white instead of being washed out. The cyan, magenta and yellow are not painted in; they come from the light adding up.',
+      wcnHoodLi3: '<strong>The shadow sculpture</strong> is a word drawn into a tiny canvas, turned into about 200 blocks (one per filled pixel), with each block pushed a random distance along one axis. Seen along that axis, every block hides behind its neighbour and the outline is exact; from anywhere else it\'s a heap. A seeded random generator keeps the heap the same for every visitor.',
+      wcnRefsH: 'References',
+      wcnBack: '← back to presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      wcnPlayFull: 'Vollbild spielen →',
+      wcnEyebrow: 'Digitales Lab · Lernen',
+      wcnH1: 'White Cube — Installationskunst lehren, indem man dich hineinstellt.',
+      wcnSub: 'Eine kleine 3D-Galerie im Browser mit drei Übungen und einem Studio. Diese Seite erklärt, was sie lehrt, warum sie so gebaut ist, und wie man sie im Unterricht einsetzt.',
+      wcnFullscreen: '⛶ Vollbild',
+      wcnProblemH: 'Das didaktische Problem',
+      wcnProblemP1: 'Installationskunst ist notorisch schwer von Bildern aus zu lehren. Ein Foto einer Installation wählt einen Blickpunkt, friert eine Lichtsituation ein und lässt den Besucher weg — und genau das sind die Dinge, aus denen das Werk gemacht ist. Schüler lernen die Begriffe (ortsspezifisch, immersiv, partizipativ), ohne je die Erfahrung gemacht zu haben, die die Begriffe beschreiben.',
+      wcnProblemP2: 'Eine 3D-Szene kann einen echten Raum nicht ersetzen, aber sie kann die Teile zurückgeben, die ein Foto wegnimmt: Du kannst dich bewegen, das Licht kann sich ändern, und was du siehst, hängt davon ab, wo du stehst. White Cube nutzt das, um Lernende drei Grunderfahrungen der Installationskunst <em>machen</em> zu lassen, bevor sie das Vokabular dafür bekommen.',
+      wcnThreeH: 'Drei Ideen, drei Übungen',
+      wcnTrio1: '<b>1 · Blickpunkt</b>Eine rote Figur ist über Wände, Boden und Säulen gemalt. Du gehst durch den Raum, bis sie sich zusammenfügt. <em>Wo du stehst, ist Teil des Werks.</em>',
+      wcnTrio2: '<b>2 · Licht als Material</b>Rote, grüne und blaue Lampen auf einer weißen Figur. Verteile sie, und die Schatten werden Cyan, Magenta und Gelb. <em>Ein Schatten besteht aus dem Licht, das übrig bleibt.</em>',
+      wcnTrio3: '<b>3 · Projektion</b>Ein Haufen Blöcke auf einem Drehteller. Drehe ihn, bis sein Schatten an der Wand ein Wort buchstabiert. <em>Das Werk kann der Schatten sein, nicht das Objekt.</em>',
+      wcnTrioP: 'Diese drei wurden gewählt, weil jede eine <strong>wahrnehmbare Tatsache ist, die du mit eigenen Augen prüfen kannst</strong>, und jede überrascht die meisten Menschen beim ersten Mal. Das ist wichtig für die untenstehende Methode. Geschmacksfragen haben keine vorhersagbare richtige Antwort, aber „welche Farbe wird der Schatten haben?" schon. Die Übungen nutzen die überprüfbare Seite der Kunst (wie Sehen funktioniert) als Zugang zur offenen Seite (was Künstler damit machen).',
+      wcnExpH: 'Erfahrung zuerst, Vokabular danach',
+      wcnExpP: 'John Dewey argumentierte in <em>Art as Experience</em> (1934), dass Kunst in der Erfahrung lebt, nicht im Objekt an sich. White Cube folgt dieser Reihenfolge strikt. Keine Übung beginnt mit einem Begriff oder dem Namen eines Künstlers. Du gehst zuerst, schaltest Lampen um und drehst eine Skulptur. Das Wort <em>Anamorphose</em>, Goethes Farbschatten und Namen wie Felice Varini, James Turrell, Olafur Eliasson, Tim Noble &amp; Sue Webster und Kumi Yamashita erscheinen erst in der Nachbesprechung, sobald du die Erfahrung, die sie benennen, schon gemacht hast.',
+      wcnPoeH: 'Vorhersagen → Beobachten → Erklären, für die Wahrnehmung',
+      wcnPoeP: 'Jede Übung nutzt die Abfolge Vorhersagen–Beobachten–Erklären aus dem naturwissenschaftlichen Unterricht (White &amp; Gunstone), angepasst auf das Sehen:',
+      wcnPoeLi1: '<strong>Vorhersagen.</strong> Eine Frage, bevor es losgeht: „Rote, grüne und blaue Lampen scheinen auf eine weiße Wand. Was wirst du sehen?" Die meisten wählen „eine schmutzig braune Wand", weil das beim Farbmischen so ist. Die Vorhersage bringt diese Farbkasten-Intuition ans Licht.',
+      wcnPoeLi2: '<strong>Beobachten.</strong> Deine Antwort bleibt sichtbar, während du arbeitest. Die Rückmeldung ist vor allem visuell, denn in der Kunst sollte der Beweis das Bild sein: Die Schatten ändern die Farbe, wenn du die Lampen bewegst.',
+      wcnPoeLi3: '<strong>Erklären.</strong> Die Nachbesprechung gibt ein Ein-Satz-Prinzip, eine kurze Erklärung, dann eine Frage „Schau noch einmal hin", zum Beispiel „wo sich zwei Schatten überlappen, welche Farbe hat das?" Ihre Antwort ist versteckt, und der Button <em>Weiterschauen</em> schickt dich zurück in den Raum, um nachzusehen. Schauen ist die Tätigkeit, nicht Lesen.',
+      wcnFeedbackH: 'Rückmeldung, die zeigt, ohne zu verraten',
+      wcnFeedbackLi1: '<strong>Ein Warm/Kalt-Balken</strong> in der Blickpunkt-Übung füllt sich, während du dich der richtigen Stelle näherst. Er verwandelt eine Nadel-im-Heuhaufen-Suche in geführtes Erkunden, ohne zu sagen, wohin.',
+      wcnFeedbackLi2: '<strong>Hinweise, die auf dein Tun reagieren.</strong> „Zwei Lampen: Schau dir die Farbe jedes Schattens an. Welche Lampe fehlt darin?" oder „Alle drei Lampen sind an, stehen aber fast an derselben Stelle." Die Hinweise fordern dich auf, noch einmal hinzuschauen; sie geben nicht die Antwort.',
+      wcnFeedbackLi3: '<strong>Fehler, die sich zu machen lohnen.</strong> Drehe die Skulptur halb herum, und die Wand zeigt <em>UOY</em>: Die Kanten passen, aber das Wort ist gespiegelt. Das Spiel benennt den Effekt, statt ihn als Fehler zu behandeln, denn er ist selbst eine kleine Lektion über Projektion.',
+      wcnFeedbackLi4: '<strong>Hinweise erst nach Mühe.</strong> Nach 40 Sekunden erscheint ein Hinweis. In der ersten Übung zeigt er auch Fußspuren am Blickpunkt auf dem Boden.',
+      wcnStudioH: 'Vom Verstehen zum Machen: das Studio',
+      wcnStudioP: 'Nach den drei geführten Übungen entfernt das Studio die Ziele: die Schattenskulptur, drei Lampen, die du umfärben und bewegen kannst, und ein Foto-Button. Die Abfolge geht von <em>Wahrnehmen</em> über <em>Verstehen</em> zu <em>Komponieren</em>. Der Foto-Button ist auch eine bewusste kleine Lektion: Installationen überleben meist nur als Dokumentation, und den Winkel für dieses Foto zu wählen, ist selbst eine künstlerische Entscheidung.',
+      wcnClassH: 'Im Unterricht einsetzen',
+      wcnClassP: 'Eine 45-minütige Stunde, geeignet ab etwa 11 Jahren:',
+      wcnClassLi1: '<strong>10 Min., projiziert:</strong> zeige die Vorhersage von Übung 2 und lass alle per Handzeichen abstimmen, bevor irgendwer etwas berührt. Dann live spielen. Der Sprung von „braun" zu „weiß mit farbigen Schatten" sorgt meist für eine hörbare Reaktion.',
+      wcnClassLi2: '<strong>15 Min., paarweise an Laptops oder Tablets:</strong> Übungen 1 und 3. Paare funktionieren besser als Einzelpersonen, weil einer geht, während der andere dirigiert: „links… nein, zurück… da!"',
+      wcnClassLi3: '<strong>15 Min., im echten Raum:</strong> das Gleiche mit echten Dingen wiederholen. Drei Handy-Taschenlampen hinter rotem, grünem und blauem Cellophan auf weißem Papier erzeugen farbige Schatten. Eine Schreibtischlampe und ein Haufen Federtaschen, Scheren und Tacker ergeben eine Schattenskulptur. Klebeband an zwei Wänden und dem Boden, nachgezogen mit einer von einer Stelle gehaltenen Handy-Taschenlampe, ergibt eine Anamorphose.',
+      wcnClassLi4: '<strong>5 Min.:</strong> gemeinsam echte Installationen anschauen. Die in den Nachbesprechungen genannten Künstler sind ein guter Ausgangspunkt, genauso wie das eigene <a class="lab-link" href="/art/">Kunstarchiv</a> dieser Seite mit Installationen über Wahrnehmung, projizierte Bilder und Licht.',
+      wcnClassP2: 'Schritt 3 zählt am meisten. Der digitale Raum ist eine Probe; der Punkt ist, dass Schüler Blickpunkt, Licht und Schatten danach im echten Raum bemerken.',
+      wcnHoodH: 'Unter der Haube',
+      wcnHoodP: 'Eine HTML-Datei plus eine selbst gehostete Kopie von <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT-Lizenz). Kein Build-Schritt, keine externen Anfragen, kein Tracking.',
+      wcnHoodLi1: '<strong>Das anamorphotische Gemälde</strong> ist so gemacht, wie Künstler es oft machen: Ein virtueller Projektor steht am Blickpunkt. Eine von dort einmal gerenderte Tiefenkarte sagt einem kleinen Shader, welche Flächen der Projektor erreichen kann, sodass hinter Säulen verborgene Stellen ungemalt bleiben, genau wie in einem echten Raum. Jeder Oberflächenpunkt wird in die Bildebene des Betrachters abgebildet, und dort werden Kreis und Quadrat gezeichnet.',
+      wcnHoodLi2: '<strong>Das farbige Licht</strong> sind drei gewöhnliche Spotlights mit Schattenkarten und ohne Tonemapping, sodass sich die Farben zu Weiß addieren, statt ausgewaschen zu wirken. Cyan, Magenta und Gelb sind nicht aufgemalt; sie entstehen durch die Summe des Lichts.',
+      wcnHoodLi3: '<strong>Die Schattenskulptur</strong> ist ein Wort, gezeichnet in eine winzige Leinwand, verwandelt in etwa 200 Blöcke (einer pro gefülltem Pixel), wobei jeder Block um eine zufällige Strecke entlang einer Achse verschoben wird. Entlang dieser Achse betrachtet, versteckt sich jeder Block hinter seinem Nachbarn, und der Umriss ist exakt; von überall sonst ist es ein Haufen. Ein geseedeter Zufallsgenerator hält den Haufen für jeden Besucher gleich.',
+      wcnRefsH: 'Quellen',
+      wcnBack: '← zurück zu presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      wcnPlayFull: 'Igraj v celozaslonskem načinu →',
+      wcnEyebrow: 'Digitalni lab · Učenje',
+      wcnH1: 'White Cube — poučevanje instalacijske umetnosti, tako da te postavi vanjo.',
+      wcnSub: 'Majhna 3D galerija v brskalniku s tremi vajami in studiem. Ta stran razloži, kaj uči, zakaj je zgrajena tako, in kako jo uporabiti pri pouku.',
+      wcnFullscreen: '⛶ Celozaslonsko',
+      wcnProblemH: 'Pedagoški problem',
+      wcnProblemP1: 'Instalacijsko umetnost je znano težko učiti s slikami. Fotografija instalacije izbere eno gledišče, zamrzne eno svetlobno stanje in izpusti obiskovalca — prav to pa so stvari, iz katerih je delo narejeno. Učenci se naučijo izrazov (specifično za prostor, poglobljeno, participativno), ne da bi kdaj doživeli izkušnjo, ki jo izrazi opisujejo.',
+      wcnProblemP2: '3D prizor ne more nadomestiti resničnega prostora, lahko pa vrne dele, ki jih fotografija odvzame: lahko se premikaš, svetloba se lahko spremeni, in kaj vidiš, je odvisno od tega, kje stojiš. White Cube to izkoristi, da lahko učenci <em>doživijo</em> tri osnovne izkušnje instalacijske umetnosti, še preden dobijo besednjak zanje.',
+      wcnThreeH: 'Tri ideje, tri vaje',
+      wcnTrio1: '<b>1 · Gledišče</b>Rdeča figura je naslikana čez stene, tla in stebre. Hodiš po prostoru, dokler se ne sestavi. <em>Kje stojiš, je del dela.</em>',
+      wcnTrio2: '<b>2 · Svetloba kot material</b>Rdeča, zelena in modra svetilka na beli figuri. Razmakni jih in sence postanejo cian, magenta in rumena. <em>Senca je narejena iz svetlobe, ki je ostala.</em>',
+      wcnTrio3: '<b>3 · Projekcija</b>Kup kock na vrtljivi plošči. Obrni jo, dokler njena senca na steni ne izčrka besede. <em>Delo je lahko senca, ne predmet.</em>',
+      wcnTrioP: 'Te tri so izbrane, ker je vsaka <strong>zaznavno dejstvo, ki ga lahko preveriš z lastnimi očmi</strong>, in vsaka ob prvem srečanju večino preseneti. To je pomembno za spodnjo metodo. Vprašanja okusa nimajo pravilnega odgovora, ki bi ga lahko napovedal, a „kakšne barve bo senca?" ga ima. Vaje uporabljajo preverljivo stran umetnosti (kako deluje gledanje) kot vstop v odprto stran (kaj umetniki s tem počnejo).',
+      wcnExpH: 'Najprej izkušnja, nato besednjak',
+      wcnExpP: 'John Dewey je v <em>Art as Experience</em> (1934) trdil, da umetnost živi v izkušnji, ne v predmetu samem. White Cube temu zaporedju strogo sledi. Nobena vaja se ne začne z izrazom ali imenom umetnika. Najprej hodiš, preklapljaš svetilke in vrtiš skulpturo. Beseda <em>anamorfoza</em>, Goethejeve barvne sence ter imena, kot so Felice Varini, James Turrell, Olafur Eliasson, Tim Noble in Sue Webster ter Kumi Yamashita, se pojavijo šele v razbremenitvi, ko že imaš izkušnjo, ki jo poimenujejo.',
+      wcnPoeH: 'Napovej → Opazuj → Razloži, za zaznavanje',
+      wcnPoeP: 'Vsaka vaja uporablja zaporedje Napovej–Opazuj–Razloži iz naravoslovnega poučevanja (White &amp; Gunstone), prilagojeno za gledanje:',
+      wcnPoeLi1: '<strong>Napovej.</strong> Eno vprašanje, preden začneš: „Rdeča, zelena in modra svetilka svetijo na belo steno. Kaj boš videl?" Večina izbere „umazano rjavo steno", ker to naredi mešanje barv. Napoved to intuicijo iz barvne škatlice spravi na dan.',
+      wcnPoeLi2: '<strong>Opazuj.</strong> Tvoj odgovor ostane viden, medtem ko delaš. Povratna informacija je predvsem vizualna, saj naj bo v umetnosti dokaz slika: sence spremenijo barvo, ko premikaš svetilke.',
+      wcnPoeLi3: '<strong>Razloži.</strong> Razbremenitev poda enovrstično načelo, kratko razlago, nato vprašanje „Poglej še enkrat", na primer „kje se dve senci prekrivata, kakšne barve je to?" Njen odgovor je skrit, gumb <em>Glej naprej</em> pa te pošlje nazaj v prostor, da preveriš. Gledanje je dejavnost, ne branje.',
+      wcnFeedbackH: 'Povratna informacija, ki pokaže, ne pove',
+      wcnFeedbackLi1: '<strong>Topel/hladen trak</strong> v vaji gledišča se polni, ko se bližaš pravemu mestu. Spremeni iskanje igle v senu v vodeno raziskovanje, brez da bi povedal, kam iti.',
+      wcnFeedbackLi2: '<strong>Opombe, ki se odzivajo na to, kar počneš.</strong> „Dve svetilki: poglej barvo vsake sence. Katera svetilka manjka v njej?" ali „Vse tri svetilke so prižgane, a stojijo skoraj na istem mestu." Opombe te spodbudijo, da pogledaš še enkrat; ne dajo odgovora.',
+      wcnFeedbackLi3: '<strong>Napake, ki se jih splača narediti.</strong> Obrni skulpturo za pol kroga in stena prikaže <em>UOY</em>: robovi se ujemajo, beseda pa je zrcalna. Igra učinek poimenuje, namesto da bi ga obravnavala kot napako, saj je sama po sebi majhna lekcija o projekciji.',
+      wcnFeedbackLi4: '<strong>Namigi šele po trudu.</strong> Po 40 sekundah se prikaže namig. V prvi vaji razkrije tudi stopinje na tleh pri gledišču.',
+      wcnStudioH: 'Od razumevanja do ustvarjanja: studio',
+      wcnStudioP: 'Po treh vodenih vajah studio odstrani cilje: senčno skulpturo, tri svetilke, ki jih lahko prebarvaš in premikaš, ter gumb za fotografijo. Zaporedje gre od <em>zaznavanja</em> prek <em>razumevanja</em> do <em>komponiranja</em>. Gumb za fotografijo je tudi namenoma majhna lekcija: instalacije običajno preživijo le kot dokumentacija, in izbira kota za to fotografijo je sama po sebi umetniška odločitev.',
+      wcnClassH: 'Uporaba pri pouku',
+      wcnClassP: 'Ura, dolga 45 minut, primerna od približno 11. leta naprej:',
+      wcnClassLi1: '<strong>10 min, projicirano:</strong> pokaži napoved vaje 2 in naj vsi glasujejo z dvigom roke, preden kdorkoli kaj dotakne. Nato odigraj v živo. Preskok od „rjavo" k „belo z barvnimi sencami" navadno povzroči slišno reakcijo.',
+      wcnClassLi2: '<strong>15 min, v parih na prenosnikih ali tablicah:</strong> vaji 1 in 3. Pari delujejo bolje kot posamezniki, ker eden hodi, medtem ko drugi usmerja: „levo… ne, nazaj… tam!"',
+      wcnClassLi3: '<strong>15 min, v resničnem prostoru:</strong> ponovi z resničnimi stvarmi. Tri žepne svetilke za rdečim, zelenim in modrim celofanom na belem listu papirja dajo barvne sence. Namizna svetilka in kup peresnic, škarij in spenjalnikov naredijo senčno skulpturo. Lepilni trak na dveh stenah in tleh, zarisan z žepno svetilko, drano z ene točke, naredi anamorfozo.',
+      wcnClassLi4: '<strong>5 min:</strong> skupaj si oglejte resnične instalacije. Umetniki, omenjeni v razbremenitvah, so dobro izhodišče, prav tako <a class="lab-link" href="/art/">umetniški arhiv</a> te strani z instalacijami o zaznavanju, projiciranih slikah in svetlobi.',
+      wcnClassP2: 'Korak 3 je najpomembnejši. Digitalni prostor je vaja; cilj je, da učenci nato v resničnem prostoru opazijo gledišče, svetlobo in senco.',
+      wcnHoodH: 'Pod pokrovom',
+      wcnHoodP: 'Ena datoteka HTML in samostojno gostovana kopija <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (licenca MIT). Brez korakov gradnje, brez zunanjih zahtev, brez sledenja.',
+      wcnHoodLi1: '<strong>Anamorfna slika</strong> je narejena tako, kot jih umetniki pogosto naredijo: navidezni projektor stoji na gledišču. Globinska karta, enkrat izrisana od tam, majhnemu senčilniku pove, katere površine lahko projektor doseže, zato ostanejo zaplate, skrite za stebri, nepobarvane, povsem kot v resničnem prostoru. Vsaka točka površine je preslikana v slikovno ravnino opazovalca, kjer sta narisana krog in kvadrat.',
+      wcnHoodLi2: '<strong>Barvna svetloba</strong> so tri navadne luči s senčnimi kartami in brez tonskega mapiranja, tako da se barve seštejejo v belo, namesto da bi bile izpite. Cian, magenta in rumena niso naslikani; nastanejo iz seštevanja svetlobe.',
+      wcnHoodLi3: '<strong>Senčna skulptura</strong> je beseda, narisana v drobno platno, spremenjena v približno 200 kock (ena na zapolnjen piksel), kjer je vsaka kocka potisnjena za naključno razdaljo vzdolž ene osi. Gledano vzdolž te osi se vsaka kocka skrije za sosedo in obris je natančen; od koderkoli drugje je to kup. Semenjen naključni generator ohranja kup enak za vsakega obiskovalca.',
+      wcnRefsH: 'Viri',
+      wcnBack: '← nazaj na presker.at',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+  <style>
+    .nav-buttons { position: fixed; top: 2px; left: 1.5rem; display: flex; gap: 12px; z-index: 1000; font-family: var(--mono); font-size: 13px; }
+    .nav-toggles { position: fixed; top: 10px; right: 1.5rem; z-index: 1000; }
+    .nav-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .nav-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .game-container { position: relative; margin-bottom: 2rem; }
+    .fullscreen-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); border: 1px solid var(--accent); color: var(--accent);
+      padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 12px; z-index: 100; transition: all 0.15s; }
+    .fullscreen-btn:hover { background: var(--accent); color: var(--bg); }
+    #gameFrame { width: 100%; height: min(78vh, 720px); min-height: 520px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #050505; }
+    #gameFrame:fullscreen { height: 100vh; }
+    .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 1.5rem; }
+    .trio div { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg2); font-size: 14px; line-height: 1.55; }
+    .trio b { display: block; font-family: var(--mono); color: var(--accent); margin-bottom: 4px; }
+    .lab-shell ul, .lab-shell ol { margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85; }
+    .refs { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+    @media (max-width: 640px) { .trio { grid-template-columns: 1fr; } #gameFrame { min-height: 480px; } }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="nav-buttons">
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+    <a href="/lab/white-cube/" class="nav-btn" data-i18n="wcnPlayFull">Play full screen →</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow" data-i18n="wcnEyebrow">Digital Lab · Learning</p>
+    <h1 data-i18n="wcnH1">White Cube — teaching installation art by letting you stand inside it.</h1>
+    <p class="lab-sub" data-i18n="wcnSub">A small 3D gallery in the browser with three exercises and a studio. This page covers what it teaches, why it's built this way, and how to use it with a class.</p>
+
+    <div class="game-container">
+      <button class="fullscreen-btn" data-i18n="wcnFullscreen" onclick="document.getElementById('gameFrame').requestFullscreen()">⛶ Fullscreen</button>
+      <iframe id="gameFrame" src="/lab/white-cube/" title="White Cube" loading="lazy"></iframe>
+    </div>
+
+    <h2 data-i18n="wcnProblemH">The teaching problem</h2>
+    <p data-i18n="wcnProblemP1">Installation art is notoriously hard to teach from pictures. A photo of an installation picks one viewpoint, freezes one light condition and leaves out the visitor, and those are exactly the things the work is made of. Students learn the names (site-specific, immersive, participatory) without ever having had the experience the names describe.</p>
+    <p data-i18n-html="wcnProblemP2">A 3D scene can't replace a real room, but it can give back the parts a photo removes: you can move, the light can change, and what you see depends on where you stand. White Cube uses that to let learners <em>have</em> three basic experiences of installation art before they get the vocabulary for them.</p>
+
+    <h2 data-i18n="wcnThreeH">Three ideas, three exercises</h2>
+    <div class="trio">
+      <div data-i18n-html="wcnTrio1"><b>1 · Viewpoint</b>A red figure is painted across walls, floor and pillars. You walk through the room until it snaps together. <em>Where you stand is part of the work.</em></div>
+      <div data-i18n-html="wcnTrio2"><b>2 · Light as material</b>Red, green and blue lamps on a white figure. Spread them apart and the shadows turn cyan, magenta and yellow. <em>A shadow is made of the light that is left.</em></div>
+      <div data-i18n-html="wcnTrio3"><b>3 · Projection</b>A heap of blocks on a turntable. Turn it until its shadow on the wall spells a word. <em>The work can be the shadow, not the object.</em></div>
+    </div>
+    <p data-i18n-html="wcnTrioP">These three were chosen because each is a <strong>perceptual fact you can check with your own eyes</strong>, and each one surprises most people the first time. That matters for the method below. Questions of taste have no right answer to predict, but "what colour will the shadow be?" does. The exercises use the checkable side of art (how seeing works) as a way into the open side (what artists do with it).</p>
+
+    <h2 data-i18n="wcnExpH">Experience first, vocabulary after</h2>
+    <p data-i18n-html="wcnExpP">John Dewey argued in <em>Art as Experience</em> (1934) that art lives in experience, not in the object on its own. White Cube follows that order strictly. No exercise starts with a term or an artist's name. You first walk, switch lamps and turn a sculpture. The word <em>anamorphosis</em>, Goethe's coloured shadows, and names like Felice Varini, James Turrell, Olafur Eliasson, Tim Noble &amp; Sue Webster and Kumi Yamashita appear only in the debrief, once you already have the experience they name.</p>
+
+    <h2 data-i18n="wcnPoeH">Predict → Observe → Explain, for perception</h2>
+    <p data-i18n-html="wcnPoeP">Each exercise uses the Predict–Observe–Explain sequence from science teaching (White &amp; Gunstone), adapted for looking:</p>
+    <ul>
+      <li data-i18n-html="wcnPoeLi1"><strong>Predict.</strong> One question before you start: "Red, green and blue lamps shine on a white wall. What will you see?" Most people choose "a muddy brown wall", because that's what mixing paint does. The prediction brings that paint-box intuition into the open.</li>
+      <li data-i18n-html="wcnPoeLi2"><strong>Observe.</strong> Your answer stays visible while you work. Feedback is mostly visual, because in art the evidence should be the image: the shadows change colour as you move the lamps.</li>
+      <li data-i18n-html="wcnPoeLi3"><strong>Explain.</strong> The debrief gives a one-line principle, a short explanation, then a <strong>"Look again"</strong> question, for example "where two shadows overlap, what colour is it?" Its answer is hidden, and the <em>Keep looking</em> button sends you back into the room to check. Looking is the activity, not reading.</li>
+    </ul>
+
+    <h2 data-i18n="wcnFeedbackH">Feedback that points without telling</h2>
+    <ul>
+      <li data-i18n-html="wcnFeedbackLi1"><strong>A warm/cold bar</strong> in the viewpoint exercise fills up as you approach the right spot. It turns a needle-in-a-haystack search into guided exploration, without saying where to go.</li>
+      <li data-i18n-html="wcnFeedbackLi2"><strong>Notes that react to what you're doing.</strong> "Two lamps: look at the colour of each shadow. Which lamp is missing from it?" or "All three lamps are on, but they stand almost in one place." The notes ask you to look again; they don't give the answer.</li>
+      <li data-i18n-html="wcnFeedbackLi3"><strong>Mistakes worth making.</strong> Turn the sculpture halfway round and the wall reads <em>UOY</em>: the edges line up but the word is mirrored. The game names the effect instead of treating it as a failure, because it's a small lesson about projection in its own right.</li>
+      <li data-i18n-html="wcnFeedbackLi4"><strong>Hints only after struggle.</strong> After 40 seconds a hint appears. In the first exercise it also reveals footprints on the floor at the viewpoint.</li>
+    </ul>
+
+    <h2 data-i18n="wcnStudioH">From understanding to making: the studio</h2>
+    <p data-i18n-html="wcnStudioP">After the three guided exercises, the studio removes the goals: the shadow sculpture, three lamps you can recolour and move, and a photo button. The sequence goes from <em>perceiving</em> to <em>understanding</em> to <em>composing</em>. The photo button is a deliberate small lesson too: installations usually survive only as documentation, and choosing the angle for that photo is itself an artistic decision.</p>
+
+    <h2 data-i18n="wcnClassH">Using it in a class</h2>
+    <p data-i18n="wcnClassP">A 45-minute lesson, suitable from about age 11:</p>
+    <ol>
+      <li data-i18n-html="wcnClassLi1"><strong>10 min, projected:</strong> show exercise 2's prediction and let everyone vote by hand before touching anything. Then play it live. The jump from "brown" to "white with coloured shadows" usually gets an audible reaction.</li>
+      <li data-i18n-html="wcnClassLi2"><strong>15 min, in pairs on laptops or tablets:</strong> exercises 1 and 3. Pairs work better than individuals, because one walks while the other directs: "left… no, back… there!"</li>
+      <li data-i18n-html="wcnClassLi3"><strong>15 min, in the real room:</strong> repeat it with real things. Three phone torches behind red, green and blue cellophane on a white sheet of paper give coloured shadows. A desk lamp and a heap of pencil cases, scissors and staplers make a shadow sculpture. Tape on two walls and the floor, traced from a phone torch held at one spot, makes an anamorphosis.</li>
+      <li data-i18n-html="wcnClassLi4"><strong>5 min:</strong> look at real installations together. The artists named in the debriefs are a good starting point, as is this site's own <a class="lab-link" href="/art/">art archive</a> of installations about perception, projected images and light.</li>
+    </ol>
+    <p data-i18n="wcnClassP2">Step 3 matters most. The digital room is a rehearsal; the point is to make students notice viewpoint, light and shadow in real space afterwards.</p>
+
+    <h2 data-i18n="wcnHoodH">Under the hood</h2>
+    <p data-i18n-html="wcnHoodP">One HTML file plus a self-hosted copy of <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT licence). No build step, no external requests, no tracking.</p>
+    <ul>
+      <li data-i18n-html="wcnHoodLi1"><strong>The anamorphic painting</strong> is made the way artists often make them: a virtual projector stands at the viewpoint. A depth map rendered once from there tells a small shader which surfaces the projector can reach, so patches hidden behind pillars stay unpainted, exactly as in a real room. Each surface point is mapped into the viewer's picture plane, and the circle and square are drawn there.</li>
+      <li data-i18n-html="wcnHoodLi2"><strong>The coloured light</strong> is three ordinary spotlights with shadow maps and no tone mapping, so the colours add up to white instead of being washed out. The cyan, magenta and yellow are not painted in; they come from the light adding up.</li>
+      <li data-i18n-html="wcnHoodLi3"><strong>The shadow sculpture</strong> is a word drawn into a tiny canvas, turned into about 200 blocks (one per filled pixel), with each block pushed a random distance along one axis. Seen along that axis, every block hides behind its neighbour and the outline is exact; from anywhere else it's a heap. A seeded random generator keeps the heap the same for every visitor.</li>
+    </ul>
+
+    <h2 data-i18n="wcnRefsH">References</h2>
+    <p class="refs">
+      Bishop, C. (2005). <em>Installation Art: A Critical History.</em> London: Tate Publishing.<br>
+      Dewey, J. (1934). <em>Art as Experience.</em> New York: Minton, Balch &amp; Company.<br>
+      Goethe, J. W. von (1810). <em>Zur Farbenlehre</em> (Theory of Colours). Tübingen: Cotta.<br>
+      O'Doherty, B. (1976/1986). <em>Inside the White Cube: The Ideology of the Gallery Space.</em> First published as essays in <em>Artforum</em>, 1976.<br>
+      White, R. &amp; Gunstone, R. (1992). <em>Probing Understanding.</em> London: Falmer Press. (Predict–Observe–Explain)<br>
+      Holbein the Younger, H. (1533). <em>The Ambassadors.</em> National Gallery, London.
+    </p>
+
+    <a href="/" class="lab-back" data-i18n="wcnBack">← back to presker.at</a>
+
+    <div class="donate-mini">
+      <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+      <div class="donate-mini-text">
+        <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

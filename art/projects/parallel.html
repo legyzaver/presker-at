@@ -4,7 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Parallel — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      dlParallelSheet: '/art/downloads/parallel-sheet.pdf',
+      metaMedium: 'Sculptural object, mineral/crystalline surface',
+      parLabelTitle: 'Title', parLabelYear: 'Year', parLabelMedium: 'Medium', parLabelDimensions: 'Dimensions',
+      parH2Description: 'Description', parH2Concept: 'Concept',
+      parPDescription: 'In collaboration with Luiza Margan. A single solid block, its faces covered in a marbled, crystalline pink-and-white surface, sits alone in a dark corner — minimal in form, dense in material. Only two documentation images survive (titled "alt" and "fock" in the original files), suggesting a quieter, more contained piece than the larger room installations elsewhere on this site.',
+      parPConcept: 'In collaboration with Luiza Margan. The title refers to the parallel practices of two artists shown in proximity: Miha Presker\'s photographic series Focus Free (2005–08) and Luiza Margan\'s Altered Relations (2008). The pairing examines how different working methods — one optical and accumulative, one material and sculptural — produce related spatial and perceptual questions without converging into a single statement.',
+      parLabelCredits: 'Credits', parLabelCollection: 'Collection', parLabelKeywords: 'Keywords', parLabelDownloads: 'Downloads',
+      parDownloadLink: 'Technical sheet PDF ↓',
+      parSectionDoc: 'Documentation (2 images)', parSectionRelated: 'Related Projects',
+      parContact: 'Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      dlParallelSheet: '/art/downloads/parallel-sheet-de.pdf',
+      metaMedium: 'Skulpturales Objekt, mineralisch-kristalline Oberfläche',
+      parLabelTitle: 'Titel', parLabelYear: 'Jahr', parLabelMedium: 'Medium', parLabelDimensions: 'Maße',
+      parH2Description: 'Beschreibung', parH2Concept: 'Konzept',
+      parPDescription: 'In Zusammenarbeit mit Luiza Margan. Ein einzelner massiver Block, dessen Flächen mit einer marmorierten, kristallinen rosa-weißen Oberfläche bedeckt sind, steht allein in einer dunklen Ecke — minimal in der Form, dicht im Material. Nur zwei Dokumentationsbilder sind erhalten (in den Originaldateien mit „alt" und „fock" bezeichnet), was auf eine ruhigere, stärker in sich gekehrte Arbeit hindeutet als die größeren Rauminstallationen anderswo auf dieser Seite.',
+      parPConcept: 'In Zusammenarbeit mit Luiza Margan. Der Titel bezieht sich auf die parallelen Praktiken zweier Künstler, die in unmittelbarer Nähe gezeigt werden: Miha Preskers Fotoserie Focus Free (2005–08) und Luiza Margans Altered Relations (2008). Die Gegenüberstellung untersucht, wie unterschiedliche Arbeitsweisen — die eine optisch und akkumulativ, die andere materiell und bildhauerisch — verwandte räumliche und wahrnehmungsbezogene Fragen hervorbringen, ohne zu einer einzigen Aussage zu verschmelzen.',
+      parLabelCredits: 'Credits', parLabelCollection: 'Sammlung', parLabelKeywords: 'Schlagwörter', parLabelDownloads: 'Downloads',
+      parDownloadLink: 'Technisches Datenblatt PDF ↓',
+      parSectionDoc: 'Dokumentation (2 Bilder)', parSectionRelated: 'Verwandte Projekte',
+      parContact: 'Korrekturen oder Ergänzungen? <a href="mailto:miha@presker.at" style="color: var(--accent);">Künstler kontaktieren →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      dlParallelSheet: '/art/downloads/parallel-sheet-sl.pdf',
+      metaMedium: 'Skulpturalni objekt, mineralna/kristalinična površina',
+      parLabelTitle: 'Naslov', parLabelYear: 'Leto', parLabelMedium: 'Medij', parLabelDimensions: 'Dimenzije',
+      parH2Description: 'Opis', parH2Concept: 'Koncept',
+      parPDescription: 'V sodelovanju z Luizo Margan. En sam masiven blok, njegove ploskve prekrite z marmorirano, kristalinsko rožnato-belo površino, stoji sam v temnem kotu — minimalen po obliki, gost po materialu. Ohranjeni sta le dve dokumentacijski fotografiji (v izvornih datotekah poimenovani "alt" in "fock"), kar nakazuje tišje, bolj zadržano delo kot večje prostorske inštalacije drugje na tej strani.',
+      parPConcept: 'V sodelovanju z Luizo Margan. Naslov se nanaša na vzporedne prakse dveh umetnikov, razstavljenih v bližini: fotografsko serijo Miha Preskerja Focus Free (2005–08) in delo Luize Margan Altered Relations (2008). Postavitev drug ob drugem preučuje, kako različne delovne metode — ena optična in akumulativna, druga materialna in kiparska — ustvarjajo sorodna prostorska in zaznavna vprašanja, ne da bi se zlila v eno samo izjavo.',
+      parLabelCredits: 'Zasluge', parLabelCollection: 'Zbirka', parLabelKeywords: 'Ključne besede', parLabelDownloads: 'Prenosi',
+      parDownloadLink: 'Tehnični list PDF ↓',
+      parSectionDoc: 'Dokumentacija (2 sliki)', parSectionRelated: 'Sorodni projekti',
+      parContact: 'Popravki ali dodatki? <a href="mailto:miha@presker.at" style="color: var(--accent);">Kontaktirajte umetnika →</a>'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -19,70 +60,60 @@
 
       <div class="project-meta-bar">
         <div class="project-meta-item">
-          <div class="project-meta-label">Title</div>
+          <div class="project-meta-label" data-i18n="parLabelTitle">Title</div>
           <div class="project-meta-value">Parallel</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Year</div>
-          <div class="project-meta-value">[Year]</div>
+          <div class="project-meta-label" data-i18n="parLabelYear">Year</div>
+          <div class="project-meta-value">2008</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Medium</div>
-          <div class="project-meta-value">Sculptural object, mineral/crystalline surface</div>
+          <div class="project-meta-label" data-i18n="parLabelMedium">Medium</div>
+          <div class="project-meta-value" data-i18n="metaMedium">Sculptural object, mineral/crystalline surface</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Dimensions</div>
+          <div class="project-meta-label" data-i18n="parLabelDimensions">Dimensions</div>
           <div class="project-meta-value">[variable]</div>
-        </div>
-        <div class="project-meta-item">
-          <div class="project-meta-label">Status</div>
-          <div class="project-meta-value">[Add status]</div>
         </div>
       </div>
 
       <div class="project-layout">
         <div class="project-body">
-          <h2>Description</h2>
-          <p><em style="color:var(--dim);">[Based on the documentation images — please confirm/correct:]</em> A single solid block, its faces covered in a marbled, crystalline pink-and-white surface, sits alone in a dark corner — minimal in form, dense in material. Only two documentation images survive (titled "alt" and "fock" in the original files), suggesting a quieter, more contained piece than the larger room installations elsewhere on this site.</p>
+          <h2 data-i18n="parH2Description">Description</h2>
+          <p data-i18n-html="parPDescription">In collaboration with Luiza Margan. A single solid block, its faces covered in a marbled, crystalline pink-and-white surface, sits alone in a dark corner — minimal in form, dense in material. Only two documentation images survive (titled "alt" and "fock" in the original files), suggesting a quieter, more contained piece than the larger room installations elsewhere on this site.</p>
 
-          <h2>Concept</h2>
-          <p>[Add conceptual text — what does "Parallel" refer to here: the block's planar faces, a relationship to another absent object, or something else?]</p>
-
-          <h2>Exhibition History</h2>
-          <p>[Add exhibition history.]</p>
-
-          <h2>Curatorial Text</h2>
-          <p>[Add curatorial or critical text if available.]</p>
+          <h2 data-i18n="parH2Concept">Concept</h2>
+          <p data-i18n-html="parPConcept">In collaboration with Luiza Margan. The title refers to the parallel practices of two artists shown in proximity: Miha Presker's photographic series Focus Free (2005–08) and Luiza Margan's Altered Relations (2008). The pairing examines how different working methods — one optical and accumulative, one material and sculptural — produce related spatial and perceptual questions without converging into a single statement.</p>
         </div>
 
         <div class="project-sidebar">
           <div class="sidebar-block">
-            <div class="sidebar-label">Credits</div>
+            <div class="sidebar-label" data-i18n="parLabelCredits">Credits</div>
             <div class="sidebar-value">Miha Presker & Luiza Margan</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Collection</div>
+            <div class="sidebar-label" data-i18n="parLabelCollection">Collection</div>
             <div class="sidebar-value">[Collection]</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Keywords</div>
+            <div class="sidebar-label" data-i18n="parLabelKeywords">Keywords</div>
             <div class="tags">
-              <span class="tag">installation</span>
-              <span class="tag">space</span>
-              <span class="tag">perception</span>
+              <span class="tag" data-i18n="tagInstallation">installation</span>
+              <span class="tag" data-i18n="tagSpace">space</span>
+              <span class="tag" data-i18n="tagPerception">perception</span>
             </div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Downloads</div>
+            <div class="sidebar-label" data-i18n="parLabelDownloads">Downloads</div>
             <div class="sidebar-value">
-              <a href="/art/downloads/parallel-sheet.pdf" style="color:var(--accent);font-size:11px;font-family:var(--mono);">Technical sheet PDF ↓</a>
+              <a href="/art/downloads/parallel-sheet.pdf" data-i18n-href="dlParallelSheet" style="color:var(--accent);font-size:11px;font-family:var(--mono);" data-i18n="parDownloadLink">Technical sheet PDF ↓</a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="gallery-section">
-        <div class="section-title">Documentation (2 images)</div>
+        <div class="section-title" data-i18n="parSectionDoc">Documentation (2 images)</div>
         <div class="gallery-grid">
           <div class="gallery-item"><img src="/art/images/parallel/parallel-01.jpg" alt="Parallel 01" onerror="this.parentElement.style.background='var(--bg3)'"></div>
           <div class="gallery-item"><img src="/art/images/parallel/parallel-02.jpg" alt="Parallel 02" onerror="this.parentElement.style.background='var(--bg3)'"></div>
@@ -90,7 +121,7 @@
       </div>
 
       <div class="related-section">
-        <div class="section-title">Related Projects</div>
+        <div class="section-title" data-i18n="parSectionRelated">Related Projects</div>
         <div class="related-grid">
           <a href="/art/projects/formication.html" class="related-card">
             <div class="related-card-img"><img src="/art/images/formication/formication-01.jpg" alt="Formication" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'related-card-ph\'></div>'"></div>
@@ -107,8 +138,18 @@
         </div>
       </div>
 
-    </main>
+      <p class="project-contact" style="margin-top: 3rem; font-size: 13px; color: var(--dim); font-family: var(--mono);" data-i18n-html="parContact">Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a></p>
+
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

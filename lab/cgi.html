@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Python CGI Lab — PRESKER.AT</title>
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      cgiEyebrow: 'Digital Lab',
+      cgiSub: 'CGI scripts and Python backend logic, running live on ordinary shared hosting — no app server, no port to bind, no process to keep alive. Just Apache and a Python interpreter.',
+      cgiH2Basics: 'What CGI actually is',
+      cgiP1: 'CGI — the Common Gateway Interface — is the oldest way to make a web server run a program instead of serving a static file. It dates to 1993. The "interface" part is almost insultingly simple: when a request hits a script, the web server (Apache, here) starts a brand-new process, hands it the request as <strong>environment variables</strong> plus the raw request body on <strong>stdin</strong>, and reads whatever the process prints to <strong>stdout</strong> as the response.',
+      cgiP2: 'That\'s the entire protocol. No sockets to open, no framework required, no persistent process. A CGI script is just a program that knows it must:',
+      cgiOl1: 'Print a <code>Content-Type</code> header line',
+      cgiOl2: 'Print one blank line (the header/body separator — easy to forget, breaks everything if missing)',
+      cgiOl3: 'Print the response body',
+      cgiP3: 'That\'s <a href="/test/hello.py" class="lab-link">hello.py →</a> in its entirety: three print statements.',
+      cgiH2Shared: 'Why this still matters on shared hosting',
+      cgiP4: 'Modern Python web apps usually run as a long-lived process — Gunicorn, uWSGI, an ASGI server — sitting behind a reverse proxy, listening on its own port. Cheap shared hosting (like this site\'s host, World4You) generally won\'t let you do that: no port binding, no persistent background process, no control over what\'s listening where.',
+      cgiP5: 'What shared hosts <em>do</em> support — going back decades — is Apache configured to execute a script and capture its output. That\'s exactly the contract CGI provides, which is why it\'s still the practical way to run server-side Python on this kind of hosting. The tradeoff is that the Python interpreter starts cold on every single request — there\'s no warm process holding a database connection pool or cached state. For small scripts and low traffic, that startup cost is negligible. It would be a real problem at scale.',
+      cgiH2State: 'Statelessness — the core limitation',
+      cgiP6: 'Because every request gets a fresh process with no memory of the last one, a CGI script by itself has no concept of "earlier" or "later." Anything that needs to persist — a visit count, a session, a queue of feedback messages — has to be written somewhere <em>outside</em> the process, almost always the filesystem on shared hosting (a database is the other option, where available). <a href="/test/counter.py" class="lab-link">counter.py →</a> demonstrates this directly: it reads a number from a text file, increments it, writes it back, with an OS-level file lock so two simultaneous requests can\'t corrupt the count by racing each other.',
+      cgiH2Reading: 'Reading a request: environment variables and stdin',
+      cgiP7: 'Everything the browser sent arrives as environment variables — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code>, and so on — readable with plain <code>os.environ</code>. A GET request\'s form data lives entirely in <code>QUERY_STRING</code>. A POST request\'s body has to be read from <code>sys.stdin</code>, exactly <code>CONTENT_LENGTH</code> bytes — read less and you lose data, read more (or read until EOF) and the script can hang waiting for bytes that will never arrive, since CGI doesn\'t close stdin for you. <a href="/test/env.py" class="lab-link">env.py →</a> dumps the environment variables for whatever request loaded it; <a href="/test/echo.py" class="lab-link">echo.py →</a> parses a real form submission via both GET and POST.',
+      cgiNote: 'Note: these examples parse the query string and POST body with <code>urllib.parse</code> rather than the stdlib <code>cgi</code> module. <code>cgi.FieldStorage</code> was the traditional tool for this, but the whole <code>cgi</code> module was deprecated in Python 3.11 and removed entirely in 3.13 (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — worth knowing if you\'re maintaining older CGI code that imports it.',
+      cgiH2Security: 'Security notes that actually matter here',
+      cgiP8: 'CGI\'s simplicity cuts both ways — there\'s no framework quietly escaping things for you, so a few rules are worth stating plainly:',
+      cgiUl1: '<strong>Escape everything you echo back.</strong> Any user-supplied string printed into HTML is a potential XSS vector unless run through <code>html.escape()</code> first — every script in this lab does this.',
+      cgiUl2: '<strong>Never build a shell command from request data.</strong> <code>os.system()</code> or <code>subprocess</code> with <code>shell=True</code> and unsanitized input is a direct path to remote code execution on the host. None of these scripts shell out at all.',
+      cgiUl3: '<strong>Trust <code>CONTENT_LENGTH</code>, not "read until done."</strong> Reading stdin without a length bound from an untrusted client risks both hangs and unbounded memory use.',
+      cgiUl4: '<strong>File locking matters the moment two requests can land at once.</strong> A naive read-modify-write to a shared file (like a counter or a log) will silently corrupt data under concurrent load without a lock.',
+      cgiH2Live: 'Live demos',
+      cgiH2Advanced: 'Advanced demos',
+      cgiCard1T: 'Hello, CGI', cgiCard1D: 'The protocol in three lines: header, blank line, body.',
+      cgiCard2T: 'Request environment', cgiCard2D: 'What Apache actually hands the script per request.',
+      cgiCard3T: 'Form echo', cgiCard3D: 'Parses GET query strings and POST bodies by hand.',
+      cgiCard4T: 'Persistent counter', cgiCard4D: 'State surviving a stateless process, via a locked file.',
+      cgiCard5T: 'Server Status Dashboard', cgiCard5D: 'Dynamic output with no user input — time, Python version, request metadata.',
+      cgiCard6T: 'Unit Converter', cgiCard6D: 'Self-posting form: one script handles both GET (show form) and POST (process input).',
+      cgiCard7T: 'Guestbook', cgiCard7D: 'File persistence, XSS prevention with html.escape(), concurrent write locking.',
+      cgiCard8T: 'Session Login', cgiCard8D: 'Cookie-based sessions: Set-Cookie, Location redirect, token validation.',
+      cgiBack: '← back to presker.at'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      cgiEyebrow: 'Digitales Lab',
+      cgiSub: 'CGI-Skripte und Python-Backend-Logik, live auf gewöhnlichem Shared Hosting — kein App-Server, kein Port zum Binden, kein Prozess, der am Leben gehalten werden muss. Nur Apache und ein Python-Interpreter.',
+      cgiH2Basics: 'Was CGI eigentlich ist',
+      cgiP1: 'CGI — das Common Gateway Interface — ist die älteste Methode, einen Webserver dazu zu bringen, ein Programm auszuführen, anstatt eine statische Datei auszuliefern. Es stammt aus dem Jahr 1993. Das "Interface" ist dabei fast beleidigend simpel: Trifft eine Anfrage auf ein Skript, startet der Webserver (hier Apache) einen brandneuen Prozess, übergibt ihm die Anfrage als <strong>Umgebungsvariablen</strong> plus den rohen Anfragekörper über <strong>stdin</strong>, und liest alles, was der Prozess nach <strong>stdout</strong> schreibt, als Antwort.',
+      cgiP2: 'Das ist das gesamte Protokoll. Keine Sockets zu öffnen, kein Framework nötig, kein dauerhafter Prozess. Ein CGI-Skript ist einfach ein Programm, das weiß, dass es Folgendes tun muss:',
+      cgiOl1: 'Eine <code>Content-Type</code>-Headerzeile ausgeben',
+      cgiOl2: 'Eine Leerzeile ausgeben (der Trenner zwischen Header und Body — leicht zu vergessen, ohne sie bricht alles)',
+      cgiOl3: 'Den Antwortkörper ausgeben',
+      cgiP3: 'Das ist <a href="/test/hello.py" class="lab-link">hello.py →</a> in voller Länge: drei print-Anweisungen.',
+      cgiH2Shared: 'Warum das auf Shared Hosting noch immer wichtig ist',
+      cgiP4: 'Moderne Python-Webanwendungen laufen meist als langlebiger Prozess — Gunicorn, uWSGI, ein ASGI-Server — hinter einem Reverse-Proxy und lauschen auf einem eigenen Port. Günstiges Shared Hosting (wie der Host dieser Seite, World4You) lässt das in der Regel nicht zu: kein Port-Binding, kein dauerhafter Hintergrundprozess, keine Kontrolle darüber, was wo lauscht.',
+      cgiP5: 'Was Shared-Hosting-Anbieter <em>tatsächlich</em> unterstützen — und das schon seit Jahrzehnten — ist ein Apache, der so konfiguriert ist, dass er ein Skript ausführt und dessen Ausgabe erfasst. Genau das ist der Vertrag, den CGI bietet, weshalb es auf dieser Art von Hosting immer noch der praktische Weg ist, serverseitiges Python laufen zu lassen. Der Kompromiss: Der Python-Interpreter startet bei jeder einzelnen Anfrage kalt — es gibt keinen warmen Prozess, der einen Datenbank-Connection-Pool oder zwischengespeicherten Zustand hält. Bei kleinen Skripten und geringem Traffic ist dieser Startaufwand vernachlässigbar. Bei größerem Maßstab wäre es ein echtes Problem.',
+      cgiH2State: 'Zustandslosigkeit — die zentrale Einschränkung',
+      cgiP6: 'Da jede Anfrage einen frischen Prozess ohne Erinnerung an den vorherigen erhält, hat ein CGI-Skript für sich allein kein Konzept von "vorher" oder "nachher". Alles, was dauerhaft bestehen soll — ein Besucherzähler, eine Session, eine Warteschlange von Feedback-Nachrichten — muss irgendwo <em>außerhalb</em> des Prozesses geschrieben werden, auf Shared Hosting fast immer im Dateisystem (eine Datenbank ist die andere Option, falls verfügbar). <a href="/test/counter.py" class="lab-link">counter.py →</a> zeigt das direkt: Es liest eine Zahl aus einer Textdatei, erhöht sie, schreibt sie zurück — mit einer Dateisperre auf Betriebssystemebene, damit zwei gleichzeitige Anfragen den Zähler nicht durch ein Wettrennen beschädigen.',
+      cgiH2Reading: 'Eine Anfrage lesen: Umgebungsvariablen und stdin',
+      cgiP7: 'Alles, was der Browser gesendet hat, kommt als Umgebungsvariablen an — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code> und so weiter — lesbar mit einfachem <code>os.environ</code>. Die Formulardaten einer GET-Anfrage stecken vollständig in <code>QUERY_STRING</code>. Der Body einer POST-Anfrage muss aus <code>sys.stdin</code> gelesen werden, genau <code>CONTENT_LENGTH</code> Bytes — liest man weniger, verliert man Daten; liest man mehr (oder bis EOF), kann das Skript hängen bleiben und auf Bytes warten, die nie kommen, da CGI stdin nicht für dich schließt. <a href="/test/env.py" class="lab-link">env.py →</a> gibt die Umgebungsvariablen aus, mit denen die jeweilige Anfrage geladen wurde; <a href="/test/echo.py" class="lab-link">echo.py →</a> verarbeitet eine echte Formularübermittlung sowohl per GET als auch per POST.',
+      cgiNote: 'Hinweis: Diese Beispiele parsen Query-String und POST-Body mit <code>urllib.parse</code> statt mit dem Standardbibliotheksmodul <code>cgi</code>. <code>cgi.FieldStorage</code> war dafür traditionell das Werkzeug, aber das gesamte <code>cgi</code>-Modul wurde in Python 3.11 als veraltet markiert und in 3.13 vollständig entfernt (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — gut zu wissen, wenn man älteren CGI-Code pflegt, der es importiert.',
+      cgiH2Security: 'Sicherheitshinweise, die hier wirklich zählen',
+      cgiP8: 'Die Einfachheit von CGI ist ein zweischneidiges Schwert — es gibt kein Framework, das im Hintergrund für dich escaped, daher lohnt es sich, ein paar Regeln klar auszusprechen:',
+      cgiUl1: '<strong>Escape alles, was du zurückschickst.</strong> Jeder vom Nutzer stammende String, der in HTML ausgegeben wird, ist ein potenzieller XSS-Vektor, sofern er nicht vorher durch <code>html.escape()</code> läuft — jedes Skript in diesem Lab tut das.',
+      cgiUl2: '<strong>Baue niemals einen Shell-Befehl aus Anfragedaten.</strong> <code>os.system()</code> oder <code>subprocess</code> mit <code>shell=True</code> und ungeprüfter Eingabe ist ein direkter Weg zu Remote Code Execution auf dem Host. Keines dieser Skripte ruft überhaupt eine Shell auf.',
+      cgiUl3: '<strong>Vertraue <code>CONTENT_LENGTH</code>, nicht "lesen, bis fertig".</strong> stdin ohne Längenbegrenzung von einem nicht vertrauenswürdigen Client zu lesen, riskiert sowohl Hänger als auch unbegrenzten Speicherverbrauch.',
+      cgiUl4: '<strong>Datei-Sperren werden wichtig, sobald zwei Anfragen gleichzeitig eintreffen können.</strong> Ein naives Lesen-Ändern-Schreiben auf eine gemeinsame Datei (wie einen Zähler oder ein Log) beschädigt unter gleichzeitiger Last ohne Sperre stillschweigend die Daten.',
+      cgiH2Live: 'Live-Demos',
+      cgiH2Advanced: 'Fortgeschrittene Demos',
+      cgiCard1T: 'Hallo, CGI', cgiCard1D: 'Das Protokoll in drei Zeilen: Header, Leerzeile, Body.',
+      cgiCard2T: 'Anfrage-Umgebung', cgiCard2D: 'Was Apache dem Skript pro Anfrage tatsächlich übergibt.',
+      cgiCard3T: 'Formular-Echo', cgiCard3D: 'Verarbeitet GET-Query-Strings und POST-Bodies von Hand.',
+      cgiCard4T: 'Persistenter Zähler', cgiCard4D: 'Zustand, der einen zustandslosen Prozess überlebt, über eine gesperrte Datei.',
+      cgiCard5T: 'Server-Status-Dashboard', cgiCard5D: 'Dynamische Ausgabe ohne Nutzereingabe — Uhrzeit, Python-Version, Anfrage-Metadaten.',
+      cgiCard6T: 'Einheitenumrechner', cgiCard6D: 'Selbst-postendes Formular: Ein Skript übernimmt sowohl GET (Formular anzeigen) als auch POST (Eingabe verarbeiten).',
+      cgiCard7T: 'Gästebuch', cgiCard7D: 'Datei-Persistenz, XSS-Schutz mit html.escape(), Schreibsperre bei Gleichzeitigkeit.',
+      cgiCard8T: 'Session-Login', cgiCard8D: 'Cookie-basierte Sessions: Set-Cookie, Location-Redirect, Token-Validierung.',
+      cgiBack: '← zurück zu presker.at'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      cgiEyebrow: 'Digitalni lab',
+      cgiSub: 'CGI skripti in Python zaledna logika, ki tečejo v živo na navadnem skupnem gostovanju (shared hosting) — brez strežnika aplikacij, brez vrat za vezavo, brez procesa, ki bi ga bilo treba vzdrževati. Samo Apache in Python interpreter.',
+      cgiH2Basics: 'Kaj CGI pravzaprav je',
+      cgiP1: 'CGI — Common Gateway Interface — je najstarejši način, kako strežniku naročiti, naj zažene program namesto postrežbe statične datoteke. Izvira iz leta 1993. "Vmesnik" je skoraj žaljivo preprost: ko zahteva doseže skript, spletni strežnik (tu Apache) zažene povsem nov proces, mu posreduje zahtevo kot <strong>spremenljivke okolja</strong> ter surovo telo zahteve na <strong>stdin</strong>, in prebere vse, kar proces izpiše na <strong>stdout</strong>, kot odgovor.',
+      cgiP2: 'To je ves protokol. Brez vtičnic (sockets) za odpiranje, brez potrebnega ogrodja, brez trajnega procesa. CGI skript je preprosto program, ki ve, da mora:',
+      cgiOl1: 'Izpisati glavo <code>Content-Type</code>',
+      cgiOl2: 'Izpisati eno prazno vrstico (ločilo med glavo in telesom — zlahka se pozabi, brez njega se vse podre)',
+      cgiOl3: 'Izpisati telo odgovora',
+      cgiP3: 'To je <a href="/test/hello.py" class="lab-link">hello.py →</a> v celoti: tri ukazi print.',
+      cgiH2Shared: 'Zakaj je to še vedno pomembno pri skupnem gostovanju',
+      cgiP4: 'Sodobne spletne aplikacije v Pythonu običajno tečejo kot dolgoživeč proces — Gunicorn, uWSGI, strežnik ASGI — za povratnim posredniškim strežnikom (reverse proxy) in poslušajo na lastnih vratih. Poceni skupno gostovanje (kot gostitelj te strani, World4You) tega praviloma ne dovoli: brez vezave vrat, brez trajnega procesa v ozadju, brez nadzora nad tem, kaj kje posluša.',
+      cgiP5: 'Kar gostitelji skupnega gostovanja <em>dejansko</em> podpirajo — in to že desetletja — je Apache, nastavljen tako, da zažene skript in zajame njegov izhod. To je točno tisto, kar ponuja CGI, zato je na tej vrsti gostovanja še vedno praktičen način za poganjanje strežniškega Pythona. Cena je, da se Python interpreter ob vsaki posamezni zahtevi zažene na novo, "na mrzlo" — ni toplega procesa, ki bi vzdrževal nabor povezav do podatkovne baze ali predpomnjeno stanje. Pri majhnih skriptih in nizkem obisku je ta strošek zagona zanemarljiv. Pri večjem obsegu bi bil resnična težava.',
+      cgiH2State: 'Brezstanjskost — osnovna omejitev',
+      cgiP6: 'Ker vsaka zahteva dobi svež proces brez spomina na prejšnjega, CGI skript sam po sebi nima koncepta "prej" ali "pozneje". Vse, kar mora ostati trajno — števec obiskov, seja, vrsta sporočil s povratnimi informacijami — je treba zapisati nekje <em>zunaj</em> procesa, pri skupnem gostovanju skoraj vedno v datotečnem sistemu (druga možnost je podatkovna baza, kjer je na voljo). <a href="/test/counter.py" class="lab-link">counter.py →</a> to prikaže neposredno: prebere število iz besedilne datoteke, ga poveča, zapiše nazaj — z zaklepom datoteke na nivoju operacijskega sistema, da dve sočasni zahtevi ne pokvarita števca z medsebojnim dirkanjem.',
+      cgiH2Reading: 'Branje zahteve: spremenljivke okolja in stdin',
+      cgiP7: 'Vse, kar je brskalnik poslal, prispe kot spremenljivke okolja — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code> in tako naprej — berljive z preprostim <code>os.environ</code>. Podatki obrazca iz zahteve GET so v celoti v <code>QUERY_STRING</code>. Telo zahteve POST je treba prebrati iz <code>sys.stdin</code>, natančno <code>CONTENT_LENGTH</code> bajtov — če prebereš manj, izgubiš podatke; če prebereš več (ali do EOF), se skript lahko obesi in čaka na bajte, ki nikoli ne pridejo, ker CGI zate ne zapre stdin. <a href="/test/env.py" class="lab-link">env.py →</a> izpiše spremenljivke okolja za katerokoli zahtevo, ki ga je naložila; <a href="/test/echo.py" class="lab-link">echo.py →</a> razčleni resnično oddajo obrazca prek GET in POST.',
+      cgiNote: 'Opomba: ti primeri razčlenijo query string in telo POST z <code>urllib.parse</code> namesto s standardnim modulom <code>cgi</code>. <code>cgi.FieldStorage</code> je bilo za to tradicionalno orodje, a celoten modul <code>cgi</code> je bil v Pythonu 3.11 oznacen kot opuščen in v 3.13 povsem odstranjen (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — vredno vedeti, če vzdržuješ starejšo CGI kodo, ki ga uvaža.',
+      cgiH2Security: 'Varnostni napotki, ki tukaj resnično štejejo',
+      cgiP8: 'Preprostost CGI je dvorezen meč — ni ogrodja, ki bi tiho skrbelo za pravilno ubežanje namesto tebe, zato velja na glas povedati nekaj pravil:',
+      cgiUl1: '<strong>Ubeži (escape) vse, kar vrneš nazaj.</strong> Vsak niz, ki ga vnese uporabnik in ga izpišeš v HTML, je potencialni vektor XSS, če ga prej ne spelješ skozi <code>html.escape()</code> — vsak skript v tem labu to počne.',
+      cgiUl2: '<strong>Nikoli ne sestavljaj ukaza lupine iz podatkov zahteve.</strong> <code>os.system()</code> ali <code>subprocess</code> z <code>shell=True</code> in neprečiščenim vnosom je neposredna pot do oddaljenega izvajanja kode (RCE) na gostitelju. Nobeden od teh skriptov sploh ne kliče lupine.',
+      cgiUl3: '<strong>Zanašaj se na <code>CONTENT_LENGTH</code>, ne na "beri, dokler ni konec".</strong> Branje stdin brez omejitve dolžine od nezanesljivega odjemalca tvega obešanje in neomejeno porabo pomnilnika.',
+      cgiUl4: '<strong>Zaklepanje datotek postane pomembno, brž ko lahko prispeta dve zahtevi hkrati.</strong> Naivno branje-spreminjanje-pisanje v skupno datoteko (kot je števec ali dnevnik) bo pri sočasni obremenitvi brez zaklepa tiho pokvarilo podatke.',
+      cgiH2Live: 'Demonstracije v živo',
+      cgiH2Advanced: 'Napredne demonstracije',
+      cgiCard1T: 'Pozdravljen, CGI', cgiCard1D: 'Protokol v treh vrsticah: glava, prazna vrstica, telo.',
+      cgiCard2T: 'Okolje zahteve', cgiCard2D: 'Kaj Apache skriptu dejansko posreduje ob vsaki zahtevi.',
+      cgiCard3T: 'Odmev obrazca', cgiCard3D: 'Ročno razčleni GET query stringe in telesa POST.',
+      cgiCard4T: 'Trajni števec', cgiCard4D: 'Stanje, ki preživi brezstanjski proces, prek zaklenjene datoteke.',
+      cgiCard5T: 'Nadzorna plošča stanja strežnika', cgiCard5D: 'Dinamičen izpis brez uporabniškega vnosa — čas, različica Pythona, metapodatki zahteve.',
+      cgiCard6T: 'Pretvornik enot', cgiCard6D: 'Obrazec, ki se oddaja samemu sebi: en skript obravnava tako GET (prikaz obrazca) kot POST (obdelava vnosa).',
+      cgiCard7T: 'Knjiga gostov', cgiCard7D: 'Trajnost v datoteki, preprečevanje XSS z html.escape(), zaklepanje pri sočasnem pisanju.',
+      cgiCard8T: 'Seja za prijavo', cgiCard8D: 'Seje na osnovi piškotkov: Set-Cookie, preusmeritev Location, preverjanje žetona (token).',
+      cgiBack: '← nazaj na presker.at'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+  <style>
+    .nav-buttons {
+      position: fixed;
+      top: 2px;
+      left: 1.5rem;
+      display: flex;
+      gap: 12px;
+      z-index: 1000;
+      font-family: var(--mono);
+      font-size: 13px;
+    }
+    .nav-toggles {
+      position: fixed;
+      top: 10px;
+      right: 1.5rem;
+      z-index: 1000;
+    }
+    .nav-btn {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover {
+      background: var(--accent);
+      color: var(--bg);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="nav-buttons">
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow" data-i18n="cgiEyebrow">Digital Lab</p>
+    <h1>Python CGI Lab</h1>
+    <p class="lab-sub" data-i18n="cgiSub">CGI scripts and Python backend logic, running live on ordinary shared hosting — no app server, no port to bind, no process to keep alive. Just Apache and a Python interpreter.</p>
+
+    <h2 data-i18n="cgiH2Basics">What CGI actually is</h2>
+    <p data-i18n-html="cgiP1">CGI — the Common Gateway Interface — is the oldest way to make a web server run a program instead of serving a static file. It dates to 1993. The "interface" part is almost insultingly simple: when a request hits a script, the web server (Apache, here) starts a brand-new process, hands it the request as <strong>environment variables</strong> plus the raw request body on <strong>stdin</strong>, and reads whatever the process prints to <strong>stdout</strong> as the response.</p>
+    <p data-i18n="cgiP2">That's the entire protocol. No sockets to open, no framework required, no persistent process. A CGI script is just a program that knows it must:</p>
+    <ol style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.8;">
+      <li data-i18n-html="cgiOl1">Print a <code>Content-Type</code> header line</li>
+      <li data-i18n-html="cgiOl2">Print one blank line (the header/body separator — easy to forget, breaks everything if missing)</li>
+      <li data-i18n="cgiOl3">Print the response body</li>
+    </ol>
+    <p data-i18n-html="cgiP3">That's <a href="/test/hello.py" class="lab-link">hello.py →</a> in its entirety: three print statements.</p>
+
+    <h2 data-i18n="cgiH2Shared">Why this still matters on shared hosting</h2>
+    <p data-i18n-html="cgiP4">Modern Python web apps usually run as a long-lived process — Gunicorn, uWSGI, an ASGI server — sitting behind a reverse proxy, listening on its own port. Cheap shared hosting (like this site's host, World4You) generally won't let you do that: no port binding, no persistent background process, no control over what's listening where.</p>
+    <p data-i18n-html="cgiP5">What shared hosts <em>do</em> support — going back decades — is Apache configured to execute a script and capture its output. That's exactly the contract CGI provides, which is why it's still the practical way to run server-side Python on this kind of hosting. The tradeoff is that the Python interpreter starts cold on every single request — there's no warm process holding a database connection pool or cached state. For small scripts and low traffic, that startup cost is negligible. It would be a real problem at scale.</p>
+
+    <h2 data-i18n="cgiH2State">Statelessness — the core limitation</h2>
+    <p data-i18n-html="cgiP6">Because every request gets a fresh process with no memory of the last one, a CGI script by itself has no concept of "earlier" or "later." Anything that needs to persist — a visit count, a session, a queue of feedback messages — has to be written somewhere <em>outside</em> the process, almost always the filesystem on shared hosting (a database is the other option, where available). <a href="/test/counter.py" class="lab-link">counter.py →</a> demonstrates this directly: it reads a number from a text file, increments it, writes it back, with an OS-level file lock so two simultaneous requests can't corrupt the count by racing each other.</p>
+
+    <h2 data-i18n="cgiH2Reading">Reading a request: environment variables and stdin</h2>
+    <p data-i18n-html="cgiP7">Everything the browser sent arrives as environment variables — <code>REQUEST_METHOD</code>, <code>QUERY_STRING</code>, <code>HTTP_USER_AGENT</code>, and so on — readable with plain <code>os.environ</code>. A GET request's form data lives entirely in <code>QUERY_STRING</code>. A POST request's body has to be read from <code>sys.stdin</code>, exactly <code>CONTENT_LENGTH</code> bytes — read less and you lose data, read more (or read until EOF) and the script can hang waiting for bytes that will never arrive, since CGI doesn't close stdin for you. <a href="/test/env.py" class="lab-link">env.py →</a> dumps the environment variables for whatever request loaded it; <a href="/test/echo.py" class="lab-link">echo.py →</a> parses a real form submission via both GET and POST.</p>
+    <p style="font-size: 13px; color: var(--muted);" data-i18n-html="cgiNote">Note: these examples parse the query string and POST body with <code>urllib.parse</code> rather than the stdlib <code>cgi</code> module. <code>cgi.FieldStorage</code> was the traditional tool for this, but the whole <code>cgi</code> module was deprecated in Python 3.11 and removed entirely in 3.13 (<a href="https://peps.python.org/pep-0594/" target="_blank" rel="noopener" class="lab-link">PEP 594</a>) — worth knowing if you're maintaining older CGI code that imports it.</p>
+
+    <h2 data-i18n="cgiH2Security">Security notes that actually matter here</h2>
+    <p data-i18n="cgiP8">CGI's simplicity cuts both ways — there's no framework quietly escaping things for you, so a few rules are worth stating plainly:</p>
+    <ul style="margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85;">
+      <li data-i18n-html="cgiUl1"><strong>Escape everything you echo back.</strong> Any user-supplied string printed into HTML is a potential XSS vector unless run through <code>html.escape()</code> first — every script in this lab does this.</li>
+      <li data-i18n-html="cgiUl2"><strong>Never build a shell command from request data.</strong> <code>os.system()</code> or <code>subprocess</code> with <code>shell=True</code> and unsanitized input is a direct path to remote code execution on the host. None of these scripts shell out at all.</li>
+      <li data-i18n-html="cgiUl3"><strong>Trust <code>CONTENT_LENGTH</code>, not "read until done."</strong> Reading stdin without a length bound from an untrusted client risks both hangs and unbounded memory use.</li>
+      <li data-i18n-html="cgiUl4"><strong>File locking matters the moment two requests can land at once.</strong> A naive read-modify-write to a shared file (like a counter or a log) will silently corrupt data under concurrent load without a lock.</li>
+    </ul>
+
+    <h2 data-i18n="cgiH2Live">Live demos</h2>
+    <div class="lab-grid">
+      <a href="/test/hello.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard1T">Hello, CGI</div>
+        <div class="lab-card-path">/test/hello.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard1D">The protocol in three lines: header, blank line, body.</div>
+      </a>
+      <a href="/test/env.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard2T">Request environment</div>
+        <div class="lab-card-path">/test/env.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard2D">What Apache actually hands the script per request.</div>
+      </a>
+      <a href="/test/echo.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard3T">Form echo</div>
+        <div class="lab-card-path">/test/echo.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard3D">Parses GET query strings and POST bodies by hand.</div>
+      </a>
+      <a href="/test/counter.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard4T">Persistent counter</div>
+        <div class="lab-card-path">/test/counter.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard4D">State surviving a stateless process, via a locked file.</div>
+      </a>
+    </div>
+
+    <h2 data-i18n="cgiH2Advanced">Advanced demos</h2>
+    <div class="lab-grid">
+      <a href="/test/status.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard5T">Server Status Dashboard</div>
+        <div class="lab-card-path">/test/status.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard5D">Dynamic output with no user input — time, Python version, request metadata.</div>
+      </a>
+      <a href="/test/converter.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard6T">Unit Converter</div>
+        <div class="lab-card-path">/test/converter.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard6D">Self-posting form: one script handles both GET (show form) and POST (process input).</div>
+      </a>
+      <a href="/test/guestbook.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard7T">Guestbook</div>
+        <div class="lab-card-path">/test/guestbook.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard7D">File persistence, XSS prevention with html.escape(), concurrent write locking.</div>
+      </a>
+      <a href="/test/login.py" class="lab-card">
+        <div class="lab-card-title" data-i18n="cgiCard8T">Session Login</div>
+        <div class="lab-card-path">/test/login.py</div>
+        <div class="lab-card-desc" data-i18n="cgiCard8D">Cookie-based sessions: Set-Cookie, Location redirect, token validation.</div>
+      </a>
+    </div>
+
+    <a href="/" class="lab-back" data-i18n="cgiBack">← back to presker.at</a>
+
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
+</body>
+</html>

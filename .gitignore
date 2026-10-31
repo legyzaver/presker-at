@@ -1,0 +1,22 @@
+# ── Runtime data written by CGI scripts — never commit or serve ──
+feedback/feedback_log.json
+test/sessions.json
+test/guestbook.txt
+test/counter.txt
+
+# ── Logs ──
+*.log
+
+# ── Secrets / credentials (safety net) ──
+.env
+*.pem
+*.key
+*_rsa
+.site_manager_profiles.json
+
+# ── Local tooling / editor / OS cruft ──
+.claude/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

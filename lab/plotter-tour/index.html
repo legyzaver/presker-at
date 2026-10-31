@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plotter Tour — how a pen plotter stops wasting time</title>
+<meta name="description" content="A pen plotter has to visit hundreds of dots. Watch random order, nearest-neighbour and 2-opt shorten the pen's travel, guess the savings first, and export the optimised plot as SVG.">
+<link rel="canonical" href="https://www.presker.at/lab/plotter-tour/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/plotter-tour/">
+<meta property="og:title" content="Plotter Tour">
+<meta property="og:description" content="A pen plotter has to visit hundreds of dots. Watch random order, nearest-neighbour and 2-opt shorten the pen's travel, then export the optimised plot as SVG.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff; --warm: #a2461f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 980px; margin: 0 auto; padding: 14px 16px 40px; }
+.back { font-family: var(--mono); font-size: 12px; text-decoration: none; color: var(--muted); }
+.back:hover { color: var(--accent); }
+h1 { font-family: var(--mono); font-size: 22px; margin: 10px 0 2px; letter-spacing: -.01em; }
+.lead { color: var(--muted); margin: 0 0 14px; max-width: 62ch; }
+.stage { border: 1px solid var(--line); background: #0a0a0a; border-radius: 10px; overflow: hidden; }
+canvas { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; }
+.lbl { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 2px; }
+button {
+  font: 13px var(--mono); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; min-height: 38px;
+}
+button:hover { border-color: #3a3a3a; }
+button.on { border-color: var(--accent); color: var(--accent); }
+button.go { border-color: var(--accent); background: var(--accent); color: #0e0e0e; font-weight: 700; }
+button:disabled { opacity: .4; cursor: default; }
+input[type=range] { accent-color: var(--accent); width: 150px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; margin-top: 12px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--panel); }
+.stat b { display: block; font-family: var(--mono); font-size: 20px; color: var(--accent); font-weight: 600; }
+.stat span { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.board { margin-top: 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); padding: 10px 12px; }
+.bar { display: grid; grid-template-columns: 130px 1fr 80px; gap: 10px; align-items: center; font-family: var(--mono); font-size: 12px; margin: 5px 0; }
+.bar .track { height: 10px; background: #1d1d1d; border-radius: 5px; overflow: hidden; }
+.bar .fill { height: 100%; width: 0; background: var(--accent); transition: width .3s; }
+.bar .val { text-align: right; color: var(--muted); }
+.say { margin-top: 12px; border-left: 3px solid var(--accent); padding: 4px 12px; color: var(--ink); min-height: 3em; }
+.guess { margin-top: 12px; border: 1px dashed #3a3a3a; border-radius: 8px; padding: 10px 12px; }
+.guess p { margin: 0 0 8px; }
+details { margin-top: 18px; color: var(--muted); }
+summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+details p { max-width: 70ch; }
+footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.donate { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #3a3a3a; border-radius: 999px; padding: 5px 12px 5px 6px; color: var(--ink); text-decoration: none; }
+.donate:hover { border-color: var(--accent); }
+.donate .r { width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #000; display: inline-grid; place-items: center; font-weight: 800; font-size: 12px; }
+@media (max-width: 520px) { .bar { grid-template-columns: 96px 1fr 64px; } input[type=range] { width: 110px; } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  ptLede: "A pen plotter draws hundreds of dots. Between dots the pen is lifted and flies across the sheet, and that flight is pure waste. Pick an order and watch the pen-up travel shrink.",
+  ptLblPicture: 'Picture', ptBtnScatter: 'Scatter', ptBtnLetters: 'Letters', ptBtnSpiral: 'Spiral', ptBtnClusters: 'Clusters', ptBtnGrid: 'Grid',
+  ptLblDots: 'Dots', ptAriaDots: 'Number of dots', ptBtnNewDots: 'New dots',
+  ptLblOrder: 'Order', ptBtnRandom: '1 · Random order', ptBtnNN: '2 · Nearest neighbour', ptBtn2opt: '3 · Uncross (2-opt)', ptBtnSkip: 'Skip animation',
+  ptGuessFirst: 'Guess first.', ptGuessFlies: 'Random order flies',
+  ptGuessQ: 'mm. If the pen always hops to the closest dot not yet drawn, how long will its travel be?',
+  ptGuessSame: 'about the same', ptGuessHalf: 'half', ptGuessFifth: 'a fifth or less',
+  ptStatLen: 'pen-up travel (mm)', ptStatTime: 'plot time (s)', ptStatSave: 'saved vs random', ptStatLong: 'longest jump (mm)',
+  ptSayInit: 'Press <b>Random order</b> to see the pen draw the dots in whatever order they were made.',
+  ptBtnSvg: 'Download SVG for a plotter', ptLinesOn: 'Travel lines: on', ptLinesOff: 'Travel lines: off',
+  ptHowSummary: 'How it works',
+  ptHowP1: "This is the travelling salesman problem with an open end: visit every dot once, as short as possible. Finding the perfect answer is very hard, so plotter software settles for good answers fast. <b>Nearest neighbour</b> is greedy: from the current dot, go to the closest unvisited one. It starts well and paints itself into corners, leaving a few long hops at the end (shown in orange). <b>2-opt</b> looks for two travel lines that cross and fixes them by reversing the stretch of the tour between them; every fix makes the tour strictly shorter, and it stops when no crossings are left.",
+  ptHowP2: "Time estimate: the pen flies at 60 mm/s and spends 0.15 s on every dot. Real plotters differ, but the ratio is the point. The SVG holds the dots in tour order, so a plotter program such as Inkscape's AxiDraw extension will draw them in that sequence.",
+  ptFooter: '© 2026 Presker.at · runs in your browser',
+  ptAriaCanvas: "Dots on a sheet of paper with the pen's travel lines between them",
+  ptExplainRandom: 'Random order: every hop crosses half the sheet. The pen spends almost all its time flying, not drawing.',
+  ptExplainNN: 'Nearest neighbour: {len} mm, {onlyWord} {pct}% of random. Look for the orange lines: it grabs close dots greedily, strands a few, and has to leap back for them at the end.',
+  ptOnly: 'only', ptInFactOnly: 'in fact only',
+  ptGuessGood: 'Good guess. ', ptGuessWrong: 'You guessed {guess}; ',
+  ptExplain2opt: '2-opt: {len} mm. It found pairs of crossing travel lines and untangled them until none were left. Notice the long orange jumps are gone or shorter.',
+  ptRowRandom: 'Random order', ptRowNN: 'Nearest neighbour', ptRow2opt: '2-opt uncrossed',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  ptLede: 'Ein Stiftplotter zeichnet Hunderte von Punkten. Zwischen den Punkten wird der Stift angehoben und fliegt über das Blatt — reine Verschwendung. Wähle eine Reihenfolge und beobachte, wie die Leerfahrt schrumpft.',
+  ptLblPicture: 'Bild', ptBtnScatter: 'Streuung', ptBtnLetters: 'Buchstaben', ptBtnSpiral: 'Spirale', ptBtnClusters: 'Cluster', ptBtnGrid: 'Raster',
+  ptLblDots: 'Punkte', ptAriaDots: 'Anzahl der Punkte', ptBtnNewDots: 'Neue Punkte',
+  ptLblOrder: 'Reihenfolge', ptBtnRandom: '1 · Zufällige Reihenfolge', ptBtnNN: '2 · Nächster Nachbar', ptBtn2opt: '3 · Entkreuzen (2-opt)', ptBtnSkip: 'Animation überspringen',
+  ptGuessFirst: 'Rate zuerst.', ptGuessFlies: 'Die zufällige Reihenfolge fliegt',
+  ptGuessQ: 'mm. Wenn der Stift immer zum nächstgelegenen, noch nicht gezeichneten Punkt springt — wie lang wird seine Fahrt sein?',
+  ptGuessSame: 'etwa gleich viel', ptGuessHalf: 'halb so viel', ptGuessFifth: 'ein Fünftel oder weniger',
+  ptStatLen: 'Leerfahrt (mm)', ptStatTime: 'Plotzeit (s)', ptStatSave: 'gespart ggü. zufällig', ptStatLong: 'längster Sprung (mm)',
+  ptSayInit: 'Drücke <b>Zufällige Reihenfolge</b>, um den Stift die Punkte in der Reihenfolge zeichnen zu sehen, in der sie entstanden sind.',
+  ptBtnSvg: 'SVG für einen Plotter herunterladen', ptLinesOn: 'Fahrlinien: an', ptLinesOff: 'Fahrlinien: aus',
+  ptHowSummary: 'Wie es funktioniert',
+  ptHowP1: 'Das ist das Problem des Handlungsreisenden mit offenem Ende: jeden Punkt einmal besuchen, so kurz wie möglich. Die perfekte Lösung zu finden ist sehr schwer, deshalb begnügt sich Plotter-Software mit schnellen, guten Lösungen. <b>Nächster Nachbar</b> ist gierig: vom aktuellen Punkt zum nächstgelegenen unbesuchten springen. Es startet gut, manövriert sich aber in Ecken und lässt am Ende ein paar lange Sprünge übrig (orange dargestellt). <b>2-opt</b> sucht nach zwei sich kreuzenden Fahrlinien und behebt die Kreuzung, indem es den Abschnitt der Tour zwischen ihnen umdreht; jede Korrektur macht die Tour strikt kürzer, und es stoppt, wenn keine Kreuzungen mehr übrig sind.',
+  ptHowP2: 'Zeitschätzung: Der Stift fliegt mit 60 mm/s und verweilt 0,15 s an jedem Punkt. Echte Plotter unterscheiden sich, aber das Verhältnis ist der Punkt. Die SVG enthält die Punkte in Tour-Reihenfolge, sodass ein Plotter-Programm wie Inkscapes AxiDraw-Erweiterung sie in dieser Abfolge zeichnet.',
+  ptFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  ptAriaCanvas: 'Punkte auf einem Blatt Papier mit den Fahrlinien des Stifts dazwischen',
+  ptExplainRandom: 'Zufällige Reihenfolge: Jeder Sprung quert fast das halbe Blatt. Der Stift verbringt fast die ganze Zeit fliegend, nicht zeichnend.',
+  ptExplainNN: 'Nächster Nachbar: {len} mm, {onlyWord} {pct}% des Zufalls. Achte auf die orangen Linien: Er greift gierig nahe Punkte, lässt ein paar übrig und muss am Ende zu ihnen zurückspringen.',
+  ptOnly: 'nur', ptInFactOnly: 'tatsächlich nur',
+  ptGuessGood: 'Gut geraten. ', ptGuessWrong: 'Du hast {guess} geraten; ',
+  ptExplain2opt: '2-opt: {len} mm. Es hat sich kreuzende Fahrlinien gefunden und entwirrt, bis keine mehr übrig waren. Die langen orangen Sprünge sind weg oder kürzer.',
+  ptRowRandom: 'Zufällige Reihenfolge', ptRowNN: 'Nächster Nachbar', ptRow2opt: '2-opt entkreuzt',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  ptLede: 'Risalni ploter nariše na stotine pik. Med pikami se pisalo dvigne in leti čez list — ta polet je čista izguba. Izberi vrstni red in opazuj, kako se pot v zraku krajša.',
+  ptLblPicture: 'Slika', ptBtnScatter: 'Razpršeno', ptBtnLetters: 'Črke', ptBtnSpiral: 'Spirala', ptBtnClusters: 'Gruče', ptBtnGrid: 'Mreža',
+  ptLblDots: 'Pike', ptAriaDots: 'Število pik', ptBtnNewDots: 'Nove pike',
+  ptLblOrder: 'Vrstni red', ptBtnRandom: '1 · Naključni vrstni red', ptBtnNN: '2 · Najbližji sosed', ptBtn2opt: '3 · Razkrižanje (2-opt)', ptBtnSkip: 'Preskoči animacijo',
+  ptGuessFirst: 'Najprej ugibaj.', ptGuessFlies: 'Naključni vrstni red preleti',
+  ptGuessQ: 'mm. Če pisalo vedno skoči na najbližjo še nenarisano piko, kako dolga bo njegova pot?',
+  ptGuessSame: 'približno enako', ptGuessHalf: 'polovico', ptGuessFifth: 'petino ali manj',
+  ptStatLen: 'pot v zraku (mm)', ptStatTime: 'čas risanja (s)', ptStatSave: 'prihranek glede na naključno', ptStatLong: 'najdaljši skok (mm)',
+  ptSayInit: 'Pritisni <b>Naključni vrstni red</b>, da pisalo nariše pike v vrstnem redu, v katerem so nastale.',
+  ptBtnSvg: 'Prenesi SVG za ploter', ptLinesOn: 'Poti pisala: vklopljene', ptLinesOff: 'Poti pisala: izklopljene',
+  ptHowSummary: 'Kako deluje',
+  ptHowP1: 'To je problem potujočega trgovca z odprtim koncem: obiskati vsako piko enkrat, kar se da kratko. Najti popoln odgovor je zelo težko, zato se programska opreme ploterjev zadovolji s hitrimi dobrimi odgovori. <b>Najbližji sosed</b> je požrešen: od trenutne pike gre do najbližje še neobiskane. Dobro začne, nato pa se zaplete v kote in na koncu ostane nekaj dolgih skokov (prikazanih oranžno). <b>2-opt</b> išče pare prekrižanih poti in ju popravi tako, da obrne odsek poti med njima; vsak popravek naredi pot strogo krajšo, in se ustavi, ko ni več prekrižanj.',
+  ptHowP2: 'Ocena časa: pisalo leti s 60 mm/s in ostane 0,15 s na vsaki piki. Resnični ploterji se razlikujejo, a razmerje je bistvo. SVG vsebuje pike v vrstnem redu poti, zato jih bo program za ploter, kot je razširitev AxiDraw za Inkscape, narisal v tem zaporedju.',
+  ptFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  ptAriaCanvas: 'Pike na listu papirja s potmi pisala med njimi',
+  ptExplainRandom: 'Naključni vrstni red: vsak skok prečka pol lista. Pisalo skoraj ves čas leti, ne riše.',
+  ptExplainNN: 'Najbližji sosed: {len} mm, {onlyWord} {pct}% naključnega. Poglej oranžne črte: požrešno pobira bližnje pike, nekaj jih pusti za konec in mora po njih nazaj skočiti.',
+  ptOnly: 'le', ptInFactOnly: 'pravzaprav le',
+  ptGuessGood: 'Dobro ugibanje. ', ptGuessWrong: 'Ugibal/-a si {guess}; ',
+  ptExplain2opt: '2-opt: {len} mm. Našel je pare prekrižanih poti in jih razvozlal, dokler ni ostalo nobene. Dolgi oranžni skoki so izginili ali so krajši.',
+  ptRowRandom: 'Naključni vrstni red', ptRowNN: 'Najbližji sosed', ptRow2opt: '2-opt razkrižano',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="back" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Plotter Tour</h1>
+  <p class="lead" data-i18n="ptLede">A pen plotter draws hundreds of dots. Between dots the pen is lifted and flies across the sheet, and that flight is pure waste. Pick an order and watch the pen-up travel shrink.</p>
+
+  <div class="stage"><canvas id="cv" width="1000" height="700" aria-label="Dots on a sheet of paper with the pen's travel lines between them"></canvas></div>
+
+  <div class="row">
+    <span class="lbl" data-i18n="ptLblPicture">Picture</span>
+    <button data-preset="random" class="on" data-i18n="ptBtnScatter">Scatter</button>
+    <button data-preset="text" data-i18n="ptBtnLetters">Letters</button>
+    <button data-preset="spiral" data-i18n="ptBtnSpiral">Spiral</button>
+    <button data-preset="clusters" data-i18n="ptBtnClusters">Clusters</button>
+    <button data-preset="grid" data-i18n="ptBtnGrid">Grid</button>
+  </div>
+  <div class="row">
+    <span class="lbl" data-i18n="ptLblDots">Dots</span>
+    <input type="range" id="n" min="60" max="1200" step="20" value="400" aria-label="Number of dots">
+    <b id="nval" style="font-family:var(--mono)">400</b>
+    <button id="reseed" data-i18n="ptBtnNewDots">New dots</button>
+  </div>
+  <div class="row">
+    <span class="lbl" data-i18n="ptLblOrder">Order</span>
+    <button id="bRandom" data-i18n="ptBtnRandom">1 · Random order</button>
+    <button id="bNN" class="go" data-i18n="ptBtnNN">2 · Nearest neighbour</button>
+    <button id="b2opt" class="go" data-i18n="ptBtn2opt">3 · Uncross (2-opt)</button>
+    <button id="bStop" data-i18n="ptBtnSkip">Skip animation</button>
+  </div>
+
+  <div class="guess" id="guess">
+    <p><b data-i18n="ptGuessFirst">Guess first.</b> <span data-i18n="ptGuessFlies">Random order flies</span> <span id="gRand">…</span> <span data-i18n="ptGuessQ">mm. If the pen always hops to the closest dot not yet drawn, how long will its travel be?</span></p>
+    <div class="row" style="margin:0">
+      <button data-g="0.8" data-i18n="ptGuessSame">about the same</button>
+      <button data-g="0.5" data-i18n="ptGuessHalf">half</button>
+      <button data-g="0.2" data-i18n="ptGuessFifth">a fifth or less</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="sLen">–</b><span data-i18n="ptStatLen">pen-up travel (mm)</span></div>
+    <div class="stat"><b id="sTime">–</b><span data-i18n="ptStatTime">plot time (s)</span></div>
+    <div class="stat"><b id="sSave">–</b><span data-i18n="ptStatSave">saved vs random</span></div>
+    <div class="stat"><b id="sLong">–</b><span data-i18n="ptStatLong">longest jump (mm)</span></div>
+  </div>
+
+  <div class="board" id="board"></div>
+  <div class="say" id="say" data-i18n-html="ptSayInit">Press <b>Random order</b> to see the pen draw the dots in whatever order they were made.</div>
+
+  <div class="row">
+    <button id="svg" data-i18n="ptBtnSvg">Download SVG for a plotter</button>
+    <button id="lines" data-i18n="ptLinesOn">Travel lines: on</button>
+  </div>
+
+  <details>
+    <summary data-i18n="ptHowSummary">How it works</summary>
+    <p data-i18n-html="ptHowP1">This is the travelling salesman problem with an open end: visit every dot once, as short as possible. Finding the perfect answer is very hard, so plotter software settles for good answers fast. <b>Nearest neighbour</b> is greedy: from the current dot, go to the closest unvisited one. It starts well and paints itself into corners, leaving a few long hops at the end (shown in orange). <b>2-opt</b> looks for two travel lines that cross and fixes them by reversing the stretch of the tour between them; every fix makes the tour strictly shorter, and it stops when no crossings are left.</p>
+    <p data-i18n="ptHowP2">Time estimate: the pen flies at 60 mm/s and spends 0.15 s on every dot. Real plotters differ, but the ratio is the point. The SVG holds the dots in tour order, so a plotter program such as Inkscape's AxiDraw extension will draw them in that sequence.</p>
+  </details>
+
+  <footer>
+    <span data-i18n="ptFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+// Sheet size in mm; canvas maps 1 mm = 5 px at 1000 x 700.
+const W = 200, H = 140, PX = 5;
+const SPEED = 60, DWELL = 0.15;           // mm/s pen-up, s per dot
+const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+const $ = id => document.getElementById(id);
+
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function updateAriaLabels() {
+  cv.setAttribute('aria-label', t('ptAriaCanvas'));
+  $('n').setAttribute('aria-label', t('ptAriaDots'));
+}
+document.addEventListener('presker-lang-change', updateAriaLabels);
+
+let seed = 1, preset = 'random', N = 400;
+let pts = [];                  // [{x,y}] in mm
+let tour = [];                 // indices in visiting order
+let drawnCount = 0;            // how many tour entries are "flown" (for NN animation)
+let job = null;                // running generator
+let showLines = true;
+let results = {};              // algo -> length for the current dot set
+let guess = null, pendingNN = false;
+
+// Small seeded RNG so a picture can be reproduced.
+function rng(s) { return () => { s |= 0; s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 15, 1 | s); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// ---- point sets ---------------------------------------------------------
+function makePoints() {
+  const r = rng(seed * 7919 + 13), out = [];
+  const m = 8;
+  if (preset === 'random') {
+    for (let i = 0; i < N; i++) out.push({ x: m + r() * (W - 2 * m), y: m + r() * (H - 2 * m) });
+  } else if (preset === 'clusters') {
+    const cs = Array.from({ length: 7 }, () => ({ x: 25 + r() * 150, y: 20 + r() * 100 }));
+    while (out.length < N) {
+      const c = cs[(r() * cs.length) | 0], a = r() * 6.283, d = Math.abs(r() + r() + r() - 1.5) * 26;
+      const x = c.x + Math.cos(a) * d, y = c.y + Math.sin(a) * d;
+      if (x > m && x < W - m && y > m && y < H - m) out.push({ x, y });
+    }
+  } else if (preset === 'spiral') {
+    for (let i = 0; i < N; i++) {
+      const t = (i + r() * 0.8) / N, a = t * 6.283 * 4.5, rad = 4 + t * 60;
+      out.push({ x: W / 2 + Math.cos(a) * rad * 1.35, y: H / 2 + Math.sin(a) * rad });
+    }
+  } else if (preset === 'grid') {
+    const cols = Math.round(Math.sqrt(N * W / H)), rows = Math.ceil(N / cols);
+    const gx = (W - 2 * m) / (cols - 1 || 1), gy = (H - 2 * m) / (rows - 1 || 1);
+    for (let i = 0; i < N; i++) out.push({ x: m + (i % cols) * gx, y: m + Math.floor(i / cols) * gy });
+    shuffle(out, r);                                   // order of creation is scrambled
+  } else if (preset === 'text') {
+    // Rasterise a word and sample dots from the filled pixels.
+    const o = document.createElement('canvas'); o.width = W; o.height = H;
+    const c = o.getContext('2d'); c.fillStyle = '#000'; c.fillRect(0, 0, W, H);
+    c.fillStyle = '#fff'; c.font = '900 64px Arial, Helvetica, sans-serif';
+    c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('PLOT', W / 2, H / 2 - 18);
+    c.font = '900 48px Arial, Helvetica, sans-serif'; c.fillText('TOUR', W / 2, H / 2 + 38);
+    const d = c.getImageData(0, 0, W, H).data;
+    let guard = 0;
+    while (out.length < N && guard++ < N * 400) {
+      const x = r() * W, y = r() * H;
+      if (d[((y | 0) * W + (x | 0)) * 4] > 128) out.push({ x, y });
+    }
+  }
+  return out;
+}
+function shuffle(a, r) { for (let i = a.length - 1; i > 0; i--) { const j = (r() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } }
+
+const dist = (a, b) => Math.hypot(pts[a].x - pts[b].x, pts[a].y - pts[b].y);
+function tourLength(t, upto = t.length) { let s = 0; for (let i = 1; i < upto; i++) s += dist(t[i - 1], t[i]); return s; }
+
+// ---- algorithms (generators so they can animate) ---------------------------
+function* gNearest() {
+  const n = pts.length, used = new Uint8Array(n);
+  let cur = 0; used[0] = 1; tour = [0]; drawnCount = 1;
+  for (let k = 1; k < n; k++) {
+    let best = -1, bd = Infinity;
+    for (let j = 0; j < n; j++) if (!used[j]) { const d = dist(cur, j); if (d < bd) { bd = d; best = j; } }
+    used[best] = 1; tour.push(best); cur = best; drawnCount = tour.length;
+    if (k % 3 === 0) yield;
+  }
+}
+function* g2opt() {
+  const n = tour.length, t = tour;
+  let improved = true, checks = 0;
+  while (improved) {
+    improved = false;
+    for (let i = 0; i < n - 1; i++) {
+      for (let j = i + 1; j < n; j++) {
+        const a = i > 0 ? t[i - 1] : -1, d = j < n - 1 ? t[j + 1] : -1;
+        const before = (a >= 0 ? dist(a, t[i]) : 0) + (d >= 0 ? dist(t[j], d) : 0);
+        const after = (a >= 0 ? dist(a, t[j]) : 0) + (d >= 0 ? dist(t[i], d) : 0);
+        if (after < before - 1e-9) {
+          for (let l = i, r = j; l < r; l++, r--) { const x = t[l]; t[l] = t[r]; t[r] = x; }
+          improved = true;
+        }
+        if (++checks % 6000 === 0) yield;
+      }
+    }
+  }
+}
+
+// ---- running ---------------------------------------------------------------
+function start(name, gen) { job = { name, it: gen() }; setBusy(true); }
+function step(ms) {
+  if (!job) return;
+  const t0 = performance.now();
+  do { if (job.it.next().done) { finish(); return; } } while (performance.now() - t0 < ms);
+}
+function runToEnd() { while (job) { if (job.it.next().done) finish(); } }
+function finish() {
+  const name = job.name; job = null; drawnCount = tour.length; setBusy(false);
+  results[name] = tourLength(tour);
+  explain(name); updateStats(); draw();
+}
+function setBusy(b) { ['bRandom', 'bNN', 'b2opt'].forEach(id => $(id).disabled = b); $('bStop').disabled = !b; }
+
+function newSet() {
+  job = null; setBusy(false);
+  pts = makePoints();
+  tour = pts.map((_, i) => i); drawnCount = 0;     // creation order
+  results = {}; guess = null; pendingNN = false;
+  // Baseline: a random shuffle gives the "unoptimised" reference.
+  const r = rng(seed * 31 + 5), sh = tour.slice(); shuffle(sh, r);
+  results.baseline = tourLength(sh); randomOrder = sh;
+  $('gRand').textContent = results.baseline.toFixed(0);
+  $('guess').style.display = '';
+  document.querySelectorAll('[data-g]').forEach(b => b.classList.remove('on'));
+  $('say').innerHTML = t('ptSayInit');
+  updateStats(); draw();
+}
+let randomOrder = [];
+
+function explain(name) {
+  const base = results.baseline, len = results[name], pct = Math.round(len / base * 100);
+  let s = '';
+  if (name === 'random') s = t('ptExplainRandom');
+  if (name === 'nn') {
+    let onlyWord = t('ptOnly');
+    const right = guess !== null && ((guess === 0.2 && pct <= 30) || (guess === 0.5 && pct > 30 && pct <= 65) || (guess === 0.8 && pct > 65));
+    if (guess !== null && !right && pct < 30) onlyWord = t('ptInFactOnly');
+    s = t('ptExplainNN', { len: len.toFixed(0), pct, onlyWord });
+    if (guess !== null) {
+      const guessWord = guess === 0.8 ? t('ptGuessSame') : guess === 0.5 ? t('ptGuessHalf') : t('ptGuessFifth');
+      s = (right ? t('ptGuessGood') : t('ptGuessWrong', { guess: guessWord })) + s;
+    }
+    $('guess').style.display = 'none';
+  }
+  if (name === '2opt') s = t('ptExplain2opt', { len: len.toFixed(0) });
+  $('say').textContent = s;
+}
+
+// ---- UI ------------------------------------------------------------------------
+function updateStats() {
+  const have = tour.length === pts.length && (results.nn || results['2opt'] || results.random);
+  const cur = job ? tourLength(tour, drawnCount) : (lastAlgoLen());
+  $('sLen').textContent = cur == null ? '–' : cur.toFixed(0);
+  $('sTime').textContent = cur == null ? '–' : (cur / SPEED + pts.length * DWELL).toFixed(0);
+  $('sSave').textContent = cur == null ? '–' : Math.max(0, Math.round((1 - cur / results.baseline) * 100)) + '%';
+  $('sLong').textContent = cur == null ? '–' : longest().toFixed(0);
+  const rows = [[t('ptRowRandom'), results.random], [t('ptRowNN'), results.nn], [t('ptRow2opt'), results['2opt']]];
+  const mx = results.baseline;
+  $('board').innerHTML = rows.map(([n, v]) =>
+    `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="width:${v ? Math.min(100, v / mx * 100) : 0}%"></div></div><span class="val">${v ? v.toFixed(0) + ' mm' : '–'}</span></div>`).join('');
+  void have;
+}
+let lastName = null;
+function lastAlgoLen() { return lastName && results[lastName] != null ? results[lastName] : null; }
+function longest() { let m = 0; for (let i = 1; i < tour.length; i++) m = Math.max(m, dist(tour[i - 1], tour[i])); return m; }
+
+function draw() {
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, cv.width, cv.height);
+  // faint 10 mm grid like cutting-mat paper
+  ctx.strokeStyle = '#151515'; ctx.lineWidth = 1; ctx.beginPath();
+  for (let x = 0; x <= W; x += 10) { ctx.moveTo(x * PX + .5, 0); ctx.lineTo(x * PX + .5, H * PX); }
+  for (let y = 0; y <= H; y += 10) { ctx.moveTo(0, y * PX + .5); ctx.lineTo(W * PX, y * PX + .5); }
+  ctx.stroke();
+  const n = tour.length, lim = lastName || job ? drawnCount : 0;
+  if (showLines && lim > 1) {
+    const cut = longestCut(lim);
+    ctx.lineWidth = 1.2; ctx.lineJoin = 'round';
+    for (let pass = 0; pass < 2; pass++) {
+      ctx.beginPath();
+      for (let i = 1; i < lim; i++) {
+        const a = pts[tour[i - 1]], b = pts[tour[i]];
+        const long = Math.hypot(a.x - b.x, a.y - b.y) >= cut && cut > 25;
+        if (long !== (pass === 1)) continue;
+        ctx.moveTo(a.x * PX, a.y * PX); ctx.lineTo(b.x * PX, b.y * PX);
+      }
+      ctx.strokeStyle = pass ? 'rgba(255,157,92,.85)' : 'rgba(184,245,122,.38)';
+      ctx.stroke();
+    }
+  }
+  // dots; the already-flown ones are bright, the rest dim
+  for (let i = 0; i < n; i++) {
+    const p = pts[tour[i]], hot = i < lim;
+    ctx.fillStyle = hot ? '#e8e8e8' : '#4a4a4a';
+    ctx.beginPath(); ctx.arc(p.x * PX, p.y * PX, hot ? 2.6 : 2.2, 0, 6.283); ctx.fill();
+  }
+  // pen head while animating
+  if (job && lim > 0) {
+    const p = pts[tour[lim - 1]];
+    ctx.strokeStyle = '#b8f57a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(p.x * PX, p.y * PX, 8, 0, 6.283); ctx.stroke();
+  }
+}
+// The 95th-percentile hop length: hops at or beyond it are drawn orange (only if they are really long).
+function longestCut(lim) {
+  const a = []; for (let i = 1; i < lim; i++) a.push(dist(tour[i - 1], tour[i]));
+  a.sort((x, y) => x - y); return a[Math.floor(a.length * 0.95)] || 0;
+}
+
+function loop() {
+  if (job) {
+    step(10);
+    if (job && job.name === '2opt') drawnCount = tour.length;
+    updateStatsLive(); draw();
+  }
+  requestAnimationFrame(loop);
+}
+function updateStatsLive() { if (job) { const c = tourLength(tour, drawnCount); $('sLen').textContent = c.toFixed(0); $('sTime').textContent = (c / SPEED + drawnCount * DWELL).toFixed(0); } }
+
+function pick(name) { lastName = name; }
+$('bRandom').onclick = () => {
+  tour = randomOrder.slice(); drawnCount = tour.length; pick('random'); results.random = results.baseline;
+  explain('random'); updateStats(); draw();
+};
+$('bNN').onclick = () => { pick('nn'); start('nn', gNearest); };
+$('b2opt').onclick = () => {
+  if (!lastName || lastName === '2opt' && !results['2opt']) { tour = randomOrder.slice(); }
+  if (tour.length !== pts.length || drawnCount !== tour.length) tour = randomOrder.slice();
+  drawnCount = tour.length; pick('2opt'); start('2opt', g2opt);
+};
+$('bStop').onclick = () => runToEnd();
+$('reseed').onclick = () => { seed++; newSet(); lastName = null; draw(); };
+$('lines').onclick = e => { showLines = !showLines; e.target.textContent = showLines ? t('ptLinesOn') : t('ptLinesOff'); draw(); };
+$('n').oninput = e => { N = +e.target.value; $('nval').textContent = N; lastName = null; newSet(); };
+document.querySelectorAll('[data-preset]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-preset]').forEach(x => x.classList.toggle('on', x === b));
+  preset = b.dataset.preset; lastName = null; newSet();
+});
+document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+  guess = +b.dataset.g;
+  document.querySelectorAll('[data-g]').forEach(x => x.classList.toggle('on', x === b));
+});
+
+// SVG: dots in tour order (a plotter draws them in this sequence), plus travel path on its own layer.
+$('svg').onclick = () => {
+  const t = tour.length ? tour : pts.map((_, i) => i);
+  let s = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" width="${W}mm" height="${H}mm" viewBox="0 0 ${W} ${H}">\n`;
+  s += '<g inkscape:groupmode="layer" inkscape:label="1 dots" fill="none" stroke="#000" stroke-width="0.4">\n';
+  t.forEach(i => { const p = pts[i]; s += `<circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="0.35"/>\n`; });
+  s += '</g>\n<g inkscape:groupmode="layer" inkscape:label="2 pen-up travel (do not plot)" style="display:none" fill="none" stroke="#f60" stroke-width="0.1">\n<path d="M' +
+    t.map(i => pts[i].x.toFixed(2) + ' ' + pts[i].y.toFixed(2)).join(' L') + '"/>\n</g>\n</svg>\n';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([s], { type: 'image/svg+xml' }));
+  a.download = `plotter-tour-${preset}-${N}.svg`; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+
+// Hook for the automated checker: rAF may not run in a hidden page.
+window.__tour = {
+  setup(p, n, s) { preset = p; N = n; seed = s || 1; lastName = null; newSet(); return pts.length; },
+  run(name) {
+    if (name === 'random') $('bRandom').click();
+    else if (name === 'nn') $('bNN').click();
+    else $('b2opt').click();
+    runToEnd(); return results[name === '2opt' ? '2opt' : name];
+  },
+  results: () => ({ ...results }),
+  valid: () => new Set(tour).size === pts.length && tour.length === pts.length,
+};
+
+updateAriaLabels();
+newSet();
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

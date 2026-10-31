@@ -3,8 +3,312 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PRESKER.AT — Digital Lab</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Presker.at — Code, art &amp; things I make</title>
+  <meta name="description" content="A workshop more than a portfolio: a bilingual alphabet game built for my kid, a vinyl recorder made from scanner parts, 3D-printing experiments, and installation art from a past life in galleries.">
+  <link rel="canonical" href="https://www.presker.at/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.presker.at/">
+  <meta property="og:title" content="Presker.at — Code, art &amp; things I make">
+  <meta property="og:description" content="A workshop more than a portfolio: a bilingual alphabet game for my kid, a vinyl recorder from scanner parts, 3D-printing experiments, and installation art from a past life.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="style.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script>
+  window.PRESKER_I18N = {
+    en: {
+      navNew: 'new', navFeatured: 'featured', navProjects: 'projects', navObjects: 'objects',
+      navLearning: 'learning', navWriting: 'writing', navArt: 'art', navAbout: 'about', navFeedback: 'feedback',
+      eyebrow: 'Digital Lab',
+      sub: 'A workshop more than a portfolio — an alphabet game for my kid, a vinyl recorder built from scanner parts, and installations from a past life in galleries.',
+      valueProp: 'I build interactive software, hands-on learning tools and physical objects — from browser experiments and 3D-printed mechanisms to installations that make abstract ideas tangible.',
+      workshopHeading: 'Explore the workshop', workshopSub: 'The full archive, by kind.',
+      tile1Title: 'Software & Experiments', tile1Desc: 'Interactive browser tools — a new one most days.',
+      tile2Title: 'Learning & Education', tile2Desc: 'Simulations and games that teach by letting you break things safely.',
+      tile3Title: 'Objects & Making', tile3Desc: "3D prints, adapters and fixes for gear the world stopped supporting.",
+      tile4Title: 'Art & Installations', tile4Desc: 'Installation, light and interactive media from a life exhibiting in galleries.',
+      newLabel: 'New in the lab', featuredLabel: 'Featured',
+      pitchDesc: 'A singing game for my kid, who just learned the alphabet. Sing higher or lower to climb a staircase of flowers and spell a word out loud, in German or Slovenian — no microphone needed either, the arrow keys climb the same garden.',
+      pitchCta: 'sing something →',
+      sliceDesc: 'I wanted to see exactly which part of a 3D print needs supports before it fails on the bed. Slice a vase, a chess pawn, a mushroom table or a bridge into layers, watch the overhangs light up red, then add supports and see what they cost in time and filament.',
+      sliceCta: 'slice something →',
+      plotterDesc: 'A pen plotter wastes most of its time flying between dots with the pen lifted. Guess how much a smarter order saves, then watch nearest-neighbour and 2-opt shorten the trip, and export the result as SVG.',
+      plotterCta: 'shorten the trip →',
+      cameraDesc: 'I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.',
+      cameraCta: 'open the shutter →',
+      wordSafariDesc: 'The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation. Every word is spoken aloud, in both languages.',
+      wordSafariCta: 'start matching →',
+      abcDesc: "My kid was learning two alphabets at once, and most bilingual apps assume English. So I built a German/Slovenian letter-door game — then turned it into a first-person arcade game, <em>The 36th Chamber of Schooling</em>. That's the one the kids actually keep coming back to.",
+      abcParts: '<a href="/lab/abc-quest-3d/">the 3D arcade</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html">the original game</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html#pedagogy">the pedagogy</a>',
+      abcCta: 'walk in →',
+      vinylDesc: "I needed a machine to cut grooves into blank vinyl. The parts didn't exist, so I built the machine — then built the tools to build the machine. My origin story for 3D printing.",
+      vinylCta: 'read the build log →',
+      fpDesc: 'Turning music into 3D-printable discs for a 1971 Fisher Price toy record player: the mechanism and its lineage in pinned barrels and punched cards, a browser tool that turns any melody into bump geometry, and the build log as prints come off the bench.',
+      fpParts: '<a href="/projects/fisher-price-plates.html">the discs</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#burner">the Disk Burner</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#build-log">build log</a>',
+      fpCta: 'follow along →',
+      sectionProjects: 'Projects', sectionObjects: '3D Objects', sectionLearning: 'Learning',
+      sectionWriting: 'Writing', sectionArt: 'Installation Work', sectionAbout: 'About', sectionFeedback: 'Feedback',
+      chladniDesc: 'Sand on a humming metal plate runs away from the parts that shake and piles up on the still lines. Tune the plate and watch 36,000 grains draw the pattern of a sound.',
+      chladniCta: 'shake the plate →',
+      inglenookDesc: 'The classic model railway shunting puzzle. One loco, three short sidings and a card that says which wagons to put in which order. A solver knows the shortest answer for every card, so you can see how close you got.',
+      inglenookCta: 'start shunting →',
+      planetDesc: 'I wanted to see why 360 photos bend the way they do. Drag a panorama through eight projections, from flat map to fisheye to little planet, or drop in your own 360 shot.',
+      planetCta: 'make a planet →',
+      platterDesc: 'A drum machine cut into a spinning record: tap the grooves to place beats and notes, switch between 33, 45 and 78 rpm, and grab the platter to scratch.',
+      platterCta: 'spin a beat →',
+      workshopCardDesc: "3D prints, upcycles and DIY builds — from scanner teardowns and candle-heated print beds to whatever's on the bench right now.",
+      workshopCardCta: 'enter the workshop →',
+      codeLabDesc: 'Small scripts that do one thing well — CGI and Python running live on plain shared hosting, with the reasoning written up.',
+      codeLabCta: 'see the CGI lab →',
+      dualLensDesc: 'Drop in the two-circle file from any 360 camera — Gear 360, Insta360, Theta, GoPro MAX, raw DNG included — and get a finished panorama: horizon levelled, lenses auto-aligned, stitched right in your browser. Nothing is uploaded.',
+      dualLensParts: 'curious how dual-lens cameras work? <a href="/dual-lens-stitcher.html">read the camera rundown</a>',
+      dualLensCta: 'stitch a photo →',
+      harmoDesc: 'A Victorian drawing machine in the browser: four swinging pendulums and a turning table trace slowly decaying spirals. Tweak every pendulum, share a figure as a link, export an SVG for a pen plotter.',
+      harmoCta: 'draw something →',
+      insta360Desc: 'Insta360 stopped making the battery for the One RS 1-Inch 360 (Leica). This printed adapter runs the camera off a DJI Osmo Pocket 3 battery over USB-C — rescuing a stranded camera.',
+      insta360Cta: 'see the build →',
+      allObjectsDesc: 'Printable fixes and adapters for gear the manufacturer abandoned — each with its story and a free Thingiverse download.',
+      allObjectsCta: 'browse objects →',
+      wordSafariLearnDesc: 'The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation, spoken aloud in both languages.',
+      pitchLearnDesc: 'A singing game for kids who just learned the alphabet. Sing higher or lower to climb a staircase of flowers and spell a word out loud, in German or Slovenian — no microphone needed either, the arrow keys climb the same garden.',
+      besedopadDesc: 'Tetris meets vocabulary: two-letter capsules fall, and spelling a real Slovenian word across a row or column clears it for points — the longer the word, the bigger the score. Built on an 83,500-word dictionary.',
+      besedopadCta: 'drop some letters →',
+      bitBlocksDesc: "The kids' version of Core Memory, with blocky graphics. Blocks are bits, the printer shows the letter they spell, and two streams of water show how a computer flips exactly one block. In English and German.",
+      bitBlocksCta: 'play with blocks →',
+      coreMemoryDesc: 'An 8×8 plane of ferrite rings, the way computers stored bits before chips. Tap a ring and watch two half-currents flip only the one where the wires cross, then try four little experiments, like why reading a bit erases it.',
+      coreMemoryCta: 'flip some bits →',
+      uhrUraDesc: 'A clock for kids learning to tell the time in German and Slovenian. Drag the geared hands and see why both languages say "half three" at 2:30, then play four short levels from full hours to five-minute steps.',
+      uhrUraCta: 'tell the time →',
+      whiteCubeDesc: 'A 3D gallery for learning installation art by doing it. Find the one spot where a painting across the whole room snaps together, turn coloured light into coloured shadows, and spin a heap of blocks until its shadow speaks.',
+      whiteCubeCta: 'enter the gallery →',
+      orbitDesc: 'A 3D spaceflight game that teaches orbital mechanics. Predict what a rocket burn will do, fly it, then find out why. To catch a space station, you slow down.',
+      orbitCta: 'launch →',
+      wcNotesDesc: 'The teaching design behind White Cube: experience first and vocabulary after, predict-observe-explain for perception, and a 45-minute lesson that ends with torches and cellophane in a real room.',
+      osNotesDesc: 'The teaching design behind Orbit School: Predict–Observe–Explain, feedback you see before the consequences, guided discovery, and how to use it with a class.',
+      notesReadCta: 'read the notes →',
+      abcPedagogyDesc: 'Why a bilingual German/Slovenian alphabet game uses one repeated door loop, reshuffles its answers every round, and makes wrong guesses cost nothing. The teaching notes behind the game above.',
+      abcPedagogyCta: 'read the teaching notes →',
+      selectedWorkDesc: 'Installation, light sculpture, photography and interactive media. I still build, but I stopped exhibiting — these are selected works, biography and CV.',
+      selectedWorkCta: 'open archive →',
+      formicationDesc: 'A live ant colony reshapes a projected image over time. Made with Luiza Margan — won the OHO Group Award, 2007.',
+      formicationCta: 'view project →',
+      whySiteDesc: "I build things — code, prints, installations — usually because something needed to exist and nobody was making it the way I needed it. Here's the honest story behind the site.",
+      whySiteCta: 'read about →',
+      feedbackIntro: 'Spotted something broken, or have a thought? Drop a note — it goes straight to me. No login needed.',
+      fbProjectPlaceholder: '— which project?', fbProjAbc: 'ABC Quest', fbProjDual: 'Dual Lens Stitcher',
+      fbProjWorkshop: 'Workshop / 3D printing', fbProjCode: 'Code Lab', fbProjArt: 'Art', fbProjSite: 'General / site',
+      fbTypePlaceholder: '— type', fbTypeBug: '🐛 Bug / broken thing', fbTypeSuggestion: '💡 Suggestion',
+      fbTypeLiked: '✨ Liked something', fbTypeOther: 'Other',
+      fbTextareaPlaceholder: 'Tell me what you noticed…', fbAnon: 'Anonymous is fine.', fbSubmit: 'Send feedback →',
+      donateNote: 'Support this — everything here is free.',
+      potdLabel: 'project of the day:',
+      allLearningDate: 'all of them',
+      allLearningDesc: 'Every teaching project in one place: the German and Slovenian language games, and the browser toys that explain computing, orbits, optics and installation art by letting you try them.',
+      allLearningCta: 'browse learning \u2192',
+      allWritingDate: 'all of them',
+      allWritingDesc: 'The longer pieces in one place: the AI scorecard, and the design notes that explain why the teaching games work the way they do.',
+      allWritingCta: 'browse writing \u2192',
+      aiPredHomeDesc: 'A plain-language check of the 2015 Wait But Why AI articles against what actually happened by 2026 \u2014 a 23-claim scorecard, charts, and every source linked.',
+      aiPredHomeCta: 'read the study \u2192',
+      slikovarDesc: 'A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice, not the browser\'s own. Animals, food and home, A to Ž.',
+      slikovarCta: 'tap a picture →',
+    },
+    de: {
+      navNew: 'neu', navFeatured: 'empfohlen', navProjects: 'projekte', navObjects: 'objekte',
+      navLearning: 'lernen', navWriting: 'texte', navArt: 'kunst', navAbout: 'über mich', navFeedback: 'feedback',
+      eyebrow: 'Digitale Werkstatt',
+      sub: 'Eine Werkstatt, kein klassisches Portfolio — ein Alphabetspiel für mein Kind, ein Vinyl-Rekorder aus Scanner-Teilen und Installationen aus einem früheren Galerieleben.',
+      valueProp: 'Ich baue interaktive Software, praktische Lernwerkzeuge und physische Objekte — von Browser-Experimenten und 3D-gedruckten Mechanismen bis zu Installationen, die abstrakte Ideen greifbar machen.',
+      workshopHeading: 'Die Werkstatt entdecken', workshopSub: 'Das ganze Archiv, nach Art sortiert.',
+      tile1Title: 'Software & Experimente', tile1Desc: 'Interaktive Browser-Tools — fast täglich ein neues.',
+      tile2Title: 'Lernen & Bildung', tile2Desc: 'Simulationen und Spiele, die durch gefahrloses Scheitern lehren.',
+      tile3Title: 'Objekte & Handwerk', tile3Desc: '3D-Drucke, Adapter und Reparaturen für Geräte, die der Hersteller aufgegeben hat.',
+      tile4Title: 'Kunst & Installationen', tile4Desc: 'Installation, Licht und interaktive Medien aus einem Leben als ausstellender Künstler.',
+      newLabel: 'Neu im Lab', featuredLabel: 'Empfohlen',
+      pitchDesc: 'Ein Singspiel für mein Kind, das gerade das Alphabet gelernt hat. Singe höher oder tiefer, um eine Treppe aus Blumen zu erklimmen und ein Wort laut zu buchstabieren, auf Deutsch oder Slowenisch — auch ohne Mikrofon, die Pfeiltasten erklimmen denselben Garten.',
+      pitchCta: 'etwas singen →',
+      sliceDesc: 'Ich wollte genau sehen, welcher Teil eines 3D-Drucks Stützen braucht, bevor er auf dem Druckbett scheitert. Zerlege eine Vase, einen Schachbauern, einen Pilztisch oder eine Brücke in Schichten, sieh die Überhänge rot aufleuchten, und füge dann Stützen hinzu, um zu sehen, was sie an Zeit und Filament kosten.',
+      sliceCta: 'etwas zerlegen →',
+      plotterDesc: 'Ein Stiftplotter verbringt die meiste Zeit mit angehobenem Stift zwischen Punkten. Rate, wie viel eine klügere Reihenfolge spart, dann beobachte, wie Nearest-Neighbour und 2-opt die Strecke verkürzen, und exportiere das Ergebnis als SVG.',
+      plotterCta: 'Strecke verkürzen →',
+      cameraDesc: 'Ich wollte meinem Kind zeigen, warum ein dunkler Raum mit einem kleinen Loch ein echtes, kopfstehendes Bild an die Wand malt — ganz ohne Linse, ganz ohne Elektronik. Verändere die Lochgröße, verschiebe die Leinwand, bohre ein zweites Loch, und beobachte den Kompromiss zwischen Helligkeit und Schärfe, der die ersten Kameras geprägt hat.',
+      cameraCta: 'Verschluss öffnen →',
+      wordSafariDesc: 'Der nächste Schritt nach dem Alphabet: ganze Wörter. Lerne sechs deutsch-slowenische Paare auf einmal — Tiere, Essen, Natur und Zuhause — und drehe dann Karten um, um jedes Wort mit seiner Übersetzung zu verbinden. Jedes Wort wird in beiden Sprachen vorgelesen.',
+      wordSafariCta: 'jetzt zuordnen →',
+      abcDesc: 'Mein Kind lernte zwei Alphabete gleichzeitig, und die meisten zweisprachigen Apps setzen Englisch voraus. Also baute ich ein deutsch-slowenisches Türen-Buchstabenspiel — und machte daraus ein Ego-Arcade-Spiel, <em>The 36th Chamber of Schooling</em>. Das ist das, zu dem die Kinder immer wieder zurückkommen.',
+      abcParts: '<a href="/lab/abc-quest-3d/">die 3D-Arcade</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html">das Original</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html#pedagogy">die Pädagogik</a>',
+      abcCta: 'eintreten →',
+      vinylDesc: 'Ich brauchte eine Maschine, um Rillen in rohes Vinyl zu schneiden. Die Teile gab es nicht, also baute ich die Maschine — und dann die Werkzeuge, um die Maschine zu bauen. Meine Ursprungsgeschichte für 3D-Druck.',
+      vinylCta: 'Bauprotokoll lesen →',
+      fpDesc: 'Musik in 3D-druckbare Scheiben für einen Fisher-Price-Spielzeugplattenspieler von 1971 verwandeln: der Mechanismus und seine Herkunft aus Stiftwalzen und Lochkarten, ein Browser-Tool, das jede Melodie in Noppen-Geometrie verwandelt, und das Bauprotokoll, während die Drucke entstehen.',
+      fpParts: '<a href="/projects/fisher-price-plates.html">die Scheiben</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#burner">der Disk Burner</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#build-log">Bauprotokoll</a>',
+      fpCta: 'mitverfolgen →',
+      sectionProjects: 'Projekte', sectionObjects: '3D-Objekte', sectionLearning: 'Lernen',
+      sectionWriting: 'Texte', sectionArt: 'Installationsarbeiten', sectionAbout: 'Über mich', sectionFeedback: 'Feedback',
+      chladniDesc: 'Sand auf einer summenden Metallplatte flieht vor den schwingenden Stellen und sammelt sich auf den ruhigen Linien. Stimme die Platte und beobachte, wie 36.000 Körner das Muster eines Klangs zeichnen.',
+      chladniCta: 'Platte zum Klingen bringen →',
+      inglenookDesc: 'Das klassische Rangier-Puzzle der Modelleisenbahn. Eine Lok, drei kurze Abstellgleise und eine Karte, die vorgibt, welche Wagen in welcher Reihenfolge stehen sollen. Ein Solver kennt die kürzeste Antwort für jede Karte, damit du siehst, wie nah du dran warst.',
+      inglenookCta: 'Rangieren beginnen →',
+      planetDesc: 'Ich wollte sehen, warum sich 360°-Fotos so verbiegen, wie sie es tun. Ziehe ein Panorama durch acht Projektionen, von der flachen Karte über Fischauge bis zum kleinen Planeten, oder lade dein eigenes 360°-Foto.',
+      planetCta: 'einen Planeten erschaffen →',
+      platterDesc: 'Eine Drum-Machine, geschnitten in eine sich drehende Schallplatte: Tippe in die Rillen, um Beats und Noten zu setzen, wechsle zwischen 33, 45 und 78 U/min und greife die Platte zum Scratchen.',
+      platterCta: 'einen Beat drehen →',
+      workshopCardDesc: '3D-Drucke, Upcycles und DIY-Bauten — von Scanner-Ausschlachtungen und kerzenbeheizten Druckbetten bis zu dem, was gerade auf der Werkbank liegt.',
+      workshopCardCta: 'Werkstatt betreten →',
+      codeLabDesc: 'Kleine Skripte, die eine Sache gut können — CGI und Python, live auf gewöhnlichem Shared Hosting, mit aufgeschriebener Begründung.',
+      codeLabCta: 'CGI-Lab ansehen →',
+      dualLensDesc: 'Lade die Zweikreis-Datei jeder 360°-Kamera — Gear 360, Insta360, Theta, GoPro MAX, auch roh als DNG — und erhalte ein fertiges Panorama: Horizont nivelliert, Objektive automatisch ausgerichtet, direkt im Browser zusammengefügt. Nichts wird hochgeladen.',
+      dualLensParts: 'Neugierig, wie Dual-Lens-Kameras funktionieren? <a href="/dual-lens-stitcher.html">die Kamera-Erklärung lesen</a>',
+      dualLensCta: 'ein Foto zusammenfügen →',
+      harmoDesc: 'Eine viktorianische Zeichenmaschine im Browser: Vier schwingende Pendel und ein drehender Tisch zeichnen langsam abklingende Spiralen. Verändere jedes Pendel, teile eine Figur als Link, exportiere ein SVG für einen Stiftplotter.',
+      harmoCta: 'etwas zeichnen →',
+      insta360Desc: 'Insta360 stellte die Produktion des Akkus für die One RS 1-Inch 360 (Leica) ein. Dieser gedruckte Adapter betreibt die Kamera über USB-C mit einem DJI-Osmo-Pocket-3-Akku — und rettet damit eine gestrandete Kamera.',
+      insta360Cta: 'den Bau ansehen →',
+      allObjectsDesc: 'Druckbare Reparaturen und Adapter für Geräte, die der Hersteller aufgegeben hat — jedes mit seiner Geschichte und einem kostenlosen Thingiverse-Download.',
+      allObjectsCta: 'Objekte durchstöbern →',
+      wordSafariLearnDesc: 'Der nächste Schritt nach dem Alphabet: ganze Wörter. Lerne sechs deutsch-slowenische Paare auf einmal — Tiere, Essen, Natur und Zuhause — und drehe dann Karten um, um jedes Wort mit seiner Übersetzung zu verbinden, in beiden Sprachen vorgelesen.',
+      pitchLearnDesc: 'Ein Singspiel für Kinder, die gerade das Alphabet gelernt haben. Singe höher oder tiefer, um eine Treppe aus Blumen zu erklimmen und ein Wort laut zu buchstabieren, auf Deutsch oder Slowenisch — auch ohne Mikrofon, die Pfeiltasten erklimmen denselben Garten.',
+      besedopadDesc: 'Tetris trifft Vokabeln: Zweibuchstaben-Kapseln fallen, und das Buchstabieren eines echten slowenischen Wortes in einer Zeile oder Spalte löscht es für Punkte — je länger das Wort, desto größer der Punktestand. Basiert auf einem Wörterbuch mit 83.500 Einträgen.',
+      besedopadCta: 'Buchstaben fallen lassen →',
+      bitBlocksDesc: 'Die Kinderversion von Core Memory, mit blockiger Grafik. Blöcke sind Bits, der Drucker zeigt den Buchstaben, den sie buchstabieren, und zwei Wasserströme zeigen, wie ein Computer genau einen Block umklappt. Auf Englisch und Deutsch.',
+      bitBlocksCta: 'mit Blöcken spielen →',
+      coreMemoryDesc: 'Eine 8×8-Ebene aus Ferritringen, so wie Computer Bits speicherten, bevor es Chips gab. Tippe auf einen Ring und beobachte, wie zwei Halbströme nur den einen Ring umklappen, an dem sich die Drähte kreuzen, dann probiere vier kleine Experimente, etwa warum das Lesen eines Bits es löscht.',
+      coreMemoryCta: 'Bits umklappen →',
+      uhrUraDesc: 'Eine Uhr für Kinder, die lernen, die Zeit auf Deutsch und Slowenisch anzusagen. Ziehe die Zahnrad-Zeiger und sieh, warum beide Sprachen um 2:30 Uhr "halb drei" sagen, dann spiele vier kurze Level von vollen Stunden bis Fünf-Minuten-Schritten.',
+      uhrUraCta: 'die Zeit sagen →',
+      whiteCubeDesc: 'Eine 3D-Galerie, um Installationskunst durch Ausprobieren zu lernen. Finde den einen Punkt, an dem ein Gemälde über den ganzen Raum zusammenpasst, verwandle farbiges Licht in farbige Schatten und drehe einen Haufen Blöcke, bis sein Schatten spricht.',
+      whiteCubeCta: 'die Galerie betreten →',
+      orbitDesc: 'Ein 3D-Raumflugspiel, das Bahnmechanik lehrt. Sage voraus, was ein Raketentriebwerk bewirken wird, fliege es, und finde dann heraus, warum. Um eine Raumstation einzuholen, wirst du langsamer.',
+      orbitCta: 'starten →',
+      wcNotesDesc: 'Das didaktische Konzept hinter White Cube: erst Erfahrung, dann Vokabular, Predict-Observe-Explain für Wahrnehmung, und eine 45-minütige Lektion, die mit Taschenlampen und Zellophan in einem echten Raum endet.',
+      osNotesDesc: 'Das didaktische Konzept hinter Orbit School: Predict–Observe–Explain, Feedback, das du vor den Konsequenzen siehst, geleitetes Entdecken, und wie man es mit einer Klasse einsetzt.',
+      notesReadCta: 'die Notizen lesen →',
+      abcPedagogyDesc: 'Warum ein zweisprachiges deutsch-slowenisches Alphabetspiel eine einzige, wiederholte Türenschleife verwendet, seine Antworten jede Runde neu mischt und falsche Vermutungen nichts kosten lässt. Die didaktischen Notizen hinter dem Spiel oben.',
+      abcPedagogyCta: 'die didaktischen Notizen lesen →',
+      selectedWorkDesc: 'Installation, Lichtskulptur, Fotografie und interaktive Medien. Ich baue noch, habe aber aufgehört auszustellen — das sind ausgewählte Arbeiten, Biografie und Lebenslauf.',
+      selectedWorkCta: 'Archiv öffnen →',
+      formicationDesc: 'Eine lebende Ameisenkolonie verändert über Zeit ein projiziertes Bild. Entstanden mit Luiza Margan — gewann 2007 den OHO-Group-Award.',
+      formicationCta: 'Projekt ansehen →',
+      whySiteDesc: 'Ich baue Dinge — Code, Drucke, Installationen — meist, weil etwas existieren musste und niemand es so baute, wie ich es brauchte. Hier ist die ehrliche Geschichte hinter der Seite.',
+      whySiteCta: 'über mich lesen →',
+      feedbackIntro: 'Etwas Kaputtes entdeckt, oder einen Gedanken? Hinterlasse eine Notiz — sie geht direkt an mich. Kein Login nötig.',
+      fbProjectPlaceholder: '— welches Projekt?', fbProjAbc: 'ABC Quest', fbProjDual: 'Dual Lens Stitcher',
+      fbProjWorkshop: 'Werkstatt / 3D-Druck', fbProjCode: 'Code Lab', fbProjArt: 'Kunst', fbProjSite: 'Allgemein / Seite',
+      fbTypePlaceholder: '— Art', fbTypeBug: '🐛 Fehler / etwas kaputt', fbTypeSuggestion: '💡 Vorschlag',
+      fbTypeLiked: '✨ Etwas gefiel mir', fbTypeOther: 'Sonstiges',
+      fbTextareaPlaceholder: 'Erzähl mir, was dir aufgefallen ist…', fbAnon: 'Anonym ist in Ordnung.', fbSubmit: 'Feedback senden →',
+      donateNote: 'Unterstütze das hier — alles hier ist kostenlos.',
+      potdLabel: 'Projekt des Tages:',
+      allLearningDate: 'alle',
+      allLearningDesc: 'Alle Lernprojekte an einem Ort: die deutsch-slowenischen Sprachspiele und die Browser-Spielzeuge, die Computer, Umlaufbahnen, Optik und Installationskunst erkl\u00e4ren, indem man sie ausprobiert.',
+      allLearningCta: 'Lernprojekte ansehen \u2192',
+      allWritingDate: 'alle',
+      allWritingDesc: 'Die l\u00e4ngeren Texte an einem Ort: die KI-Bewertung und die Entwurfsnotizen, die erkl\u00e4ren, warum die Lernspiele so funktionieren, wie sie funktionieren.',
+      allWritingCta: 'Texte ansehen \u2192',
+      aiPredHomeDesc: 'Eine allgemein verst\u00e4ndliche \u00dcberpr\u00fcfung der KI-Artikel von Wait But Why aus 2015 anhand dessen, was bis 2026 tats\u00e4chlich passiert ist \u2014 23 Behauptungen bewertet, mit Diagrammen und verlinkten Quellen.',
+      aiPredHomeCta: 'die Auswertung lesen \u2192',
+      slikovarDesc: 'Ein Bildwörterbuch für Vorschulkinder: Tippe auf ein Bild und höre seinen Namen auf Slowenisch — gesprochen von einer echten, offline laufenden neuronalen Stimme, nicht der des Browsers. Tiere, Essen und Zuhause, von A bis Ž.',
+      slikovarCta: 'auf ein Bild tippen →',
+    },
+    sl: {
+      navNew: 'novo', navFeatured: 'izbrano', navProjects: 'projekti', navObjects: 'predmeti',
+      navLearning: 'učenje', navWriting: 'pisanje', navArt: 'umetnost', navAbout: 'o meni', navFeedback: 'povratne informacije',
+      eyebrow: 'Digitalna delavnica',
+      sub: 'Delavnica, ne klasičen portfolio — abecedna igra za mojega otroka, vinilni snemalnik iz delov skenerja in inštalacije iz prejšnjega galerijskega življenja.',
+      valueProp: 'Ustvarjam interaktivno programsko opremo, praktična učna orodja in fizične predmete — od brskalniških eksperimentov in 3D-tiskanih mehanizmov do inštalacij, ki abstraktne ideje naredijo otipljive.',
+      workshopHeading: 'Razišči delavnico', workshopSub: 'Celoten arhiv, razvrščen po vrsti.',
+      tile1Title: 'Programska oprema in eksperimenti', tile1Desc: 'Interaktivna brskalniška orodja — skoraj vsak dan novo.',
+      tile2Title: 'Učenje in izobraževanje', tile2Desc: 'Simulacije in igre, ki učijo z varnim preizkušanjem napak.',
+      tile3Title: 'Predmeti in izdelava', tile3Desc: '3D-izdelki, adapterji in popravki za opremo, ki jo je proizvajalec opustil.',
+      tile4Title: 'Umetnost in inštalacije', tile4Desc: 'Inštalacija, svetloba in interaktivni mediji iz življenja razstavljajočega umetnika.',
+      newLabel: 'Novo v labu', featuredLabel: 'Izbrano',
+      pitchDesc: 'Pevska igra za mojega otroka, ki se je ravno naučil abecede. Prepevaj višje ali nižje, da splezaš po stopnicah cvetlic in naglas črkuješ besedo, v nemščini ali slovenščini — brez mikrofona gre tudi, smerne tipke splezajo po istem vrtu.',
+      pitchCta: 'zapoj nekaj →',
+      sliceDesc: 'Želel sem natančno videti, kateri del 3D-izdelka potrebuje podpore, preden spodleti na podlagi. Razreži vazo, šahovskega kmeta, gobasto mizico ali most na plasti, opazuj, kako previsi zasvetijo rdeče, nato dodaj podpore in poglej, koliko časa in filamenta stanejo.',
+      sliceCta: 'razreži nekaj →',
+      plotterDesc: 'Risalni ploter večino časa porabi za letenje med pikami z dvignjenim peresom. Ugani, koliko prihrani pametnejši vrstni red, nato opazuj, kako nearest-neighbour in 2-opt skrajšata pot, in izvozi rezultat kot SVG.',
+      plotterCta: 'skrajšaj pot →',
+      cameraDesc: 'Hotel sem svojemu otroku pokazati, zakaj temen prostor z eno majhno luknjo nariše pravo, narobe obrnjeno sliko na steno — brez leče, brez elektronike. Spremeni velikost luknje, premakni zaslon, prebij drugo luknjo in opazuj razmerje med svetlostjo in ostrino, ki je oblikovalo prve fotoaparate.',
+      cameraCta: 'odpri zaslonko →',
+      wordSafariDesc: 'Naslednji korak po abecedi: cele besede. Spoznaj šest nemško-slovenskih parov naenkrat — živali, hrano, naravo in dom — nato obračaj kartice in poveži vsako besedo z njenim prevodom. Vsaka beseda je izgovorjena v obeh jezikih.',
+      wordSafariCta: 'začni povezovati →',
+      abcDesc: 'Moj otrok se je hkrati učil dveh abeced, večina dvojezičnih aplikacij pa predpostavlja angleščino. Zato sem zgradil nemško-slovensko igro vrat s črkami — nato pa iz nje naredil arkadno igro v prvi osebi, <em>The 36th Chamber of Schooling</em>. K tej se otroci najraje vračajo.',
+      abcParts: '<a href="/lab/abc-quest-3d/">3D arkada</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html">izvirna igra</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html#pedagogy">pedagogika</a>',
+      abcCta: 'vstopi →',
+      vinylDesc: 'Potreboval sem stroj za rezanje žlebov v surovi vinil. Delov ni bilo, zato sem zgradil stroj — nato pa še orodja za izdelavo stroja. Moja izvorna zgodba za 3D-tisk.',
+      vinylCta: 'preberi dnevnik izdelave →',
+      fpDesc: 'Glasbo spreminjam v 3D-natisljive plošče za Fisher-Price otroški gramofon iz leta 1971: mehanizem in njegov izvor v zatičnih valjih in luknjanih karticah, brskalniško orodje, ki vsako melodijo spremeni v geometrijo izboklin, ter dnevnik izdelave, medtem ko nastajajo odtisi.',
+      fpParts: '<a href="/projects/fisher-price-plates.html">plošče</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#burner">Disk Burner</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#build-log">dnevnik izdelave</a>',
+      fpCta: 'spremljaj →',
+      sectionProjects: 'Projekti', sectionObjects: '3D predmeti', sectionLearning: 'Učenje',
+      sectionWriting: 'Pisanje', sectionArt: 'Inštalacijska dela', sectionAbout: 'O meni', sectionFeedback: 'Povratne informacije',
+      chladniDesc: 'Pesek na brneči kovinski plošči uhaja pred deli, ki tresejo, in se nabira na mirnih črtah. Nastavi ploščo in opazuj, kako 36.000 zrn izriše vzorec zvoka.',
+      chladniCta: 'stresi ploščo →',
+      inglenookDesc: 'Klasična uganka ranžiranja modelne železnice. Ena lokomotiva, tri kratke stranske tire in kartica, ki pove, kateri vagoni naj stojijo v kakšnem vrstnem redu. Reševalnik pozna najkrajši odgovor za vsako kartico, da vidiš, kako blizu si prišel.',
+      inglenookCta: 'začni ranžirati →',
+      planetDesc: 'Hotel sem videti, zakaj se 360-stopinjske fotografije upogibajo tako, kot se. Povleci panoramo skozi osem projekcij, od ravnega zemljevida do fisheye in malega planeta, ali pa naloži svoj lastni 360-posnetek.',
+      planetCta: 'ustvari planet →',
+      platterDesc: 'Bobnarski avtomat, vrezan v vrtečo se gramofonsko ploščo: tapni v utore, da postaviš ritme in note, preklapljaj med 33, 45 in 78 vrtljaji na minuto ter zgrabi ploščo za scratchanje.',
+      platterCta: 'zavrti ritem →',
+      workshopCardDesc: '3D-izdelki, predelave in DIY-izdelki — od razstavljanja skenerjev in s svečo ogrevanih tiskalnih podlag do tega, kar je ravno na mizi.',
+      workshopCardCta: 'vstopi v delavnico →',
+      codeLabDesc: 'Majhni skripti, ki dobro opravijo eno stvar — CGI in Python, ki tečeta v živo na navadnem skupnem gostovanju, z zapisano utemeljitvijo.',
+      codeLabCta: 'poglej CGI lab →',
+      dualLensDesc: 'Naloži datoteko z dvema krogoma iz katerekoli 360-kamere — Gear 360, Insta360, Theta, GoPro MAX, vključno s surovim DNG — in dobi dokončano panoramo: izravnan horizont, samodejno poravnani objektivi, zlepljeno kar v brskalniku. Nič se ne naloži na strežnik.',
+      dualLensParts: 'te zanima, kako delujejo kamere z dvema objektivoma? <a href="/dual-lens-stitcher.html">preberi razlago kamere</a>',
+      dualLensCta: 'zlepi fotografijo →',
+      harmoDesc: 'Viktorijanski risalni stroj v brskalniku: štiri nihajoča nihala in vrteča se miza izrisujejo počasi pojemajoče spirale. Spreminjaj vsako nihalo, deli lik kot povezavo, izvozi SVG za risalni ploter.',
+      harmoCta: 'nekaj nariši →',
+      insta360Desc: 'Insta360 je ustavil izdelovanje baterije za One RS 1-Inch 360 (Leica). Ta natisnjeni adapter poganja kamero prek USB-C z baterijo DJI Osmo Pocket 3 — in reši obtičalo kamero.',
+      insta360Cta: 'poglej izdelavo →',
+      allObjectsDesc: 'Natisljivi popravki in adapterji za opremo, ki jo je proizvajalec opustil — vsak s svojo zgodbo in brezplačnim prenosom na Thingiverse.',
+      allObjectsCta: 'brskaj po predmetih →',
+      wordSafariLearnDesc: 'Naslednji korak po abecedi: cele besede. Spoznaj šest nemško-slovenskih parov naenkrat — živali, hrano, naravo in dom — nato obračaj kartice in poveži vsako besedo z njenim prevodom, izgovorjeno v obeh jezikih.',
+      pitchLearnDesc: 'Pevska igra za otroke, ki so se ravno naučili abecede. Prepevaj višje ali nižje, da splezaš po stopnicah cvetlic in naglas črkuješ besedo, v nemščini ali slovenščini — brez mikrofona gre tudi, smerne tipke splezajo po istem vrtu.',
+      besedopadDesc: 'Tetris sreča besedišče: padajo kapsule z dvema črkama, sestavljanje prave slovenske besede v vrstici ali stolpcu pa jo počisti za točke — daljša beseda, večji rezultat. Zgrajeno na slovarju s 83.500 besedami.',
+      besedopadCta: 'spusti nekaj črk →',
+      bitBlocksDesc: 'Otroška različica Core Memory, z bloksasto grafiko. Bloki so biti, tiskalnik prikaže črko, ki jo črkujejo, dva vodna curka pa prikažeta, kako računalnik preklopi natanko en blok. V angleščini in nemščini.',
+      bitBlocksCta: 'igraj se z bloki →',
+      coreMemoryDesc: 'Ravnina 8×8 feritnih obročkov, tako kot so računalniki shranjevali bite, preden so bili čipi. Tapni na obroček in opazuj, kako dva pol-tokova preklopita samo tistega, kjer se žice križajo, nato preizkusi štiri majhne poskuse, na primer zakaj branje bita ta bit izbriše.',
+      coreMemoryCta: 'preklopi nekaj bitov →',
+      uhrUraDesc: 'Ura za otroke, ki se učijo povedati čas v nemščini in slovenščini. Povleci zobniške kazalce in poglej, zakaj oba jezika ob 2:30 rečeta "pol tri", nato igraj štiri kratke nivoje od polnih ur do pet-minutnih korakov.',
+      uhrUraCta: 'povej čas →',
+      whiteCubeDesc: '3D galerija za učenje inštalacijske umetnosti z izkušnjo. Najdi tisto eno točko, kjer se slika čez celoten prostor sestavi, spremeni barvno svetlobo v barvne sence in vrti kup blokov, dokler njegova senca ne spregovori.',
+      whiteCubeCta: 'vstopi v galerijo →',
+      orbitDesc: '3D igra vesoljskega leta, ki uči orbitalno mehaniko. Napovej, kaj bo naredil zagon rakete, odleti ga, nato pa ugotovi, zakaj. Da ujameš vesoljsko postajo, se upočasniš.',
+      orbitCta: 'zaženi →',
+      wcNotesDesc: 'Didaktična zasnova za White Cube: najprej izkušnja, nato besedišče, predict-observe-explain za zaznavanje, in 45-minutna lekcija, ki se konča s svetilkami in celofanom v resničnem prostoru.',
+      osNotesDesc: 'Didaktična zasnova za Orbit School: Predict–Observe–Explain, povratne informacije, ki jih vidiš pred posledicami, vodeno odkrivanje in kako to uporabiti z razredom.',
+      notesReadCta: 'preberi zapiske →',
+      abcPedagogyDesc: 'Zakaj dvojezična nemško-slovenska abecedna igra uporablja eno samo, ponavljajočo se zanko vrat, vsako rundo premeša svoje odgovore in napačne uganke ne stanejo nič. Didaktični zapiski za zgornjo igro.',
+      abcPedagogyCta: 'preberi didaktične zapiske →',
+      selectedWorkDesc: 'Inštalacija, svetlobna skulptura, fotografija in interaktivni mediji. Še vedno ustvarjam, a sem nehal razstavljati — to so izbrana dela, biografija in CV.',
+      selectedWorkCta: 'odpri arhiv →',
+      formicationDesc: 'Živa kolonija mravelj skozi čas preoblikuje projicirano sliko. Narejeno z Luizo Margan — prejelo nagrado skupine OHO, 2007.',
+      formicationCta: 'poglej projekt →',
+      whySiteDesc: 'Ustvarjam stvari — kodo, odtise, inštalacije — običajno zato, ker je nekaj moralo obstajati in jih ni nihče izdelal tako, kot sem potreboval. Tu je iskrena zgodba za to stranjo.',
+      whySiteCta: 'preberi o meni →',
+      feedbackIntro: 'Opazil nekaj pokvarjenega ali imaš misel? Pusti sporočilo — pride naravnost do mene. Prijava ni potrebna.',
+      fbProjectPlaceholder: '— kateri projekt?', fbProjAbc: 'ABC Quest', fbProjDual: 'Dual Lens Stitcher',
+      fbProjWorkshop: 'Delavnica / 3D tisk', fbProjCode: 'Code Lab', fbProjArt: 'Umetnost', fbProjSite: 'Splošno / stran',
+      fbTypePlaceholder: '— vrsta', fbTypeBug: '🐛 Napaka / nekaj je pokvarjeno', fbTypeSuggestion: '💡 Predlog',
+      fbTypeLiked: '✨ Nekaj mi je bilo všeč', fbTypeOther: 'Drugo',
+      fbTextareaPlaceholder: 'Povej mi, kaj si opazil…', fbAnon: 'Anonimno je v redu.', fbSubmit: 'Pošlji povratno informacijo →',
+      donateNote: 'Podpri to — vse tukaj je brezplačno.',
+      potdLabel: 'projekt dneva:',
+      allLearningDate: 'vsi',
+      allLearningDesc: 'Vsi u\u010dni projekti na enem mestu: nem\u0161ko-slovenske jezikovne igre in brskalni\u0161ke igra\u010de, ki razlo\u017eijo ra\u010dunalni\u0161tvo, tirnice, optiko in instalacijsko umetnost tako, da jih preizkusi\u0161.',
+      allLearningCta: 'poglej u\u010dne projekte \u2192',
+      allWritingDate: 'vsi',
+      allWritingDesc: 'Dalj\u0161i zapisi na enem mestu: ocena napovedi o umetni inteligenci in zapiski o zasnovi, ki pojasnijo, zakaj u\u010dne igre delujejo tako, kot delujejo.',
+      allWritingCta: 'poglej zapise \u2192',
+      aiPredHomeDesc: 'Poljuden pregled \u010dlankov o umetni inteligenci z Wait But Why iz leta 2015 glede na to, kaj se je do leta 2026 zares zgodilo \u2014 ocena 23 trditev, grafi in vsi viri povezani.',
+      aiPredHomeCta: 'preberi analizo \u2192',
+      slikovarDesc: 'Slikovni slovar za predšolske otroke: tapni na sliko in slišiš njeno ime, izgovorjeno v slovenščini — s pravim glasom nevronske sinteze, ki teče brez povezave, ne z glasom brskalnika. Živali, hrana in dom, od A do Ž.',
+      slikovarCta: 'tapni na sliko →',
+    },
+  };
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
 
@@ -13,58 +317,447 @@
   <nav>
     <span class="logo">PRESKER.AT</span>
     <div class="nav-links">
-      <a href="#projects">projects</a>
-      <a href="#art">art</a>
-      <a href="#vibe">vibe code</a>
-      <a href="#feedback">feedback</a>
+      <a href="#new" data-i18n="navNew">new</a>
+      <a href="#featured" data-i18n="navFeatured">featured</a>
+      <a href="#projects" data-i18n="navProjects">projects</a>
+      <a href="#objects" data-i18n="navObjects">objects</a>
+      <a href="#learning" data-i18n="navLearning">learning</a>
+      <a href="#writing" data-i18n="navWriting">writing</a>
+      <a href="#art" data-i18n="navArt">art</a>
+      <a href="#about" data-i18n="navAbout">about</a>
+      <a href="#feedback" data-i18n="navFeedback">feedback</a>
     </div>
-    <div class="status">
-      <span class="dot"></span>
-      <span>online</span>
+    <div class="toggles">
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+        <button class="pill-btn" data-theme-set="light">☀</button>
+        <button class="pill-btn" data-theme-set="auto">Auto</button>
+        <button class="pill-btn" data-theme-set="dark">☾</button>
+      </div>
     </div>
   </nav>
+  <div class="auto-note" style="max-width: var(--max); margin: 6px auto 0; padding: 0 1.5rem;" data-lang-note></div>
 
   <header class="hero">
-    <p class="eyebrow">Digital Lab</p>
-    <h1>Code, art &amp;<br><em>vibe-coded</em> tools.</h1>
-    <p class="sub">A playground for experiments, projects, and whatever gets built next.<span class="cursor">_</span></p>
-    <p class="now-building"><span class="nb-dot"></span>now building: Dual Lens Photo Stitcher</p>
+    <p class="eyebrow" data-i18n="eyebrow">Digital Lab</p>
+    <h1>Code, art &amp; things<br>I <em>made because I had to</em>.</h1>
+    <p class="sub" data-i18n="sub">A workshop more than a portfolio — an alphabet game for my kid, a vinyl recorder built from scanner parts, and installations from a past life in galleries.<span class="cursor">_</span></p>
+    <p class="value-prop" data-i18n="valueProp">I build interactive software, hands-on learning tools and physical objects — from browser experiments and 3D-printed mechanisms to installations that make abstract ideas tangible.</p>
+    <p class="now-building" id="potd"><span class="nb-dot"></span>now building: Fisher Price record player plates</p>
   </header>
 
+  <!-- EXPLORE THE WORKSHOP: quick categorized entry points -->
+  <div style="max-width: var(--max); margin: 0 auto; padding: 0 1.5rem 3rem;">
+    <div class="section-header">
+      <span class="label" data-i18n="workshopHeading">Explore the workshop</span>
+    </div>
+    <div class="tile-grid">
+      <a href="#projects" class="tile">
+        <span class="tile-rule"></span>
+        <h3 data-i18n="tile1Title">Software &amp; Experiments</h3>
+        <p data-i18n="tile1Desc">Interactive browser tools — a new one most days.</p>
+      </a>
+      <a href="#featured" class="tile">
+        <span class="tile-rule"></span>
+        <h3 data-i18n="tile2Title">Learning &amp; Education</h3>
+        <p data-i18n="tile2Desc">Simulations and games that teach by letting you break things safely.</p>
+      </a>
+      <a href="#objects" class="tile">
+        <span class="tile-rule"></span>
+        <h3 data-i18n="tile3Title">Objects &amp; Making</h3>
+        <p data-i18n="tile3Desc">3D prints, adapters and fixes for gear the world stopped supporting.</p>
+      </a>
+      <a href="#art" class="tile">
+        <span class="tile-rule"></span>
+        <h3 data-i18n="tile4Title">Art &amp; Installations</h3>
+        <p data-i18n="tile4Desc">Installation, light and interactive media from a life exhibiting in galleries.</p>
+      </a>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var projects = [
+      ['Harmonograph Lab','/lab/harmonograph/'],
+      ['Platter Sequencer','/lab/platter-sequencer/'],
+      ['Little Planet Lab','/lab/little-planet/'],
+      ['Orbit School','/lab/orbit-school/'],
+      ['White Cube','/lab/white-cube/'],
+      ['Inglenook Sidings','/lab/inglenook/'],
+      ['Uhr · Ura','/lab/uhr-ura/'],
+      ['Core Memory','/lab/core-memory/'],
+      ['Bit Blocks','/lab/bit-blocks/'],
+      ['Chladni Sand','/lab/chladni-sand/'],
+      ['Plotter Tour','/lab/plotter-tour/'],
+      ['Slice Lab','/lab/slice-lab/'],
+      ['Pitch Garden','/lab/pitch-garden/'],
+      ['Camera Obscura Lab','/lab/camera-obscura/'],
+      ['Word Safari','/lab/word-safari/'],
+      ['Besedopad','/lab/besedopad/'],
+      ['Slikovar','/lab/slikovar/']
+    ];
+    // Same pick for every visitor on a given calendar day; changes daily.
+    var d = new Date();
+    var seed = d.getFullYear() * 400 + (d.getMonth() + 1) * 33 + d.getDate();
+    var pick = projects[seed % projects.length];
+    var el = document.getElementById('potd');
+    function render() {
+      if (!el) return;
+      var lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+      var dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+      var label = dict.potdLabel || 'project of the day:';
+      el.innerHTML = '<span class="nb-dot"></span>' + label + ' <a href="' + pick[1] + '">' + pick[0] + '</a>';
+    }
+    render();
+    document.addEventListener('presker-lang-change', render);
+  })();
+  </script>
+
   <main>
+
+    <!-- NEW: the newest lab projects, newest first (max 3; older ones move to their home section) -->
+    <section id="new">
+      <div class="section-header">
+        <span class="label" data-i18n="newLabel">New in the lab</span>
+      </div>
+      <div class="grid">
+        <article class="card" onclick="location.href='/lab/slikovar/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Slikovar</h2>
+          <p data-i18n="slikovarDesc">A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice, not the browser's own. Animals, food and home, A to Ž.</p>
+          <a href="/lab/slikovar/" class="card-link" data-i18n="slikovarCta">tap a picture →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/word-safari/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Word Safari</h2>
+          <p data-i18n="wordSafariDesc">The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation. Every word is spoken aloud, in both languages.</p>
+          <a href="/lab/word-safari/" class="card-link" data-i18n="wordSafariCta">start matching →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/camera-obscura/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Camera Obscura Lab</h2>
+          <p data-i18n="cameraDesc">I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.</p>
+          <a href="/lab/camera-obscura/" class="card-link" data-i18n="cameraCta">open the shutter →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- FEATURED -->
+    <section id="featured">
+      <div class="section-header">
+        <span class="label" data-i18n="featuredLabel">Featured</span>
+      </div>
+      <div class="grid">
+        <article class="card" onclick="location.href='/lab/abc-quest-3d/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>ABC Quest</h2>
+          <p data-i18n-html="abcDesc">My kid was learning two alphabets at once, and most bilingual apps assume English. So I built a German/Slovenian letter-door game — then turned it into a first-person arcade game, <em>The 36th Chamber of Schooling</em>. That's the one the kids actually keep coming back to.</p>
+          <div class="card-parts" onclick="event.stopPropagation()" data-i18n-html="abcParts">
+            <a href="/lab/abc-quest-3d/">the 3D arcade</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html">the original game</a><span class="sep">·</span><a href="/lab/abc-quest-notes.html#pedagogy">the pedagogy</a>
+          </div>
+          <a href="/lab/abc-quest-3d/" class="card-link" data-i18n="abcCta">walk in →</a>
+        </article>
+        <article class="card" onclick="location.href='/projects/vinyl-recorder.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-make">make</span>
+            <span class="card-date">2010s</span>
+          </div>
+          <h2>Vinyl Recorder</h2>
+          <p data-i18n="vinylDesc">I needed a machine to cut grooves into blank vinyl. The parts didn't exist, so I built the machine — then built the tools to build the machine. My origin story for 3D printing.</p>
+          <a href="/projects/vinyl-recorder.html" class="card-link" data-i18n="vinylCta">read the build log →</a>
+        </article>
+        <article class="card" onclick="location.href='/projects/fisher-price-plates.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-make">make</span>
+            <span class="tag-wip">in progress</span>
+          </div>
+          <h2>Fisher Price Record Project</h2>
+          <p data-i18n="fpDesc">Turning music into 3D-printable discs for a 1971 Fisher Price toy record player: the mechanism and its lineage in pinned barrels and punched cards, a browser tool that turns any melody into bump geometry, and the build log as prints come off the bench.</p>
+          <div class="card-parts" onclick="event.stopPropagation()" data-i18n-html="fpParts">
+            <a href="/projects/fisher-price-plates.html">the discs</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#burner">the Disk Burner</a><span class="sep">·</span><a href="/projects/fisher-price-plates.html#build-log">build log</a>
+          </div>
+          <a href="/projects/fisher-price-plates.html" class="card-link" data-i18n="fpCta">follow along →</a>
+        </article>
+      </div>
+    </section>
 
     <!-- PROJECTS -->
     <section id="projects">
       <div class="section-header">
-        <span class="label">Code</span>
+        <span class="label" data-i18n="sectionProjects">Projects</span>
       </div>
-      <div class="grid" id="code-grid">
-        <article class="card">
+      <div class="grid">
+        <article class="card" onclick="location.href='/lab/chladni-sand/'" style="cursor:pointer;">
           <div class="card-top">
             <span class="tag tag-code">code</span>
-            <span class="card-date">Jun 2026</span>
+            <span class="card-date">2026</span>
           </div>
-          <h2>Python CGI Lab</h2>
-          <p>CGI scripts and Python backend logic running live in a shared hosting environment.</p>
-          <a href="/lab/" class="card-link">open →</a>
+          <h2>Chladni Sand</h2>
+          <p data-i18n="chladniDesc">Sand on a humming metal plate runs away from the parts that shake and piles up on the still lines. Tune the plate and watch 36,000 grains draw the pattern of a sound.</p>
+          <a href="/lab/chladni-sand/" class="card-link" data-i18n="chladniCta">shake the plate →</a>
         </article>
-        <article class="card" onclick="location.href='/lab/abc-quest-notes.html'" style="cursor:pointer;">
+        <article class="card" onclick="location.href='/lab/inglenook/'" style="cursor:pointer;">
           <div class="card-top">
             <span class="tag tag-code">code</span>
-            <span class="card-date">Jun 2026</span>
+            <span class="card-date">2026</span>
           </div>
-          <h2>ABC Quest — E-Learning Lab</h2>
-          <p>A bilingual German/Slovenian alphabet game, plus the reasoning behind every design choice in it.</p>
-          <a href="/lab/abc-quest-notes.html" class="card-link">open →</a>
+          <h2>Inglenook Sidings</h2>
+          <p data-i18n="inglenookDesc">The classic model railway shunting puzzle. One loco, three short sidings and a card that says which wagons to put in which order. A solver knows the shortest answer for every card, so you can see how close you got.</p>
+          <a href="/lab/inglenook/" class="card-link" data-i18n="inglenookCta">start shunting →</a>
         </article>
-        <article class="card" onclick="location.href='/dual-lens-stitcher.html'" style="cursor:pointer;">
+        <article class="card" onclick="location.href='/lab/little-planet/'" style="cursor:pointer;">
           <div class="card-top">
-            <span class="tag tag-vibe">vibe code</span>
-            <span class="card-date">Jun 2026</span>
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
           </div>
-          <h2>Dual Lens Photo Stitcher</h2>
-          <p>A 360° panorama stitching, editing and colour grading tool with full multi-camera support.</p>
-          <a href="/dual-lens-stitcher.html" class="card-link">read article →</a>
+          <h2>Little Planet Lab</h2>
+          <p data-i18n="planetDesc">I wanted to see why 360 photos bend the way they do. Drag a panorama through eight projections, from flat map to fisheye to little planet, or drop in your own 360 shot.</p>
+          <a href="/lab/little-planet/" class="card-link" data-i18n="planetCta">make a planet →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/platter-sequencer/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Platter Sequencer</h2>
+          <p data-i18n="platterDesc">A drum machine cut into a spinning record: tap the grooves to place beats and notes, switch between 33, 45 and 78 rpm, and grab the platter to scratch.</p>
+          <a href="/lab/platter-sequencer/" class="card-link" data-i18n="platterCta">spin a beat →</a>
+        </article>
+        <article class="card" onclick="location.href='/projects/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-make">make</span>
+            <span class="card-date">workshop</span>
+          </div>
+          <h2>The Workshop</h2>
+          <p data-i18n="workshopCardDesc">3D prints, upcycles and DIY builds — from scanner teardowns and candle-heated print beds to whatever's on the bench right now.</p>
+          <a href="/projects/" class="card-link" data-i18n="workshopCardCta">enter the workshop →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/cgi.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">Python</span>
+          </div>
+          <h2>Code Lab</h2>
+          <p data-i18n="codeLabDesc">Small scripts that do one thing well — CGI and Python running live on plain shared hosting, with the reasoning written up.</p>
+          <a href="/lab/cgi.html" class="card-link" data-i18n="codeLabCta">see the CGI lab →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/gear360-stitcher/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Dual Lens Stitcher</h2>
+          <p data-i18n="dualLensDesc">Drop in the two-circle file from any 360 camera — Gear 360, Insta360, Theta, GoPro MAX, raw DNG included — and get a finished panorama: horizon levelled, lenses auto-aligned, stitched right in your browser. Nothing is uploaded.</p>
+          <div class="card-parts" onclick="event.stopPropagation()" data-i18n-html="dualLensParts">
+            curious how dual-lens cameras work? <a href="/dual-lens-stitcher.html">read the camera rundown</a>
+          </div>
+          <a href="/lab/gear360-stitcher/" class="card-link" data-i18n="dualLensCta">stitch a photo →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/harmonograph/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Harmonograph Lab</h2>
+          <p data-i18n="harmoDesc">A Victorian drawing machine in the browser: four swinging pendulums and a turning table trace slowly decaying spirals. Tweak every pendulum, share a figure as a link, export an SVG for a pen plotter.</p>
+          <a href="/lab/harmonograph/" class="card-link" data-i18n="harmoCta">draw something →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- 3D OBJECTS -->
+    <section id="objects">
+      <div class="section-header">
+        <span class="label" data-i18n="sectionObjects">3D Objects</span>
+      </div>
+      <div class="grid">
+        <article class="card" onclick="location.href='/objects/insta360-dji-adapter.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-make">3D print</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Insta360 1-Inch → DJI Battery Adapter</h2>
+          <p data-i18n="insta360Desc">Insta360 stopped making the battery for the One RS 1-Inch 360 (Leica). This printed adapter runs the camera off a DJI Osmo Pocket 3 battery over USB-C — rescuing a stranded camera.</p>
+          <a href="/objects/insta360-dji-adapter.html" class="card-link" data-i18n="insta360Cta">see the build →</a>
+        </article>
+        <article class="card" onclick="location.href='/objects/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-make">make</span>
+            <span class="card-date">downloads</span>
+          </div>
+          <h2>All 3D Objects</h2>
+          <p data-i18n="allObjectsDesc">Printable fixes and adapters for gear the manufacturer abandoned — each with its story and a free Thingiverse download.</p>
+          <a href="/objects/" class="card-link" data-i18n="allObjectsCta">browse objects →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- LEARNING -->
+    <section id="learning">
+      <div class="section-header">
+        <span class="label" data-i18n="sectionLearning">Learning</span>
+      </div>
+      <div class="grid">
+        <article class="card" onclick="location.href='/lab/slikovar/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Slikovar</h2>
+          <p data-i18n="slikovarDesc">A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice, not the browser's own. Animals, food and home, A to Ž.</p>
+          <a href="/lab/slikovar/" class="card-link" data-i18n="slikovarCta">tap a picture →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/word-safari/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Word Safari</h2>
+          <p data-i18n="wordSafariLearnDesc">The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation, spoken aloud in both languages.</p>
+          <a href="/lab/word-safari/" class="card-link" data-i18n="wordSafariCta">start matching →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/pitch-garden/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Pitch Garden</h2>
+          <p data-i18n="pitchLearnDesc">A singing game for kids who just learned the alphabet. Sing higher or lower to climb a staircase of flowers and spell a word out loud, in German or Slovenian — no microphone needed either, the arrow keys climb the same garden.</p>
+          <a href="/lab/pitch-garden/" class="card-link" data-i18n="pitchCta">sing something →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/bit-blocks/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Bit Blocks</h2>
+          <p data-i18n="bitBlocksDesc">The kids' version of Core Memory, with blocky graphics. Blocks are bits, the printer shows the letter they spell, and two streams of water show how a computer flips exactly one block. In English and German.</p>
+          <a href="/lab/bit-blocks/" class="card-link" data-i18n="bitBlocksCta">play with blocks →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/core-memory/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Core Memory</h2>
+          <p data-i18n="coreMemoryDesc">An 8×8 plane of ferrite rings, the way computers stored bits before chips. Tap a ring and watch two half-currents flip only the one where the wires cross, then try four little experiments, like why reading a bit erases it.</p>
+          <a href="/lab/core-memory/" class="card-link" data-i18n="coreMemoryCta">flip some bits →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/besedopad/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Besedopad</h2>
+          <p data-i18n="besedopadDesc">Tetris meets vocabulary: two-letter capsules fall, and spelling a real Slovenian word across a row or column clears it for points — the longer the word, the bigger the score. Built on an 83,500-word dictionary.</p>
+          <a href="/lab/besedopad/" class="card-link" data-i18n="besedopadCta">drop some letters →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/uhr-ura/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Uhr · Ura</h2>
+          <p data-i18n="uhrUraDesc">A clock for kids learning to tell the time in German and Slovenian. Drag the geared hands and see why both languages say "half three" at 2:30, then play four short levels from full hours to five-minute steps.</p>
+          <a href="/lab/uhr-ura/" class="card-link" data-i18n="uhrUraCta">tell the time →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/white-cube/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>White Cube</h2>
+          <p data-i18n="whiteCubeDesc">A 3D gallery for learning installation art by doing it. Find the one spot where a painting across the whole room snaps together, turn coloured light into coloured shadows, and spin a heap of blocks until its shadow speaks.</p>
+          <a href="/lab/white-cube/" class="card-link" data-i18n="whiteCubeCta">enter the gallery →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/orbit-school/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Orbit School</h2>
+          <p data-i18n="orbitDesc">A 3D spaceflight game that teaches orbital mechanics. Predict what a rocket burn will do, fly it, then find out why. To catch a space station, you slow down.</p>
+          <a href="/lab/orbit-school/" class="card-link" data-i18n="orbitCta">launch →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/white-cube-notes.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">notes</span>
+          </div>
+          <h2>Standing inside the work</h2>
+          <p data-i18n="wcNotesDesc">The teaching design behind White Cube: experience first and vocabulary after, predict-observe-explain for perception, and a 45-minute lesson that ends with torches and cellophane in a real room.</p>
+          <a href="/lab/white-cube-notes.html" class="card-link" data-i18n="notesReadCta">read the notes →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/orbit-school-notes.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">notes</span>
+          </div>
+          <h2>Getting it wrong first</h2>
+          <p data-i18n="osNotesDesc">The teaching design behind Orbit School: Predict–Observe–Explain, feedback you see before the consequences, guided discovery, and how to use it with a class.</p>
+          <a href="/lab/orbit-school-notes.html" class="card-link" data-i18n="notesReadCta">read the notes →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/abc-quest-notes.html#pedagogy'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">preschool</span>
+          </div>
+          <h2>ABC Quest, the pedagogy</h2>
+          <p data-i18n="abcPedagogyDesc">Why a bilingual German/Slovenian alphabet game uses one repeated door loop, reshuffles its answers every round, and makes wrong guesses cost nothing. The teaching notes behind the game above.</p>
+          <a href="/lab/abc-quest-notes.html#pedagogy" class="card-link" data-i18n="abcPedagogyCta">read the teaching notes →</a>
+        </article>
+        <article class="card" onclick="location.href='/learning/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date" data-i18n="allLearningDate">all of them</span>
+          </div>
+          <h2>All Teaching Projects</h2>
+          <p data-i18n="allLearningDesc">Every teaching project in one place: the German and Slovenian language games, and the browser toys that explain computing, orbits, optics and installation art by letting you try them.</p>
+          <a href="/learning/" class="card-link" data-i18n="allLearningCta">browse learning →</a>
+        </article>
+      </div>
+    </section>
+
+    <!-- WRITING -->
+    <section id="writing">
+      <div class="section-header">
+        <span class="label" data-i18n="sectionWriting">Writing</span>
+      </div>
+      <div class="grid">
+        <article class="card" onclick="location.href='/writing/ai-predictions-2015/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">essay</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>What happened to the AI predictions of 2015?</h2>
+          <p data-i18n="aiPredHomeDesc">A plain-language check of the 2015 Wait But Why AI articles against what actually happened by 2026 — a 23-claim scorecard, charts, and every source linked.</p>
+          <a href="/writing/ai-predictions-2015/" class="card-link" data-i18n="aiPredHomeCta">read the study →</a>
+        </article>
+        <article class="card" onclick="location.href='/writing/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">essay</span>
+            <span class="card-date" data-i18n="allWritingDate">all of them</span>
+          </div>
+          <h2>All Writing</h2>
+          <p data-i18n="allWritingDesc">The longer pieces in one place: the AI scorecard, and the design notes that explain why the teaching games work the way they do.</p>
+          <a href="/writing/" class="card-link" data-i18n="allWritingCta">browse writing →</a>
         </article>
       </div>
     </section>
@@ -72,17 +765,17 @@
     <!-- ART -->
     <section id="art">
       <div class="section-header">
-        <span class="label">Art</span>
+        <span class="label" data-i18n="sectionArt">Installation Work</span>
       </div>
-      <div class="grid" id="art-grid">
+      <div class="grid">
         <article class="card" onclick="location.href='/art/'" style="cursor:pointer;">
           <div class="card-top">
             <span class="tag tag-art">art</span>
-            <span class="card-date">2003 – present</span>
+            <span class="card-date">2003 – 2010s</span>
           </div>
-          <h2>Artist Archive</h2>
-          <p>Installation, light sculpture, photography and interactive media. Works, biography, CV and exhibition history.</p>
-          <a href="/art/" class="card-link">open archive →</a>
+          <h2>Selected Installation Work</h2>
+          <p data-i18n="selectedWorkDesc">Installation, light sculpture, photography and interactive media. I still build, but I stopped exhibiting — these are selected works, biography and CV.</p>
+          <a href="/art/" class="card-link" data-i18n="selectedWorkCta">open archive →</a>
         </article>
         <article class="card" onclick="location.href='/art/projects/formication.html'" style="cursor:pointer;">
           <div class="card-top">
@@ -90,20 +783,26 @@
             <span class="card-date">2007</span>
           </div>
           <h2>Formication</h2>
-          <p>Projection installation. OHO Award 2007.</p>
-          <a href="/art/projects/formication.html" class="card-link">view project →</a>
+          <p data-i18n="formicationDesc">A live ant colony reshapes a projected image over time. Made with Luiza Margan — won the OHO Group Award, 2007.</p>
+          <a href="/art/projects/formication.html" class="card-link" data-i18n="formicationCta">view project →</a>
         </article>
       </div>
     </section>
 
-    <!-- VIBE CODE -->
-    <section id="vibe">
+    <!-- ABOUT -->
+    <section id="about">
       <div class="section-header">
-        <span class="label">Vibe Code</span>
+        <span class="label" data-i18n="sectionAbout">About</span>
       </div>
-      <div class="grid" id="vibe-grid">
-        <article class="card card-empty">
-          <p>Vibe-coded tools coming soon.</p>
+      <div class="grid">
+        <article class="card" onclick="location.href='/about.html'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">who</span>
+            <span class="card-date">Miha Presker</span>
+          </div>
+          <h2>Why this site exists</h2>
+          <p data-i18n="whySiteDesc">I build things — code, prints, installations — usually because something needed to exist and nobody was making it the way I needed it. Here's the honest story behind the site.</p>
+          <a href="/about.html" class="card-link" data-i18n="whySiteCta">read about →</a>
         </article>
       </div>
     </section>
@@ -111,41 +810,52 @@
     <!-- FEEDBACK -->
     <section id="feedback">
       <div class="section-header">
-        <span class="label">Feedback</span>
+        <span class="label" data-i18n="sectionFeedback">Feedback</span>
       </div>
       <div class="feedback-wrap">
-        <p class="feedback-intro">Spotted something broken, or have a thought? Drop a note — it goes straight to me. No login needed.</p>
+        <p class="feedback-intro" data-i18n="feedbackIntro">Spotted something broken, or have a thought? Drop a note — it goes straight to me. No login needed.</p>
         <form action="/feedback/submit.py" method="POST" class="feedback-form">
           <div class="form-row">
             <select name="project">
-              <option value="">— which project?</option>
-              <option value="python-cgi">Python CGI Lab</option>
-              <option value="art">Art</option>
-              <option value="vibe">Vibe Code</option>
-              <option value="site">General / site</option>
+              <option value="" data-i18n="fbProjectPlaceholder">— which project?</option>
+              <option value="abc-quest" data-i18n="fbProjAbc">ABC Quest</option>
+              <option value="dual-lens-stitcher" data-i18n="fbProjDual">Dual Lens Stitcher</option>
+              <option value="workshop" data-i18n="fbProjWorkshop">Workshop / 3D printing</option>
+              <option value="code" data-i18n="fbProjCode">Code Lab</option>
+              <option value="art" data-i18n="fbProjArt">Art</option>
+              <option value="site" data-i18n="fbProjSite">General / site</option>
             </select>
             <select name="type">
-              <option value="">— type</option>
-              <option value="bug">🐛 Bug / broken thing</option>
-              <option value="suggestion">💡 Suggestion</option>
-              <option value="liked">✨ Liked something</option>
-              <option value="other">Other</option>
+              <option value="" data-i18n="fbTypePlaceholder">— type</option>
+              <option value="bug" data-i18n="fbTypeBug">🐛 Bug / broken thing</option>
+              <option value="suggestion" data-i18n="fbTypeSuggestion">💡 Suggestion</option>
+              <option value="liked" data-i18n="fbTypeLiked">✨ Liked something</option>
+              <option value="other" data-i18n="fbTypeOther">Other</option>
             </select>
           </div>
-          <textarea name="message" placeholder="Tell me what you noticed…" rows="4"></textarea>
+          <textarea name="message" data-i18n-placeholder="fbTextareaPlaceholder" placeholder="Tell me what you noticed…" rows="4"></textarea>
           <div class="form-footer">
-            <span class="form-note">Anonymous is fine.</span>
-            <button type="submit">Send feedback →</button>
+            <span class="form-note" data-i18n="fbAnon">Anonymous is fine.</span>
+            <button type="submit" data-i18n="fbSubmit">Send feedback →</button>
           </div>
         </form>
       </div>
     </section>
 
-  </main>
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="donateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
 
   <footer>
     <span>© 2026 Presker.at</span>
     <span>Hosted at World4You</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
   </footer>
 
   <script>

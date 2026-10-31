@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chladni Sand — see sound shake sand into shapes</title>
+<meta name="description" content="A vibrating metal plate with sand on it: pick a mode and watch 36,000 grains run away from the shaking parts and pile up on the still lines. Optional tone, sweep, PNG export.">
+<link rel="canonical" href="https://www.presker.at/lab/chladni-sand/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/chladni-sand/">
+<meta property="og:title" content="Chladni Sand">
+<meta property="og:description" content="A vibrating metal plate with sand on it: pick a mode and watch 36,000 grains run away from the shaking parts and pile up on the still lines.">
+<meta name="twitter:card" content="summary">
+<style>
+:root { --bg:#faf8f3; --panel:#fffefb; --text:#1c1b18; --muted:#6b6a63; --line:#e4e0d4; --accent:#3f6b1a; --accent-ink:#ffffff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace; color-scheme: light; }
+html[data-theme="dark"] { --bg:#0e0e0e; --panel:#141414; --text:#e8e8e8; --muted:#8a8a8a; --line:#262626; --accent:#b8f57a; --accent-ink:#0e0e0e; color-scheme: dark; }
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) { --bg:#0e0e0e; --panel:#141414; --text:#e8e8e8; --muted:#8a8a8a; --line:#262626; --accent:#b8f57a; --accent-ink:#0e0e0e; color-scheme: dark; }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--text); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--text); font: 15px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1000px; margin: 0 auto; padding: 14px 16px 30px; }
+.back { font-family: var(--mono); font-size: 12px; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--accent); }
+h1 { font-family: var(--mono); font-size: 22px; margin: 10px 0 2px; letter-spacing: -.01em; }
+.sub { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+.stage { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 18px; align-items: start; }
+.plate { position: relative; width: 100%; aspect-ratio: 1; background: #050505; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; touch-action: none; }
+canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+.badge { position: absolute; left: 8px; top: 8px; font: 12px var(--mono); color: var(--accent); background: rgba(14,14,14,.75); padding: 3px 7px; border-radius: 4px; pointer-events: none; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+.panel h2 { font: 12px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 0 0 8px; }
+.ctl { display: grid; grid-template-columns: 52px 1fr 34px; gap: 8px; align-items: center; margin-bottom: 8px; font: 13px var(--mono); }
+.ctl output { text-align: right; color: var(--accent); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0 14px; }
+button { font: 12px var(--mono); color: var(--text); background: #1a1a1a; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+button:hover { border-color: var(--accent); }
+button[aria-pressed=true] { background: var(--accent); color: #0e0e0e; border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.presets button { padding: 5px 9px; }
+.why { font-size: 13.5px; color: #c9c9c9; margin: 0; }
+.why b { color: var(--accent); font-weight: 600; }
+.try { margin: 22px 0 0; border-top: 1px solid var(--line); padding-top: 14px; }
+.try h2 { font: 13px var(--mono); color: var(--accent); margin: 0 0 6px; }
+.try ol { margin: 0; padding-left: 20px; color: #c9c9c9; font-size: 14px; }
+.try li { margin-bottom: 4px; }
+footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 11px 4px 5px; color: var(--muted); text-decoration: none; }
+.donate:hover { color: var(--text); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 50%; background: #fff; color: #0e0e0e; font-weight: 700; font-size: 10px; }
+@media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  csSub: 'A metal plate hums at one pitch. Sand slides off the parts that shake and stops where the plate stands still.',
+  csTuneH: 'Tune the plate',
+  csPresetsH: 'Presets',
+  csSweepBtn: 'sweep', csSoundBtn: 'sound', csScatterBtn: 'scatter sand', csSaveBtn: 'save PNG',
+  csWhy: '<b>Nodal lines</b> are the places where the plate does not move. Grains get kicked around everywhere else, so they wander until they happen to land on a still line, and stay there. Higher n and m mean more bends in the plate, a higher pitch (the Hz shown is a made-up scale) and finer lines.',
+  csTryH: 'Things to try',
+  csTry1: '<b>Predict first:</b> before moving a slider, guess whether the pattern gets more lines or fewer. Then do it.',
+  csTry2: 'Turn on <b>sound</b> and raise n and m: the pitch rises as the pattern gets finer.',
+  csTry3: 'Set <b>mix</b> to +1, then −1. They are mirror families; 0 shows a plain grid of squares.',
+  csTry4: 'Press <b>sweep</b> and watch the sand rearrange as the pitch glides between patterns.',
+  csTry5: 'Drag over the plate to pour fresh sand where you like.',
+  csFooter: '© 2026 Presker.at · runs in your browser',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  csSub: 'Eine Metallplatte schwingt mit einer einzigen Tonhöhe. Der Sand rutscht von den Stellen weg, die zittern, und bleibt dort liegen, wo die Platte still steht.',
+  csTuneH: 'Platte einstellen',
+  csPresetsH: 'Vorgaben',
+  csSweepBtn: 'Durchlauf', csSoundBtn: 'Ton', csScatterBtn: 'Sand verteilen', csSaveBtn: 'PNG speichern',
+  csWhy: '<b>Knotenlinien</b> sind die Stellen, an denen sich die Platte nicht bewegt. Überall sonst werden die Körner herumgeschleudert, bis sie zufällig auf einer ruhigen Linie landen und dort bleiben. Höhere Werte für n und m bedeuten mehr Biegungen in der Platte, eine höhere Tonhöhe (die angezeigten Hz sind eine erfundene Skala) und feinere Linien.',
+  csTryH: 'Zum Ausprobieren',
+  csTry1: '<b>Erst vorhersagen:</b> Bevor du einen Regler bewegst, rate, ob das Muster mehr oder weniger Linien bekommt. Dann probier\'s aus.',
+  csTry2: 'Schalte den <b>Ton</b> ein und erhöhe n und m: die Tonhöhe steigt, während das Muster feiner wird.',
+  csTry3: 'Stelle <b>mix</b> auf +1, dann auf −1. Das sind gespiegelte Musterfamilien; bei 0 erscheint ein einfaches Quadratraster.',
+  csTry4: 'Drücke <b>Durchlauf</b> und beobachte, wie sich der Sand neu ordnet, während die Tonhöhe zwischen den Mustern gleitet.',
+  csTry5: 'Ziehe über die Platte, um frischen Sand dort hinzuschütten, wo du möchtest.',
+  csFooter: '© 2026 Presker.at · läuft in deinem Browser',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  csSub: 'Kovinska plošča brenči na eni višini tona. Pesek zdrsne s mest, ki trepetajo, in obstane tam, kjer plošča stoji pri miru.',
+  csTuneH: 'Nastavi ploščo',
+  csPresetsH: 'Prednastavitve',
+  csSweepBtn: 'prelet', csSoundBtn: 'zvok', csScatterBtn: 'razsuj pesek', csSaveBtn: 'shrani PNG',
+  csWhy: '<b>Vozlišne črte</b> so mesta, kjer se plošča ne premika. Povsod drugod zrnca poskakujejo naokoli, dokler po naključju ne pristanejo na mirni črti in tam obstanejo. Višji n in m pomenita več upogibov plošče, višjo višino tona (prikazani Hz so izmišljena lestvica) in finejše črte.',
+  csTryH: 'Kaj poskusiti',
+  csTry1: '<b>Najprej napovej:</b> preden premakneš drsnik, ugani, ali bo vzorec dobil več ali manj črt. Nato preizkusi.',
+  csTry2: 'Vklopi <b>zvok</b> in povečuj n in m: višina tona narašča, ko postaja vzorec finejši.',
+  csTry3: 'Nastavi <b>mix</b> na +1, nato na −1. Gre za zrcalni par družin vzorcev; pri 0 se pokaže preprosta mreža kvadratov.',
+  csTry4: 'Pritisni <b>prelet</b> in opazuj, kako se pesek preureja, medtem ko višina tona drsi med vzorci.',
+  csTry5: 'Povleci čez ploščo, da nasiplje svež pesek, kamor želiš.',
+  csFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="back" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Chladni Sand</h1>
+  <p class="sub" data-i18n="csSub">A metal plate hums at one pitch. Sand slides off the parts that shake and stops where the plate stands still.</p>
+
+  <div class="stage">
+    <div class="plate">
+      <canvas id="cv" width="640" height="640" aria-label="Sand on a vibrating plate"></canvas>
+      <div class="badge" id="badge"></div>
+    </div>
+
+    <div class="panel">
+      <h2 data-i18n="csTuneH">Tune the plate</h2>
+      <div class="ctl"><label for="n">n</label><input id="n" type="range" min="1" max="12" step="1" value="2"><output id="nOut">2</output></div>
+      <div class="ctl"><label for="m">m</label><input id="m" type="range" min="1" max="12" step="1" value="5"><output id="mOut">5</output></div>
+      <div class="ctl"><label for="mix">mix</label><input id="mix" type="range" min="-1" max="1" step="0.05" value="-1"><output id="mixOut">−1.0</output></div>
+      <div class="ctl"><label for="shake">shake</label><input id="shake" type="range" min="1" max="10" step="1" value="5"><output id="shakeOut">5</output></div>
+
+      <h2 data-i18n="csPresetsH">Presets</h2>
+      <div class="btns presets" id="presets"></div>
+
+      <div class="btns">
+        <button id="sweep" aria-pressed="false" data-i18n="csSweepBtn">sweep</button>
+        <button id="sound" aria-pressed="false" data-i18n="csSoundBtn">sound</button>
+        <button id="scatter" data-i18n="csScatterBtn">scatter sand</button>
+        <button id="save" data-i18n="csSaveBtn">save PNG</button>
+      </div>
+
+      <p class="why" data-i18n-html="csWhy"><b>Nodal lines</b> are the places where the plate does not move. Grains get kicked around everywhere else, so they wander until they happen to land on a still line, and stay there. Higher n and m mean more bends in the plate, a higher pitch (the Hz shown is a made-up scale) and finer lines.</p>
+    </div>
+  </div>
+
+  <div class="try">
+    <h2 data-i18n="csTryH">Things to try</h2>
+    <ol>
+      <li data-i18n-html="csTry1"><b>Predict first:</b> before moving a slider, guess whether the pattern gets more lines or fewer. Then do it.</li>
+      <li data-i18n-html="csTry2">Turn on <b>sound</b> and raise n and m: the pitch rises as the pattern gets finer.</li>
+      <li data-i18n-html="csTry3">Set <b>mix</b> to +1, then −1. They are mirror families; 0 shows a plain grid of squares.</li>
+      <li data-i18n-html="csTry4">Press <b>sweep</b> and watch the sand rearrange as the pitch glides between patterns.</li>
+      <li data-i18n="csTry5">Drag over the plate to pour fresh sand where you like.</li>
+    </ol>
+  </div>
+
+  <footer>
+    <span data-i18n="csFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+  'use strict';
+  const cv = document.getElementById('cv'), ctx = cv.getContext('2d');
+  const S = cv.width, PI = Math.PI;
+  const N = 36000;                          // sand grains
+  const px = new Float32Array(N), py = new Float32Array(N);
+
+  // Plate state: n, m ease toward their targets so a change feels like re-tuning.
+  const target = { n: 2, m: 5, mix: -1 };
+  const cur = { n: 2, m: 5, mix: -1 };
+  let shake = 5, sweeping = false, sweepT = 0;
+
+  const $ = id => document.getElementById(id);
+  const sliders = { n: $('n'), m: $('m'), mix: $('mix'), shake: $('shake') };
+
+  // Plate displacement at (x,y) in 0..1: two crossed standing waves.
+  // mix = -1 gives the classic cos(nx)cos(my) - cos(mx)cos(ny) figures.
+  function u(x, y) {
+    const a = cur.n * PI, b = cur.m * PI;
+    return Math.cos(a * x) * Math.cos(b * y) + cur.mix * Math.cos(b * x) * Math.cos(a * y);
+  }
+
+  function scatter() {
+    for (let i = 0; i < N; i++) { px[i] = Math.random(); py[i] = Math.random(); }
+  }
+  scatter();
+
+  // One physics step: each grain jumps randomly, with a step size set by how
+  // hard the plate shakes right there. Still places keep their grains.
+  function step() {
+    const amp = 0.0011 * shake;
+    for (let i = 0; i < N; i++) {
+      const a = Math.abs(u(px[i], py[i]));
+      const s = amp * (a * a * 3 + a * 0.6);
+      let x = px[i] + (Math.random() - 0.5) * 2 * s;
+      let y = py[i] + (Math.random() - 0.5) * 2 * s;
+      // grains bounce off the plate edges
+      if (x < 0) x = -x; else if (x > 1) x = 2 - x;
+      if (y < 0) y = -y; else if (y > 1) y = 2 - y;
+      px[i] = x; py[i] = y;
+    }
+  }
+
+  const img = ctx.createImageData(S, S);
+  function draw() {
+    const d = img.data;
+    d.fill(0);
+    for (let i = 3; i < d.length; i += 4) d[i] = 255;
+    for (let i = 0; i < N; i++) {
+      const X = (px[i] * (S - 2)) | 0, Y = (py[i] * (S - 2)) | 0;
+      for (let dy = 0; dy < 2; dy++) for (let dx = 0; dx < 2; dx++) {
+        const o = ((Y + dy) * S + X + dx) * 4;
+        // warm sand colour, brightens where grains overlap
+        d[o] = Math.min(255, d[o] + 120);
+        d[o + 1] = Math.min(255, d[o + 1] + 95);
+        d[o + 2] = Math.min(255, d[o + 2] + 55);
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+  }
+
+  // ---- audio: a sine whose pitch rises with the mode number -------------------
+  let ac = null, osc = null, gain = null, soundOn = false;
+  const freqOf = () => 90 * Math.sqrt(cur.n * cur.n + cur.m * cur.m);
+  function setSound(on) {
+    soundOn = on;
+    $('sound').setAttribute('aria-pressed', on);
+    if (on) {
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+      ac.resume();
+      osc = ac.createOscillator(); gain = ac.createGain();
+      osc.type = 'sine'; gain.gain.value = 0.0001;
+      osc.connect(gain).connect(ac.destination); osc.start();
+      gain.gain.linearRampToValueAtTime(0.12, ac.currentTime + 0.1);
+    } else if (osc) {
+      const o = osc;
+      gain.gain.linearRampToValueAtTime(0.0001, ac.currentTime + 0.1);
+      setTimeout(() => o.stop(), 150);
+      osc = null;
+    }
+  }
+
+  // ---- UI -----------------------------------------------------------------------
+  const presets = [
+    ['2·5', 2, 5, -1], ['3·4', 3, 4, -1], ['1·4', 1, 4, -1],
+    ['3·8', 3, 8, -1], ['6·9', 6, 9, -1], ['2·7', 2, 7, 1], ['5·6', 5, 6, 1]
+  ];
+  function stopSweep() { sweeping = false; $('sweep').setAttribute('aria-pressed', false); }
+  presets.forEach(p => {
+    const b = document.createElement('button');
+    b.textContent = p[0];
+    b.onclick = () => { stopSweep(); set('n', p[1]); set('m', p[2]); set('mix', p[3]); };
+    $('presets').appendChild(b);
+  });
+
+  function set(k, v) { target[k] = v; sliders[k].value = v; label(); }
+  function label() {
+    $('nOut').textContent = sliders.n.value;
+    $('mOut').textContent = sliders.m.value;
+    $('mixOut').textContent = (+sliders.mix.value).toFixed(1).replace('-', '−');
+    $('shakeOut').textContent = sliders.shake.value;
+  }
+  ['n', 'm', 'mix'].forEach(k => sliders[k].addEventListener('input', () => {
+    stopSweep(); target[k] = +sliders[k].value; label();
+  }));
+  sliders.shake.addEventListener('input', () => { shake = +sliders.shake.value; label(); });
+
+  $('sweep').onclick = () => {
+    sweeping = !sweeping; $('sweep').setAttribute('aria-pressed', sweeping);
+    if (!sweeping) { set('n', Math.round(cur.n)); set('m', Math.round(cur.m)); set('mix', -1); }
+  };
+  $('sound').onclick = () => setSound(!soundOn);
+  $('scatter').onclick = scatter;
+  $('save').onclick = () => {
+    const a = document.createElement('a');
+    a.download = 'chladni-' + sliders.n.value + '-' + sliders.m.value + '.png';
+    a.href = cv.toDataURL('image/png'); a.click();
+  };
+
+  // pour sand by dragging
+  let down = false;
+  function pour(e) {
+    const r = cv.getBoundingClientRect();
+    const cx = (e.clientX - r.left) / r.width, cy = (e.clientY - r.top) / r.height;
+    for (let k = 0; k < 400; k++) {
+      const i = (Math.random() * N) | 0;
+      px[i] = Math.min(1, Math.max(0, cx + (Math.random() - 0.5) * 0.04));
+      py[i] = Math.min(1, Math.max(0, cy + (Math.random() - 0.5) * 0.04));
+    }
+  }
+  cv.addEventListener('pointerdown', e => { down = true; cv.setPointerCapture(e.pointerId); pour(e); });
+  cv.addEventListener('pointermove', e => { if (down) pour(e); });
+  cv.addEventListener('pointerup', () => down = false);
+  cv.addEventListener('pointercancel', () => down = false);
+
+  // ---- main loop ------------------------------------------------------------------
+  function frame() {
+    if (sweeping) {
+      // glide along a slow Lissajous path through (n, m) space
+      sweepT += 0.0016 * 6;
+      cur.n = 2 + 4 * (0.5 + 0.5 * Math.sin(sweepT));
+      cur.m = cur.n + 1.5 + 4 * (0.5 + 0.5 * Math.sin(sweepT * 0.63 + 1));
+      cur.mix = -1;
+    } else {
+      const e = 0.06;
+      cur.n += (target.n - cur.n) * e; cur.m += (target.m - cur.m) * e; cur.mix += (target.mix - cur.mix) * e;
+    }
+    for (let s = 0; s < 3; s++) step();
+    draw();
+    const f = freqOf();
+    $('badge').textContent = Math.round(f) + ' Hz';
+    if (osc) osc.frequency.setTargetAtTime(f, ac.currentTime, 0.05);
+    requestAnimationFrame(frame);
+  }
+  label();
+  frame();
+})();
+</script>
+</body>
+</html>

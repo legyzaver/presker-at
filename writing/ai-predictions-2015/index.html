@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>What happened to the AI predictions of 2015?</title><meta name="description" content="A plain-language check of the 2015 Wait But Why AI articles against what happened by 2026, with a scorecard, charts and linked sources."><link rel="canonical" href="https://www.presker.at/writing/ai-predictions-2015/"><meta property="og:type" content="article"><meta property="og:url" content="https://www.presker.at/writing/ai-predictions-2015/"><meta property="og:title" content="What happened to the AI predictions of 2015?"><meta property="og:description" content="A plain-language check of the 2015 Wait But Why AI articles against what happened by 2026, with a scorecard, charts and linked sources."><meta property="og:image" content="https://www.presker.at/writing/ai-predictions-2015/images/panel-01.png"><style>:root{color-scheme:light}
+:root{
+  /* concept: a notebook page. Marker-black ink on paper, one blue, one red, panels as the spine of the story */
+  --bg:#fbfbfd; --paper:#ffffff; --ink:#15181f; --muted:#555d6b; --line:#d8dce5;
+  --blue:#1f5fbf; --blue-soft:#e8effb; --red:#bf3228; --red-soft:#fbeceb;
+  --green:#1d7a46; --green-soft:#e6f4ec; --grey-soft:#eceef2; --amber-soft:#fdf3d7;
+  --font-body: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-head:"Arial Narrow","Roboto Condensed","Helvetica Neue",Arial,sans-serif;
+  --font-mono: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101319; --paper:#171b23; --ink:#eceff4; --muted:#a3acba; --line:#2b313d;
+  --blue:#78a9ff; --blue-soft:#1b2a44; --red:#ff857a; --red-soft:#3a1f1e;
+  --green:#5fd28f; --green-soft:#16301f; --grey-soft:#242a35; --amber-soft:#3a3118; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101319; --paper:#171b23; --ink:#eceff4; --muted:#a3acba; --line:#2b313d;
+  --blue:#78a9ff; --blue-soft:#1b2a44; --red:#ff857a; --red-soft:#3a1f1e;
+  --green:#5fd28f; --green-soft:#16301f; --grey-soft:#242a35; --amber-soft:#3a3118; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:18px;line-height:1.65;margin:0}
+.wrap{max-width:780px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--blue);text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:3px}
+h1,h2,h3,h4{font-family:var(--font-head);text-transform:uppercase;letter-spacing:.03em;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(34px,7vw,56px);font-weight:800;margin:6px 0 14px}
+h2{font-size:clamp(24px,4.5vw,32px);font-weight:800;display:flex;gap:12px;align-items:center;margin:0 0 14px}
+h3{font-size:20px;margin:30px 0 8px}
+h4{font-size:15px;color:var(--muted);margin-bottom:12px;letter-spacing:.05em}
+.num{flex:none;background:var(--blue);color:#fff;border-radius:7px;min-width:38px;height:38px;display:grid;place-items:center;font-size:21px;font-weight:800}
+:root[data-theme="dark"] .num{color:#10131a}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .num{color:#10131a}}
+section{padding-top:48px}
+p{margin:0 0 14px}
+.kicker{font-family:var(--font-mono);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.lede{font-size:21px;line-height:1.55}
+.box{background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:16px 20px;margin:20px 0}
+.box h3{margin-top:0}
+.box.soft{border-color:var(--line);background:var(--blue-soft)}
+.box.warn{border-color:var(--red);background:var(--red-soft)}
+.box p:last-child,.box ul:last-child{margin-bottom:0}
+ul{padding-left:1.2em;margin:0 0 14px} li{margin-bottom:6px}
+figure{margin:0}
+.panel{background:#fff;border:2px solid var(--ink);border-radius:8px;overflow:hidden;margin:22px auto;max-width:480px}
+.panel img{display:block;width:100%;height:auto}
+.panel figcaption{font-size:14px;line-height:1.45;color:#3a414d;padding:8px 12px;border-top:2px solid var(--ink);background:#f3f4f7}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+.pair .panel{margin:0;max-width:none}
+@media (max-width:640px){.pair{grid-template-columns:1fr}.pair .panel{max-width:480px;margin:0 auto}}
+.chart{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:16px 18px;margin:22px 0}
+.brow{display:grid;grid-template-columns:minmax(120px,32%) 1fr minmax(64px,auto);gap:12px;align-items:center;margin:9px 0;font-size:15px;line-height:1.3}
+.bval{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.track{position:relative;height:20px;background:var(--grey-soft);border-radius:4px;display:block}
+.fill{position:absolute;inset:0 auto 0 0;background:#8b94a5;border-radius:4px;display:block}
+.fill.acc{background:var(--blue)}
+.dottrack{background:transparent;border-bottom:1px solid var(--line)}
+.tick{position:absolute;top:0;bottom:0;width:1px;background:var(--line)}
+.now{position:absolute;top:-4px;bottom:-4px;width:0;border-left:2px dashed var(--red)}
+.dot{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;margin:-9px 0 0 -9px}
+.dot.person{background:var(--blue)} .dot.survey{background:#8b94a5}
+.axis{margin-top:0}.axis .track{height:18px;background:none}
+.axis em{position:absolute;transform:translateX(-50%);font-style:normal;font-size:12px;color:var(--muted)}
+.cnote{font-size:14px;color:var(--muted);margin:12px 0 0}
+@media (max-width:560px){.brow{grid-template-columns:1fr auto;grid-template-areas:"l v" "t t"}.blabel{grid-area:l}.bval{grid-area:v}.track{grid-area:t}.axis .blabel,.axis .bval{display:none}}
+.legend{display:flex;gap:18px;flex-wrap:wrap;font-size:14px;color:var(--muted);margin-top:8px}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;background:#8b94a5}
+.legend .p::before{background:var(--blue)}
+.legend .r::before{border-radius:0;width:3px;height:14px;background:var(--red);vertical-align:-2px}
+.tablewrap{overflow-x:auto;margin:20px 0;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+table.score{border-collapse:collapse;width:100%;font-size:15px;line-height:1.45;min-width:760px}
+.score th{font-family:var(--font-head);text-transform:uppercase;letter-spacing:.04em;font-size:13px;text-align:left;padding:10px 12px;border-bottom:2px solid var(--ink);position:sticky;top:0;background:var(--paper)}
+.score td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.score td:first-child{font-variant-numeric:tabular-nums;color:var(--muted)}
+.score .src{font-size:13.5px}
+.badge{display:inline-block;font-size:13px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;border:1.5px solid}
+.v-held{background:var(--green-soft);color:var(--green);border-color:var(--green)}
+.v-part{background:var(--blue-soft);color:var(--blue);border-color:var(--blue)}
+.v-miss{background:var(--red-soft);color:var(--red);border-color:var(--red)}
+.v-open{background:var(--grey-soft);color:var(--muted);border-color:var(--muted)}
+.v-unf{background:var(--amber-soft);color:var(--ink);border-color:var(--muted);border-style:dashed}
+@media (max-width:720px){
+  table.score{min-width:0}.score thead{display:none}
+  .score tr{display:block;padding:12px;border-bottom:1px solid var(--line)}
+  .score td{display:block;border:0;padding:3px 0}
+  .score td::before{content:attr(data-l);display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .score td:first-child{display:none}}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+@media (max-width:640px){.cards{grid-template-columns:1fr}}
+.card{background:var(--paper);border:2px solid var(--ink);border-radius:10px;padding:16px 18px}
+.card h3{margin:0 0 6px}
+.card p,.card li{font-size:16px}
+.who{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase}
+details{border:1px solid var(--line);border-radius:10px;background:var(--paper);padding:10px 16px;margin:10px 0}
+summary{cursor:pointer;font-weight:700}
+dl{margin:0} dt{font-weight:700;margin-top:10px} dd{margin:0 0 4px;color:var(--muted)}
+.srclist{list-style:none;padding:0;margin:0 0 10px}
+.srclist li{padding:10px 0;border-bottom:1px solid var(--line);margin:0}
+.srclist p{margin:4px 0 0;font-size:15px;color:var(--muted)}
+.srclist a{font-weight:600;overflow-wrap:anywhere}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;margin-left:6px;border:1.5px solid;white-space:nowrap;vertical-align:1px}
+.s-full{color:var(--green);border-color:var(--green);background:var(--green-soft)}
+.s-part{color:var(--blue);border-color:var(--blue);background:var(--blue-soft)}
+.s-land{color:var(--ink);border-color:var(--muted);background:var(--amber-soft)}
+.s-not{color:var(--muted);border-color:var(--muted);background:var(--grey-soft)}
+.s-blk{color:var(--red);border-color:var(--red);background:var(--red-soft)}
+.s-mem{color:var(--ink);border-color:var(--muted);background:var(--amber-soft);border-style:dashed}
+.top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+nav.toc{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:15px;margin:18px 0 0}
+footer{margin-top:56px;padding-top:20px;border-top:2px solid var(--ink);font-size:15px;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}}
+</style></head><body><div class="wrap">
+<p class="kicker" style="margin-bottom:20px"><a href="https://www.presker.at/" style="text-decoration:none">← PRESKER.AT</a></p>
+<header>
+<p class="kicker">A STUDY IN PLAIN LANGUAGE · AS OF 23 OCTOBER 2026</p>
+<h1>What happened to the AI predictions of 2015?</h1>
+<p class="lede">In January 2015 a blog called Wait But Why told millions of people that machines would soon be smarter than us. This page checks, claim by claim, what came true, what did not, and what is still open.</p>
+<nav class="toc" aria-label="Sections"><a href="#why">Why</a><a href="#ideas">The 2015 ideas</a><a href="#now">Today</a><a href="#when">When?</a><a href="#score">Scorecard</a><a href="#hardware">Chips and money</a><a href="#risk">Risk</a><a href="#people">Who thinks what</a><a href="#next">What next</a><a href="#sources">Sources</a></nav>
+</header>
+<div class="box soft"><h3>The short answer</h3>
+<p>The article was <strong>right about the direction</strong> and <strong>wrong about the way we got here</strong>. AI sped up, chips kept improving, money poured in, and the risk debate went mainstream. But AI did not come from copying the brain. It came from huge networks that learn from text, and it turned out uneven rather than smooth.</p>
+<p>Out of 23 claims, <strong>5 held up, 7 partly held up, 5 were missed, 5 are not yet decided and 1 cannot be scored.</strong> The biggest claims, <em>when</em> human-level AI arrives and <em>how fast</em> it then races ahead, cannot be tested yet.</p></div>
+
+<section id="why"><h2><span class="num">1</span><span>Why this study exists</span></h2>
+
+<figure class="panel big"><img src="images/panel-01.png" width="380" height="250" alt="Stick figure remembers an old article on a laptop and asks what became of its predictions" loading="lazy"><figcaption>Panel 1. The idea for this study began as a memory.</figcaption></figure>
+<p>This study did not start with a news story or a new data set. It started with a memory: the two long posts by Tim Urban, <a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-1.html" target="_blank" rel="noopener">Part 1</a> and <a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-2.html" target="_blank" rel="noopener">Part 2</a>, and the question <em>"what became of those predictions?"</em></p>
+<div class="box warn"><h3>Be honest about where this comes from</h3>
+<ul><li><strong>Fondness.</strong> A memory of a favourite article can make us go easy on it, or hard on it.</li>
+<li><strong>Hindsight.</strong> It is easy to say "they were right" after the facts are known.</li>
+<li><strong>Who helped write it.</strong> An AI assistant (Claude, made by Anthropic) helped research and write this. Anthropic builds AI, so it has a stake in the story. Check the sources yourself.</li></ul></div>
+<p>The 2015 posts are not original research. Urban explains ideas from Ray Kurzweil, Nick Bostrom and a few surveys. So judging the posts also judges those sources.</p>
+<details><summary>How the verdicts work</summary>
+<p><span class="badge v-held">Held up</span> it came true or is on track. <span class="badge v-part">Partly</span> some of it did. <span class="badge v-miss">Missed</span> it did not happen the way it said. <span class="badge v-open">Not yet decided</span> the date has not arrived, or the evidence cannot settle it. <span class="badge v-unf">Can't be scored</span> no test could prove it wrong.</p>
+<p>The verdicts are one writer's judgement. Someone else could move a row. Every row names its evidence.</p></details>
+
+</section>
+<section id="ideas"><h2><span class="num">2</span><span>The big ideas from 2015</span></h2>
+
+<figure class="panel big"><img src="images/panel-02.png" width="380" height="250" alt="Five big ideas from 2015: fast progress, job automation, superintelligence, big risks, preparation" loading="lazy"><figcaption>Panel 2. The five ideas that mattered most.</figcaption></figure>
+<p>The article made a simple argument. Technology does not improve in a straight line. It speeds up. So the next 30 years could bring more change than the last 300. At the end of that road it saw two possible places: a machine as smart as a person, and then one far smarter.</p>
+<details open><summary>Words you will see</summary><dl>
+<dt>Narrow AI</dt><dd>Good at one job, like spam filters or chess.</dd>
+<dt>AGI (human-level AI)</dt><dd>As good as a typical person at most thinking jobs. Nobody agrees on one test for this.</dd>
+<dt>ASI (superintelligence)</dt><dd>Far smarter than any human.</dd>
+<dt>Compute</dt><dd>Computing power. More compute usually means a stronger AI.</dd>
+<dt>Singularity</dt><dd>A point after which change comes too fast for people to follow. Kurzweil says 2045.</dd></dl></details>
+<p>The article also borrowed three roads to human-level AI: copy a brain, make AI evolve, or build an AI that improves itself. It said experts gave a 50% chance of human-level AI by about 2040. That number comes from a 2013 survey that Bostrom reports in his book <a href="https://www.oup.com.au/books/general-interest/art-technology/9780198739838" target="_blank" rel="noopener"><em>Superintelligence</em></a>.</p>
+
+</section>
+<section id="now"><h2><span class="num">3</span><span>Where we are now (2026)</span></h2>
+
+<figure class="panel"><img src="images/panel-03.png" width="380" height="250" alt="Stick figure talks to a friendly robot that says it can write, reason, make images, use tools and help with code" loading="lazy"><figcaption>Panel 3. Today's chatbots can do a lot. (We removed a company logo that the picture generator drew on the robot.)</figcaption></figure>
+<p>In 2015 most AI could do one thing at a time. In 2026 one system can write, translate, read pictures, write code and use software. That is a big change, and the article did not describe how it would happen.</p>
+<div class="pair"><figure class="panel"><img src="images/panel-05.png" width="380" height="250" alt="A small robot at a laptop that does narrow tasks: translate, recognise images, play games" loading="lazy"><figcaption>Panel 5. 2015: narrow AI, one task at a time.</figcaption></figure><figure class="panel"><img src="images/panel-06.png" width="380" height="250" alt="The same robot with speech bubbles: text, images, code, analyse, tools, plan" loading="lazy"><figcaption>Panel 6. 2026: wider skills, still not human-level.</figcaption></figure></div>
+<div class="chart" role="group" aria-label="How well AI can use a computer (OSWorld test)"><h4>How well AI can use a computer (OSWorld test)</h4>
+<div class="brow"><span class="blabel">AI agents, 2024</span><span class="track"><span class="fill" style="width:5.0%"></span></span><span class="bval">about 5%</span></div>
+<div class="brow"><span class="blabel">AI agents, 2025</span><span class="track"><span class="fill acc" style="width:66.3%"></span></span><span class="bval">66.3%</span></div>
+<div class="brow"><span class="blabel">Human baseline</span><span class="track"><span class="fill" style="width:72.3%"></span></span><span class="bval">72.35%</span></div>
+<p class="cnote">Source: <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener">Stanford AI Index 2026</a> chart captions. Panel 4 of the first picture set showed 12% for 2024; the Stanford caption I could read says about 5%, so this chart uses 5% and replaces that panel.</p>
+</div>
+<p>The test above asks AI to do real tasks on a computer, like opening files and filling forms. In one year it went from a small fraction to two-thirds. It is still a little below people.</p>
+<h3>But it is uneven</h3>
+<div class="pair"><figure class="panel"><img src="images/panel-07.png" width="380" height="250" alt="The robot looks sad: it can do a lot but is unreliable, hallucinates, struggles with planning and physical tasks" loading="lazy"><figcaption>Panel 7. Brilliant, and still unreliable.</figcaption></figure><figure class="panel"><img src="images/panel-08.png" width="380" height="250" alt="A stick figure asks a robot to clean the kitchen; the kitchen is a mess and the robot says real-world places are still hard" loading="lazy"><figcaption>Panel 8. Robots in real homes are still early.</figcaption></figure></div>
+<p>The best systems can win a maths contest and then fail at something a child finds easy. Experts call this <strong>jagged</strong> intelligence (see the <a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">International AI Safety Report</a>). The 2015 article pictured one smooth staircase. The real thing looks like a mountain range.</p>
+<p>A 2025 study by <a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/" target="_blank" rel="noopener">METR</a> found that experienced programmers were <em>slower</em> with AI tools on their own projects, even though they felt faster. A test score and real work are different things.</p>
+
+</section>
+<section id="jobs"><h2><span class="num">4</span><span>Jobs and science</span></h2>
+
+<div class="pair"><figure class="panel"><img src="images/panel-09.png" width="380" height="250" alt="A table of work types and how much AI is changing them, from high (writing, support, coding) to low (physical labour)" loading="lazy"><figcaption>Panel 9. An illustration of the idea, not measured data. Real job data would need its own study.</figcaption></figure><figure class="panel"><img src="images/panel-10.png" width="380" height="250" alt="A happy stick figure with icons for drug discovery, materials science, climate solutions and new knowledge" loading="lazy"><figcaption>Panel 10. The hope: faster discoveries.</figcaption></figure></div>
+<p>The drawings show a common view: writing, support and coding are changing fast; physical work is changing slowly. We did not find a source in this study that measures job effects, so please read panel 9 as a sketch, not a result. The expert panel <a href="https://forecastingresearch.org/research/longitudinal-expert-ai-panel-leap-working-paper" target="_blank" rel="noopener">LEAP</a> does ask about jobs: its experts expect only 2% white-collar job growth from 2025 to 2030, against a 6.8% trend.</p>
+<p>On science, Dario Amodei, head of Anthropic, argues in <a href="https://darioamodei.com/essay/machines-of-loving-grace" target="_blank" rel="noopener">Machines of Loving Grace</a> that AI could squeeze 50 to 100 years of biology into 5 to 10. He says it could be "as early as 2026" and also that "everything I'm saying could very easily be wrong". It is late October 2026 and nothing I found shows that level has been reached.</p>
+
+</section>
+<section id="when"><h2><span class="num">5</span><span>When will human-level AI arrive?</span></h2>
+
+<p>This is the number everyone remembers. Experts in a 2013 survey gave <strong>10% by 2022, 50% by 2040 and 90% by 2075</strong> (Bostrom's book, Table 2). The 2022 mark passed without human-level AI, which the survey allowed for.</p>
+<div class="chart" role="group" aria-label="Median year for a 50% chance of human-level AI"><h4>Median year for a 50% chance of human-level AI</h4>
+<div class="brow"><span class="blabel">Kurzweil (stated 1999, repeated 2026)</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot person" style="left:10.0%"></b></span><span class="bval">2029</span></div>
+<div class="brow"><span class="blabel">Metaculus community, Nov 2022</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot person" style="left:37.5%"></b></span><span class="bval">2040</span></div>
+<div class="brow"><span class="blabel">2013 expert survey</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot survey" style="left:37.5%"></b></span><span class="bval">2040</span></div>
+<div class="brow"><span class="blabel">AI Impacts survey, 2023</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot survey" style="left:55.0%"></b></span><span class="bval">2047</span></div>
+<div class="brow"><span class="blabel">Zhang and others, ML researchers, 2022</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot survey" style="left:87.5%"></b></span><span class="bval">2060</span></div>
+<div class="brow"><span class="blabel">Grace and others, researchers</span><span class="track dottrack"><i class="tick" style="left:12.5%"></i><i class="tick" style="left:37.5%"></i><i class="tick" style="left:62.5%"></i><i class="tick" style="left:87.5%"></i><i class="now" style="left:4.5%"></i><b class="dot survey" style="left:90.0%"></b></span><span class="bval">2061</span></div>
+<div class="brow axis"><span class="blabel"></span><span class="track"><em style="left:12.5%">2030</em><em style="left:37.5%">2040</em><em style="left:62.5%">2050</em><em style="left:87.5%">2060</em></span><span class="bval"></span></div>
+<p class="cnote">Different people, questions and definitions. Sources: Bostrom 2014 (Table 2), <a href="https://ourworldindata.org/ai-timelines" target="_blank" rel="noopener">Our World in Data</a>, <a href="https://aiimpacts.org/surveys/" target="_blank" rel="noopener">AI Impacts</a>, Kurzweil's 2026 talk. <span class='legend'><span class='p'>a person or forecasting community</span><span>a researcher survey</span><span class='r'>today</span></span></p></div>
+<div class="chart" role="group" aria-label="Researchers&#x27; median: how many years away?"><h4>Researchers' median: how many years away?</h4>
+<div class="brow"><span class="blabel">Survey of 2013</span><span class="track"><span class="fill acc" style="width:54.0%"></span></span><span class="bval">27 years</span></div>
+<div class="brow"><span class="blabel">Survey of 2016</span><span class="track"><span class="fill" style="width:90.0%"></span></span><span class="bval">45 years</span></div>
+<div class="brow"><span class="blabel">Survey of 2022</span><span class="track"><span class="fill" style="width:74.0%"></span></span><span class="bval">37 years</span></div>
+<div class="brow"><span class="blabel">Survey of 2023</span><span class="track"><span class="fill" style="width:48.0%"></span></span><span class="bval">24 years</span></div>
+<p class="cnote">Years from the survey date to the median year. Sources as above. Different groups were asked each time, so read the trend, not the decimals.</p>
+</div>
+<h3>Four things to know</h3>
+<ul>
+<li><strong>The clock kept running.</strong> From 2013 to 2023 AI improved a lot, yet the median "years away" only moved from 27 to 24.</li>
+<li><strong>Others are much shorter.</strong> Kurzweil says 2029. The forecasting site Metaculus moved from 2058 to 2040 during 2022. The <a href="https://forecastingresearch.org/research/longitudinal-expert-ai-panel-leap-working-paper" target="_blank" rel="noopener">LEAP panel</a> reports that lab leaders say around 2026 to 2029 while the typical expert expects slower progress.</li>
+<li><strong>Wording changes the answer.</strong> Asking "by which year?" gave later dates than asking "how likely by 2050?", and asking about <em>all</em> jobs gave 2138 (<a href="https://ourworldindata.org/ai-timelines" target="_blank" rel="noopener">Our World in Data</a>).</li>
+<li><strong>Experts can be wrong too.</strong> LEAP cites a study finding that experts and top forecasters <em>underestimated</em> AI progress through 2025.</li></ul>
+<p>Verdict: <span class="badge v-open">Not yet decided</span>. Nobody who said 2040 has been shown wrong. Nobody who said 2100 has, either.</p>
+
+</section>
+<section id="score"><h2><span class="num">6</span><span>The scorecard</span></h2>
+
+<p>Here are 21 claims from the article plus two from Bostrom's book, which it relied on, what happened, and how I grade each. Each row links to the evidence.</p>
+<div class="chart" role="group" aria-label="About a fifth of 23 claims held up cleanly; most are partly right or still open"><h4>About a fifth of 23 claims held up cleanly; most are partly right or still open</h4>
+<div class="brow"><span class="blabel">Held up</span><span class="track"><span class="fill acc" style="width:71.4%"></span></span><span class="bval">5</span></div>
+<div class="brow"><span class="blabel">Partly held up</span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="bval">7</span></div>
+<div class="brow"><span class="blabel">Missed</span><span class="track"><span class="fill" style="width:71.4%"></span></span><span class="bval">5</span></div>
+<div class="brow"><span class="blabel">Not yet decided</span><span class="track"><span class="fill" style="width:71.4%"></span></span><span class="bval">5</span></div>
+<div class="brow"><span class="blabel">Can't be scored</span><span class="track"><span class="fill" style="width:14.3%"></span></span><span class="bval">1</span></div>
+<p class="cnote">The grades are the author's judgement.</p>
+</div>
+<div class="tablewrap"><table class="score"><thead><tr><th>#</th><th>What the 2015 article claimed</th><th>What happened by October 2026</th><th>Verdict</th><th>Evidence</th></tr></thead><tbody><tr><td data-l="#">1</td><td data-l="2015 said">Progress in AI keeps speeding up.</td><td data-l="By 2026">AI went from simple tools to systems that write code, pass exams and do olympiad-level maths.</td><td data-l="Verdict"><span class="badge v-held">Held up</span></td><td data-l="Evidence" class="src"><a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/" target="_blank" rel="noopener">METR</a>, <a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">2</td><td data-l="2015 said">Chips keep getting twice as good about every 2 years (Moore's law).</td><td data-l="By 2026">Measured: about +37% a year for AI chips, a doubling every 2.2 years.</td><td data-l="Verdict"><span class="badge v-held">Held up</span></td><td data-l="Evidence" class="src"><a href="https://epoch.ai/trends" target="_blank" rel="noopener">Epoch AI</a></td></tr>
+<tr><td data-l="#">3</td><td data-l="2015 said">A $1,000 computer will match the brain's raw speed (about 10^16 operations a second) by about 2025.</td><td data-l="By 2026">The article's own numbers need 1000x in ten years, but doubling every 2 years gives only 32x. Cheap hardware is still about 10 to 100 times short, depending on how you count.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://epoch.ai/trends" target="_blank" rel="noopener">Epoch AI</a>, <a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-1.html" target="_blank" rel="noopener">Part 1</a></td></tr>
+<tr><td data-l="#">4</td><td data-l="2015 said">AI will move into everyday life.</td><td data-l="By 2026">It did: assistants, translation, search, photo and code tools. Generative AI reached 53% adoption in three years.</td><td data-l="Verdict"><span class="badge v-held">Held up</span></td><td data-l="Evidence" class="src"><a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener">Stanford AI Index</a>, <a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">5</td><td data-l="2015 said">Driverless cars are coming.</td><td data-l="By 2026">Waymo says about half a million paid rides a week in around ten US cities. Not everywhere, and not in ordinary cars.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://waymo.com/" target="_blank" rel="noopener">Waymo</a> (company figures)</td></tr>
+<tr><td data-l="#">6</td><td data-l="2015 said">What is hard for people is easy for machines, and the other way round.</td><td data-l="By 2026">Robots still struggle in real kitchens, but writing and coding fell first.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">7</td><td data-l="2015 said">Three roads lead to human-level AI: copy the brain, simulate evolution, or AI that improves itself.</td><td data-l="By 2026">The road that worked was none of these: huge neural networks trained on text, then tuned with human feedback.</td><td data-l="Verdict"><span class="badge v-miss">Missed</span></td><td data-l="Evidence" class="src"><a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-1.html" target="_blank" rel="noopener">Part 1</a>, <a href="https://situational-awareness.ai/" target="_blank" rel="noopener">Aschenbrenner</a></td></tr>
+<tr><td data-l="#">8</td><td data-l="2015 said">Experts give a 50% chance of human-level AI by about 2040.</td><td data-l="By 2026">Later surveys say 2047 to 2061. Forecasters and Kurzweil say sooner. The date has not come.</td><td data-l="Verdict"><span class="badge v-open">Not yet decided</span></td><td data-l="Evidence" class="src"><a href="https://aiimpacts.org/surveys/" target="_blank" rel="noopener">AI Impacts</a>, <a href="https://ourworldindata.org/ai-timelines" target="_blank" rel="noopener">Our World in Data</a>, <a href="https://www.metaculus.com/questions/5121/date-of-artificial-general-intelligence/" target="_blank" rel="noopener">Metaculus</a></td></tr>
+<tr><td data-l="#">9</td><td data-l="2015 said">90% chance of human-level AI by about 2075.</td><td data-l="By 2026">Nothing so far proves or disproves it.</td><td data-l="Verdict"><span class="badge v-open">Not yet decided</span></td><td data-l="Evidence" class="src"><a href="https://aiimpacts.org/surveys/" target="_blank" rel="noopener">AI Impacts</a></td></tr>
+<tr><td data-l="#">10</td><td data-l="2015 said">After human level, superintelligence follows fast.</td><td data-l="By 2026">Nothing is clearly at human level on everything, so nobody can test this yet.</td><td data-l="Verdict"><span class="badge v-open">Not yet decided</span></td><td data-l="Evidence" class="src"><a href="https://ai-2027.com/" target="_blank" rel="noopener">AI 2027</a>, <a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/" target="_blank" rel="noopener">METR</a></td></tr>
+<tr><td data-l="#">11</td><td data-l="2015 said">Human level is not a special station: the gap between a 'dim' and a 'genius' person is tiny on the big scale.</td><td data-l="By 2026">AI is superhuman at some things and weak at others, so there is no single staircase.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">12</td><td data-l="2015 said">Kurzweil's bet: a machine passes a hard Turing test by 2029 (the article says 2030).</td><td data-l="By 2026">A 2025 study found a chatbot was picked as the human more often than real people in a short test. The strict bet is not settled.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://longbets.org/1/" target="_blank" rel="noopener">Long Bets</a>, <a href="https://arxiv.org/abs/2503.23674" target="_blank" rel="noopener">Jones and Bergen</a></td></tr>
+<tr><td data-l="#">13</td><td data-l="2015 said">Copy a whole brain by about the 2040s.</td><td data-l="By 2026">We have mapped a fruit fly (about 139,000 neurons). A mouse is about 500 times bigger, a human about 600,000 times.</td><td data-l="Verdict"><span class="badge v-open">Not yet decided</span></td><td data-l="Evidence" class="src"><a href="https://flywire.ai/" target="_blank" rel="noopener">FlyWire</a></td></tr>
+<tr><td data-l="#">14</td><td data-l="2015 said">Nanobots and molecular assemblers within decades.</td><td data-l="By 2026">None exist. The field renamed itself and moved slowly.</td><td data-l="Verdict"><span class="badge v-miss">Missed</span></td><td data-l="Evidence" class="src"><a href="https://www.drexler.org/" target="_blank" rel="noopener">Drexler</a> (home page only)</td></tr>
+<tr><td data-l="#">15</td><td data-l="2015 said">Radical life extension: 'longevity escape velocity' around 2029 to 2032.</td><td data-l="By 2026">No sign yet. Kurzweil still says about 2032; critics say there is no data.</td><td data-l="Verdict"><span class="badge v-open">Not yet decided</span></td><td data-l="Evidence" class="src"><a href="https://www.youtube.com/watch?v=Vubj74mZBQ0" target="_blank" rel="noopener">Kurzweil, Geneva 2026</a></td></tr>
+<tr><td data-l="#">16</td><td data-l="2015 said">The outcome is 'immortality or extinction', nothing in between.</td><td data-l="By 2026">Neither has happened, and the either-or is exactly what people argue about.</td><td data-l="Verdict"><span class="badge v-unf">Can't be scored</span></td><td data-l="Evidence" class="src"><a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-2.html" target="_blank" rel="noopener">Part 2</a>, <a href="https://www.normaltech.ai/p/ai-as-normal-technology" target="_blank" rel="noopener">Narayanan and Kapoor</a></td></tr>
+<tr><td data-l="#">17</td><td data-l="2015 said">Companies and countries will race, and speed will beat safety.</td><td data-l="By 2026">They are openly racing. Safety work happens alongside.</td><td data-l="Verdict"><span class="badge v-held">Held up</span></td><td data-l="Evidence" class="src"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">18</td><td data-l="2015 said">Safety research is small and neglected.</td><td data-l="By 2026">Still small next to what is spent on making AI stronger, but now a funded field with institutes and an international report.</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a>, <a href="https://safe.ai/work/statement-on-ai-risk" target="_blank" rel="noopener">CAIS statement</a></td></tr>
+<tr><td data-l="#">19</td><td data-l="2015 said">Money will pour into AI.</td><td data-l="By 2026">Training compute grows about 4.5 times a year. US private AI investment was about $285.9 billion in 2025.</td><td data-l="Verdict"><span class="badge v-held">Held up</span></td><td data-l="Evidence" class="src"><a href="https://epoch.ai/trends" target="_blank" rel="noopener">Epoch AI</a>, <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener">Stanford AI Index</a></td></tr>
+<tr><td data-l="#">20</td><td data-l="2015 said">Intelligence is one dial that turns up steadily.</td><td data-l="By 2026">Real systems are 'jagged': brilliant at one task, bad at a nearby one.</td><td data-l="Verdict"><span class="badge v-miss">Missed</span></td><td data-l="Evidence" class="src"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">AI Safety Report</a></td></tr>
+<tr><td data-l="#">21</td><td data-l="2015 said">(Blind spot) The article did not see chatbots built on text as the main road.</td><td data-l="By 2026">Conversational language models were the big story of 2022 to 2026.</td><td data-l="Verdict"><span class="badge v-miss">Missed</span></td><td data-l="Evidence" class="src"><a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-1.html" target="_blank" rel="noopener">Part 1</a></td></tr>
+<tr><td data-l="#">22</td><td data-l="2015 said">(From Bostrom) Go programs might beat the world champion in about ten years.</td><td data-l="By 2026">AlphaGo beat Lee Sedol in March 2016, two to four years after the book's data.</td><td data-l="Verdict"><span class="badge v-miss">Missed</span></td><td data-l="Evidence" class="src"><a href="https://www.oup.com.au/books/general-interest/art-technology/9780198739838" target="_blank" rel="noopener">Bostrom 2014</a>, <a href="https://deepmind.google/research/breakthroughs/alphago/" target="_blank" rel="noopener">DeepMind</a></td></tr>
+<tr><td data-l="#">23</td><td data-l="2015 said">(From Bostrom) Understanding language is 'AI-complete': solve it and you are close to general AI.</td><td data-l="By 2026">Language models are fluent, yet still below humans on long computer tasks (66.3% against 72.35%).</td><td data-l="Verdict"><span class="badge v-part">Partly</span></td><td data-l="Evidence" class="src"><a href="https://www.oup.com.au/books/general-interest/art-technology/9780198739838" target="_blank" rel="noopener">Bostrom 2014</a>, <a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener">Stanford AI Index</a></td></tr></tbody></table></div>
+<p><strong>The pattern:</strong> the article was strong on <em>direction</em> (speed-up, money, the race) and weak on <em>mechanism</em> (how AI was built, what intelligence looks like), and on physical-world promises (nanobots, living forever). The most important claims, timelines and fast take-off, are still open.</p>
+
+</section>
+<section id="hardware"><h2><span class="num">7</span><span>Chips and money: a sum that did not add up</span></h2>
+
+<p>The article says a $1,000 computer should match a human brain's raw speed by about 2025. It also says chips double every two years. Those two statements do not agree. Going from the article's starting point to the brain's speed in ten years needs a 1000-fold gain, which means doubling about <em>every year</em>. Doubling every two years gives 32-fold.</p>
+<div class="chart" role="group" aria-label="Ten-year improvement, on a log scale"><h4>Ten-year improvement, on a log scale</h4>
+<div class="brow"><span class="blabel">What the article's numbers implied ($1,000 of compute)</span><span class="track"><span class="fill" style="width:45.9%"></span></span><span class="bval">1,000x</span></div>
+<div class="brow"><span class="blabel">Doubling every 2 years</span><span class="track"><span class="fill" style="width:23.0%"></span></span><span class="bval">32x</span></div>
+<div class="brow"><span class="blabel">Measured AI-chip value (+37% a year)</span><span class="track"><span class="fill acc" style="width:20.9%"></span></span><span class="bval">23x</span></div>
+<div class="brow"><span class="blabel">Spending on the biggest training runs (about 4.5x a year)</span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="bval">3.4 million x</span></div>
+<p class="cnote">The first three are performance per dollar; the last is total compute used by the largest AI training runs, which is not the same thing. Multiples are my arithmetic on rates from <a href="https://epoch.ai/trends" target="_blank" rel="noopener">Epoch AI</a> and the article. Every step to the right is ten times more.</p>
+</div>
+<p>So the "chips double every two years" claim held, and the "$1,000 brain" claim arrived late. What the article missed is that the big gains came from <em>spending</em>: bigger computer farms and longer training, paid for with billions. Kurzweil's 2026 talk claims a doubling every 12 to 16 months for his own long-run measure; Epoch's AI-chip data show about 2.2 years. They measure different things, so I treat his number as his claim.</p>
+<h3>Copying the brain</h3>
+<div class="chart" role="group" aria-label="Neurons per brain, log scale"><h4>Neurons per brain, log scale</h4>
+<div class="brow"><span class="blabel">Fruit fly (fully mapped in 2024)</span><span class="track"><span class="fill acc" style="width:16.5%"></span></span><span class="bval">139,255</span></div>
+<div class="brow"><span class="blabel">Mouse (not mapped)</span><span class="track"><span class="fill" style="width:55.4%"></span></span><span class="bval">about 70 million</span></div>
+<div class="brow"><span class="blabel">Human (not mapped)</span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="bval">about 86 billion</span></div>
+<p class="cnote">Fly count from <a href="https://flywire.ai/" target="_blank" rel="noopener">FlyWire</a>; mouse and human are rough textbook figures. The human brain has about 600,000 times more neurons than the fly.</p>
+</div>
+<p>One of the article's three roads was to copy a brain. The only brain mapped completely is a fruit fly's. And a wiring map is not a working copy. The road that actually led to today's chatbots skipped brain science entirely, much as aeroplanes do not flap their wings.</p>
+
+</section>
+<section id="takeoff"><h2><span class="num">8</span><span>How fast could it go?</span></h2>
+
+<figure class="panel big"><img src="images/panel-11.png" width="380" height="250" alt="A stick figure at the bottom of a hill: narrow AI, then AGI halfway up, then a bright sun marked superintelligence" loading="lazy"><figcaption>Panel 11. The hill the article described: narrow AI, then human-level, then something far beyond.</figcaption></figure>
+<p>The article's boldest idea is the <strong>intelligence explosion</strong>: an AI that can improve itself gets better faster each round. Nothing is at human level on everything, so nobody can test that yet. What we can measure is nearby: how long a task can AI finish?</p>
+<div class="chart" role="group" aria-label="Length of tasks AI can finish is doubling every 4 to 7 months"><h4>Length of tasks AI can finish is doubling every 4 to 7 months</h4>
+<div class="brow"><span class="blabel">2019 to 2024 trend</span><span class="track"><span class="fill" style="width:100.0%"></span></span><span class="bval">every 212 days</span></div>
+<div class="brow"><span class="blabel">Recent trend</span><span class="track"><span class="fill acc" style="width:61.7%"></span></span><span class="bval">every 131 days</span></div>
+<p class="cnote">Days for the task length (at 50% success, on software tasks) to double. Figures from <a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/" target="_blank" rel="noopener">METR</a> via my earlier research. It measures software tasks only, not general intelligence.</p>
+</div>
+<p>That is the kind of speed-up Kurzweil describes. Keep going at the recent pace and ten more doublings means about a thousand times longer tasks. But it is one narrow measure.</p>
+<p><strong>Fast-take-off supporters</strong> say AI is already helping build AI. <strong>Sceptics</strong> say slow adoption, rules and the physical world will hold things back; see <a href="https://www.normaltech.ai/p/ai-as-normal-technology" target="_blank" rel="noopener">AI as Normal Technology</a>. The authors of <a href="https://ai-2027.com/" target="_blank" rel="noopener">AI 2027</a> have also said they lengthened their own timelines (I could not find the page for that, see "Sources we could not pin down").</p>
+
+</section>
+<section id="risk"><h2><span class="num">9</span><span>Risk, the race and possible futures</span></h2>
+
+<p>Part 2 of the article is the scary one. It showed two camps: the <em>confident corner</em> (Kurzweil, mostly optimistic) and the <em>anxious corner</em> (Bostrom and others). Urban sided with the anxious corner.</p>
+<ul>
+<li><strong>From fringe to mainstream.</strong> In 2023 many AI leaders signed a <a href="https://safe.ai/work/statement-on-ai-risk" target="_blank" rel="noopener">one-sentence statement</a> that reducing the risk of extinction from AI should be a global priority. Governments held summits (<a href="https://www.gov.uk/government/publications/ai-safety-summit-2023-the-bletchley-declaration" target="_blank" rel="noopener">Bletchley Park</a>) and the EU passed an <a href="https://artificialintelligenceact.eu/" target="_blank" rel="noopener">AI Act</a>.</li>
+<li><strong>The race is real.</strong> Companies and countries compete openly on strength.</li>
+<li><strong>The harms that came first were different.</strong> Fake media, fraud, hacking, people leaning on chatbots, and power gathering in a few firms. The Stanford AI Index counts a record 362 reported AI incidents in 2025.</li>
+<li><strong>The biggest claim is still untested.</strong> Nobody has shown an AI with goals that go against its makers' at a scale that matters. Whether that is because the risk is small or because AI is not strong enough yet is what the camps argue about.</li></ul>
+<p>The worried view: <a href="https://ifanyonebuildsit.com/" target="_blank" rel="noopener">If Anyone Builds It, Everyone Dies</a>. The sceptical view: <a href="https://www.normaltech.ai/p/ai-as-normal-technology" target="_blank" rel="noopener">AI as Normal Technology</a>.</p>
+<figure class="panel big"><img src="images/panel-12.png" width="380" height="250" alt="A stick figure sees three arrows: a better world, a mixed future, a difficult future" loading="lazy"><figcaption>Panel 12. Many futures are possible.</figcaption></figure>
+
+</section>
+<section id="people"><h2><span class="num">10</span><span>Who thinks what</span></h2>
+
+<p>We cannot put words in people's mouths. The first picture set had two panels with invented quotes for Kurzweil and Urban. We left them out and show what each person has said in a source.</p>
+<div class="cards">
+<div class="card"><p class="who">Ray Kurzweil · Geneva, September 2026</p><h3>Still on schedule</h3>
+<ul><li>Human-level AI by <strong>2029</strong>, singularity by <strong>2045</strong>.</li><li>"Longevity escape velocity" by about <strong>2032</strong>.</li><li>Says expert opinion has "fallen in line" with 2029. The surveys here do not show that.</li><li>Cites a Science journal study on AI beating doctors at diagnosis. I could not find it.</li></ul>
+<p><a href="https://www.youtube.com/watch?v=Vubj74mZBQ0" target="_blank" rel="noopener">Video</a> (used a supplied transcript).</p></div>
+<div class="card"><p class="who">Tim Urban · interview of April 2022</p><h3>Worried and hopeful</h3>
+<ul><li>"Unexpected, unforeseen consequences, some will be negative and scary."</li><li>"My gut suggests that in 2060, we will be happier."</li><li>I found nothing newer, so his view today is unknown.</li></ul>
+<p><a href="https://tedium.co/2022/12/16/wait-but-why-tim-urban-interview/" target="_blank" rel="noopener">Tedium interview</a> (December 2022).</p></div></div>
+<h3>Similar essays side by side</h3>
+<div class="tablewrap"><table class="score essays"><thead><tr><th>Essay</th><th>Year</th><th>View</th><th>In one line</th></tr></thead><tbody>
+<tr><td data-l="Essay"><a href="https://edoras.sdsu.edu/~vinge/misc/singularity.html" target="_blank" rel="noopener">Vinge, The Coming Technological Singularity</a></td><td data-l="Year">1993</td><td data-l="View">Singularity</td><td data-l="In one line">Superhuman AI within about 30 years ends the human era.</td></tr>
+<tr><td data-l="Essay"><a href="https://www.oup.com.au/books/general-interest/art-technology/9780198739838" target="_blank" rel="noopener">Bostrom, Superintelligence</a></td><td data-l="Year">2014</td><td data-l="View">Risk</td><td data-l="In one line">Keeping control of a smarter machine is hard.</td></tr>
+<tr><td data-l="Essay"><a href="https://darioamodei.com/essay/machines-of-loving-grace" target="_blank" rel="noopener">Amodei, Machines of Loving Grace</a></td><td data-l="Year">2024</td><td data-l="View">Optimist (industry)</td><td data-l="In one line">Powerful AI could squeeze a century of biology into a decade.</td></tr>
+<tr><td data-l="Essay"><a href="https://situational-awareness.ai/" target="_blank" rel="noopener">Aschenbrenner, Situational Awareness</a></td><td data-l="Year">2024</td><td data-l="View">Speed and security</td><td data-l="In one line">AGI by about 2027, and a national-security race.</td></tr>
+<tr><td data-l="Essay"><a href="https://ai-2027.com/" target="_blank" rel="noopener">AI 2027</a></td><td data-l="Year">2025</td><td data-l="View">Scenario</td><td data-l="In one line">A month-by-month story to superhuman AI.</td></tr>
+<tr><td data-l="Essay"><a href="https://blog.samaltman.com/the-gentle-singularity" target="_blank" rel="noopener">Altman, The Gentle Singularity</a></td><td data-l="Year">2025</td><td data-l="View">Optimist (industry)</td><td data-l="In one line">We are past the point of no return, and it is gradual.</td></tr>
+<tr><td data-l="Essay"><a href="https://www.normaltech.ai/p/ai-as-normal-technology" target="_blank" rel="noopener">Narayanan and Kapoor, AI as Normal Technology</a></td><td data-l="Year">2025</td><td data-l="View">Sceptic</td><td data-l="In one line">AI spreads slowly, like electricity.</td></tr>
+<tr><td data-l="Essay"><a href="https://ifanyonebuildsit.com/" target="_blank" rel="noopener">Yudkowsky and Soares, If Anyone Builds It, Everyone Dies</a></td><td data-l="Year">2025</td><td data-l="View">Doom</td><td data-l="In one line">Building superintelligence leads to extinction.</td></tr>
+<tr><td data-l="Essay"><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">International AI Safety Report</a></td><td data-l="Year">2026</td><td data-l="View">Expert review</td><td data-l="In one line">Fast, uneven progress; risks documented, many questions open.</td></tr>
+</tbody></table></div>
+<p>In 2015 the question was <em>whether</em> to take this seriously. Now the essays argue about <em>dates, numbers and blame</em>. A confident date is the easiest claim to score, and the most likely to be wrong.</p>
+
+</section>
+<section id="missed"><h2><span class="num">11</span><span>What the article did not see</span></h2>
+
+<ul>
+<li><strong>Language was the way in.</strong> The road went through predicting text at huge scale.</li>
+<li><strong>Scaling.</strong> Around 2020 researchers showed that more compute and data reliably give better results, so companies began spending like power utilities.</li>
+<li><strong>Money and electricity as the limit,</strong> not clever ideas.</li>
+<li><strong>Jagged skills,</strong> not one smooth staircase.</li>
+<li><strong>Everything before superintelligence:</strong> work, school, news, coding, customer support and company chatbots changed with AI that is not general.</li>
+<li><strong>Open models.</strong> Skills leak out, so no single lab holds the key.</li>
+<li><strong>Politics.</strong> Chip export controls and national plans.</li>
+<li><strong>Measuring.</strong> How do you tell what an AI can really do, when tests wear out?</li></ul>
+<p>What it did well, by being early: it took the risk seriously when most coverage did not, and it explained a hard topic to a general reader. That is why it deserves a check.</p>
+</section>
+<section id="next"><h2><span class="num">12</span><span>What comes next: three futures and signs to watch</span></h2>
+
+<p>I will not give a date for superintelligence. This whole study shows why. Here are three futures and what would tell us which one we are in.</p>
+<div class="cards">
+<div class="card"><h3>1. Keeps accelerating</h3><p>Spending, efficiency and AI that builds AI keep compounding. By the early 2030s AI does most remote thinking jobs.</p><p><strong>Watch:</strong> task length reaching weeks; labs saying AI does most of their research.</p></div>
+<div class="card"><h3>2. Slows and spreads</h3><p>Limits in data, power or reliability slow things down. The story becomes adoption and rules over decades.</p><p><strong>Watch:</strong> task-length doubling taking longer; spending outrunning results.</p></div>
+<div class="card"><h3>3. Jagged takeoff</h3><p>AI becomes far better than people at lots of things yet stays weak at a few that matter. Big social effects come well before any single "superintelligence". This is my best guess, held loosely.</p><p><strong>Watch:</strong> the gap between test scores and real work.</p></div></div>
+<p>The most important thing to watch is whether AI starts to <strong>seriously speed up its own development</strong>. That is the article's core idea, and unlike most of it, it can be observed.</p>
+
+</section>
+<section id="takeaways"><h2><span class="num">13</span><span>Key takeaways</span></h2>
+
+<figure class="panel big"><img src="images/panel-15.png" width="380" height="250" alt="Stick figure with five key takeaways" loading="lazy"><figcaption>Panel 15. The five takeaways. (Illustration; the study's own judgement is in the scorecard.)</figcaption></figure>
+<ol>
+<li>The article was right that something big was coming, and right about the speed-up, the money and the race.</li>
+<li>It was wrong about how we would get there, and it missed how uneven AI would be.</li>
+<li>The most important questions, when and how fast, are still open. Be careful with anyone who gives a sure date.</li>
+<li>The risks that arrived first are everyday ones, while the big risk is untested.</li>
+<li>We still have choices.</li></ol>
+<figure class="panel big"><img src="images/panel-16.png" width="380" height="250" alt="Stick figure on a hilltop looking at a sunrise over a river and a city" loading="lazy"><figcaption>Panel 16. The bottom line: the future is not written yet.</figcaption></figure>
+
+</section>
+<section id="sources"><h2><span class="num">S</span><span>Sources</span></h2>
+<p>Every source used is listed with a link. The tag after each says how much of it I read. If a source is unclear, I say so.</p>
+<div class="box warn"><h3>Please read this</h3>
+<p><strong>This list may not be complete.</strong> Some sources may be missing, or a link may point to a home page rather than the exact page. If you think a mention or a link is missing, or something is wrong, please say so. Sources can be added, and the page will be corrected. Found a missing or wrong source? <a href="https://www.presker.at/#feedback">Tell me through the feedback form</a> and I'll correct it.</p>
+<p>The pictures were made with an AI image generator. Text inside AI-made pictures can contain mistakes. We retouched panel 3 (removed a company logo), replaced panel 4 with a chart built from the Stanford figures, and left out panels 13 and 14 because they put invented words in the mouths of real people.</p></div>
+<h3>The two articles this study is about</h3><ul class="srclist"><li><div><a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-1.html" target="_blank" rel="noopener">Tim Urban, The AI Revolution: The Road to Superintelligence (Wait But Why, Jan 2015)</a> <span class="chip s-full">read in full</span></div><p>Part 1. The starting point.</p></li><li><div><a href="https://waitbutwhy.com/2015/01/artificial-intelligence-revolution-2.html" target="_blank" rel="noopener">Tim Urban, The AI Revolution: Our Immortality or Extinction (Wait But Why, Jan 2015)</a> <span class="chip s-full">read in full</span></div><p>Part 2. Risk and the two camps.</p></li></ul>
+<h3>Books, essays and talks</h3><ul class="srclist"><li><div><a href="https://www.oup.com.au/books/general-interest/art-technology/9780198739838" target="_blank" rel="noopener">Nick Bostrom, Superintelligence: Paths, Dangers, Strategies (2014)</a> <span class="chip s-part">read in part</span></div><p>Source of the 2013 survey (10% by 2022, 50% by 2040, 90% by 2075), the Go forecast and the AI-complete idea. I read chapter 1 in the PDF supplied; the link goes to the publisher's page.</p></li><li><div><a href="https://www.youtube.com/watch?v=Vubj74mZBQ0" target="_blank" rel="noopener">Ray Kurzweil, AI and the next decade of human progress (AI for Good, Geneva, uploaded 9 Sep 2026)</a> <span class="chip s-part">read in part</span></div><p>His 2026 claims. I used a transcript that was supplied; parts of its numbers are garbled.</p></li><li><div><a href="https://www.kurzweilai.net/" target="_blank" rel="noopener">Ray Kurzweil, The Singularity Is Nearer (2024) and kurzweilai.net</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>Book and his site. Only the site's home page is linked.</p></li><li><div><a href="https://darioamodei.com/essay/machines-of-loving-grace" target="_blank" rel="noopener">Dario Amodei, Machines of Loving Grace (2024)</a> <span class="chip s-part">read in part</span></div><p>'Powerful AI' definition, 'as early as 2026', and the 'Taking stock' section.</p></li><li><div><a href="https://situational-awareness.ai/" target="_blank" rel="noopener">Leopold Aschenbrenner, Situational Awareness (2024)</a> <span class="chip s-not">cited, not read in full</span></div><p>AGI about 2027 by extending compute trends.</p></li><li><div><a href="https://ai-2027.com/" target="_blank" rel="noopener">Kokotajlo and others, AI 2027 (2025)</a> <span class="chip s-not">cited, not read in full</span></div><p>A dated scenario for superhuman AI.</p></li><li><div><a href="https://blog.samaltman.com/the-gentle-singularity" target="_blank" rel="noopener">Sam Altman, The Gentle Singularity (2025)</a> <span class="chip s-not">cited, not read in full</span></div><p>An optimistic essay from a company boss.</p></li><li><div><a href="https://www.normaltech.ai/p/ai-as-normal-technology" target="_blank" rel="noopener">Narayanan and Kapoor, AI as Normal Technology (2025)</a> <span class="chip s-not">cited, not read in full</span></div><p>The sceptical view: AI spreads slowly, like electricity.</p></li><li><div><a href="https://ifanyonebuildsit.com/" target="_blank" rel="noopener">Yudkowsky and Soares, If Anyone Builds It, Everyone Dies (2025)</a> <span class="chip s-not">cited, not read in full</span></div><p>The most worried view.</p></li><li><div><a href="https://edoras.sdsu.edu/~vinge/misc/singularity.html" target="_blank" rel="noopener">Vernor Vinge, The Coming Technological Singularity (1993)</a> <span class="chip s-not">cited, not read in full</span></div><p>An early ancestor of the idea.</p></li><li><div><a href="https://www.project-syndicate.org/magazine/generative-ai-fundamentally-unreliable-and-with-no-apparent-solution-by-gary-marcus-2025-06/english" target="_blank" rel="noopener">Gary Marcus, AI's Reliability Crisis (Project Syndicate, Jun 2025)</a> <span class="chip s-not">not read by me</span></div><p>A critic's view on reliability. From the supplied list.</p></li></ul>
+<h3>Data and surveys</h3><ul class="srclist"><li><div><a href="https://hai.stanford.edu/ai-index/2026-ai-index-report" target="_blank" rel="noopener">Stanford HAI, AI Index Report 2026</a> <span class="chip s-part">read in part</span></div><p>OSWorld 5% (2024) to 66.3% (2025) against a 72.35% human baseline; 53% adoption in three years; 362 AI incidents; US investment about $285.9 billion. I could only read the chart captions on this page.</p></li><li><div><a href="https://hai.stanford.edu/ai-index/2026-ai-index-report/technical-performance" target="_blank" rel="noopener">Stanford HAI, AI Index 2026, Technical Performance</a> <span class="chip s-not">not read by me</span></div><p>From the supplied list.</p></li><li><div><a href="https://hai.stanford.edu/news/inside-the-ai-index-12-takeaways-from-the-2026-report" target="_blank" rel="noopener">Stanford HAI, Inside the AI Index: 12 takeaways</a> <span class="chip s-not">not read by me</span></div><p>From the supplied list.</p></li><li><div><a href="https://ourworldindata.org/ai-timelines" target="_blank" rel="noopener">Our World in Data, AI timelines</a> <span class="chip s-full">read in full</span></div><p>Survey results, Metaculus 2058 to 2040 in 2022, how the question's wording changes the answer. Its data end in 2022.</p></li><li><div><a href="https://forecastingresearch.org/research/longitudinal-expert-ai-panel-leap-working-paper" target="_blank" rel="noopener">Forecasting Research Institute, LEAP working paper (Nov 2025)</a> <span class="chip s-part">read in part</span></div><p>339 experts, 60 superforecasters, about 1,400 members of the public. I read the first 100,000 of about 110,000 characters.</p></li><li><div><a href="https://aiimpacts.org/surveys/" target="_blank" rel="noopener">AI Impacts, Expert surveys on progress in AI</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>Survey archive. Medians of 2047 to 2061 come from my earlier research and I did not re-open the archive for this version.</p></li><li><div><a href="https://www.metaculus.com/questions/5121/date-of-artificial-general-intelligence/" target="_blank" rel="noopener">Metaculus, Date of artificial general intelligence</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>A live forecast. I did not record a current value, so check the page.</p></li><li><div><a href="https://epoch.ai/trends" target="_blank" rel="noopener">Epoch AI, trends</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>AI chip price-performance (+37% a year) and training compute (about 4.5 times a year). Figures come from my earlier research and I did not re-open the page.</p></li><li><div><a href="https://metr.org/blog/2025-03-19-measuring-ai-ability-to-complete-long-tasks/" target="_blank" rel="noopener">METR, Measuring AI ability to complete long tasks (2025)</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>How long a task AI can finish: doubling every 130.8 days (recent) or about 212 days (2019 to 2024). Figures from earlier research.</p></li><li><div><a href="https://metr.org/blog/2025-07-10-early-2025-ai-experienced-os-dev-study/" target="_blank" rel="noopener">METR, early-2025 study of experienced developers</a> <span class="chip s-mem">link from memory, not opened</span></div><p>Found developers were slower with AI tools, though they felt faster.</p></li><li><div><a href="https://internationalaisafetyreport.org/" target="_blank" rel="noopener">International AI Safety Report</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>Jagged abilities and the state of risk evidence. Home page only.</p></li><li><div><a href="https://flywire.ai/" target="_blank" rel="noopener">FlyWire, the fruit-fly connectome (2024)</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>139,255 neurons. Mouse (about 70 million) and human (about 86 billion) counts are rough textbook figures.</p></li><li><div><a href="https://waymo.com/" target="_blank" rel="noopener">Waymo</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>About 500,000 paid rides a week, in about 10 to 11 US cities. Company figure reported in news; no exact page confirmed.</p></li><li><div><a href="https://arxiv.org/abs/2508.11681" target="_blank" rel="noopener">Mueller and Bostrom, Future progress in AI: a survey of expert opinion (arXiv)</a> <span class="chip s-not">not read by me</span></div><p>From the supplied list.</p></li></ul>
+<h3>Claims about people and bets</h3><ul class="srclist"><li><div><a href="https://tedium.co/2022/12/16/wait-but-why-tim-urban-interview/" target="_blank" rel="noopener">Tedium, interview with Tim Urban (16 Dec 2022)</a> <span class="chip s-full">read in full</span></div><p>His only recent public view I could find: worried and hopeful; 'in 2060, we will be happier'.</p></li><li><div><a href="https://ulisten.ai/channels/20vc/tim-urban-how-wait-but-why-grew-to-600k-readers-ais-revoluti_y884nA4tudI/transcript" target="_blank" rel="noopener">The Twenty Minute VC, Tim Urban transcript (2023)</a> <span class="chip s-not">not read by me</span></div><p>From the supplied list.</p></li><li><div><a href="https://www.theguardian.com/technology/article/2024/jun/29/ray-kurzweil-google-ai-the-singularity-is-nearer" target="_blank" rel="noopener">The Guardian, Ray Kurzweil interview (29 Jun 2024)</a> <span class="chip s-not">not read by me</span></div><p>From the supplied list.</p></li><li><div><a href="https://observer.com/2025/09/interview-ray-kurzweil-kurzweil-technologies-future-human-intelligence-longevity/" target="_blank" rel="noopener">Observer, Ray Kurzweil interview (Sep 2025)</a> <span class="chip s-blk">could not open</span></div><p>From the supplied list.</p></li><li><div><a href="https://longbets.org/1/" target="_blank" rel="noopener">Long Bets, Kapor against Kurzweil Turing test wager</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>The bet. Still open.</p></li><li><div><a href="https://arxiv.org/abs/2503.23674" target="_blank" rel="noopener">Jones and Bergen, Large language models pass the Turing test (2025 preprint)</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>A short three-party test, not the strict bet. Link from my earlier research.</p></li><li><div><a href="https://safe.ai/work/statement-on-ai-risk" target="_blank" rel="noopener">Center for AI Safety, Statement on AI Risk (May 2023)</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>One-sentence statement about extinction risk.</p></li><li><div><a href="https://deepmind.google/research/breakthroughs/alphago/" target="_blank" rel="noopener">DeepMind, AlphaGo</a> <span class="chip s-not">not read by me</span></div><p>AlphaGo's 2016 win over Lee Sedol.</p></li><li><div><a href="https://www.drexler.org/" target="_blank" rel="noopener">K. Eric Drexler's site</a> <span class="chip s-land">home page only, exact page not confirmed</span></div><p>On atomically precise manufacturing. Home page only.</p></li><li><div><a href="https://artificialintelligenceact.eu/" target="_blank" rel="noopener">EU AI Act, information site</a> <span class="chip s-not">not read by me</span></div><p>Widely reported rule; not opened.</p></li><li><div><a href="https://www.gov.uk/government/publications/ai-safety-summit-2023-the-bletchley-declaration" target="_blank" rel="noopener">UK government, Bletchley Declaration (2023)</a> <span class="chip s-not">not read by me</span></div><p>Widely reported summit; not opened.</p></li></ul>
+<h3>Sources we could not pin down</h3>
+<p>These statements are in the study, but I could not attach a clean link. Treat them with extra care.</p>
+<ul>
+<li>That the authors of AI 2027 later lengthened their timelines. I recall finding this in earlier research but do not have the page.</li>
+<li>That AI reached gold-medal level at the 2025 International Mathematical Olympiad, and that AI now writes much of the code at the leading labs. Widely reported; no link saved.</li>
+<li>That Geoffrey Hinton left Google in 2023 partly to speak about risk. Widely reported; no link saved.</li>
+<li>Kurzweil's claim that the journal Science found AI surpassed doctors at diagnosis. I could not find the study.</li>
+<li>Waymo's ride numbers, METR's doubling times, Epoch's growth rates, and the mouse and human neuron counts. Taken from earlier research; the home page is linked but the exact page was not re-checked.</li>
+<li>The 2022 and 2023 survey medians (2059/2061 and 2047). From my earlier research; not re-checked against the archive.</li>
+<li>The two Word documents supplied with the request were not used as sources.</li></ul>
+</section>
+<footer><p>Written with Claude, an AI assistant made by Anthropic. This is an independent study and homage, not affiliated with Wait But Why. The stick-figure drawings are a tribute in spirit to the original posts; the characters here are new.</p><p>Written 23 October 2026. AI facts go out of date quickly, so check dates before relying on a number.</p>
+<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)">
+<a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut" style="flex:0 0 auto;line-height:0"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" width="78" style="display:block;border-radius:8px"></a>
+<span style="font-size:14px">Free to read, and part of <a href="https://www.presker.at/">presker.at</a>. If it was worth your time you can <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener">buy me a coffee via Revolut</a>.</span>
+</div></footer></div></body></html>

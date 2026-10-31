@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Slice Lab — why some 3D prints need supports</title>
+<meta name="description" content="Slice a vase, a chess pawn, a mushroom table or a bridge into 3D-print layers in your browser. Watch exactly which layers overhang the one below, guess before the reveal, then toggle supports and see what they cost in time and filament.">
+<link rel="canonical" href="https://www.presker.at/lab/slice-lab/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/slice-lab/">
+<meta property="og:title" content="Slice Lab">
+<meta property="og:description" content="Slice a vase, a chess pawn, a mushroom table or a bridge into 3D-print layers. Watch exactly which layers overhang the one below, guess before the reveal, then toggle supports and see what they cost.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff; --warm: #a2461f; --bad: #c23e1f; --bridge: #2a5fb0;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c; --bad: #ff6b6b; --bridge: #7fc8ff;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c; --bad: #ff6b6b; --bridge: #7fc8ff;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 14px 16px 40px; }
+.back { font-family: var(--mono); font-size: 12px; text-decoration: none; color: var(--muted); }
+.back:hover { color: var(--accent); }
+h1 { font-family: var(--mono); font-size: 22px; margin: 10px 0 2px; letter-spacing: -.01em; }
+.lead { color: var(--muted); margin: 0 0 14px; max-width: 68ch; }
+.stage { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+.stage .main { flex: 1 1 360px; max-width: 460px; border: 1px solid var(--line); background: #0a0a0a; border-radius: 10px; overflow: hidden; }
+.stage .side { flex: 0 1 260px; max-width: 280px; }
+.stage .side .panel { border: 1px solid var(--line); background: #0a0a0a; border-radius: 10px; overflow: hidden; }
+.stage .side .cap { font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; margin: 6px 0 10px; text-transform: uppercase; letter-spacing: .06em; }
+canvas { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; }
+.lbl { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-right: 2px; }
+button {
+  font: 13px var(--mono); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; min-height: 38px;
+}
+button:hover { border-color: #3a3a3a; }
+button.on { border-color: var(--accent); color: var(--accent); }
+button.go { border-color: var(--accent); background: var(--accent); color: #0e0e0e; font-weight: 700; }
+button:disabled { opacity: .4; cursor: default; }
+input[type=range] { accent-color: var(--accent); width: 150px; }
+output.v { font-family: var(--mono); font-size: 12px; color: var(--ink); min-width: 34px; display: inline-block; text-align: right; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 14px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; background: var(--panel); }
+.stat b { display: block; font-family: var(--mono); font-size: 19px; color: var(--accent); font-weight: 600; }
+.stat span { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.stat.bad b { color: var(--bad); }
+.say { margin-top: 12px; border-left: 3px solid var(--accent); padding: 4px 12px; color: var(--ink); min-height: 3em; }
+.guess { margin-top: 12px; border: 1px dashed #3a3a3a; border-radius: 8px; padding: 10px 12px; }
+.guess p { margin: 0 0 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 10px; font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+details { margin-top: 18px; color: var(--muted); }
+summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+details p { max-width: 72ch; }
+footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.donate { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #3a3a3a; border-radius: 999px; padding: 5px 12px 5px 6px; color: var(--ink); text-decoration: none; }
+.donate:hover { border-color: var(--accent); }
+.donate .r { width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #000; display: inline-grid; place-items: center; font-weight: 800; font-size: 12px; }
+@media (max-width: 760px) { .stage .side { flex: 1 1 100%; max-width: 100%; } .stage .side .panel { max-width: 260px; margin: 0 auto; } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  slLede: "A slicer builds a print one flat layer at a time, and every new layer needs something underneath it. Pick a shape, slice it, and watch which layers overhang the one below — then guess where it breaks, and see what supports actually cost.",
+  slAriaMain: 'Side cross-section of the object being built up layer by layer',
+  slAriaTop: 'Top-down view of the current layer with its infill pattern',
+  slTopCapStatic: 'current layer', slTopCap: 'current layer — {h}mm up',
+  slLegPrinted: 'printed', slLegBridge: 'bridging free air (ok)', slLegNeedsSupport: 'needs support', slLegSupportAdded: 'support added',
+  slLblShape: 'Shape', slBtnVase: 'Vase', slBtnPawn: 'Chess pawn', slBtnMushroom: 'Mushroom table', slBtnBridge: 'Bridge',
+  slLblLayerHeight: 'Layer height', slLblMaxAngle: 'Max overhang angle', slLblInfill: 'Infill',
+  slPatternLines: 'Pattern: lines', slPatternGrid: 'Pattern: grid', slSupportsOn: 'Supports: on', slSupportsOff: 'Supports: off',
+  slGuessQ: '<b>Guess first.</b> At a 45° support limit, how many layers of this shape will come out flagged as needing a support?',
+  slGuessNone: 'none', slGuessFew: 'a few', slGuessMany: 'many',
+  slBtnPrint: 'Print', slBtnSkip: 'Skip to end', slScrubLabel: 'layer {cur}/{total}',
+  slStatLayers: 'layers', slStatNeedSupport: 'need support', slStatTime: 'print time (min)', slStatFilament: 'filament (g)',
+  slSayInit: 'Press <b>Print</b> to build this shape up from the bed, one layer at a time.',
+  slHowSummary: 'How it works',
+  slHowP1: "Every layer is compared only to the one right below it. If a layer's edge sticks out past the edge of the layer below by more than the layer height times the tangent of the overhang angle, that step is steeper than the limit — the plastic would be extruded into thin air and either droops or fails. Lower the limit and more layers get flagged; raise it (real printers vary — cheap ones are stricter, around 45°) and some marginal overhangs are allowed through.",
+  slHowP2: "A <b>bridge</b> is different: it's open air with solid material on <em>both</em> sides, not hanging off one edge. A taut string of plastic can span a short gap like that on its own — here, up to 30mm — without anything underneath. The bridge shape's middle span is right at that limit on purpose.",
+  slHowP3: "Turning on <b>supports</b> doesn't change the shape, only whether the flagged layers get a scaffold underneath them: the flags clear, but it costs extra filament and print time, which is exactly the trade a real slicer is making for you. Time and filament here are rough, relative estimates — not your printer's real numbers, just enough to compare settings against each other.",
+  slFooter: '© 2026 Presker.at · runs in your browser',
+  slPresetVase: 'The vase', slPresetPawn: 'The pawn', slPresetMushroom: 'The mushroom table', slPresetBridge: 'The bridge',
+  slExplainSwitch: 'Switched to {preset}. Press <b>Print</b> to build it up from the bed.',
+  slGood: 'Good guess.', slNotQuite: 'Not quite.',
+  slToggleHint: 'Toggle supports to see what fixing them costs.', slNothingHint: 'Nothing here overhangs itself by more than the limit allows.',
+  slFinishGuess: '{verdict} {preset} finished with <b>{n}</b> layer(s) flagged for support at a {angle}° limit. {tail}',
+  slFinishPlain: 'Done. {n} layer(s) came out flagged for support at a {angle}° limit, out of {total}.',
+  slSupportsAddedMsg: 'Supports added under every flagged layer. Flags clear, but filament and time both go up — that is the real trade-off.',
+  slSupportsRemovedMsg: 'Supports removed. Flagged layers are back to printing into thin air.',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  slLede: 'Ein Slicer baut einen Druck Schicht für Schicht auf, und jede neue Schicht braucht etwas darunter. Wähle eine Form, schneide sie in Schichten und beobachte, welche Schichten über die darunterliegende hinausragen — rate dann, wo es bricht, und sieh, was Stützen wirklich kosten.',
+  slAriaMain: 'Seitlicher Querschnitt des Objekts, das Schicht für Schicht aufgebaut wird',
+  slAriaTop: 'Draufsicht der aktuellen Schicht mit ihrem Füllmuster',
+  slTopCapStatic: 'aktuelle Schicht', slTopCap: 'aktuelle Schicht — {h}mm hoch',
+  slLegPrinted: 'gedruckt', slLegBridge: 'überbrückt freie Luft (ok)', slLegNeedsSupport: 'braucht Stütze', slLegSupportAdded: 'Stütze hinzugefügt',
+  slLblShape: 'Form', slBtnVase: 'Vase', slBtnPawn: 'Schachbauer', slBtnMushroom: 'Pilztisch', slBtnBridge: 'Brücke',
+  slLblLayerHeight: 'Schichthöhe', slLblMaxAngle: 'Max. Überhangwinkel', slLblInfill: 'Füllung',
+  slPatternLines: 'Muster: Linien', slPatternGrid: 'Muster: Raster', slSupportsOn: 'Stützen: an', slSupportsOff: 'Stützen: aus',
+  slGuessQ: '<b>Rate zuerst.</b> Wie viele Schichten dieser Form werden bei einem Stützlimit von 45° als stützbedürftig markiert?',
+  slGuessNone: 'keine', slGuessFew: 'ein paar', slGuessMany: 'viele',
+  slBtnPrint: 'Drucken', slBtnSkip: 'Zum Ende springen', slScrubLabel: 'Schicht {cur}/{total}',
+  slStatLayers: 'Schichten', slStatNeedSupport: 'brauchen Stütze', slStatTime: 'Druckzeit (min)', slStatFilament: 'Filament (g)',
+  slSayInit: 'Drücke <b>Drucken</b>, um diese Form Schicht für Schicht von der Druckplatte aus aufzubauen.',
+  slHowSummary: 'Wie es funktioniert',
+  slHowP1: 'Jede Schicht wird nur mit der direkt darunterliegenden verglichen. Ragt der Rand einer Schicht über den Rand der darunterliegenden hinaus, um mehr als die Schichthöhe mal dem Tangens des Überhangwinkels, ist dieser Schritt steiler als das Limit — der Kunststoff würde in die Luft extrudiert und würde entweder durchhängen oder scheitern. Senke das Limit und mehr Schichten werden markiert; erhöhe es (echte Drucker variieren — billige sind strenger, um die 45°) und manche grenzwertigen Überhänge werden durchgelassen.',
+  slHowP2: 'Eine <b>Brücke</b> ist anders: Sie ist freie Luft mit festem Material auf <em>beiden</em> Seiten, nicht an einem Rand hängend. Ein gespannter Kunststofffaden kann eine kurze Lücke dieser Art von selbst überspannen — hier bis zu 30mm — ohne etwas darunter. Die mittlere Spanne der Brückenform liegt absichtlich genau an diesem Limit.',
+  slHowP3: 'Das Einschalten von <b>Stützen</b> ändert die Form nicht, sondern nur, ob die markierten Schichten ein Gerüst darunter bekommen: Die Markierungen verschwinden, aber es kostet zusätzliches Filament und Druckzeit — genau der Kompromiss, den ein echter Slicer für dich eingeht. Zeit und Filament hier sind grobe, relative Schätzungen — nicht die echten Werte deines Druckers, nur genug, um Einstellungen miteinander zu vergleichen.',
+  slFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  slPresetVase: 'Die Vase', slPresetPawn: 'Der Bauer', slPresetMushroom: 'Der Pilztisch', slPresetBridge: 'Die Brücke',
+  slExplainSwitch: 'Zu {preset} gewechselt. Drücke <b>Drucken</b>, um sie von der Druckplatte aus aufzubauen.',
+  slGood: 'Gut geraten.', slNotQuite: 'Nicht ganz.',
+  slToggleHint: 'Schalte Stützen ein, um zu sehen, was das Beheben kostet.', slNothingHint: 'Hier überragt nichts sich selbst um mehr, als das Limit erlaubt.',
+  slFinishGuess: '{verdict} {preset} ist fertig, mit <b>{n}</b> Schicht(en) als stützbedürftig markiert bei einem Limit von {angle}°. {tail}',
+  slFinishPlain: 'Fertig. {n} Schicht(en) wurden bei einem Limit von {angle}° als stützbedürftig markiert, von {total} insgesamt.',
+  slSupportsAddedMsg: 'Stützen unter jeder markierten Schicht hinzugefügt. Die Markierungen verschwinden, aber Filament und Zeit steigen beide — das ist der eigentliche Kompromiss.',
+  slSupportsRemovedMsg: 'Stützen entfernt. Markierte Schichten drucken wieder in die Luft.',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  slLede: 'Rezalnik (slicer) zgradi izdelek eno ravno plast za drugo, in vsaka nova plast potrebuje nekaj pod seboj. Izberi obliko, jo razreži na plasti in opazuj, katere plasti segajo čez tisto spodaj — nato ugani, kje bo popokalo, in poglej, koliko dejansko stanejo podporniki.',
+  slAriaMain: 'Stranski prerez predmeta, ki se gradi plast za plastjo',
+  slAriaTop: 'Pogled od zgoraj na trenutno plast z njenim vzorcem polnila',
+  slTopCapStatic: 'trenutna plast', slTopCap: 'trenutna plast — {h}mm visoko',
+  slLegPrinted: 'natisnjeno', slLegBridge: 'premošča prost zrak (ok)', slLegNeedsSupport: 'potrebuje podporo', slLegSupportAdded: 'podpora dodana',
+  slLblShape: 'Oblika', slBtnVase: 'Vaza', slBtnPawn: 'Šahovski kmet', slBtnMushroom: 'Gobasta miza', slBtnBridge: 'Most',
+  slLblLayerHeight: 'Višina plasti', slLblMaxAngle: 'Največji kot previsa', slLblInfill: 'Polnilo',
+  slPatternLines: 'Vzorec: črte', slPatternGrid: 'Vzorec: mreža', slSupportsOn: 'Podporniki: vklopljeni', slSupportsOff: 'Podporniki: izklopljeni',
+  slGuessQ: '<b>Najprej ugibaj.</b> Pri omejitvi podpor 45°, koliko plasti te oblike bo označenih kot potrebnih podpore?',
+  slGuessNone: 'nobena', slGuessFew: 'nekaj', slGuessMany: 'veliko',
+  slBtnPrint: 'Natisni', slBtnSkip: 'Preskoči na konec', slScrubLabel: 'plast {cur}/{total}',
+  slStatLayers: 'plasti', slStatNeedSupport: 'potrebujejo podporo', slStatTime: 'čas tiskanja (min)', slStatFilament: 'filament (g)',
+  slSayInit: 'Pritisni <b>Natisni</b>, da to obliko zgradiš od podlage navzgor, plast za plastjo.',
+  slHowSummary: 'Kako deluje',
+  slHowP1: 'Vsaka plast se primerja samo s tisto tik pod njo. Če rob plasti sega čez rob spodnje plasti za več, kot je višina plasti, pomnožena s tangensom kota previsa, je ta korak bolj strm kot omejitev — plastika bi se iztiskala v prazen zrak in bi bodisi povesela ali spodletela. Znižaj omejitev in več plasti bo označenih; zvišaj jo (resnični tiskalniki se razlikujejo — cenejši so strožji, okoli 45°) in nekaj mejnih previsov bo spuščenih skozi.',
+  slHowP2: '<b>Mostu</b> je drugače: to je prost zrak s trdnim materialom na <em>obeh</em> straneh, ne viseč z enega robu. Napeta nit plastike lahko sama premosti tako kratko vrzel — tukaj do 30mm — brez česarkoli spodaj. Srednji razpon oblike mostu je namenoma točno na tej meji.',
+  slHowP3: 'Vklop <b>podpornikov</b> ne spremeni oblike, le to, ali označene plasti dobijo oder spodaj: oznake izginejo, a to stane dodaten filament in čas tiskanja — ravno ta kompromis dela resnični rezalnik zate. Čas in filament tukaj sta groba, relativna ocena — ne resnične vrednosti tvojega tiskalnika, le dovolj za primerjavo nastavitev med seboj.',
+  slFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  slPresetVase: 'Vaza', slPresetPawn: 'Kmet', slPresetMushroom: 'Gobasta miza', slPresetBridge: 'Most',
+  slExplainSwitch: 'Preklopljeno na {preset}. Pritisni <b>Natisni</b>, da jo zgradiš od podlage navzgor.',
+  slGood: 'Dobro ugibanje.', slNotQuite: 'Ne ravno.',
+  slToggleHint: 'Vklopi podpornike, da vidiš, koliko stane njihova odprava.', slNothingHint: 'Tukaj nič ne presega samega sebe za več, kot omejitev dovoljuje.',
+  slFinishGuess: '{verdict} {preset} je končan, z <b>{n}</b> plastjo/-mi, označeno/-imi za podporo pri omejitvi {angle}°. {tail}',
+  slFinishPlain: 'Končano. {n} plast(i) je bilo označenih za podporo pri omejitvi {angle}°, od skupno {total}.',
+  slSupportsAddedMsg: 'Podporniki dodani pod vsako označeno plast. Oznake izginejo, a filament in čas oba naraščata — to je resnični kompromis.',
+  slSupportsRemovedMsg: 'Podporniki odstranjeni. Označene plasti znova tiskajo v zrak.',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="back" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Slice Lab</h1>
+  <p class="lead" data-i18n="slLede">A slicer builds a print one flat layer at a time, and every new layer needs something underneath it. Pick a shape, slice it, and watch which layers overhang the one below — then guess where it breaks, and see what supports actually cost.</p>
+
+  <div class="stage">
+    <div class="main"><canvas id="cv" width="460" height="700" aria-label="Side cross-section of the object being built up layer by layer"></canvas></div>
+    <div class="side">
+      <div class="panel"><canvas id="cvTop" width="300" height="300" aria-label="Top-down view of the current layer with its infill pattern"></canvas></div>
+      <p class="cap" id="topCap" data-i18n="slTopCapStatic">current layer</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <span><i style="background:#cfcfcf"></i> <span data-i18n="slLegPrinted">printed</span></span>
+    <span><i style="background:var(--bridge)"></i> <span data-i18n="slLegBridge">bridging free air (ok)</span></span>
+    <span><i style="background:var(--bad)"></i> <span data-i18n="slLegNeedsSupport">needs support</span></span>
+    <span><i style="background:rgba(184,245,122,.35)"></i> <span data-i18n="slLegSupportAdded">support added</span></span>
+  </div>
+
+  <div class="row">
+    <span class="lbl" data-i18n="slLblShape">Shape</span>
+    <button data-preset="vase" class="on" data-i18n="slBtnVase">Vase</button>
+    <button data-preset="pawn" data-i18n="slBtnPawn">Chess pawn</button>
+    <button data-preset="mushroom" data-i18n="slBtnMushroom">Mushroom table</button>
+    <button data-preset="bridge" data-i18n="slBtnBridge">Bridge</button>
+  </div>
+
+  <div class="row">
+    <span class="lbl" data-i18n="slLblLayerHeight">Layer height</span>
+    <input type="range" id="lh" min="0.5" max="4" step="0.5" value="2">
+    <output class="v" id="lhv">2.0 mm</output>
+    <span class="lbl" style="margin-left:10px" data-i18n="slLblMaxAngle">Max overhang angle</span>
+    <input type="range" id="ang" min="30" max="70" step="5" value="45">
+    <output class="v" id="angv">45°</output>
+  </div>
+
+  <div class="row">
+    <span class="lbl" data-i18n="slLblInfill">Infill</span>
+    <input type="range" id="inf" min="0" max="60" step="5" value="20">
+    <output class="v" id="infv">20%</output>
+    <button id="pattern" data-i18n="slPatternLines">Pattern: lines</button>
+    <button id="supports" data-i18n="slSupportsOff">Supports: off</button>
+  </div>
+
+  <div class="guess" id="guess">
+    <p data-i18n-html="slGuessQ"><b>Guess first.</b> At a 45° support limit, how many layers of this shape will come out flagged as needing a support?</p>
+    <div class="row" style="margin:0">
+      <button data-g="0" data-i18n="slGuessNone">none</button>
+      <button data-g="1" data-i18n="slGuessFew">a few</button>
+      <button data-g="2" data-i18n="slGuessMany">many</button>
+    </div>
+  </div>
+
+  <div class="row">
+    <button id="play" class="go" data-i18n="slBtnPrint">Print</button>
+    <button id="skip" data-i18n="slBtnSkip">Skip to end</button>
+    <input type="range" id="scrub" min="0" max="1" step="1" value="0" style="width:220px">
+    <output class="v" id="scrubv">layer 1/1</output>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b id="sLayers">–</b><span data-i18n="slStatLayers">layers</span></div>
+    <div class="stat" id="sFlagWrap"><b id="sFlag">–</b><span data-i18n="slStatNeedSupport">need support</span></div>
+    <div class="stat"><b id="sTime">–</b><span data-i18n="slStatTime">print time (min)</span></div>
+    <div class="stat"><b id="sFil">–</b><span data-i18n="slStatFilament">filament (g)</span></div>
+  </div>
+
+  <div class="say" id="say" data-i18n-html="slSayInit">Press <b>Print</b> to build this shape up from the bed, one layer at a time.</div>
+
+  <details>
+    <summary data-i18n="slHowSummary">How it works</summary>
+    <p data-i18n="slHowP1">Every layer is compared only to the one right below it. If a layer's edge sticks out past the edge of the layer below by more than the layer height times the tangent of the overhang angle, that step is steeper than the limit — the plastic would be extruded into thin air and either droops or fails. Lower the limit and more layers get flagged; raise it (real printers vary — cheap ones are stricter, around 45°) and some marginal overhangs are allowed through.</p>
+    <p data-i18n-html="slHowP2">A <b>bridge</b> is different: it's open air with solid material on <em>both</em> sides, not hanging off one edge. A taut string of plastic can span a short gap like that on its own — here, up to 30mm — without anything underneath. The bridge shape's middle span is right at that limit on purpose.</p>
+    <p data-i18n-html="slHowP3">Turning on <b>supports</b> doesn't change the shape, only whether the flagged layers get a scaffold underneath them: the flags clear, but it costs extra filament and print time, which is exactly the trade a real slicer is making for you. Time and filament here are rough, relative estimates — not your printer's real numbers, just enough to compare settings against each other.</p>
+  </details>
+
+  <footer>
+    <span data-i18n="slFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+function updateAriaLabels() {
+  $('cv').setAttribute('aria-label', t('slAriaMain'));
+  $('cvTop').setAttribute('aria-label', t('slAriaTop'));
+}
+document.addEventListener('presker-lang-change', updateAriaLabels);
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const lerp = (a, b, u) => a + (b - a) * u;
+const smoothstep = u => { u = clamp(u, 0, 1); return u * u * (3 - 2 * u); };
+const seg = (t, t0, t1, r0, r1) => lerp(r0, r1, smoothstep((t - t0) / (t1 - t0)));
+
+const H = 120, DOMAIN = 34, MAX_BRIDGE = 30;
+const SPEED = 50, LAYER_OVERHEAD = 0.4, LINE_WIDTH = 0.42, DENSITY = 0.00124;
+
+// ---- shape profiles -------------------------------------------------------
+function vaseR(t) {
+  if (t < 0.12) return seg(t, 0, 0.12, 18, 10);
+  if (t < 0.55) return seg(t, 0.12, 0.55, 10, 26);
+  if (t < 0.78) return seg(t, 0.55, 0.78, 26, 14);
+  return seg(t, 0.78, 1, 14, 17);
+}
+function pawnR(t) {
+  if (t < 0.05) return 16;
+  if (t < 0.15) return seg(t, 0.05, 0.15, 16, 6);
+  if (t < 0.55) return 6;
+  if (t < 0.62) return seg(t, 0.55, 0.62, 6, 9);
+  if (t < 0.68) return seg(t, 0.62, 0.68, 9, 6);
+  if (t < 0.75) return seg(t, 0.68, 0.75, 6, 5);
+  if (t < 0.86) return seg(t, 0.75, 0.86, 5, 14);
+  return seg(t, 0.86, 1, 14, 0);
+}
+function mushR(t) {
+  if (t < 0.65) return 5;
+  if (t < 0.72) return seg(t, 0.65, 0.72, 5, 28);
+  if (t < 0.85) return 28;
+  return seg(t, 0.85, 1, 28, 0);
+}
+const REVOLVE = { vase: true, pawn: true, mushroom: true, bridge: false };
+function profileIntervals(key, t) {
+  if (key === 'vase') { const r = vaseR(t); return [[-r, r]]; }
+  if (key === 'pawn') { const r = pawnR(t); return [[-r, r]]; }
+  if (key === 'mushroom') { const r = mushR(t); return [[-r, r]]; }
+  return t < 0.6 ? [[-26, -14], [14, 26]] : [[-26, 26]];
+}
+
+// ---- slicing ---------------------------------------------------------------
+function buildLayers(key, lh) {
+  const n = Math.max(1, Math.ceil(H / lh));
+  const layers = [];
+  for (let i = 0; i < n; i++) {
+    const y0 = i * lh, y1 = Math.min(H, (i + 1) * lh);
+    const t = clamp((y0 + y1) / 2 / H, 0, 1);
+    layers.push({ y0, y1, t, intervals: profileIntervals(key, t) });
+  }
+  return layers;
+}
+// parts of `interval` not covered by any range in `others`
+function subtract(interval, others) {
+  let segs = [interval.slice()];
+  for (const [c, d] of others) {
+    const next = [];
+    for (const [a, b] of segs) {
+      if (d <= a + 1e-9 || c >= b - 1e-9) { next.push([a, b]); continue; }
+      if (c > a + 1e-9) next.push([a, Math.min(c, b)]);
+      if (d < b - 1e-9) next.push([Math.max(d, a), b]);
+    }
+    segs = next.filter(([a, b]) => b - a > 1e-6);
+  }
+  return segs;
+}
+function analyzeLayer(intervals, prevIntervals, maxAngleRad, lh) {
+  const pieces = [];
+  for (const iv of intervals) {
+    if (!prevIntervals) { pieces.push({ a: iv[0], b: iv[1], type: 'solid' }); continue; }
+    const gaps = subtract(iv, prevIntervals);
+    if (!gaps.length) { pieces.push({ a: iv[0], b: iv[1], type: 'solid' }); continue; }
+    subtract(iv, gaps).forEach(([a, b]) => pieces.push({ a, b, type: 'solid' }));
+    gaps.forEach(([u1, u2]) => {
+      const leftSupported = u1 > iv[0] + 1e-6, rightSupported = u2 < iv[1] - 1e-6;
+      let type;
+      if (leftSupported && rightSupported) type = (u2 - u1) <= MAX_BRIDGE ? 'bridge-ok' : 'bridge-bad';
+      else if (leftSupported || rightSupported) type = (u2 - u1) <= lh * Math.tan(maxAngleRad) ? 'overhang-ok' : 'overhang-bad';
+      else type = 'overhang-bad';
+      pieces.push({ a: u1, b: u2, type });
+    });
+  }
+  pieces.sort((x, y) => x.a - y.a);
+  return pieces;
+}
+const needsSupport = p => p.type === 'overhang-bad' || p.type === 'bridge-bad';
+
+function computeModel(key, lh, angleDeg) {
+  const layers = buildLayers(key, lh);
+  const rad = angleDeg * Math.PI / 180;
+  const analysis = layers.map((l, i) => analyzeLayer(l.intervals, i === 0 ? null : layers[i - 1].intervals, rad, lh));
+  return { layers, analysis };
+}
+function computeStats(model, lh, infillPct, supportsOn) {
+  let perim = 0, infill = 0, support = 0, flaggedLayers = 0;
+  const spacing = infillPct > 0 ? LINE_WIDTH / (infillPct / 100) : Infinity;
+  model.layers.forEach((layer, i) => {
+    let flagged = false;
+    layer.intervals.forEach(([a, b]) => { const w = b - a; perim += 2 * w; const n = Math.max(0, Math.floor(w / spacing)); infill += n * w; });
+    model.analysis[i].forEach(p => { if (needsSupport(p)) { flagged = true; if (supportsOn) support += (p.b - p.a) * layer.y0 * 0.08; } });
+    if (flagged) flaggedLayers++;
+  });
+  const total = perim + infill + (supportsOn ? support : 0);
+  const minutes = (total / SPEED + model.layers.length * LAYER_OVERHEAD) / 60;
+  const grams = total * (LINE_WIDTH * lh) * DENSITY;
+  return { layers: model.layers.length, flaggedLayers: supportsOn ? 0 : flaggedLayers, rawFlaggedLayers: flaggedLayers, minutes, grams };
+}
+
+// ---- state -------------------------------------------------------------
+let preset = 'vase', lh = 2, angleDeg = 45, infillPct = 20, pattern = 'lines', supportsOn = false;
+let model = computeModel(preset, lh, angleDeg);
+let current = 0;                 // last revealed layer index
+let anim = null;                 // {start, from, to}
+let guess = null, guessedPreset = null;
+
+const cv = $('cv'), ctx = cv.getContext('2d');
+const cvTop = $('cvTop'), ctxTop = cvTop.getContext('2d');
+
+function rebuild() {
+  model = computeModel(preset, lh, angleDeg);
+  current = clamp(current, 0, model.layers.length - 1);
+  $('scrub').max = model.layers.length - 1;
+  $('scrub').value = current;
+  updateAll();
+}
+
+// ---- main (side) view --------------------------------------------------
+function mainScale() { return Math.min(cv.width / (2 * DOMAIN), cv.height / H); }
+function toCanvasRect(a, b, y0, y1) {
+  const s = mainScale(), ox = cv.width / 2, oy = cv.height;
+  return { x: ox + a * s, w: (b - a) * s, y: oy - y1 * s, h: (y1 - y0) * s };
+}
+function drawMain() {
+  ctx.fillStyle = '#0a0a0a'; ctx.fillRect(0, 0, cv.width, cv.height);
+  // bed line
+  const s = mainScale(), oy = cv.height;
+  ctx.strokeStyle = '#2a2a2a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, oy - 0.5); ctx.lineTo(cv.width, oy - 0.5); ctx.stroke();
+  // ghost of every layer at very low opacity
+  ctx.globalAlpha = 0.06;
+  model.layers.forEach(layer => layer.intervals.forEach(([a, b]) => {
+    const r = toCanvasRect(a, b, layer.y0, layer.y1); ctx.fillStyle = '#ffffff'; ctx.fillRect(r.x, r.y, r.w, r.h);
+  }));
+  ctx.globalAlpha = 1;
+  // supports (drawn under the real layers so they look like scaffolding)
+  if (supportsOn) {
+    for (let i = 0; i <= current; i++) {
+      model.analysis[i].forEach(p => {
+        if (!needsSupport(p)) return;
+        const r = toCanvasRect(p.a, p.b, 0, model.layers[i].y0);
+        ctx.fillStyle = 'rgba(184,245,122,.12)'; ctx.fillRect(r.x, r.y, r.w, r.h);
+        ctx.strokeStyle = 'rgba(184,245,122,.45)'; ctx.setLineDash([4, 3]); ctx.lineWidth = 1;
+        ctx.strokeRect(r.x + .5, r.y + .5, Math.max(0, r.w - 1), Math.max(0, r.h - 1)); ctx.setLineDash([]);
+      });
+    }
+  }
+  // real printed layers up to `current`
+  for (let i = 0; i <= current; i++) {
+    model.analysis[i].forEach(p => {
+      const r = toCanvasRect(p.a, p.b, model.layers[i].y0, model.layers[i].y1);
+      const flagged = needsSupport(p);
+      ctx.fillStyle = flagged && supportsOn ? '#cfcfcf' : resolveColor(p.type);
+      ctx.fillRect(r.x, r.y, r.w, r.h);
+    });
+  }
+  // nozzle marker on the current layer
+  const top = model.layers[current];
+  const yTop = oy - top.y1 * s;
+  ctx.strokeStyle = '#b8f57a'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(0, yTop); ctx.lineTo(cv.width, yTop); ctx.stroke();
+}
+function resolveColor(type) {
+  if (type === 'bridge-ok') return '#7fc8ff';
+  if (type === 'overhang-bad' || type === 'bridge-bad') return '#ff6b6b';
+  if (type === 'overhang-ok') return '#d7f0b0';
+  return '#cfcfcf';
+}
+
+// ---- top (current layer) view ------------------------------------------
+function drawTop() {
+  const w = cvTop.width, h = cvTop.height;
+  ctxTop.fillStyle = '#0a0a0a'; ctxTop.fillRect(0, 0, w, h);
+  const layer = model.layers[current], pieces = model.analysis[current];
+  const scale = Math.min(w, h) / (2 * DOMAIN) * 0.92;
+  const cx = w / 2, cy = h / 2;
+  if (REVOLVE[preset]) {
+    const r = layer.intervals[0][1];
+    const prevR = current === 0 ? r : model.layers[current - 1].intervals[0][1];
+    ctxTop.beginPath(); ctxTop.arc(cx, cy, r * scale, 0, Math.PI * 2); ctxTop.fillStyle = '#cfcfcf'; ctxTop.fill();
+    if (current > 0 && r > prevR) {
+      const reach = r - prevR, allowed = lh * Math.tan(angleDeg * Math.PI / 180);
+      const bad = reach > allowed;
+      ctxTop.beginPath(); ctxTop.arc(cx, cy, r * scale, 0, Math.PI * 2);
+      ctxTop.arc(cx, cy, Math.max(0, prevR) * scale, 0, Math.PI * 2, true);
+      ctxTop.fillStyle = (bad && !supportsOn) ? 'rgba(255,107,107,.75)' : (bad ? 'rgba(184,245,122,.3)' : 'rgba(215,240,176,.6)');
+      ctxTop.fill('evenodd');
+    }
+    drawInfillClip(() => { ctxTop.beginPath(); ctxTop.arc(cx, cy, r * scale, 0, Math.PI * 2); ctxTop.clip(); }, -r, r, -14, 14, scale, cx, cy);
+    ctxTop.beginPath(); ctxTop.arc(cx, cy, r * scale, 0, Math.PI * 2); ctxTop.strokeStyle = '#8a8a8a'; ctxTop.lineWidth = 1.5; ctxTop.stroke();
+  } else {
+    const depth = 14;
+    layer.intervals.forEach(([a, b]) => {
+      ctxTop.fillStyle = '#cfcfcf';
+      ctxTop.fillRect(cx + a * scale, cy - depth * scale / 2, (b - a) * scale, depth * scale);
+    });
+    pieces.forEach(p => {
+      if (p.type === 'solid') return;
+      ctxTop.fillStyle = resolveColor(p.type) + '';
+      ctxTop.globalAlpha = (p.type.endsWith('bad') && supportsOn) ? 0 : .8;
+      ctxTop.fillRect(cx + p.a * scale, cy - depth * scale / 2, (p.b - p.a) * scale, depth * scale);
+      ctxTop.globalAlpha = 1;
+    });
+    layer.intervals.forEach(([a, b]) => {
+      ctxTop.strokeStyle = '#8a8a8a'; ctxTop.lineWidth = 1.5;
+      ctxTop.strokeRect(cx + a * scale, cy - depth * scale / 2, (b - a) * scale, depth * scale);
+    });
+    drawInfillClip(() => { layer.intervals.forEach(([a, b]) => ctxTop.rect(cx + a * scale, cy - depth * scale / 2, (b - a) * scale, depth * scale)); ctxTop.clip(); }, -30, 30, -depth / 2, depth / 2, scale, cx, cy);
+  }
+}
+function drawInfillClip(clipFn, xa, xb, ya, yb, scale, cx, cy) {
+  if (infillPct <= 0) return;
+  ctxTop.save(); ctxTop.beginPath(); clipFn();
+  ctxTop.strokeStyle = 'rgba(14,14,14,.55)'; ctxTop.lineWidth = 1;
+  const spacing = Math.max(1.5, LINE_WIDTH / (infillPct / 100)) * 1.6;
+  ctxTop.beginPath();
+  for (let x = xa; x <= xb; x += spacing) { ctxTop.moveTo(cx + x * scale, cy + ya * scale - 20); ctxTop.lineTo(cx + x * scale, cy + yb * scale + 20); }
+  if (pattern === 'grid') for (let y = ya; y <= yb; y += spacing) { ctxTop.moveTo(cx + xa * scale - 20, cy + y * scale); ctxTop.lineTo(cx + xb * scale + 20, cy + y * scale); }
+  ctxTop.stroke(); ctxTop.restore();
+}
+
+// ---- stats / narration ---------------------------------------------------
+function updateAll() {
+  drawMain(); drawTop();
+  const st = computeStats(model, lh, infillPct, supportsOn);
+  $('sLayers').textContent = st.layers;
+  $('sFlag').textContent = st.flaggedLayers;
+  $('sFlagWrap').classList.toggle('bad', st.flaggedLayers > 0);
+  $('sTime').textContent = st.minutes.toFixed(1);
+  $('sFil').textContent = st.grams.toFixed(1);
+  $('scrubv').textContent = t('slScrubLabel', { cur: current + 1, total: model.layers.length });
+  $('topCap').textContent = t('slTopCap', { h: (model.layers[current].y1).toFixed(1) });
+}
+function explain(text) { $('say').innerHTML = text; }
+function presetLabel(p) { return t({ vase: 'slPresetVase', pawn: 'slPresetPawn', mushroom: 'slPresetMushroom', bridge: 'slPresetBridge' }[p]); }
+function onFinishedBuild() {
+  const st = computeStats(model, lh, infillPct, supportsOn);
+  if (guess !== null && guessedPreset === preset) {
+    const bucket = st.rawFlaggedLayers === 0 ? 0 : st.rawFlaggedLayers < 10 ? 1 : 2;
+    const right = bucket === guess;
+    explain(t('slFinishGuess', {
+      verdict: right ? t('slGood') : t('slNotQuite'),
+      preset: presetLabel(preset),
+      n: st.rawFlaggedLayers,
+      angle: angleDeg,
+      tail: st.rawFlaggedLayers ? t('slToggleHint') : t('slNothingHint'),
+    }));
+    $('guess').style.display = 'none';
+  } else {
+    explain(t('slFinishPlain', { n: st.rawFlaggedLayers, angle: angleDeg, total: st.layers }));
+  }
+}
+
+// ---- animation -----------------------------------------------------------
+function stopAnim() { anim = null; }
+function playFrom(to) {
+  anim = { from: current, to, start: performance.now(), dur: Math.max(400, Math.min(6000, (to - current) * 40)) };
+  requestAnimationFrame(tick);
+}
+function tick(now) {
+  if (!anim) return;
+  const u = clamp((now - anim.start) / anim.dur, 0, 1);
+  current = Math.round(lerp(anim.from, anim.to, u));
+  $('scrub').value = current;
+  updateAll();
+  if (u < 1) requestAnimationFrame(tick); else { anim = null; onFinishedBuild(); }
+}
+
+// ---- wiring ----------------------------------------------------------------
+document.querySelectorAll('[data-preset]').forEach(btn => btn.onclick = () => {
+  document.querySelectorAll('[data-preset]').forEach(b => b.classList.toggle('on', b === btn));
+  preset = btn.dataset.preset; stopAnim(); current = 0; guess = null; guessedPreset = null;
+  $('guess').style.display = ''; document.querySelectorAll('[data-g]').forEach(b => b.classList.remove('on'));
+  explain(t('slExplainSwitch', { preset: presetLabel(preset) }));
+  rebuild();
+});
+$('lh').oninput = e => { lh = +e.target.value; $('lhv').textContent = lh.toFixed(1) + ' mm'; stopAnim(); rebuild(); };
+$('ang').oninput = e => { angleDeg = +e.target.value; $('angv').textContent = angleDeg + '°'; stopAnim(); rebuild(); };
+$('inf').oninput = e => { infillPct = +e.target.value; $('infv').textContent = infillPct + '%'; updateAll(); };
+$('pattern').onclick = e => { pattern = pattern === 'lines' ? 'grid' : 'lines'; e.target.textContent = t(pattern === 'grid' ? 'slPatternGrid' : 'slPatternLines'); updateAll(); };
+$('supports').onclick = e => {
+  supportsOn = !supportsOn; e.target.classList.toggle('on', supportsOn); e.target.textContent = t(supportsOn ? 'slSupportsOn' : 'slSupportsOff');
+  explain(supportsOn ? t('slSupportsAddedMsg') : t('slSupportsRemovedMsg'));
+  updateAll();
+};
+$('play').onclick = () => { if (current >= model.layers.length - 1) { current = 0; } playFrom(model.layers.length - 1); };
+$('skip').onclick = () => { stopAnim(); current = model.layers.length - 1; updateAll(); onFinishedBuild(); };
+$('scrub').oninput = e => { stopAnim(); current = +e.target.value; updateAll(); };
+document.querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+  guess = +b.dataset.g; guessedPreset = preset;
+  document.querySelectorAll('[data-g]').forEach(x => x.classList.toggle('on', x === b));
+});
+
+// Hook for the automated checker.
+window.__slice = {
+  setPreset(p) { preset = p; stopAnim(); current = 0; rebuild(); },
+  setParams(o) {
+    if (o.lh != null) lh = o.lh;
+    if (o.angleDeg != null) angleDeg = o.angleDeg;
+    if (o.infillPct != null) infillPct = o.infillPct;
+    if (o.supportsOn != null) supportsOn = o.supportsOn;
+    stopAnim(); rebuild();
+  },
+  buildAll() { stopAnim(); current = model.layers.length - 1; updateAll(); },
+  gotoLayer(i) { stopAnim(); current = clamp(i, 0, model.layers.length - 1); updateAll(); },
+  stats() { return computeStats(model, lh, infillPct, supportsOn); },
+};
+
+updateAriaLabels();
+rebuild();
+})();
+</script>
+</body>
+</html>

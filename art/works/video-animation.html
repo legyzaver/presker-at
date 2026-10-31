@@ -4,7 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video / Animation — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, { videoNote: 'Earliest dated works on this site (2003–04), predating the OHO Award period. Channel: <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D</a>.' });
+    Object.assign(window.PRESKER_I18N.de, { videoNote: 'Älteste datierte Arbeiten auf dieser Seite (2003–04), aus der Zeit vor dem OHO-Preis. Kanal: <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D</a>.' });
+    Object.assign(window.PRESKER_I18N.sl, { videoNote: 'Najstarejša datirana dela na tej strani (2003–04), iz obdobja pred nagrado OHO. Kanal: <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D</a>.' });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -14,7 +22,7 @@
 
       <div class="page-header">
         <div class="page-eyebrow">Works</div>
-        <h1 class="page-title">Video / Animation</h1>
+        <h1 class="page-title" data-i18n="artVideo">Video / Animation</h1>
       </div>
 
       <div class="works-section">
@@ -33,15 +41,23 @@
           </a>
           <a href="/art/projects/dancing-with-the-corner.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/dancing-with-the-corner/dancing-with-the-corner-02.jpg" alt="Edge-detected outline of a figure extended along a wall corner" onerror="this.style.display='none';this.parentElement.innerHTML='<div class='work-card-ph'><span>image</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Dancing with the Corner</div><div class="work-card-meta">2004 — sold</div></div>
+            <div class="work-card-info"><div class="work-card-title">Dancing with the Corner</div><div class="work-card-meta">2004 — <span data-i18n="catSoldLc">sold</span></div></div>
           </a>
         </div>
       </div>
 
-      <p style="padding: 0 3rem 3rem; font-size: 12px; color: var(--dim);">Earliest dated works on this site (2003–04), predating the OHO Award period. Channel: <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D</a>.</p>
+      <p style="padding: 0 3rem 3rem; font-size: 12px; color: var(--dim);" data-i18n-html="videoNote">Earliest dated works on this site (2003–04), predating the OHO Award period. Channel: <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D</a>.</p>
 
-    </main>
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

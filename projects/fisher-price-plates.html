@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fisher Price Plates &amp; FP Disk Burner — Presker.at</title>
+  <meta name="description" content="How the 1971 Fisher Price toy record player works — a music box wearing a record's clothes — plus FP Disk Burner, a browser tool that turns any melody into a 3D-printable disc.">
+  <link rel="canonical" href="https://www.presker.at/projects/fisher-price-plates.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.presker.at/projects/fisher-price-plates.html">
+  <meta property="og:title" content="Fisher Price Plates &amp; FP Disk Burner — Presker.at">
+  <meta property="og:description" content="A music box wearing a record's clothes: the mechanism, its lineage in pinned barrels and punched cards, a browser tool that burns any melody onto a printable disc, and the first print playing.">
+  <meta property="og:image" content="https://www.presker.at/projects/images/fisher-price/first-print.jpg">
+  <link rel="stylesheet" href="/style.css?v=2">
+  <link rel="stylesheet" href="/article.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+  Object.assign(window.PRESKER_I18N.en, {
+    fpBackLink: '← workshop',
+    fpLead: 'Turning music into 3D-printable discs for a 1970s Fisher Price toy record player — the story of why that toy is really a music box, a punch card and a record all at once, and a browser tool that burns any melody onto a disc you can print. Jump straight to the tool <a href="#burner" style="color:var(--accent);">↓</a>',
+    fpH1: 'The idea',
+    fpP1: 'The Fisher Price "Music Box Record Player" (1971) looks like a tiny turntable, and that disguise is the whole trick. Drop a disc on, push the arm down, and it plays a tune — so a child assumes it works the way a real record does. It doesn\'t. There is no groove, no needle, and nothing recorded. Flip a disc over and you find <strong>a ring of little raised bumps</strong>, and under the platter, a comb of tuned metal teeth. As the disc turns, each bump reaches out and plucks a tooth. It\'s a <em>music box</em> — the record shape is costume.',
+    fpP2: "That distinction is the reason this whole project can exist. A real record stores a continuous analog waveform; you can't author one with a 3D printer. But a bump is either <em>there</em> or <em>not there</em>, at a known angle, over a known tooth. That's not a recording. That's <strong>data</strong> — and data I can generate, lay out, and print. The goal: take a melody, work out which tooth plays which note at which moment, place a bump for every note, print the disc, drop it on the toy, and hear a song that never existed as a plastic part until I made it.",
+    fpH2: 'The lineage: pinned barrels and punched cards',
+    fpP3: 'Programmable music is much older than electricity, and the Fisher Price disc sits at the end of a very long family tree of <em>physical</em> music storage — machines that play a tune encoded as bumps and holes rather than as sound.',
+    fpLi1: "<strong>The pinned barrel (music boxes, carillons, barrel organs).</strong> A rotating cylinder studded with metal pins; each pin lifts a tuned comb tooth or opens an organ valve at the right moment. This is, mechanically, exactly what the Fisher Price player does — the toy just <em>unrolls the barrel into a flat disc</em> so it's cheap to mould and easy to swap.",
+    fpLi2: '<strong>The punched card and punched roll.</strong> The Jacquard loom (1804) drove weaving patterns from holes punched in stiff cards — arguably the first stored program of any kind. The same idea became <strong>player-piano rolls</strong> and the folding <strong>cardboard "books"</strong> of fairground and street organs: a hole means play, no hole means rest. Presence-or-absence, read position by position.',
+    fpLi3: "<strong>The printable disc.</strong> A bump on a Fisher Price disc <em>is</em> a punched-card hole turned inside out — instead of a gap that lets air or a hook through, it's a nub that trips a tooth. Same binary. The only new thing here is the medium: I'm not punching card or pinning brass, I'm extruding the pattern in plastic.",
+    fpP4: 'So the tool below is, underneath, a punch-card writer. You compose the pattern of "strike / don\'t strike," and it hands you a physical object that stores it.',
+    fpH3: 'What the arm can actually play',
+    fpP5: "The comb is the constraint that shapes everything. This player has <strong>22 teeth</strong> — but they aren't 22 different notes. Six pairs are tuned to the same pitch, so there are only <strong>16 distinct pitches</strong>, spanning roughly two and a half octaves (about MIDI 66–97), and they're <strong>diatonic</strong> — laid out to a scale, not a chromatic keyboard. There are notes the toy simply cannot make.",
+    fpP6: 'Why tune two teeth alike? Because a plucked tooth needs time to stop ringing before it can be plucked again. If a tune repeats a note faster than a single tooth can settle, the second strike lands on a still-vibrating tooth and chokes. Two teeth at the same pitch let a fast repeat <strong>alternate across the pair</strong> — one rings while the other is struck. The tool knows about these "twins" and uses them automatically, which is why a descending line in the editor occasionally looks like it hops up a pin: that\'s the twin doing its job, at the same pitch.',
+    fpP7: 'The pitch table itself came from real measurement, not guesswork — bbernstone read every original disc with an electronic tuner and a printed disc-reader, and re-indexed the design <em>by pin number</em> instead of by note name, because on a mechanism like this the pin position is the honest unit. The tool is built directly on that pin-based geometry (see credits below).',
+    fpToolTitle: 'Burn your own disc — FP Disk Burner',
+    fpToolOpenTab: 'Open in its own tab ↗',
+    fpToolFullscreen: '⛶ Fullscreen',
+    fpToolNote: "Runs entirely in your browser — nothing you drop or design is uploaded. Downloads (.gcode / .scad / .json) work best from the tool's own tab.",
+    fpH4: 'From a MIDI file to a ring of bumps',
+    fpP8: "Clicking bumps by hand works, but most people arrive with a song. Turning an arbitrary MIDI file into something a 16-pitch diatonic comb can play is the actual hard part, and it's most of what the tool does:",
+    fpLi4: '<strong>Reduce to one voice.</strong> A real song has chords and several instruments sounding at once; the comb plays one clear line best. The tool collapses the music to a single melodic line — keeping the top voice (or the bass, your choice) at each instant.',
+    fpLi5: "<strong>Move it where the toy can reach.</strong> A tune in the wrong key or octave lands mostly on notes the player doesn't have. It searches every transposition and picks the shift that puts the most notes <em>exactly</em> on real pitches — so the intervals survive and it still sounds like the tune, just relocated to the toy's range.",
+    fpLi6: '<strong>Respect the ringing-tooth rule.</strong> Two strikes on the same tooth too close together won\'t both sound. The tool spaces them, shuffles one onto a twin where it can, and tells you what it moved or dropped. There\'s a "check playability" button that flags any collision left.',
+    fpLi7: "<strong>Fill the disc.</strong> A bare melody is about ten bumps. A real factory disc carries 125+, a third of them chords — the tune was never the hard part, filling the disc was. The tool can read the chords already in the source and lay reachable harmony notes underneath the melody on a repeating rhythm, so the result sounds like a proper little arrangement rather than a lonely line.",
+    fpH5: 'Printing something that actually survives',
+    fpP9: 'A disc that plays and a disc that <em>prints</em> are two different design problems, and the tool carries settings for both:',
+    fpLi8: "<strong>The bumps are the fragile part.</strong> Each trigger is a tiny nub, and the default 1.2 mm width is chosen to be exactly <strong>three extrusion lines at a 0.4 mm nozzle</strong> — two walls and a filled centre. Make them thinner and they print hollow and snap off. The tool converts your nozzle size into line counts and warns when the number isn't whole.",
+    fpLi9: '<strong>The grooves can\'t be too walled-in.</strong> The concentric ring walls that guide the reading head sit a fixed distance apart, so each wall you thicken eats the channel the head runs in. The tool shows the leftover <strong>groove channel</strong> in millimetres and warns when it gets too narrow to work.',
+    fpLi10: "<strong>A normal slicer wrecks this part.</strong> Almost everything on the disc is a circle about its centre. A general slicer doesn't know that — it breaks each ring into segments and retracts at a seam on every ring of every layer, and those seams are where blobs and knocked-over triggers come from. So the tool writes the G-code <em>itself</em>, analytically, as continuous concentric passes, cutting retractions from a couple thousand to a few hundred. It still wraps that path in the full header/statistics envelope a real slicer emits, because the printer's firmware refuses a file without it.",
+    fpH6: 'Using the tool',
+    fpLi11: '<strong>Click bumps</strong> straight onto the piano roll, or drop a <code>.mid</code> file on the MIDI tab and hit <em>Convert to disc</em>.',
+    fpLi12: "<strong>Press Play</strong> to hear it — the pitches are the toy's real per-pin values (the timbre is a synthesised approximation of a struck tooth).",
+    fpLi13: '<strong>Load the calibration sweep</strong> (File tab) to strike every pin once in order — print that first to learn what each tooth on <em>your</em> comb actually sounds like.',
+    fpLi14: '<strong>Pick your printer</strong> on the Print tab, then download <code>.gcode</code> to print directly, or <code>.scad</code> to open the geometry in OpenSCAD yourself.',
+    fpLi15: "<strong>Always preview the G-code</strong> in a viewer before printing — it's generated from geometry, not sliced, and hasn't been babysat by a slicer.",
+    fpH7: "Where it's at",
+    fpP10: 'This one is live on the bench right now, so this page grows as it does. Current status:',
+    fpLi16: '<strong>Mechanism mapped</strong> — tine spacing, disc geometry and the bump-to-note relationship measured off an original disc.',
+    fpLi17: '<strong>Note → geometry code</strong> — the FP Disk Burner above turns a melody into bump coordinates and writes a printable model. Working.',
+    fpLi18: '<strong>First disc printed</strong> — a full ring of note bumps came off the printer and dropped onto the toy. Now dialling in bump height and tolerance so the tines catch cleanly.',
+    fpFig1Step: 'First print',
+    fpFig1Cap: 'The first disc, straight off the printer and onto the toy. Every one of those concentric rings is a track of raised bumps — each bump a note waiting to pluck a tine. Generated from code, printed in white PLA, sitting where a factory disc used to go.',
+    fpVideoFallback: "Your browser can't play this clip — <a href=\"/projects/images/fisher-price/first-print.mp4\">download it here</a>.",
+    fpFig2Step: 'It plays',
+    fpFig2Cap: 'The disc turning on the toy. Rough, imperfect, and unmistakably a melody the printer wrote into plastic. This is the proof: music that never existed as a physical object until the code made it printable.',
+    fpH8: 'Credits & honesty',
+    fpP11: "The disc geometry the tool builds on is <strong>bbernstone's pin-based OpenSCAD remake</strong> on Thingiverse (<a href=\"https://www.thingiverse.com/thing:4484452\" target=\"_blank\" rel=\"noopener\">thing:4484452</a>), itself a remake of the earlier FredPlayer note-based design. The pin-to-pitch table, the twin-tooth pairs, and the ring spacing are their measured work; I ported the mechanism into the browser and wrote the MIDI conversion, the audio preview, and the direct concentric G-code writer around it. And the plain truth: <strong>the generated G-code hasn't yet been run to a finished, verified print on a real machine</strong> — the design half works, and the printing half is still on the bench.",
+    fpEndTag: '// work in progress — documented as it happens',
+    fpEndCta: 'tell me what to play →',
+  });
+  Object.assign(window.PRESKER_I18N.de, {
+    fpBackLink: '← Werkstatt',
+    fpLead: 'Musik in 3D-druckbare Scheiben für einen Fisher-Price-Spielzeugplattenspieler aus den 1970ern verwandeln — die Geschichte, warum dieses Spielzeug eigentlich gleichzeitig eine Spieluhr, eine Lochkarte und eine Schallplatte ist, und ein Browser-Tool, das jede Melodie auf eine druckbare Scheibe bannt. Direkt zum Tool springen <a href="#burner" style="color:var(--accent);">↓</a>',
+    fpH1: 'Die Idee',
+    fpP1: 'Der Fisher-Price-„Music Box Record Player“ (1971) sieht aus wie ein winziger Plattenspieler, und diese Verkleidung ist der ganze Trick. Scheibe auflegen, Arm herunterdrücken, und er spielt eine Melodie — ein Kind nimmt also an, es funktioniere wie eine echte Schallplatte. Das tut es nicht. Es gibt keine Rille, keine Nadel, nichts Aufgenommenes. Dreht man eine Scheibe um, findet man <strong>einen Ring kleiner erhabener Noppen</strong>, und unter dem Teller einen Kamm aus gestimmten Metallzähnen. Während sich die Scheibe dreht, greift jede Noppe hinaus und zupft einen Zahn. Es ist eine <em>Spieluhr</em> — die Plattenform ist nur Kostüm.',
+    fpP2: 'Diese Unterscheidung ist der Grund, warum dieses ganze Projekt überhaupt existieren kann. Eine echte Schallplatte speichert eine kontinuierliche Analogwellenform; die kann man mit einem 3D-Drucker nicht erzeugen. Aber eine Noppe ist entweder <em>da</em> oder <em>nicht da</em>, an einem bekannten Winkel, über einem bekannten Zahn. Das ist keine Aufnahme. Das sind <strong>Daten</strong> — und Daten kann ich erzeugen, anordnen und drucken. Das Ziel: eine Melodie nehmen, herausfinden, welcher Zahn welche Note zu welchem Zeitpunkt spielt, für jede Note eine Noppe setzen, die Scheibe drucken, auf das Spielzeug legen und ein Lied hören, das als Plastikteil nicht existierte, bis ich es gemacht habe.',
+    fpH2: 'Die Ahnenreihe: Stiftwalzen und Lochkarten',
+    fpP3: 'Programmierbare Musik ist viel älter als Elektrizität, und die Fisher-Price-Scheibe steht am Ende eines sehr langen Stammbaums <em>physischer</em> Musikspeicherung — Maschinen, die eine Melodie als Noppen und Löcher kodiert spielen, statt als Klang.',
+    fpLi1: '<strong>Die Stiftwalze (Spieluhren, Carillons, Drehorgeln).</strong> Ein rotierender Zylinder, besetzt mit Metallstiften; jeder Stift hebt einen gestimmten Kammzahn oder öffnet ein Orgelventil im richtigen Moment. Das ist mechanisch genau das, was der Fisher-Price-Spieler tut — das Spielzeug <em>rollt die Walze nur zu einer flachen Scheibe aus</em>, damit sie billig zu formen und leicht zu wechseln ist.',
+    fpLi2: '<strong>Die Lochkarte und die Lochrolle.</strong> Der Jacquard-Webstuhl (1804) steuerte Webmuster über Löcher in steifen Karten — wohl das erste gespeicherte Programm überhaupt. Dieselbe Idee wurde zu <strong>Pianola-Rollen</strong> und den faltbaren <strong>Pappe-„Büchern“</strong> von Jahrmarkts- und Straßenorgeln: ein Loch heißt spielen, kein Loch heißt Pause. Anwesenheit oder Abwesenheit, Position für Position gelesen.',
+    fpLi3: '<strong>Die druckbare Scheibe.</strong> Eine Noppe auf einer Fisher-Price-Scheibe <em>ist</em> ein nach außen gestülptes Lochkarten-Loch — statt einer Lücke, die Luft oder einen Haken durchlässt, ist es eine Nase, die einen Zahn auslöst. Dieselbe Binärlogik. Das einzig Neue hier ist das Medium: Ich stanze keine Karte und setze keine Messingstifte, ich extrudiere das Muster in Plastik.',
+    fpP4: 'Also ist das Tool unten im Kern ein Lochkarten-Schreiber. Man setzt das Muster aus „schlagen / nicht schlagen“ zusammen, und es liefert ein physisches Objekt, das es speichert.',
+    fpH3: 'Was der Arm tatsächlich spielen kann',
+    fpP5: 'Der Kamm ist die Einschränkung, die alles prägt. Dieser Spieler hat <strong>22 Zähne</strong> — aber das sind nicht 22 verschiedene Noten. Sechs Paare sind auf dieselbe Tonhöhe gestimmt, es gibt also nur <strong>16 verschiedene Tonhöhen</strong>, die sich über rund zweieinhalb Oktaven erstrecken (etwa MIDI 66–97), und sie sind <strong>diatonisch</strong> — nach einer Tonleiter angeordnet, nicht wie eine chromatische Klaviatur. Es gibt Noten, die das Spielzeug schlicht nicht spielen kann.',
+    fpP6: 'Warum zwei Zähne gleich stimmen? Weil ein gezupfter Zahn Zeit braucht, um aufzuhören zu klingen, bevor er wieder gezupft werden kann. Wiederholt eine Melodie eine Note schneller, als ein einzelner Zahn sich beruhigen kann, trifft der zweite Schlag auf einen noch schwingenden Zahn und erwürgt den Ton. Zwei Zähne derselben Tonhöhe lassen eine schnelle Wiederholung <strong>zwischen dem Paar wechseln</strong> — einer klingt, während der andere geschlagen wird. Das Tool kennt diese „Zwillinge“ und nutzt sie automatisch — deshalb sieht eine absteigende Linie im Editor manchmal aus, als würde sie zu einem höheren Stift hüpfen: Das ist der Zwilling bei der Arbeit, auf derselben Tonhöhe.',
+    fpP7: 'Die Tonhöhentabelle selbst stammt aus echter Messung, nicht aus Vermutung — bbernstone hat jede Originalscheibe mit einem elektronischen Stimmgerät und einem gedruckten Scheibenleser ausgelesen und das Design <em>nach Stiftnummer</em> neu indiziert statt nach Notenname, weil bei einem Mechanismus wie diesem die Stiftposition die ehrliche Einheit ist. Das Tool baut direkt auf dieser stiftbasierten Geometrie auf (siehe Credits unten).',
+    fpToolTitle: 'Brenne deine eigene Scheibe — FP Disk Burner',
+    fpToolOpenTab: 'In eigenem Tab öffnen ↗',
+    fpToolFullscreen: '⛶ Vollbild',
+    fpToolNote: 'Läuft komplett in deinem Browser — nichts, was du hineinziehst oder entwirfst, wird hochgeladen. Downloads (.gcode / .scad / .json) funktionieren am besten im eigenen Tab des Tools.',
+    fpH4: 'Von einer MIDI-Datei zu einem Ring aus Noppen',
+    fpP8: 'Noppen von Hand zu klicken funktioniert, aber die meisten Leute kommen mit einem Song an. Eine beliebige MIDI-Datei in etwas zu verwandeln, das ein 16-tonhöhiger diatonischer Kamm spielen kann, ist der eigentlich schwierige Teil — und das macht das Tool größtenteils:',
+    fpLi4: '<strong>Auf eine Stimme reduzieren.</strong> Ein echter Song hat Akkorde und mehrere gleichzeitig klingende Instrumente; der Kamm spielt eine klare Linie am besten. Das Tool reduziert die Musik auf eine einzige melodische Linie — es behält die oberste Stimme (oder den Bass, nach Wahl) zu jedem Zeitpunkt.',
+    fpLi5: 'Dorthin verschieben, wo das Spielzeug hinreicht. Eine Melodie in der falschen Tonart oder Oktave landet meist auf Noten, die der Player nicht hat. Es durchsucht jede Transposition und wählt die Verschiebung, die die meisten Noten <em>exakt</em> auf echte Tonhöhen legt — so bleiben die Intervalle erhalten, und es klingt immer noch wie die Melodie, nur verlegt in den Tonbereich des Spielzeugs.',
+    fpLi6: '<strong>Die Regel des klingenden Zahns respektieren.</strong> Zwei Schläge auf denselben Zahn zu dicht beieinander klingen nicht beide. Das Tool verteilt sie, schiebt einen davon wenn möglich auf einen Zwilling und zeigt an, was es verschoben oder verworfen hat. Es gibt eine Schaltfläche „Spielbarkeit prüfen“, die verbleibende Kollisionen markiert.',
+    fpLi7: 'Die Scheibe füllen. Eine nackte Melodie sind etwa zehn Noppen. Eine echte Werksscheibe trägt 125+, ein Drittel davon Akkorde — die Melodie war nie das Schwierige, das Füllen der Scheibe war es. Das Tool kann die bereits in der Quelle enthaltenen Akkorde lesen und erreichbare Harmonienoten in einem wiederholenden Rhythmus unter die Melodie legen, sodass das Ergebnis wie ein richtiges kleines Arrangement klingt statt wie eine einsame Linie.',
+    fpH5: 'Etwas drucken, das tatsächlich hält',
+    fpP9: 'Eine Scheibe, die spielt, und eine Scheibe, die sich <em>drucken</em> lässt, sind zwei verschiedene Designprobleme, und das Tool hat Einstellungen für beide:',
+    fpLi8: '<strong>Die Noppen sind das zerbrechliche Teil.</strong> Jeder Auslöser ist eine winzige Nase, und die Standardbreite von 1,2 mm ist bewusst gewählt, um genau <strong>drei Extrusionslinien bei einer 0,4-mm-Düse</strong> zu ergeben — zwei Wände und eine gefüllte Mitte. Macht man sie dünner, drucken sie hohl und brechen ab. Das Tool rechnet deine Düsengröße in Linienzahlen um und warnt, wenn die Zahl nicht ganzzahlig ist.',
+    fpLi9: '<strong>Die Rillen dürfen nicht zu stark eingemauert sein.</strong> Die konzentrischen Ringwände, die den Lesekopf führen, sitzen in festem Abstand — jede Wand, die man verdickt, frisst den Kanal, in dem der Kopf läuft. Das Tool zeigt den verbleibenden <strong>Rillenkanal</strong> in Millimetern und warnt, wenn er zu eng zum Funktionieren wird.',
+    fpLi10: '<strong>Ein normaler Slicer zerstört dieses Teil.</strong> Fast alles auf der Scheibe ist ein Kreis um ihre Mitte. Ein allgemeiner Slicer weiß das nicht — er teilt jeden Ring in Segmente und fährt bei jedem Ring jeder Schicht an einer Naht zurück, und genau diese Nähte erzeugen Blobs und umgestoßene Auslöser. Also schreibt das Tool den G-Code <em>selbst</em>, analytisch, als durchgehende konzentrische Durchgänge, und senkt die Rückzüge von ein paar Tausend auf ein paar Hundert. Es verpackt diesen Pfad trotzdem im vollen Header-/Statistik-Umschlag, den ein echter Slicer ausgibt, weil die Drucker-Firmware eine Datei ohne diesen verweigert.',
+    fpH6: 'Das Tool benutzen',
+    fpLi11: '<strong>Noppen klicken</strong> direkt auf die Pianorolle, oder eine <code>.mid</code>-Datei auf den MIDI-Tab ziehen und <em>Convert to disc</em> drücken.',
+    fpLi12: '<strong>Play drücken</strong>, um es zu hören — die Tonhöhen sind die echten Pro-Stift-Werte des Spielzeugs (die Klangfarbe ist eine synthetisierte Annäherung an einen geschlagenen Zahn).',
+    fpLi13: '<strong>Den Kalibrierungs-Sweep laden</strong> (File-Tab), um jeden Stift einmal in Reihenfolge zu schlagen — das zuerst drucken, um zu lernen, wie jeder Zahn auf <em>deinem</em> Kamm tatsächlich klingt.',
+    fpLi14: '<strong>Deinen Drucker wählen</strong> im Print-Tab, dann <code>.gcode</code> herunterladen, um direkt zu drucken, oder <code>.scad</code>, um die Geometrie selbst in OpenSCAD zu öffnen.',
+    fpLi15: '<strong>Den G-Code immer in einem Viewer vorschauen</strong>, bevor gedruckt wird — er ist aus Geometrie erzeugt, nicht gesliced, und wurde von keinem Slicer gegengeprüft.',
+    fpH7: 'Wo es gerade steht',
+    fpP10: 'Dieses Projekt ist gerade live auf der Werkbank, diese Seite wächst also mit. Aktueller Stand:',
+    fpLi16: '<strong>Mechanismus kartiert</strong> — Zinkenabstand, Scheibengeometrie und das Verhältnis von Noppe zu Note von einer Originalscheibe gemessen.',
+    fpLi17: '<strong>Note-zu-Geometrie-Code</strong> — der FP Disk Burner oben verwandelt eine Melodie in Noppenkoordinaten und schreibt ein druckbares Modell. Funktioniert.',
+    fpLi18: '<strong>Erste Scheibe gedruckt</strong> — ein voller Ring aus Notennoppen kam vom Drucker und wurde auf das Spielzeug gelegt. Jetzt werden Noppenhöhe und Toleranz feinjustiert, damit die Zinken sauber greifen.',
+    fpFig1Step: 'Erster Druck',
+    fpFig1Cap: 'Die erste Scheibe, direkt vom Drucker und auf das Spielzeug. Jeder dieser konzentrischen Ringe ist eine Spur aus erhabenen Noppen — jede Noppe eine Note, die darauf wartet, einen Zinken zu zupfen. Aus Code generiert, in weißem PLA gedruckt, dort liegend, wo früher eine Werksscheibe lag.',
+    fpVideoFallback: 'Dein Browser kann diesen Clip nicht abspielen — <a href="/projects/images/fisher-price/first-print.mp4">hier herunterladen</a>.',
+    fpFig2Step: 'Es spielt',
+    fpFig2Cap: 'Die Scheibe dreht sich auf dem Spielzeug. Grob, unperfekt, und unverkennbar eine Melodie, die der Drucker in Plastik geschrieben hat. Das ist der Beweis: Musik, die als physisches Objekt nicht existierte, bis der Code sie druckbar machte.',
+    fpH8: 'Credits & Ehrlichkeit',
+    fpP11: 'Die Scheibengeometrie, auf der das Tool aufbaut, ist <strong>bbernstones stiftbasiertes OpenSCAD-Remake</strong> auf Thingiverse (<a href="https://www.thingiverse.com/thing:4484452" target="_blank" rel="noopener">thing:4484452</a>), selbst ein Remake des früheren notenbasierten FredPlayer-Designs. Die Stift-zu-Tonhöhe-Tabelle, die Zwillingszahn-Paare und der Ringabstand sind ihre gemessene Arbeit; ich habe den Mechanismus in den Browser portiert und die MIDI-Konvertierung, die Audio-Vorschau und den direkten konzentrischen G-Code-Schreiber darum herum geschrieben. Und die schlichte Wahrheit: <strong>der erzeugte G-Code wurde noch nicht zu einem fertigen, verifizierten Druck auf einer echten Maschine ausgeführt</strong> — die Design-Hälfte funktioniert, die Druck-Hälfte liegt noch auf der Werkbank.',
+    fpEndTag: '// in Arbeit — dokumentiert, während es passiert',
+    fpEndCta: 'sag mir, was ich spielen soll →',
+  });
+  Object.assign(window.PRESKER_I18N.sl, {
+    fpBackLink: '← delavnica',
+    fpLead: 'Spreminjanje glasbe v 3D-natisljive plošče za otroški gramofon Fisher Price iz sedemdesetih let — zgodba o tem, zakaj je ta igrača pravzaprav hkrati glasbena skrinjica, luknjana kartica in gramofonska plošča, ter brskalniško orodje, ki vsako melodijo zapiše na ploščo, ki jo lahko natisnete. Pojdi naravnost na orodje <a href="#burner" style="color:var(--accent);">↓</a>',
+    fpH1: 'Zamisel',
+    fpP1: 'Fisher-Priceov "Music Box Record Player" (1971) je videti kot majhen gramofon, in ta preobleka je ves trik. Položiš ploščo, pritisneš ročico navzdol, in zaigra melodijo — tako otrok domneva, da deluje kot resnična plošča. Ne deluje. Ni žlebu, ni igle, nič posnetega. Obrni ploščo in najdeš <strong>obroč majhnih izboklin</strong>, pod ploščo pa glavnik uglašenih kovinskih zobcev. Ko se plošča vrti, vsaka izboklina seže in brcne zobec. To je <em>glasbena skrinjica</em> — oblika plošče je le kostum.',
+    fpP2: 'Ta razlika je razlog, da ta celoten projekt lahko obstaja. Resnična gramofonska plošča shranjuje zvezno analogno valovno obliko; take ne moreš ustvariti s 3D-tiskalnikom. A izboklina je bodisi <em>tam</em> bodisi <em>ni tam</em>, na znanem kotu, nad znanim zobcem. To ni posnetek. To so <strong>podatki</strong> — podatki, ki jih lahko ustvarim, razporedim in natisnem. Cilj: vzeti melodijo, ugotoviti, kateri zobec zaigra katero noto v katerem trenutku, postaviti izboklino za vsako noto, natisniti ploščo, jo položiti na igračo in slišati pesem, ki kot plastični del ni obstajala, dokler je nisem naredil.',
+    fpH2: 'Rodovnik: nabiti valji in luknjane kartice',
+    fpP3: 'Programirljiva glasba je veliko starejša od elektrike, in plošča Fisher Price stoji na koncu zelo dolgega rodovnika <em>fizičnega</em> shranjevanja glasbe — strojev, ki zaigrajo melodijo, kodirano kot izbokline in luknje, ne kot zvok.',
+    fpLi1: '<strong>Nabiti valj (glasbene skrinjice, kariloni, lajne).</strong> Vrteč se valj, poln kovinskih zatičev; vsak zatič dvigne uglašen zobec glavnika ali odpre orgelski ventil ob pravem trenutku. To je mehansko natanko to, kar počne Fisher-Priceov predvajalnik — igrača le <em>razvije valj v ravno ploščo</em>, da je poceni za ulivanje in enostavna za menjavo.',
+    fpLi2: '<strong>Luknjana kartica in luknjan trak.</strong> Jacquardova tkalska naprava (1804) je poganjala vzorce tkanja s luknjami, vrezanimi v toge kartice — morda prvi shranjeni program sploh. Ista zamisel je postala <strong>trakovi za pianole</strong> in zložljive <strong>kartonske "knjige"</strong> sejemskih in uličnih orgel: luknja pomeni zaigraj, ni luknje pomeni premor. Prisotnost ali odsotnost, brano mesto za mestom.',
+    fpLi3: '<strong>Natisljiva plošča.</strong> Izboklina na plošči Fisher Price <em>je</em> luknja luknjane kartice, obrnjena navznoter — namesto reže, ki spusti skozi zrak ali kljukico, je izboklina, ki sproži zobec. Ista binarna logika. Edina novost tu je medij: ne luknjam kartice ali nabijam medenine, ekstrudiram vzorec v plastiki.',
+    fpP4: 'Torej je orodje spodaj v osnovi pisalnik za luknjane kartice. Sestaviš vzorec "udari / ne udari", in vrne ti fizičen predmet, ki ga shrani.',
+    fpH3: 'Kaj lahko ročica dejansko zaigra',
+    fpP5: 'Glavnik je omejitev, ki oblikuje vse. Ta predvajalnik ima <strong>22 zobcev</strong> — a to ni 22 različnih not. Šest parov je uglašenih na isto višino, zato je le <strong>16 različnih višin tonov</strong>, ki se raztezajo čez približno dve in pol oktave (približno MIDI 66–97), in so <strong>diatonične</strong> — razporejene po lestvici, ne kot kromatična klaviatura. Obstajajo note, ki jih igrača preprosto ne more zaigrati.',
+    fpP6: 'Zakaj uglasiti dva zobca enako? Ker potrebuje brcnjeni zobec čas, da neha zveneti, preden ga lahko spet brcnemo. Če melodija ponovi noto hitreje, kot se en sam zobec lahko umiri, drugi udarec pristane na še vibrirajočem zobcu in ga zaduši. Dva zobca iste višine omogočita, da se hitra ponovitev <strong>izmenjuje med parom</strong> — eden zveni, dokler je drugi udarjen. Orodje pozna te "dvojčke" in jih uporablja samodejno, zato se padajoča linija v urejevalniku včasih zdi, kot da skoči na višji zatič: to je dvojček, ki opravlja svoje delo, pri isti višini tona.',
+    fpP7: 'Tabela višin tonov izhaja iz dejanske meritve, ne iz ugibanja — bbernstone je prebral vsako originalno ploščo z elektronskim uglaševalnikom in natisnjenim bralnikom plošč ter znova indeksiral zasnovo <em>po številki zatiča</em> namesto po imenu note, ker je pri takem mehanizmu položaj zatiča poštena enota. Orodje je zgrajeno neposredno na tej geometriji, temelječi na zatičih (glej zasluge spodaj).',
+    fpToolTitle: 'Zapeci svojo ploščo — FP Disk Burner',
+    fpToolOpenTab: 'Odpri v lastnem zavihku ↗',
+    fpToolFullscreen: '⛶ Celoten zaslon',
+    fpToolNote: 'Teče povsem v vašem brskalniku — nič, kar povlečete ali zasnujete, se ne naloži na strežnik. Prenosi (.gcode / .scad / .json) delujejo najbolje v lastnem zavihku orodja.',
+    fpH4: 'Od datoteke MIDI do obroča izboklin',
+    fpP8: 'Ročno klikanje izboklin deluje, a večina ljudi pride s pesmijo. Spremeniti poljubno datoteko MIDI v nekaj, kar lahko zaigra diatonični glavnik s 16 višinami, je dejansko težji del, in to je večina tega, kar orodje počne:',
+    fpLi4: '<strong>Zmanjšaj na en glas.</strong> Resnična pesem ima akorde in več hkrati zvenečih instrumentov; glavnik najbolje zaigra eno jasno linijo. Orodje strne glasbo na eno samo melodično linijo — v vsakem trenutku ohrani najvišji glas (ali bas, po izbiri).',
+    fpLi5: 'Premakni jo tja, kjer jo igrača lahko doseže. Melodija v napačnem tonu ali oktavi pretežno pristane na notah, ki jih predvajalnik nima. Orodje preišče vsako transpozicijo in izbere premik, ki postavi največ not <em>natanko</em> na resnične višine — tako intervali ostanejo ohranjeni in še vedno zveni kot melodija, le prestavljena v razpon igrače.',
+    fpLi6: '<strong>Upoštevaj pravilo zvenečega zobca.</strong> Dva udarca na isti zobec, ki sta preblizu skupaj, ne zazvenita oba. Orodje ju razmakne, enega po možnosti premakne na dvojčka in pove, kaj je premaknilo ali izpustilo. Obstaja gumb "preveri igralnost", ki označi vsak preostali trk.',
+    fpLi7: 'Zapolni ploščo. Golo melodija je okoli deset izboklin. Resnična tovarniška plošča nosi 125+, tretjino akordov — melodija ni bila nikoli težki del, zapolnitev plošče je bila. Orodje lahko prebere akorde, ki so že v viru, in pod melodijo v ponavljajočem se ritmu postavi dosegljive harmonične note, tako da rezultat zveni kot prava mala priredba, ne kot osamljena linija.',
+    fpH5: 'Tiskanje nekaj, kar dejansko zdrži',
+    fpP9: 'Plošča, ki zaigra, in plošča, ki se <em>natisne</em>, sta dva različna zasnovna problema, in orodje ima nastavitve za oba:',
+    fpLi8: '<strong>Izbokline so krhki del.</strong> Vsak sprožilec je drobna izboklina, in privzeta širina 1,2 mm je izbrana, da je natanko <strong>tri ekstrudirne linije pri šobi 0,4 mm</strong> — dve stranici in zapolnjeno sredino. Naredite jih tanjše in se natisnejo votle ter odlomijo. Orodje pretvori velikost vaše šobe v število linij in opozori, kadar število ni celo.',
+    fpLi9: '<strong>Žlebovi ne smejo biti preveč obdani s stenami.</strong> Koncentrične obročne stene, ki vodijo bralno glavo, so na fiksni razdalji — vsaka stena, ki jo odebelite, poje kanal, v katerem teče glava. Orodje prikaže preostali <strong>kanal žleba</strong> v milimetrih in opozori, ko postane preozek za delovanje.',
+    fpLi10: '<strong>Navaden rezalnik (slicer) to uniči.</strong> Skoraj vse na plošči je krog okoli svojega središča. Splošen rezalnik tega ne ve — vsak obroč razdeli na segmente in se umakne na šivu pri vsakem obroču vsake plasti, in prav ti šivi so vir madežev in podrtih sprožilcev. Zato orodje samo analitično napiše G-kodo, kot neprekinjene koncentrične prehode, in zmanjša umike z nekaj tisoč na nekaj sto. Kljub temu to pot zavije v poln header/statistični ovoj, ki ga izdaja resnični rezalnik, ker vdelana programska opremo tiskalnika zavrne datoteko brez njega.',
+    fpH6: 'Uporaba orodja',
+    fpLi11: '<strong>Klikni izbokline</strong> neposredno na klavirski trak, ali povleci datoteko <code>.mid</code> na zavihek MIDI in pritisni <em>Convert to disc</em>.',
+    fpLi12: '<strong>Pritisni Play</strong>, da jo slišiš — višine tonov so resnične vrednosti igrače po posameznem zatiču (zvočna barva je sintetiziran približek udarjenega zobca).',
+    fpLi13: '<strong>Naloži kalibracijski prelet</strong> (zavihek File), da po vrsti udariš vsak zatič enkrat — to natisni najprej, da izveš, kako dejansko zveni vsak zobec na <em>vašem</em> glavniku.',
+    fpLi14: '<strong>Izberi svoj tiskalnik</strong> na zavihku Print, nato prenesi <code>.gcode</code> za neposreden tisk ali <code>.scad</code>, da geometrijo sam odpreš v OpenSCAD.',
+    fpLi15: '<strong>Vedno preglej G-kodo</strong> v pregledovalniku pred tiskanjem — ustvarjena je iz geometrije, ni razrezana (sliced), in je noben rezalnik ni nadzoroval.',
+    fpH7: 'Kje je trenutno',
+    fpP10: 'Ta projekt je trenutno v živo na delovni mizi, zato ta stran rase skupaj z njim. Trenutno stanje:',
+    fpLi16: '<strong>Mehanizem kartiran</strong> — razmik zobcev, geometrija plošče in razmerje med izboklino in noto, merjeno na originalni plošči.',
+    fpLi17: '<strong>Koda nota → geometrija</strong> — zgornji FP Disk Burner spremeni melodijo v koordinate izboklin in napiše natisljiv model. Deluje.',
+    fpLi18: '<strong>Prva plošča natisnjena</strong> — cel obroč notnih izboklin je prišel s tiskalnika in bil položen na igračo. Zdaj se natančno nastavlja višina izboklin in toleranca, da zobci čisto ujamejo.',
+    fpFig1Step: 'Prvi odtis',
+    fpFig1Cap: 'Prva plošča, naravnost s tiskalnika in na igračo. Vsak od teh koncentričnih obročev je sled iz izboklin — vsaka izboklina nota, ki čaka, da brcne zobec. Ustvarjena iz kode, natisnjena v beli PLA, na mestu, kamor je nekoč šla tovarniška plošča.',
+    fpVideoFallback: 'Vaš brskalnik ne more predvajati tega posnetka — <a href="/projects/images/fisher-price/first-print.mp4">prenesite ga tukaj</a>.',
+    fpFig2Step: 'Zaigra',
+    fpFig2Cap: 'Plošča se vrti na igrači. Grobo, nepopolno in nezmotljivo melodija, ki jo je tiskalnik zapisal v plastiko. To je dokaz: glasba, ki kot fizičen predmet ni obstajala, dokler je koda ni naredila natisljive.',
+    fpH8: 'Zasluge in iskrenost',
+    fpP11: 'Geometrija plošče, na kateri temelji orodje, je <strong>bbernstonova na zatičih temelječa predelava OpenSCAD</strong> na Thingiverse (<a href="https://www.thingiverse.com/thing:4484452" target="_blank" rel="noopener">thing:4484452</a>), sama predelava zgodnejše note-temelječe zasnove FredPlayer. Tabela zatič-višina, pari dvojčkov zobcev in razmik obročev so njihovo merjeno delo; jaz sem mehanizem prenesel v brskalnik in napisal pretvorbo MIDI, zvočni predogled in neposredni koncentrični pisalnik G-kode okoli njega. In čista resnica: <strong>ustvarjena G-koda še ni bila zagnana do dokončanega, preverjenega tiska na resničnem stroju</strong> — zasnovna polovica deluje, tiskalna polovica pa je še na delovni mizi.',
+    fpEndTag: '// še v izdelavi — dokumentirano sproti',
+    fpEndCta: 'povej mi, kaj naj zaigram →',
+  });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+</head>
+<body>
+
+  <nav>
+    <span class="logo"><a href="/" style="color:inherit;text-decoration:none;">PRESKER.AT</a></span>
+    <div class="nav-links">
+      <a href="/#featured" data-i18n="navFeatured">featured</a>
+      <a href="/#projects" data-i18n="navProjects">projects</a>
+      <a href="/#art" data-i18n="navArt">art</a>
+      <a href="/about.html" data-i18n="navAbout">about</a>
+      <a href="/#feedback" data-i18n="navFeedback">feedback</a>
+    </div>
+    <div class="toggles">
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+        <button class="pill-btn" data-theme-set="light">☀</button>
+        <button class="pill-btn" data-theme-set="auto">Auto</button>
+        <button class="pill-btn" data-theme-set="dark">☾</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="article-page">
+
+    <a href="/projects/" class="back-link" data-i18n="fpBackLink">← workshop</a>
+
+    <div class="article-hero">
+      <div class="article-hero-meta">
+        <span class="tag tag-make">make</span>
+        <span class="tag tag-code">code</span>
+        <span class="tag-wip">in progress</span>
+        <span class="card-date">2026</span>
+      </div>
+      <h1>Fisher Price Plates &amp; FP Disk Burner</h1>
+      <p class="article-lead" data-i18n-html="fpLead">Turning music into 3D-printable discs for a 1970s Fisher Price toy record player — the story of why that toy is really a music box, a punch card and a record all at once, and a browser tool that burns any melody onto a disc you can print. Jump straight to the tool <a href="#burner" style="color:var(--accent);">↓</a></p>
+    </div>
+
+    <div class="article-content">
+
+      <h2 data-i18n="fpH1">The idea</h2>
+      <p data-i18n-html="fpP1">The Fisher Price "Music Box Record Player" (1971) looks like a tiny turntable, and that disguise is the whole trick. Drop a disc on, push the arm down, and it plays a tune — so a child assumes it works the way a real record does. It doesn't. There is no groove, no needle, and nothing recorded. Flip a disc over and you find <strong>a ring of little raised bumps</strong>, and under the platter, a comb of tuned metal teeth. As the disc turns, each bump reaches out and plucks a tooth. It's a <em>music box</em> — the record shape is costume.</p>
+      <p data-i18n-html="fpP2">That distinction is the reason this whole project can exist. A real record stores a continuous analog waveform; you can't author one with a 3D printer. But a bump is either <em>there</em> or <em>not there</em>, at a known angle, over a known tooth. That's not a recording. That's <strong>data</strong> — and data I can generate, lay out, and print. The goal: take a melody, work out which tooth plays which note at which moment, place a bump for every note, print the disc, drop it on the toy, and hear a song that never existed as a plastic part until I made it.</p>
+
+      <h2 data-i18n="fpH2">The lineage: pinned barrels and punched cards</h2>
+      <p data-i18n-html="fpP3">Programmable music is much older than electricity, and the Fisher Price disc sits at the end of a very long family tree of <em>physical</em> music storage — machines that play a tune encoded as bumps and holes rather than as sound.</p>
+      <ul style="margin: 0 0 1.5rem 1.25rem; color: #c0c0c0; font-size: 15px; line-height: 1.85;">
+        <li data-i18n-html="fpLi1"><strong>The pinned barrel (music boxes, carillons, barrel organs).</strong> A rotating cylinder studded with metal pins; each pin lifts a tuned comb tooth or opens an organ valve at the right moment. This is, mechanically, exactly what the Fisher Price player does — the toy just <em>unrolls the barrel into a flat disc</em> so it's cheap to mould and easy to swap.</li>
+        <li data-i18n-html="fpLi2"><strong>The punched card and punched roll.</strong> The Jacquard loom (1804) drove weaving patterns from holes punched in stiff cards — arguably the first stored program of any kind. The same idea became <strong>player-piano rolls</strong> and the folding <strong>cardboard "books"</strong> of fairground and street organs: a hole means play, no hole means rest. Presence-or-absence, read position by position.</li>
+        <li data-i18n-html="fpLi3"><strong>The printable disc.</strong> A bump on a Fisher Price disc <em>is</em> a punched-card hole turned inside out — instead of a gap that lets air or a hook through, it's a nub that trips a tooth. Same binary. The only new thing here is the medium: I'm not punching card or pinning brass, I'm extruding the pattern in plastic.</li>
+      </ul>
+      <p data-i18n="fpP4">So the tool below is, underneath, a punch-card writer. You compose the pattern of "strike / don't strike," and it hands you a physical object that stores it.</p>
+
+      <h2 data-i18n="fpH3">What the arm can actually play</h2>
+      <p data-i18n-html="fpP5">The comb is the constraint that shapes everything. This player has <strong>22 teeth</strong> — but they aren't 22 different notes. Six pairs are tuned to the same pitch, so there are only <strong>16 distinct pitches</strong>, spanning roughly two and a half octaves (about MIDI 66–97), and they're <strong>diatonic</strong> — laid out to a scale, not a chromatic keyboard. There are notes the toy simply cannot make.</p>
+      <p data-i18n-html="fpP6">Why tune two teeth alike? Because a plucked tooth needs time to stop ringing before it can be plucked again. If a tune repeats a note faster than a single tooth can settle, the second strike lands on a still-vibrating tooth and chokes. Two teeth at the same pitch let a fast repeat <strong>alternate across the pair</strong> — one rings while the other is struck. The tool knows about these "twins" and uses them automatically, which is why a descending line in the editor occasionally looks like it hops up a pin: that's the twin doing its job, at the same pitch.</p>
+      <p data-i18n-html="fpP7">The pitch table itself came from real measurement, not guesswork — bbernstone read every original disc with an electronic tuner and a printed disc-reader, and re-indexed the design <em>by pin number</em> instead of by note name, because on a mechanism like this the pin position is the honest unit. The tool is built directly on that pin-based geometry (see credits below).</p>
+
+    </div>
+
+    <!-- ── The tool ── -->
+    <div class="tool-embed" id="burner">
+      <div class="tool-embed-head">
+        <strong style="font-size:18px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;" data-i18n="fpToolTitle">Burn your own disc — FP Disk Burner</strong>
+        <a class="tool-open" href="/lab/fp-disk-burner/" target="_blank" rel="noopener" data-i18n="fpToolOpenTab">Open in its own tab ↗</a>
+      </div>
+      <div class="tool-frame-wrap">
+        <button class="tool-fullscreen" onclick="document.getElementById('burnerFrame').requestFullscreen()" data-i18n="fpToolFullscreen">⛶ Fullscreen</button>
+        <iframe id="burnerFrame" src="/lab/fp-disk-burner/" title="FP Disk Burner" loading="lazy"></iframe>
+      </div>
+      <p class="tool-note" data-i18n="fpToolNote">Runs entirely in your browser — nothing you drop or design is uploaded. Downloads (.gcode / .scad / .json) work best from the tool's own tab.</p>
+    </div>
+
+    <div class="article-content">
+
+      <h2 data-i18n="fpH4">From a MIDI file to a ring of bumps</h2>
+      <p data-i18n="fpP8">Clicking bumps by hand works, but most people arrive with a song. Turning an arbitrary MIDI file into something a 16-pitch diatonic comb can play is the actual hard part, and it's most of what the tool does:</p>
+      <ul style="margin: 0 0 1.5rem 1.25rem; color: #c0c0c0; font-size: 15px; line-height: 1.85;">
+        <li data-i18n-html="fpLi4"><strong>Reduce to one voice.</strong> A real song has chords and several instruments sounding at once; the comb plays one clear line best. The tool collapses the music to a single melodic line — keeping the top voice (or the bass, your choice) at each instant.</li>
+        <li data-i18n-html="fpLi5"><strong>Move it where the toy can reach.</strong> A tune in the wrong key or octave lands mostly on notes the player doesn't have. It searches every transposition and picks the shift that puts the most notes <em>exactly</em> on real pitches — so the intervals survive and it still sounds like the tune, just relocated to the toy's range.</li>
+        <li data-i18n-html="fpLi6"><strong>Respect the ringing-tooth rule.</strong> Two strikes on the same tooth too close together won't both sound. The tool spaces them, shuffles one onto a twin where it can, and tells you what it moved or dropped. There's a "check playability" button that flags any collision left.</li>
+        <li data-i18n-html="fpLi7"><strong>Fill the disc.</strong> A bare melody is about ten bumps. A real factory disc carries 125+, a third of them chords — the tune was never the hard part, filling the disc was. The tool can read the chords already in the source and lay reachable harmony notes underneath the melody on a repeating rhythm, so the result sounds like a proper little arrangement rather than a lonely line.</li>
+      </ul>
+
+      <h2 data-i18n="fpH5">Printing something that actually survives</h2>
+      <p data-i18n-html="fpP9">A disc that plays and a disc that <em>prints</em> are two different design problems, and the tool carries settings for both:</p>
+      <ul style="margin: 0 0 1.5rem 1.25rem; color: #c0c0c0; font-size: 15px; line-height: 1.85;">
+        <li data-i18n-html="fpLi8"><strong>The bumps are the fragile part.</strong> Each trigger is a tiny nub, and the default 1.2 mm width is chosen to be exactly <strong>three extrusion lines at a 0.4 mm nozzle</strong> — two walls and a filled centre. Make them thinner and they print hollow and snap off. The tool converts your nozzle size into line counts and warns when the number isn't whole.</li>
+        <li data-i18n-html="fpLi9"><strong>The grooves can't be too walled-in.</strong> The concentric ring walls that guide the reading head sit a fixed distance apart, so each wall you thicken eats the channel the head runs in. The tool shows the leftover <strong>groove channel</strong> in millimetres and warns when it gets too narrow to work.</li>
+        <li data-i18n-html="fpLi10"><strong>A normal slicer wrecks this part.</strong> Almost everything on the disc is a circle about its centre. A general slicer doesn't know that — it breaks each ring into segments and retracts at a seam on every ring of every layer, and those seams are where blobs and knocked-over triggers come from. So the tool writes the G-code <em>itself</em>, analytically, as continuous concentric passes, cutting retractions from a couple thousand to a few hundred. It still wraps that path in the full header/statistics envelope a real slicer emits, because the printer's firmware refuses a file without it.</li>
+      </ul>
+
+      <h2 data-i18n="fpH6">Using the tool</h2>
+      <ol style="margin: 0 0 1.5rem 1.25rem; color: #c0c0c0; font-size: 15px; line-height: 1.8;">
+        <li data-i18n-html="fpLi11"><strong>Click bumps</strong> straight onto the piano roll, or drop a <code>.mid</code> file on the MIDI tab and hit <em>Convert to disc</em>.</li>
+        <li data-i18n-html="fpLi12"><strong>Press Play</strong> to hear it — the pitches are the toy's real per-pin values (the timbre is a synthesised approximation of a struck tooth).</li>
+        <li data-i18n-html="fpLi13"><strong>Load the calibration sweep</strong> (File tab) to strike every pin once in order — print that first to learn what each tooth on <em>your</em> comb actually sounds like.</li>
+        <li data-i18n-html="fpLi14"><strong>Pick your printer</strong> on the Print tab, then download <code>.gcode</code> to print directly, or <code>.scad</code> to open the geometry in OpenSCAD yourself.</li>
+        <li data-i18n-html="fpLi15"><strong>Always preview the G-code</strong> in a viewer before printing — it's generated from geometry, not sliced, and hasn't been babysat by a slicer.</li>
+      </ol>
+
+      <h2 id="build-log" data-i18n="fpH7">Where it's at</h2>
+      <p data-i18n="fpP10">This one is live on the bench right now, so this page grows as it does. Current status:</p>
+      <ol class="build-chain">
+        <li data-i18n-html="fpLi16"><strong>Mechanism mapped</strong> — tine spacing, disc geometry and the bump-to-note relationship measured off an original disc.</li>
+        <li data-i18n-html="fpLi17"><strong>Note → geometry code</strong> — the FP Disk Burner above turns a melody into bump coordinates and writes a printable model. Working.</li>
+        <li data-i18n-html="fpLi18"><strong>First disc printed</strong> — a full ring of note bumps came off the printer and dropped onto the toy. Now dialling in bump height and tolerance so the tines catch cleanly.</li>
+      </ol>
+
+      <figure class="build-figure">
+        <img src="/projects/images/fisher-price/first-print.jpg" alt="The first 3D-printed disc sitting on the Fisher Price record player, showing concentric rings of raised note bumps in white PLA"
+             onerror="this.style.display='none';this.insertAdjacentHTML('afterend','&lt;div class=\'img-ph\'&gt;photo coming — first printed test disc&lt;/div&gt;')">
+        <figcaption data-i18n-html="fpFig1Cap"><span class="step" data-i18n="fpFig1Step">First print</span>The first disc, straight off the printer and onto the toy. Every one of those concentric rings is a track of raised bumps — each bump a note waiting to pluck a tine. Generated from code, printed in white PLA, sitting where a factory disc used to go.</figcaption>
+      </figure>
+
+      <figure class="build-figure">
+        <video controls preload="metadata" poster="/projects/images/fisher-price/first-print.jpg"
+               style="width:100%;height:auto;display:block;border-radius:4px;">
+          <source src="/projects/images/fisher-price/first-print.mp4" type="video/mp4">
+          <span data-i18n-html="fpVideoFallback">Your browser can't play this clip — <a href="/projects/images/fisher-price/first-print.mp4">download it here</a>.</span>
+        </video>
+        <figcaption data-i18n-html="fpFig2Cap"><span class="step" data-i18n="fpFig2Step">It plays</span>The disc turning on the toy. Rough, imperfect, and unmistakably a melody the printer wrote into plastic. This is the proof: music that never existed as a physical object until the code made it printable.</figcaption>
+      </figure>
+
+      <h2 data-i18n="fpH8">Credits &amp; honesty</h2>
+      <p data-i18n-html="fpP11">The disc geometry the tool builds on is <strong>bbernstone's pin-based OpenSCAD remake</strong> on Thingiverse (<a href="https://www.thingiverse.com/thing:4484452" target="_blank" rel="noopener">thing:4484452</a>), itself a remake of the earlier FredPlayer note-based design. The pin-to-pitch table, the twin-tooth pairs, and the ring spacing are their measured work; I ported the mechanism into the browser and wrote the MIDI conversion, the audio preview, and the direct concentric G-code writer around it. And the plain truth: <strong>the generated G-code hasn't yet been run to a finished, verified print on a real machine</strong> — the design half works, and the printing half is still on the bench.</p>
+
+      <div class="article-end-tag">
+        <span data-i18n="fpEndTag">// work in progress — documented as it happens</span>
+        <a href="/#feedback" class="card-link" data-i18n="fpEndCta">tell me what to play →</a>
+      </div>
+
+    </div>
+
+        <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
+
+  <footer>
+    <span data-i18n="footerCopy">© 2026 Presker.at</span>
+    <span data-i18n="footerHost">Hosted at World4You</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+
+</body>
+</html>

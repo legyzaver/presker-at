@@ -4,7 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Miha Presker — Artist</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      overviewIntroP1: 'Miha Presker is a Slovenian-born artist based in Vienna whose work investigates the relationship between human perception and machine vision. Through installations, light sculptures, photography and interactive systems, he explores the boundaries between physical space, projected image and technological observation.',
+      overviewIntroP2: 'These are selected works, mostly 2003–2010s. I still build — the making moved into <a href="/projects/">code and 3D printing</a> — but I no longer actively exhibit. Consider this an archive, not a current show.'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      overviewIntroP1: 'Miha Presker ist ein in Slowenien geborener, in Wien lebender Künstler, dessen Arbeit das Verhältnis zwischen menschlicher Wahrnehmung und maschinellem Sehen untersucht. Durch Installationen, Lichtskulpturen, Fotografie und interaktive Systeme erforscht er die Grenzen zwischen physischem Raum, projiziertem Bild und technologischer Beobachtung.',
+      overviewIntroP2: 'Dies sind ausgewählte Arbeiten, größtenteils aus den Jahren 2003–2010er. Ich baue noch immer — das Machen hat sich in Richtung <a href="/projects/">Code und 3D-Druck</a> verschoben — aber ich stelle nicht mehr aktiv aus. Betrachten Sie dies als Archiv, nicht als aktuelle Ausstellung.'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      overviewIntroP1: 'Miha Presker je v Sloveniji rojen umetnik, ki živi na Dunaju in čigar delo raziskuje razmerje med človeško zaznavo in strojnim vidom. Skozi inštalacije, svetlobne skulpture, fotografijo in interaktivne sisteme raziskuje meje med fizičnim prostorom, projicirano podobo in tehnološkim opazovanjem.',
+      overviewIntroP2: 'To so izbrana dela, večinoma iz obdobja 2003–2010. Še vedno ustvarjam — izdelovanje se je preselilo v <a href="/projects/">kodo in 3D tisk</a> — a ne razstavljam več aktivno. Vzemite to kot arhiv, ne kot trenutno razstavo.'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -25,21 +42,22 @@
 
       <!-- Short intro statement -->
       <div class="overview-intro">
-        <p>Miha Presker is a Slovenian-born artist based in Vienna whose work investigates the relationship between human perception and machine vision. Through installations, light sculptures, photography and interactive systems, he explores the boundaries between physical space, projected image and technological observation.</p>
+        <p data-i18n-html="overviewIntroP1">Miha Presker is a Slovenian-born artist based in Vienna whose work investigates the relationship between human perception and machine vision. Through installations, light sculptures, photography and interactive systems, he explores the boundaries between physical space, projected image and technological observation.</p>
+        <p style="margin-top:1rem;" data-i18n-html="overviewIntroP2">These are selected works, mostly 2003–2010s. I still build — the making moved into <a href="/projects/">code and 3D printing</a> — but I no longer actively exhibit. Consider this an archive, not a current show.</p>
       </div>
 
       <!-- Three navigation actions -->
       <div class="overview-actions">
         <a href="/art/works/" class="action-btn">
-          <span class="action-btn-label">Works</span>
+          <span class="action-btn-label" data-i18n="artWorks">Works</span>
           <span class="action-btn-arrow">→</span>
         </a>
         <a href="/art/biography.html" class="action-btn">
-          <span class="action-btn-label">Biography</span>
+          <span class="action-btn-label" data-i18n="artBio">Biography</span>
           <span class="action-btn-arrow">→</span>
         </a>
         <a href="/art/cv.html" class="action-btn">
-          <span class="action-btn-label">CV</span>
+          <span class="action-btn-label" data-i18n="artCV">CV</span>
           <span class="action-btn-arrow">→</span>
         </a>
       </div>
@@ -88,7 +106,7 @@
       </div>
 
       <div class="works-section">
-        <div class="section-title">All Projects</div>
+        <div class="section-title" data-i18n="allProjects">All Projects</div>
         <div class="works-grid">
           <a href="/art/projects/displacement.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/displacement/displacement-01.jpg" alt="Displacements" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Displacements</span></div>'"></div>
@@ -96,15 +114,15 @@
           </a>
           <a href="/art/projects/kamin.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/kamin/kamin-01.jpg" alt="An arched, tile-patterned panel above folded paper forms" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Kamin</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Kamin</div><div class="work-card-meta">Collaborative</div></div>
+            <div class="work-card-info"><div class="work-card-title">Kamin</div><div class="work-card-meta"><span data-i18n="catCollab">Collaborative</span></div></div>
           </a>
           <a href="/art/projects/knot.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/knot/knot-01.jpg" alt="Tangled, internally lit white fabric tubes" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Knot</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Knot</div><div class="work-card-meta">Light Sculpture</div></div>
+            <div class="work-card-info"><div class="work-card-title">Knot</div><div class="work-card-meta"><span data-i18n="catLight">Light Sculpture</span></div></div>
           </a>
           <a href="/art/projects/solidno.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/solidno/solidno-01.jpg" alt="A room installation with a projected brick pattern and sculptural objects" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Solidno</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Solidno</div><div class="work-card-meta">Collaborative</div></div>
+            <div class="work-card-info"><div class="work-card-title">Solidno</div><div class="work-card-meta"><span data-i18n="catCollab">Collaborative</span></div></div>
           </a>
           <a href="/art/projects/tube.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/tube/tube-01.jpg" alt="White inflated fabric tubes converging on a glowing light box" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Tube</span></div>'"></div>
@@ -112,7 +130,7 @@
           </a>
           <a href="/art/projects/parallel.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/parallel/parallel-01.jpg" alt="A marbled, crystalline block sculpture in a dark room" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Parallel</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Parallel</div><div class="work-card-meta">Collaborative</div></div>
+            <div class="work-card-info"><div class="work-card-title">Parallel</div><div class="work-card-meta"><span data-i18n="catCollab">Collaborative</span></div></div>
           </a>
           <a href="/art/projects/flash.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/flash/flash-01.jpg" alt="Focus Free" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Focus Free</span></div>'"></div>
@@ -120,13 +138,21 @@
           </a>
           <a href="/art/projects/intrude.html" class="work-card">
             <div class="work-card-img"><img src="/art/images/intrude/intrude-01.jpg" alt="Human silhouettes projected on a building facade at night" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'work-card-ph\'><span>Intrude</span></div>'"></div>
-            <div class="work-card-info"><div class="work-card-title">Intrude</div><div class="work-card-meta">Interactive</div></div>
+            <div class="work-card-info"><div class="work-card-title">Intrude</div><div class="work-card-meta"><span data-i18n="catInteractive">Interactive</span></div></div>
           </a>
         </div>
       </div>
 
-    </main>
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

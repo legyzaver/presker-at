@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Little Planet Lab — how a 360° photo gets flattened</title>
+<meta name="description" content="Drag a full 360° panorama through eight map projections: rectilinear, fisheye, stereographic little planet, equirectangular, Mercator, Pannini and more. Tissot circles show the distortion; load your own 360 photo, it never leaves your device.">
+<link rel="canonical" href="https://www.presker.at/lab/little-planet/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/little-planet/">
+<meta property="og:title" content="Little Planet Lab">
+<meta property="og:description" content="Drag a 360° panorama through eight projections, from flat map to fisheye to little planet, and watch the distortion with Tissot circles. Works with your own 360 photos.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a; --ink: #1c1b18;
+  --muted: #6b6a63; --line: #e4e0d4; --accent: #3f6b1a; --accent-ink: #ffffff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8;
+  --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8;
+    --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.toggles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1180px; margin: 0 auto; padding: 18px 16px 28px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 8px; }
+.home:hover { color: var(--accent); }
+h1, h2, button, .label, .formula, .chip, .readout { font-family: var(--mono); }
+h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+h1 span { color: var(--accent); }
+.lede { margin: 4px 0 16px; color: var(--muted); max-width: 72ch; }
+.layout { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 16px; align-items: start; }
+
+/* --- main viewport --- */
+.stage {
+  position: relative; border: 1px solid var(--line); border-radius: 12px; overflow: hidden;
+  background: #000; aspect-ratio: 16 / 10; touch-action: none; cursor: grab; user-select: none;
+}
+.stage.dragging { cursor: grabbing; }
+.stage canvas { display: block; width: 100%; height: 100%; image-rendering: auto; }
+.readout {
+  position: absolute; left: 10px; bottom: 8px; font-size: 11.5px; color: #cfcfcf;
+  background: rgba(0,0,0,.55); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  font-variant-numeric: tabular-nums;
+}
+.hintover {
+  position: absolute; right: 10px; top: 8px; font: 11.5px var(--mono); color: #cfcfcf;
+  background: rgba(0,0,0,.55); padding: 3px 8px; border-radius: 6px; pointer-events: none;
+  transition: opacity .6s;
+}
+.drop {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  background: rgba(14,14,14,.82); color: var(--accent); font: 15px var(--mono); border: 2px dashed var(--accent); border-radius: 12px;
+}
+.stage.over .drop { display: flex; }
+
+/* --- controls --- */
+.bar { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+.chip, button {
+  font-size: 12.5px; color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer;
+}
+.chip:hover, button:hover { border-color: var(--muted); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, .chip:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin: 14px 0 6px; }
+.fovrow { display: grid; grid-template-columns: 40px 1fr 56px; align-items: center; gap: 10px; margin-top: 12px; }
+.fovrow label { font: 12px var(--mono); color: var(--muted); }
+.fovrow output { font: 12.5px var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.toggles { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 10px; font-size: 13px; color: var(--muted); }
+.toggles label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.toggles input { accent-color: var(--accent); }
+
+/* --- side panel --- */
+aside { display: flex; flex-direction: column; gap: 12px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.card h2 { font-size: 14px; margin: 0 0 4px; }
+.formula { font-size: 13px; color: var(--accent); margin: 2px 0 8px; }
+.card p { margin: 0; color: #bdbdbd; font-size: 13px; }
+.mini { width: 100%; aspect-ratio: 2 / 1; display: block; border-radius: 6px; cursor: crosshair; background: #000; touch-action: none; }
+.small { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+.filebtn { display: inline-block; }
+input[type=file] { display: none; }
+kbd { font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+
+.how { margin-top: 22px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.how h2 { font-size: 13px; margin: 0 0 4px; color: var(--ink); }
+.how p { margin: 0; color: var(--muted); font-size: 13px; }
+
+.site-foot { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .how { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .stage { aspect-ratio: 1 / 1; }
+  h1 { font-size: 19px; }
+  .chip, button { padding: 7px 9px; font-size: 12px; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  lpLede: 'A 360° photo is a whole sphere of directions, and every flat picture of it is a compromise. Drag the scene around, switch projections, and watch the same railway line turn into curves, circles and tiny planets.',
+  lpAriaView: 'Projected panorama view',
+  lpHint: 'drag · scroll / pinch to zoom',
+  lpDropText: 'drop a 360° photo (equirectangular 2:1)',
+  lpProjLbl: 'Projection', lpJumpLbl: 'Jump to',
+  lpTissot: 'Tissot circles', lpGrid: 'Lat / lon grid', lpSpin: 'Slow spin',
+  lpSourceH: 'Source sphere',
+  lpAriaMini: 'Equirectangular source map; click to look there',
+  lpSourceCap: 'The equirectangular file behind the view. Green shows which part of the sphere is on screen right now. Click it to look there.',
+  lpOwnH: 'Your own panorama',
+  lpOwnP: 'Any 2:1 equirectangular image works: Insta360, Gear 360, Ricoh Theta, phone panoramas. It is read locally and never uploaded.',
+  lpLoadBtn: 'Load 360 photo', lpSceneBtn: 'Railway scene', lpSaveBtn: 'Save PNG',
+  lpKeyHelp: '<kbd>1</kbd>–<kbd>8</kbd> projections &nbsp; <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> look &nbsp; <kbd>+</kbd><kbd>−</kbd> zoom &nbsp; <kbd>T</kbd> tour',
+  lpH2Bend: 'Why it has to bend',
+  lpPBend: 'Gauss proved you cannot flatten a sphere without stretching it. Every projection picks what to keep: straight lines, true angles, true areas or the full 360°. Never all of them at once.',
+  lpPTissot: 'Every green ring is exactly the same size on the sphere. Where a projection squashes them into ovals, shapes are distorted; where they grow, area is inflated. Stereographic and Mercator keep them round.',
+  lpH2Trick: 'The little planet trick',
+  lpPTrick: 'Point the camera straight down and use a stereographic projection with a very wide field of view. The ground wraps into a small globe and the sky becomes the space around it.',
+  lpFooter: '© 2026 Presker.at · runs in your browser',
+  lpBuilding: 'building the panorama…',
+  lpLoadError: 'Could not read that image.',
+  lpProjKeyRect: 'Rectilinear', lpProjNameRect: 'Rectilinear',
+  lpProjTextRect: 'What a normal camera lens does. Straight lines stay straight, but things stretch hard toward the edges, and it can never reach 180°.',
+  lpProjKeyFish: 'Fisheye', lpProjNameFish: 'Fisheye (equidistant)',
+  lpProjTextFish: 'Distance from the centre grows evenly with the angle. Dual-lens 360 cameras like the Gear 360 shoot two of these circles, about 195° each, and stitch them.',
+  lpProjKeyStereo: 'Stereographic', lpProjNameStereo: 'Stereographic',
+  lpProjTextStereo: 'The sphere projected from its opposite pole. It keeps angles, so small circles stay circles. Look straight down with a huge FOV and you get a little planet.',
+  lpProjKeyEquisolid: 'Equisolid', lpProjNameEquisolid: 'Equisolid (equal area)',
+  lpProjTextEquisolid: 'An equal-area fisheye: every patch of sphere keeps its area, so the rings change shape but not size. Many real fisheye lenses are close to this.',
+  lpProjKeyOrtho: 'Orthographic', lpProjNameOrtho: 'Orthographic',
+  lpProjTextOrtho: 'The sphere seen from infinitely far away, like a globe or a mirror ball. It can only ever show one half; the rim squashes to nothing.',
+  lpProjKeyEquirect: 'Equirect', lpProjNameEquirect: 'Equirectangular',
+  lpProjTextEquirect: 'Longitude becomes x, latitude becomes y. This is the file format of nearly every 360 photo. The poles get smeared across the full top and bottom rows.',
+  lpProjKeyMerc: 'Mercator', lpProjNameMerc: 'Mercator',
+  lpProjTextMerc: 'A cylinder that keeps angles, which is why sailors liked it. Rings stay round, but they balloon toward the poles, and the poles themselves sit at infinity.',
+  lpProjKeyPannini: 'Pannini', lpProjNamePannini: 'Pannini',
+  lpProjTextPannini: 'A cylinder viewed from behind its own axis, used by 18th-century veduta painters. Vertical and radial lines stay straight, so wide interiors and streets look natural.',
+  lpPresetPlanet: 'Little planet', lpPresetTunnel: 'Tunnel sky', lpPresetLine: 'Down the line',
+  lpPresetGear: 'Gear 360 lens', lpPresetSphere: 'Whole sphere', lpPresetMirror: 'Mirror ball', lpPresetStreet: 'Wide street',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  lpLede: 'Ein 360°-Foto ist eine ganze Kugel voller Richtungen, und jedes flache Bild davon ist ein Kompromiss. Zieh die Szene herum, wechsle die Projektion, und sieh, wie dieselbe Bahnlinie zu Kurven, Kreisen und winzigen Planeten wird.',
+  lpAriaView: 'Projizierte Panoramaansicht',
+  lpHint: 'ziehen · scrollen / kneifen zum Zoomen',
+  lpDropText: 'ein 360°-Foto hier ablegen (equirektangular 2:1)',
+  lpProjLbl: 'Projektion', lpJumpLbl: 'Springe zu',
+  lpTissot: 'Tissot-Kreise', lpGrid: 'Breiten-/Längengrad-Gitter', lpSpin: 'Langsame Drehung',
+  lpSourceH: 'Quellkugel',
+  lpAriaMini: 'Equirektangulare Quellkarte; anklicken, um dorthin zu schauen',
+  lpSourceCap: 'Die equirektangulare Datei hinter der Ansicht. Grün zeigt, welcher Teil der Kugel gerade zu sehen ist. Anklicken, um dorthin zu schauen.',
+  lpOwnH: 'Dein eigenes Panorama',
+  lpOwnP: 'Jedes 2:1-equirektangulare Bild funktioniert: Insta360, Gear 360, Ricoh Theta, Handypanoramen. Es wird nur lokal gelesen und nie hochgeladen.',
+  lpLoadBtn: '360-Foto laden', lpSceneBtn: 'Bahnszene', lpSaveBtn: 'PNG speichern',
+  lpKeyHelp: '<kbd>1</kbd>–<kbd>8</kbd> Projektionen &nbsp; <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> schauen &nbsp; <kbd>+</kbd><kbd>−</kbd> zoomen &nbsp; <kbd>T</kbd> Rundgang',
+  lpH2Bend: 'Warum sie sich krümmen muss',
+  lpPBend: 'Gauß hat bewiesen, dass man eine Kugel nicht flach machen kann, ohne sie zu dehnen. Jede Projektion wählt, was sie behält: gerade Linien, wahre Winkel, wahre Flächen oder die vollen 360°. Nie alles zugleich.',
+  lpPTissot: 'Jeder grüne Ring ist auf der Kugel genau gleich groß. Wo eine Projektion sie zu Ovalen quetscht, sind Formen verzerrt; wo sie wachsen, ist die Fläche aufgeblasen. Stereografisch und Mercator halten sie rund.',
+  lpH2Trick: 'Der Trick mit dem kleinen Planeten',
+  lpPTrick: 'Richte die Kamera gerade nach unten und nutze eine stereografische Projektion mit einem sehr weiten Blickfeld. Der Boden wickelt sich zu einer kleinen Kugel, und der Himmel wird zum Raum darum.',
+  lpFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  lpBuilding: 'Panorama wird aufgebaut…',
+  lpLoadError: 'Dieses Bild konnte nicht gelesen werden.',
+  lpProjKeyRect: 'Rektilinear', lpProjNameRect: 'Rektilinear',
+  lpProjTextRect: 'Das macht ein normales Kameraobjektiv. Gerade Linien bleiben gerade, aber Dinge strecken sich stark zu den Rändern hin, und 180° werden nie erreicht.',
+  lpProjKeyFish: 'Fischauge', lpProjNameFish: 'Fischauge (äquidistant)',
+  lpProjTextFish: 'Der Abstand von der Mitte wächst gleichmäßig mit dem Winkel. 360-Kameras mit zwei Objektiven wie die Gear 360 nehmen zwei solcher Kreise auf, je etwa 195°, und fügen sie zusammen.',
+  lpProjKeyStereo: 'Stereografisch', lpProjNameStereo: 'Stereografisch',
+  lpProjTextStereo: 'Die Kugel, projiziert vom gegenüberliegenden Pol aus. Sie erhält Winkel, sodass kleine Kreise Kreise bleiben. Schau gerade nach unten mit einem riesigen Blickfeld, und du bekommst einen kleinen Planeten.',
+  lpProjKeyEquisolid: 'Equisolid', lpProjNameEquisolid: 'Equisolid (flächentreu)',
+  lpProjTextEquisolid: 'Ein flächentreues Fischauge: jedes Stück der Kugel behält seine Fläche, sodass die Ringe die Form, aber nicht die Größe ändern. Viele echte Fischaugenobjektive kommen dem nahe.',
+  lpProjKeyOrtho: 'Orthografisch', lpProjNameOrtho: 'Orthografisch',
+  lpProjTextOrtho: 'Die Kugel, gesehen aus unendlicher Entfernung, wie ein Globus oder eine Spiegelkugel. Sie kann immer nur eine Hälfte zeigen; der Rand staucht sich auf nichts zusammen.',
+  lpProjKeyEquirect: 'Equirekt', lpProjNameEquirect: 'Equirektangular',
+  lpProjTextEquirect: 'Länge wird zu x, Breite wird zu y. Das ist das Dateiformat fast jedes 360-Fotos. Die Pole werden über die gesamte oberste und unterste Zeile verschmiert.',
+  lpProjKeyMerc: 'Mercator', lpProjNameMerc: 'Mercator',
+  lpProjTextMerc: 'Ein Zylinder, der Winkel erhält, weshalb Seeleute ihn mochten. Ringe bleiben rund, aber sie blähen sich zu den Polen hin auf, und die Pole selbst liegen im Unendlichen.',
+  lpProjKeyPannini: 'Pannini', lpProjNamePannini: 'Pannini',
+  lpProjTextPannini: 'Ein Zylinder, betrachtet von hinter seiner eigenen Achse, genutzt von Veduta-Malern des 18. Jahrhunderts. Senkrechte und radiale Linien bleiben gerade, sodass weite Innenräume und Straßen natürlich wirken.',
+  lpPresetPlanet: 'Kleiner Planet', lpPresetTunnel: 'Tunnelhimmel', lpPresetLine: 'Die Schiene entlang',
+  lpPresetGear: 'Gear-360-Objektiv', lpPresetSphere: 'Ganze Kugel', lpPresetMirror: 'Spiegelkugel', lpPresetStreet: 'Breite Straße',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  lpLede: '360-stopinjska fotografija je cela krogla smeri, in vsaka njena ravna slika je kompromis. Povleci prizor naokoli, preklapljaj projekcije in opazuj, kako se ista železniška proga spremeni v krivine, kroge in majhne planete.',
+  lpAriaView: 'Projiciran pogled panorame',
+  lpHint: 'povleci · drsenje / ščip za povečavo',
+  lpDropText: 'spusti 360-stopinjsko fotografijo (ekvirektangularna 2:1)',
+  lpProjLbl: 'Projekcija', lpJumpLbl: 'Skoči na',
+  lpTissot: 'Tissotovi krogi', lpGrid: 'Mreža zemljepisne širine/dolžine', lpSpin: 'Počasno vrtenje',
+  lpSourceH: 'Izvorna krogla',
+  lpAriaMini: 'Ekvirektangularni izvorni zemljevid; klikni, da pogledaš tja',
+  lpSourceCap: 'Ekvirektangularna datoteka za pogledom. Zeleno prikazuje, kateri del krogle je trenutno na zaslonu. Klikni, da pogledaš tja.',
+  lpOwnH: 'Tvoja lastna panorama',
+  lpOwnP: 'Deluje vsaka ekvirektangularna slika 2:1: Insta360, Gear 360, Ricoh Theta, panorame s telefona. Prebere se le lokalno in se nikoli ne naloži na strežnik.',
+  lpLoadBtn: 'Naloži 360-fotografijo', lpSceneBtn: 'Železniški prizor', lpSaveBtn: 'Shrani PNG',
+  lpKeyHelp: '<kbd>1</kbd>–<kbd>8</kbd> projekcije &nbsp; <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> pogled &nbsp; <kbd>+</kbd><kbd>−</kbd> povečava &nbsp; <kbd>T</kbd> ogled',
+  lpH2Bend: 'Zakaj se mora upogniti',
+  lpPBend: 'Gauss je dokazal, da krogle ni mogoče sploščiti brez raztega. Vsaka projekcija izbere, kaj ohrani: ravne črte, resnične kote, resnične ploščine ali celih 360°. Nikoli vsega hkrati.',
+  lpPTissot: 'Vsak zeleni krog je na krogli natanko enako velik. Kjer jih projekcija stisne v ovale, so oblike popačene; kjer zrastejo, je ploščina napihnjena. Stereografska in Mercatorjeva ju ohranjata okrogla.',
+  lpH2Trick: 'Trik z malim planetom',
+  lpPTrick: 'Usmeri kamero naravnost navzdol in uporabi stereografsko projekcijo z zelo širokim zornim kotom. Tla se zavijejo v mali globus, nebo pa postane prostor okoli njega.',
+  lpFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  lpBuilding: 'gradim panoramo…',
+  lpLoadError: 'Te slike ni bilo mogoče prebrati.',
+  lpProjKeyRect: 'Rektilinearna', lpProjNameRect: 'Rektilinearna',
+  lpProjTextRect: 'To počne običajen fotoaparatski objektiv. Ravne črte ostanejo ravne, stvari pa se močno raztegnejo proti robovom, in 180° nikoli ne doseže.',
+  lpProjKeyFish: 'Ribje oko', lpProjNameFish: 'Ribje oko (enakorazdaljna)',
+  lpProjTextFish: 'Razdalja od središča enakomerno narašča s kotom. 360-stopinjske kamere z dvema objektivoma, kot je Gear 360, posnamejo dva taka kroga, vsak približno 195°, in ju zlepijo skupaj.',
+  lpProjKeyStereo: 'Stereografska', lpProjNameStereo: 'Stereografska',
+  lpProjTextStereo: 'Krogla, projicirana z nasprotnega pola. Ohranja kote, zato majhni krogi ostanejo krogi. Poglej naravnost navzdol z zelo širokim zornim kotom in dobiš mali planet.',
+  lpProjKeyEquisolid: 'Enakoploščinska', lpProjNameEquisolid: 'Enakoploščinska (equisolid)',
+  lpProjTextEquisolid: 'Enakoploščinsko ribje oko: vsak košček krogle ohrani svojo ploščino, zato obroči spremenijo obliko, ne pa velikosti. Veliko resničnih ribjeočesnih objektivov je blizu temu.',
+  lpProjKeyOrtho: 'Ortografska', lpProjNameOrtho: 'Ortografska',
+  lpProjTextOrtho: 'Krogla, videna iz neskončne razdalje, kot globus ali zrcalna krogla. Lahko pokaže le polovico; rob se stisne v nič.',
+  lpProjKeyEquirect: 'Ekvirekt', lpProjNameEquirect: 'Ekvirektangularna',
+  lpProjTextEquirect: 'Dolžina postane x, širina postane y. To je datotečni format skoraj vsake 360-stopinjske fotografije. Poli so razmazani čez celotno zgornjo in spodnjo vrstico.',
+  lpProjKeyMerc: 'Mercator', lpProjNameMerc: 'Mercator',
+  lpProjTextMerc: 'Valj, ki ohranja kote, zato so ga mornarji imeli radi. Krogi ostanejo okrogli, a proti poloma se napihnejo, poli sami pa so v neskončnosti.',
+  lpProjKeyPannini: 'Pannini', lpProjNamePannini: 'Pannini',
+  lpProjTextPannini: 'Valj, viden izza svoje lastne osi, ki so ga uporabljali veduta slikarji 18. stoletja. Navpične in radialne črte ostanejo ravne, zato so široki notranji prostori in ulice videti naravno.',
+  lpPresetPlanet: 'Mali planet', lpPresetTunnel: 'Tunelsko nebo', lpPresetLine: 'Vzdolž tira',
+  lpPresetGear: 'Objektiv Gear 360', lpPresetSphere: 'Cela krogla', lpPresetMirror: 'Zrcalna krogla', lpPresetStreet: 'Široka ulica',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Little Planet <span>Lab</span></h1>
+  <p class="lede" data-i18n="lpLede">A 360° photo is a whole sphere of directions, and every flat picture of it is a compromise. Drag the scene around, switch projections, and watch the same railway line turn into curves, circles and tiny planets.</p>
+
+  <div class="layout">
+    <section>
+      <div class="stage" id="stage">
+        <canvas id="view" aria-label="Projected panorama view"></canvas>
+        <div class="readout" id="readout"></div>
+        <div class="hintover" id="hintover" data-i18n="lpHint">drag · scroll / pinch to zoom</div>
+        <div class="drop" data-i18n="lpDropText">drop a 360° photo (equirectangular 2:1)</div>
+      </div>
+
+      <div class="label" data-i18n="lpProjLbl">Projection</div>
+      <div class="bar" id="projBar" role="group" aria-label="Projection"></div>
+
+      <div class="fovrow">
+        <label for="fov">FOV</label>
+        <input type="range" id="fov" min="20" max="360" step="1">
+        <output id="fovOut" for="fov"></output>
+      </div>
+
+      <div class="label" data-i18n="lpJumpLbl">Jump to</div>
+      <div class="bar" id="presetBar"></div>
+
+      <div class="toggles">
+        <label><input type="checkbox" id="tissot"> <span data-i18n="lpTissot">Tissot circles</span></label>
+        <label><input type="checkbox" id="grid"> <span data-i18n="lpGrid">Lat / lon grid</span></label>
+        <label><input type="checkbox" id="spin" checked> <span data-i18n="lpSpin">Slow spin</span></label>
+      </div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2 id="pName"></h2>
+        <div class="formula" id="pFormula"></div>
+        <p id="pText"></p>
+      </div>
+      <div class="card">
+        <h2 data-i18n="lpSourceH">Source sphere</h2>
+        <canvas class="mini" id="mini" aria-label="Equirectangular source map; click to look there"></canvas>
+        <p class="small" data-i18n="lpSourceCap">The equirectangular file behind the view. Green shows which part of the sphere is on screen right now. Click it to look there.</p>
+      </div>
+      <div class="card">
+        <h2 data-i18n="lpOwnH">Your own panorama</h2>
+        <p data-i18n="lpOwnP">Any 2:1 equirectangular image works: Insta360, Gear 360, Ricoh Theta, phone panoramas. It is read locally and never uploaded.</p>
+        <div class="bar">
+          <label class="filebtn"><input type="file" id="file" accept="image/*"><span class="chip" role="button" tabindex="0" id="fileBtn" data-i18n="lpLoadBtn">Load 360 photo</span></label>
+          <button id="btnScene" data-i18n="lpSceneBtn">Railway scene</button>
+          <button id="btnPng" data-i18n="lpSaveBtn">Save PNG</button>
+        </div>
+        <p class="small" data-i18n-html="lpKeyHelp"><kbd>1</kbd>–<kbd>8</kbd> projections &nbsp; <kbd>←</kbd><kbd>→</kbd><kbd>↑</kbd><kbd>↓</kbd> look &nbsp; <kbd>+</kbd><kbd>−</kbd> zoom &nbsp; <kbd>T</kbd> tour</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="how">
+    <div><h2 data-i18n="lpH2Bend">Why it has to bend</h2><p data-i18n="lpPBend">Gauss proved you cannot flatten a sphere without stretching it. Every projection picks what to keep: straight lines, true angles, true areas or the full 360°. Never all of them at once.</p></div>
+    <div><h2 data-i18n="lpTissot">Tissot circles</h2><p data-i18n="lpPTissot">Every green ring is exactly the same size on the sphere. Where a projection squashes them into ovals, shapes are distorted; where they grow, area is inflated. Stereographic and Mercator keep them round.</p></div>
+    <div><h2 data-i18n="lpH2Trick">The little planet trick</h2><p data-i18n="lpPTrick">Point the camera straight down and use a stereographic projection with a very wide field of view. The ground wraps into a small globe and the sky becomes the space around it.</p></div>
+  </div>
+
+  <footer class="site-foot">
+    <span data-i18n="lpFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+const PI = Math.PI, TAU = PI * 2, DEG = PI / 180;
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+/* ------------------------------------------------------------------
+   Projections. Each one maps a screen position (x, y in "unit" space,
+   y pointing up) back to a direction on the sphere. "scale(fov)" says
+   how many unit-space units half the screen width covers, so the
+   chosen horizontal field of view lands exactly at the screen edge.
+   ------------------------------------------------------------------ */
+const PROJ = [
+  { id: 'rect', nameKey: 'lpProjNameRect', keyKey: 'lpProjKeyRect', min: 20, max: 160, def: 90,
+    formula: 'r = f · tan θ', textKey: 'lpProjTextRect',
+    scale: f => Math.tan(f / 2) },
+  { id: 'fish', nameKey: 'lpProjNameFish', keyKey: 'lpProjKeyFish', min: 30, max: 360, def: 200,
+    formula: 'r = f · θ', textKey: 'lpProjTextFish',
+    scale: f => f / 2 },
+  { id: 'stereo', nameKey: 'lpProjNameStereo', keyKey: 'lpProjKeyStereo', min: 30, max: 330, def: 250,
+    formula: 'r = 2f · tan(θ / 2)', textKey: 'lpProjTextStereo',
+    scale: f => 2 * Math.tan(f / 4) },
+  { id: 'equisolid', nameKey: 'lpProjNameEquisolid', keyKey: 'lpProjKeyEquisolid', min: 30, max: 360, def: 220,
+    formula: 'r = 2f · sin(θ / 2)', textKey: 'lpProjTextEquisolid',
+    scale: f => 2 * Math.sin(f / 4) },
+  { id: 'ortho', nameKey: 'lpProjNameOrtho', keyKey: 'lpProjKeyOrtho', min: 30, max: 180, def: 180,
+    formula: 'r = f · sin θ', textKey: 'lpProjTextOrtho',
+    scale: f => Math.sin(f / 2) },
+  { id: 'equirect', nameKey: 'lpProjNameEquirect', keyKey: 'lpProjKeyEquirect', min: 30, max: 360, def: 360,
+    formula: 'x = λ, y = φ', textKey: 'lpProjTextEquirect',
+    scale: f => f / 2 },
+  { id: 'merc', nameKey: 'lpProjNameMerc', keyKey: 'lpProjKeyMerc', min: 30, max: 360, def: 300,
+    formula: 'x = λ, y = ln tan(π/4 + φ/2)', textKey: 'lpProjTextMerc',
+    scale: f => f / 2 },
+  { id: 'pannini', nameKey: 'lpProjNamePannini', keyKey: 'lpProjKeyPannini', min: 30, max: 300, def: 200,
+    formula: 'x = 2 tan(λ/2), y = 2 tan φ′ / (1 + cos λ)', textKey: 'lpProjTextPannini',
+    scale: f => 2 * Math.tan(f / 4) },
+];
+const projKey = p => t(p.keyKey), projName = p => t(p.nameKey), projText = p => t(p.textKey);
+
+/* Unit-space point -> direction (dx, dy, dz), camera looks down +z.
+   Returns false where the projection has no image (outside the disc etc). */
+let dx = 0, dy = 0, dz = 0;
+function inverse(id, x, y) {
+  switch (id) {
+    case 'rect': {
+      const n = 1 / Math.sqrt(x * x + y * y + 1);
+      dx = x * n; dy = y * n; dz = n; return true;
+    }
+    case 'fish': case 'stereo': case 'equisolid': case 'ortho': {
+      const r = Math.sqrt(x * x + y * y);
+      let t;
+      if (id === 'fish') { t = r; if (t > PI) return false; }
+      else if (id === 'stereo') t = 2 * Math.atan(r / 2);
+      else if (id === 'equisolid') { if (r > 2) return false; t = 2 * Math.asin(r / 2); }
+      else { if (r > 1) return false; t = Math.asin(r); }
+      const s = r > 1e-9 ? Math.sin(t) / r : 1;
+      dx = x * s; dy = y * s; dz = Math.cos(t); return true;
+    }
+    case 'equirect': case 'merc': {
+      if (x < -PI || x > PI) return false;
+      let lat;
+      if (id === 'equirect') { if (y < -PI / 2 || y > PI / 2) return false; lat = y; }
+      else lat = Math.atan(Math.sinh(y));
+      const c = Math.cos(lat);
+      dx = c * Math.sin(x); dy = Math.sin(lat); dz = c * Math.cos(x); return true;
+    }
+    case 'pannini': {
+      const phi = 2 * Math.atan(x / 2);
+      const h = y * (1 + Math.cos(phi)) / 2;
+      const cx = Math.sin(phi), cz = Math.cos(phi);
+      const n = 1 / Math.sqrt(cx * cx + h * h + cz * cz);
+      dx = cx * n; dy = h * n; dz = cz * n; return true;
+    }
+  }
+  return false;
+}
+
+/* ------------------------------------------------------------------
+   Procedural 360° scene: a railway line through farmland, overhead
+   catenary, masts, hills and a low sun. Straight lines everywhere,
+   which is exactly what makes projection distortion visible.
+   ------------------------------------------------------------------ */
+const EYE = 1.7;              // camera height above ground, metres
+const WIRE = 5.3 - EYE;       // contact wire height relative to the eye
+const SUN = { lon: 68 * DEG, lat: 16 * DEG };
+
+function hash(ix, iy) {
+  let h = (ix * 374761393 + iy * 668265263) | 0;
+  h = Math.imul(h ^ (h >>> 13), 1274126177);
+  return ((h ^ (h >>> 16)) >>> 0) / 4294967296;
+}
+function vnoise(x, y) {
+  const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy;
+  const ux = fx * fx * (3 - 2 * fx), uy = fy * fy * (3 - 2 * fy);
+  const a = hash(ix, iy), b = hash(ix + 1, iy), c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
+  return a + (b - a) * ux + (c - a) * uy + (a - b - c + d) * ux * uy;
+}
+const mix = (a, b, t) => a + (b - a) * t;
+const clamp01 = v => v < 0 ? 0 : v > 1 ? 1 : v;
+
+function hillHeight(lon) {   // horizon elevation of the hills, radians
+  return Math.max(0.004,
+    0.032 + 0.02 * Math.sin(3 * lon + 1.1) + 0.013 * Math.sin(7 * lon + 2.3) +
+    0.006 * Math.sin(17 * lon + 0.4) + 0.003 * Math.sin(41 * lon));
+}
+
+function bakeScene(W, H) {
+  const img = new ImageData(W, H), px = img.data;
+  const dA = PI / H;           // angular size of one texel
+  const sx = Math.cos(SUN.lat) * Math.sin(SUN.lon), sy = Math.sin(SUN.lat), sz = Math.cos(SUN.lat) * Math.cos(SUN.lon);
+  const hills = new Float32Array(W);
+  for (let u = 0; u < W; u++) hills[u] = hillHeight((u + 0.5) / W * TAU - PI);
+
+  for (let v = 0; v < H; v++) {
+    const lat = PI / 2 - (v + 0.5) * dA, cl = Math.cos(lat), y = Math.sin(lat);
+    for (let u = 0; u < W; u++) {
+      const lon = (u + 0.5) / W * TAU - PI;
+      const x = cl * Math.sin(lon), z = cl * Math.cos(lon);
+      let r, g, b;
+      const sunDot = x * sx + y * sy + z * sz;
+      const hz = hills[u];
+
+      if (lat > hz) {
+        // sky: deep blue overhead, warm haze at the horizon, glow around the sun
+        const t = Math.pow(clamp01(lat / (PI / 2)), 0.45);
+        r = mix(236, 38, t); g = mix(196, 92, t); b = mix(160, 178, t);
+        const glow = Math.pow(clamp01((sunDot + 1) / 2), 24);
+        r += 60 * glow; g += 40 * glow; b += 10 * glow;
+        // flat cloud layer, faded out toward the horizon where it would alias
+        if (y > 0.06) {
+          const cx = x / y * 0.9, cz = z / y * 0.9;
+          let n = vnoise(cx, cz) * 0.65 + vnoise(cx * 2.7 + 9, cz * 2.7) * 0.35;
+          n = clamp01((n - 0.52) * 3.2) * clamp01((y - 0.06) * 3.5);
+          r = mix(r, 248, n * 0.85); g = mix(g, 244, n * 0.85); b = mix(b, 238, n * 0.85);
+        }
+        if (sunDot > Math.cos(1.5 * DEG)) { r = 255; g = 250; b = 228; }
+      } else if (lat > 0) {
+        // distant hills, bluish with atmospheric haze
+        const k = clamp01(lat / hz);
+        const n = vnoise(lon * 40, lat * 200);
+        r = mix(70, 104, k) + n * 10; g = mix(98, 120, k) + n * 10; b = mix(92, 140, k) + n * 8;
+      } else {
+        // ground plane: intersect the view ray with y = -EYE
+        const t = EYE / -y, gx = x * t, gz = z * t, d = t * cl;
+        const fpLat = d * dA, fpRad = d * d / EYE * dA;      // texel footprint on the ground
+        const ax = Math.abs(gx);
+        const fx = Math.hypot(fpLat * gz / (d + 1e-6), fpRad * gx / (d + 1e-6)) + 1e-4;
+        const fz = Math.hypot(fpLat * gx / (d + 1e-6), fpRad * gz / (d + 1e-6)) + 1e-4;
+        // farmland patches
+        const field = vnoise(gx / 60 + 3, gz / 45);
+        const fine = mix(vnoise(gx * 1.3, gz * 1.3), 0.5, clamp01(fpRad / 0.8));
+        r = mix(78, 150, field) + fine * 16; g = mix(118, 146, field) + fine * 16; b = mix(46, 62, field) + fine * 8;
+        // ballast bed
+        if (ax < 2.0) {
+          const e = clamp01((2.0 - ax) / fx);
+          r = mix(r, 122, e); g = mix(g, 112, e); b = mix(b, 100, e);
+        }
+        // sleepers every 0.65 m, averaged out where they would alias
+        if (ax < 1.3) {
+          const ph = ((gz / 0.65) % 1 + 1) % 1;
+          let cov = ph < 0.36 ? 1 : 0;
+          cov = mix(cov, 0.36, clamp01(fz / 0.3));
+          const e = cov * clamp01((1.3 - ax) / fx);
+          r = mix(r, 74, e); g = mix(g, 56, e); b = mix(b, 44, e);
+        }
+        // rails at ±0.75 m, coverage-based so they stay thin and smooth far away
+        for (const rx of [-0.75, 0.75]) {
+          const w = 0.035, dist = Math.abs(gx - rx);
+          const cov = clamp01((w + fx * 0.5 - dist) / fx) * Math.min(1, (2 * w) / fx * 1.4 + 0.15);
+          if (cov > 0) { r = mix(r, 205, cov); g = mix(g, 205, cov); b = mix(b, 210, cov); }
+        }
+        // haze with distance
+        const hzK = 1 - Math.exp(-d / 900);
+        r = mix(r, 200, hzK); g = mix(g, 190, hzK); b = mix(b, 180, hzK);
+      }
+
+      // overhead contact wire along the track axis
+      if (y > 0.002) {
+        const t = WIRE / y, wx = x * t, dist = t * cl;
+        const fpx = dist * dA * Math.max(1, Math.abs(wx) / WIRE) + 1e-4;
+        const cov = clamp01((0.012 + fpx * 0.5 - Math.abs(wx)) / fpx) * Math.min(1, 0.024 / fpx + 0.08);
+        if (cov > 0 && dist < 3000) { r = mix(r, 30, cov); g = mix(g, 30, cov); b = mix(b, 34, cov); }
+      }
+
+      const i = (v * W + u) * 4;
+      px[i] = r; px[i + 1] = g; px[i + 2] = b; px[i + 3] = 255;
+    }
+  }
+
+  // masts and cantilever arms, stamped along 3D segments
+  for (let k = -30; k <= 30; k++) {
+    const z = k * 30 + 9;
+    stampSegment(px, W, H, [-2.7, -EYE, z], [-2.7, 4.6 - EYE, z], 0.11, [52, 54, 58]);
+    stampSegment(px, W, H, [-2.7, 4.3 - EYE, z], [0.2, WIRE + 0.05, z], 0.03, [60, 62, 66]);
+  }
+  // a signal post beside the track with a green aspect
+  stampSegment(px, W, H, [2.3, -EYE, 22], [2.3, 3.2 - EYE, 22], 0.07, [40, 40, 44]);
+  stampSegment(px, W, H, [2.3, 3.0 - EYE, 22], [2.3, 3.4 - EYE, 22], 0.22, [24, 24, 26]);
+  stampSegment(px, W, H, [2.27, 3.2 - EYE, 21.85], [2.27, 3.2 - EYE, 21.85], 0.08, [184, 245, 122]);
+  return img;
+}
+
+/* Draw a thick 3D line segment into the equirectangular image by
+   stamping small antialiased dots along it. Correct by construction:
+   each dot lands where its own direction falls on the sphere. */
+function stampSegment(px, W, H, a, b, halfW, col) {
+  const la = Math.hypot(...a), lb = Math.hypot(...b);
+  const cosAng = (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]) / (la * lb || 1);
+  const ang = Math.acos(Math.max(-1, Math.min(1, cosAng)));
+  const n = Math.ceil(ang / (PI / H) * 3) + 2;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n;
+    const x = mix(a[0], b[0], t), y = mix(a[1], b[1], t), z = mix(a[2], b[2], t);
+    const d = Math.hypot(x, y, z);
+    const lat = Math.asin(y / d), lon = Math.atan2(x, z);
+    const ar = halfW / d;                         // angular radius of the stamp
+    const rv = ar / (PI / H);                     // radius in texels (vertical)
+    const ru = ar / (TAU / W) / Math.max(0.05, Math.cos(lat));
+    const cu = (lon + PI) / TAU * W, cv = (PI / 2 - lat) / PI * H;
+    const alphaScale = rv < 0.5 ? rv * 2 : 1;     // sub-texel lines get faint, not fat
+    const R = Math.max(0.5, rv), RU = Math.max(0.5, ru);
+    for (let vv = Math.floor(cv - R); vv <= Math.ceil(cv + R); vv++) {
+      if (vv < 0 || vv >= H) continue;
+      for (let uu = Math.floor(cu - RU); uu <= Math.ceil(cu + RU); uu++) {
+        const q = Math.hypot((uu + 0.5 - cu) / RU, (vv + 0.5 - cv) / R);
+        const cov = clamp01((1 - q) * Math.max(R, 1)) * alphaScale;
+        if (cov <= 0) continue;
+        const iu = ((uu % W) + W) % W, idx = (vv * W + iu) * 4;
+        px[idx] = mix(px[idx], col[0], cov); px[idx + 1] = mix(px[idx + 1], col[1], cov); px[idx + 2] = mix(px[idx + 2], col[2], cov);
+      }
+    }
+  }
+}
+
+/* Overlay texture: Tissot circles (7° radius, same size everywhere on
+   the sphere) and a 15° graticule, kept separate so they can be toggled
+   and laid over any loaded photo. */
+function bakeOverlay(W, H) {
+  const tis = new Uint8Array(W * H), grid = new Uint8Array(W * H);
+  const R = 7 * DEG, cosR = Math.cos(R), cosIn = Math.cos(R - 0.45 * DEG);
+  const step = 30 * DEG;
+  for (let v = 0; v < H; v++) {
+    const lat = PI / 2 - (v + 0.5) / H * PI, cl = Math.cos(lat), sl = Math.sin(lat);
+    for (let u = 0; u < W; u++) {
+      const lon = (u + 0.5) / W * TAU - PI;
+      // nearest ring centre: latitudes -60..60 every 30° (centres every 30° of
+      // longitude), plus one ring on each pole. Compare by cosine of the angle.
+      const L = Math.max(-2, Math.min(2, Math.round(lat / step))) * step;
+      const lonC = Math.round(lon / step) * step;
+      let best = Math.abs(sl);                     // the nearer pole
+      for (const dl of [-step, 0, step]) {
+        const cd = sl * Math.sin(L) + cl * Math.cos(L) * Math.cos(lon - lonC - dl);
+        if (cd > best) best = cd;
+      }
+      const i = v * W + u;
+      if (best > cosIn) tis[i] = 60; else if (best > cosR) tis[i] = 255;
+      // graticule: 15° spacing, ~1.2 texel lines, equator and meridian 0 brighter
+      const gl = 15 * DEG, du = TAU / W, dv = PI / H;
+      const offLon = Math.abs(lon - Math.round(lon / gl) * gl), offLat = Math.abs(lat - Math.round(lat / gl) * gl);
+      if (offLon < du * 0.7 || offLat < dv * 0.7) {
+        grid[i] = (Math.abs(lat) < dv || Math.abs(lon) < du) ? 255 : 150;
+      }
+    }
+  }
+  return { tis, grid, W, H };
+}
+
+/* ------------------------------------------------------------------
+   Renderer: for every screen pixel, invert the projection, rotate by
+   the view, look up the source texel. During a projection change both
+   inverse maps are evaluated and their directions blended, which gives
+   the smooth morph.
+   ------------------------------------------------------------------ */
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('view'), ctx = canvas.getContext('2d');
+const mini = document.getElementById('mini'), mctx = mini.getContext('2d');
+const readout = document.getElementById('readout');
+
+let tex = null, texW = 0, texH = 0;            // source pixels as Uint32 (RGBA packed)
+let texCanvas = document.createElement('canvas');
+let overlay = null;
+let sceneImage = null;                          // baked railway scene, kept for "Railway scene" button
+
+const view = { proj: 2, fov: 250 * DEG, yaw: 0, pitch: -90 * DEG };
+let morph = null;                               // { from, fromFov, t0, dur }
+let tween = null;                               // view animation
+let quality = 1, lowResUntil = 0, needsRender = true;
+let coverage = new Uint8Array(120 * 60);
+let dirCache = { key: '' };
+const maskCanvas = Object.assign(document.createElement('canvas'), { width: 120, height: 60 });
+const maskCtx = maskCanvas.getContext('2d');
+const lit = document.createElement('canvas'), litCtx = lit.getContext('2d');
+
+function setTexture(imgData) {
+  texW = imgData.width; texH = imgData.height;
+  tex = new Uint32Array(imgData.data.buffer.slice(0));
+  texCanvas.width = texW; texCanvas.height = texH;
+  texCanvas.getContext('2d').putImageData(imgData, 0, 0);
+  needsRender = true;
+}
+
+function render() {
+  if (!tex) return;
+  const cssW = stage.clientWidth, cssH = stage.clientHeight;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+  let s = quality * dpr;
+  const maxPx = 560000;
+  if (cssW * cssH * s * s > maxPx) s = Math.sqrt(maxPx / (cssW * cssH));
+  const w = Math.max(32, Math.round(cssW * s)), h = Math.max(32, Math.round(cssH * s));
+  if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+
+  const out = ctx.createImageData(w, h);
+  const o32 = new Uint32Array(out.data.buffer);
+  const halfW = w / 2, halfH = h / 2;
+
+  const now = performance.now();
+  let mt = 1, A = PROJ[view.proj], B = null, kA, kB;
+  kA = A.scale(view.fov) / halfW;
+  if (morph) {
+    mt = Math.min(1, (now - morph.t0) / morph.dur);
+    mt = mt * mt * (3 - 2 * mt);
+    B = PROJ[morph.from]; kB = B.scale(morph.fromFov) / halfW;
+    if (mt >= 1) { morph = null; B = null; }
+  }
+
+  // view rotation: pitch about x, then yaw about y
+  const cp = Math.cos(view.pitch), sp = Math.sin(view.pitch), cy = Math.cos(view.yaw), sy = Math.sin(view.yaw);
+  const tis = document.getElementById('tissot').checked, grd = document.getElementById('grid').checked;
+  const ov = overlay, oW = ov ? ov.W : 1, oH = ov ? ov.H : 1;
+  const accent = [184, 245, 122];
+  const covStep = Math.max(1, Math.round(w / 360));
+  coverage.fill(0);
+
+  // camera-space directions only change with projection, FOV or size, so
+  // cache them; then a plain drag costs one rotation + lookup per pixel
+  const key = `${A.id}|${kA}|${w}|${h}`;
+  if (!B && dirCache.key !== key) {
+    const n = w * h, X = new Float32Array(n), Y = new Float32Array(n), Z = new Float32Array(n);
+    let q = 0;
+    for (let j = 0; j < h; j++) {
+      const yy = halfH - (j + 0.5);
+      for (let i = 0; i < w; i++, q++) {
+        if (inverse(A.id, ((i + 0.5) - halfW) * kA, yy * kA)) { X[q] = dx; Y[q] = dy; Z[q] = dz; }
+        else X[q] = NaN;
+      }
+    }
+    dirCache = { key, X, Y, Z };
+  }
+  const C = B ? null : dirCache;
+
+  let idx = 0;
+  for (let j = 0; j < h; j++) {
+    const yy = halfH - (j + 0.5);
+    for (let i = 0; i < w; i++, idx++) {
+      const xx = (i + 0.5) - halfW;
+      let ok, weight = 1, ax, ay, az;
+      if (C) { ax = C.X[idx]; ok = ax === ax; ay = C.Y[idx]; az = C.Z[idx]; }
+      else { ok = inverse(A.id, xx * kA, yy * kA); ax = dx; ay = dy; az = dz; }
+      if (B) {
+        const okB = inverse(B.id, xx * kB, yy * kB);
+        if (ok && okB) {
+          ax = ax * mt + dx * (1 - mt); ay = ay * mt + dy * (1 - mt); az = az * mt + dz * (1 - mt);
+          const n = Math.hypot(ax, ay, az) || 1; ax /= n; ay /= n; az /= n;
+        } else if (ok) weight = mt;
+        else if (okB) { ok = true; ax = dx; ay = dy; az = dz; weight = 1 - mt; }
+      }
+      if (!ok) { o32[idx] = 0xff000000; continue; }
+      // rotate camera-space direction into world space
+      const y1 = ay * cp + az * sp, z1 = -ay * sp + az * cp;
+      const wx = ax * cy + z1 * sy, wz = -ax * sy + z1 * cy, wy = y1;
+      const lon = Math.atan2(wx, wz), lat = Math.asin(wy > 1 ? 1 : wy < -1 ? -1 : wy);
+      const uf = (lon + PI) / TAU, vf = 0.5 - lat / PI;
+      let tu = (uf * texW) | 0, tv = (vf * texH) | 0;
+      if (tu >= texW) tu = texW - 1; if (tv >= texH) tv = texH - 1; if (tv < 0) tv = 0;
+      let c = tex[tv * texW + tu];
+
+      if ((tis || grd) && ov) {
+        let ou = (uf * oW) | 0, ovv = (vf * oH) | 0;
+        if (ou >= oW) ou = oW - 1; if (ovv >= oH) ovv = oH - 1; if (ovv < 0) ovv = 0;
+        const k = ovv * oW + ou;
+        let a = 0;
+        if (tis && ov.tis[k]) a = ov.tis[k] / 255 * 0.85;
+        if (grd && ov.grid[k]) a = Math.max(a, ov.grid[k] / 255 * 0.7);
+        if (a > 0) {
+          const gridOnly = !(tis && ov.tis[k]);
+          const tr = gridOnly ? 255 : accent[0], tg = gridOnly ? 255 : accent[1], tb = gridOnly ? 255 : accent[2];
+          const r = c & 255, g = (c >>> 8) & 255, b = (c >>> 16) & 255;
+          c = 0xff000000 | (mix(b, tb, a) << 16) | (mix(g, tg, a) << 8) | mix(r, tr, a);
+        }
+      }
+      if (weight < 1) {
+        const r = (c & 255) * weight, g = ((c >>> 8) & 255) * weight, b = ((c >>> 16) & 255) * weight;
+        c = 0xff000000 | (b << 16) | (g << 8) | r;
+      }
+      o32[idx] = c;
+      if (i % covStep === 0 && j % covStep === 0) {
+        coverage[Math.min(59, (vf * 60) | 0) * 120 + Math.min(119, (uf * 120) | 0)] = 1;
+      }
+    }
+  }
+  ctx.putImageData(out, 0, 0);
+  drawMini();
+  readout.textContent = `${projKey(PROJ[view.proj])} · fov ${Math.round(view.fov / DEG)}° · yaw ${fmtAng(view.yaw)} · pitch ${fmtAng(view.pitch)}`;
+}
+
+const fmtAng = a => { let d = Math.round(((a / DEG) % 360 + 540) % 360 - 180); return (d > 0 ? '+' : '') + d + '°'; };
+
+function drawMini() {
+  const W = mini.clientWidth, H = mini.clientHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  const cw = Math.round(W * dpr), ch = Math.round(H * dpr);
+  if (mini.width !== cw || mini.height !== ch) { mini.width = cw; mini.height = ch; }
+  mctx.imageSmoothingEnabled = true;
+  mctx.drawImage(texCanvas, 0, 0, cw, ch);
+  mctx.fillStyle = 'rgba(0,0,0,.45)';
+  mctx.fillRect(0, 0, cw, ch);
+  // bright where visible: the coverage grid becomes a tiny alpha mask, scaled up
+  // smoothly and used to cut a full-brightness, green-tinted copy of the source
+  const md = maskCtx.createImageData(120, 60);
+  for (let k = 0; k < coverage.length; k++) md.data[k * 4 + 3] = coverage[k] * 255;
+  maskCtx.putImageData(md, 0, 0);
+  if (lit.width !== cw || lit.height !== ch) { lit.width = cw; lit.height = ch; }
+  litCtx.globalCompositeOperation = 'source-over';
+  litCtx.drawImage(texCanvas, 0, 0, cw, ch);
+  litCtx.fillStyle = 'rgba(184,245,122,.22)';
+  litCtx.fillRect(0, 0, cw, ch);
+  litCtx.globalCompositeOperation = 'destination-in';
+  litCtx.imageSmoothingEnabled = true;
+  litCtx.drawImage(maskCanvas, 0, 0, cw, ch);
+  mctx.drawImage(lit, 0, 0);
+  // view centre marker
+  const u = ((view.yaw / TAU + 0.5) % 1 + 1) % 1 * cw, v = (0.5 - view.pitch / PI) * ch;
+  mctx.strokeStyle = '#b8f57a'; mctx.lineWidth = 1.5 * dpr;
+  mctx.beginPath(); mctx.arc(u, v, 5 * dpr, 0, TAU); mctx.stroke();
+  mctx.beginPath(); mctx.moveTo(u - 9 * dpr, v); mctx.lineTo(u - 6 * dpr, v); mctx.moveTo(u + 6 * dpr, v); mctx.lineTo(u + 9 * dpr, v); mctx.stroke();
+}
+
+/* ------------------------------------------------------------------
+   UI
+   ------------------------------------------------------------------ */
+const fovEl = document.getElementById('fov'), fovOut = document.getElementById('fovOut');
+const projBar = document.getElementById('projBar');
+PROJ.forEach((p, i) => {
+  const b = document.createElement('button');
+  b.className = 'chip'; b.textContent = projKey(p); b.title = `${projName(p)} (${i + 1})`;
+  b.onclick = () => {
+    stopTour(); setProjection(i);
+    // maps and cylinders read best upright; fisheyes keep wherever you were looking
+    if (i >= 5 && Math.abs(view.pitch) > 45 * DEG) animateView(view.yaw, 0);
+  };
+  projBar.appendChild(b);
+});
+function relabelProjBar() {
+  PROJ.forEach((p, i) => {
+    const b = projBar.children[i];
+    if (b) { b.textContent = projKey(p); b.title = `${projName(p)} (${i + 1})`; }
+  });
+}
+
+function syncUI() {
+  const p = PROJ[view.proj];
+  [...projBar.children].forEach((b, i) => b.setAttribute('aria-pressed', i === view.proj));
+  fovEl.min = p.min; fovEl.max = p.max;
+  fovEl.value = Math.round(view.fov / DEG);
+  fovOut.value = Math.round(view.fov / DEG) + '°';
+  document.getElementById('pName').textContent = projName(p);
+  document.getElementById('pFormula').textContent = p.formula;
+  document.getElementById('pText').textContent = projText(p);
+}
+
+function clampFov(f, p) { return Math.max(p.min * DEG, Math.min(p.max * DEG, f)); }
+
+function setProjection(i, fovDeg) {
+  if (i === view.proj && fovDeg === undefined) return;
+  morph = { from: view.proj, fromFov: view.fov, t0: performance.now(), dur: 700 };
+  view.proj = i;
+  const p = PROJ[i];
+  view.fov = clampFov(fovDeg !== undefined ? fovDeg * DEG : view.fov, p);
+  if (fovDeg === undefined && (view.fov / DEG < p.min + 1 || view.fov / DEG > p.max - 1)) view.fov = p.def * DEG;
+  syncUI(); kick();
+}
+
+const PRESETS = [
+  { nameKey: 'lpPresetPlanet', proj: 2, fov: 250, yaw: null, pitch: -90 },
+  { nameKey: 'lpPresetTunnel', proj: 2, fov: 250, yaw: null, pitch: 90 },
+  { nameKey: 'lpPresetLine', proj: 0, fov: 75, yaw: 0, pitch: -4 },
+  { nameKey: 'lpPresetGear', proj: 1, fov: 195, yaw: 90, pitch: 0 },
+  { nameKey: 'lpPresetSphere', proj: 5, fov: 360, yaw: 0, pitch: 0 },
+  { nameKey: 'lpPresetMirror', proj: 4, fov: 180, yaw: 30, pitch: 10 },
+  { nameKey: 'lpPresetStreet', proj: 7, fov: 220, yaw: 0, pitch: 0 },
+];
+const presetBar = document.getElementById('presetBar');
+PRESETS.forEach((pr, i) => {
+  const b = document.createElement('button');
+  b.textContent = t(pr.nameKey);
+  b.onclick = () => { stopTour(); applyPreset(i); };
+  presetBar.appendChild(b);
+});
+function relabelPresetBar() {
+  PRESETS.forEach((pr, i) => { const b = presetBar.children[i]; if (b) b.textContent = t(pr.nameKey); });
+}
+
+function applyPreset(i) {
+  const pr = PRESETS[i];
+  setProjection(pr.proj, pr.fov);
+  animateView(pr.yaw === null ? view.yaw : pr.yaw * DEG, pr.pitch * DEG);
+}
+
+function animateView(yaw, pitch) {
+  // shortest way round for yaw
+  let dYaw = ((yaw - view.yaw) % TAU + TAU + PI) % TAU - PI;
+  tween = { y0: view.yaw, p0: view.pitch, dy: dYaw, dp: pitch - view.pitch, t0: performance.now(), dur: 900 };
+  kick();
+}
+
+fovEl.addEventListener('input', () => { stopTour(); view.fov = fovEl.value * DEG; fovOut.value = fovEl.value + '°'; lowRes(); kick(); });
+['tissot', 'grid'].forEach(id => document.getElementById(id).addEventListener('change', kick));
+const spinEl = document.getElementById('spin');
+spinEl.addEventListener('change', kick);
+
+/* --- pointer: drag to look, pinch / wheel to zoom --- */
+const pointers = new Map();
+let pinch0 = 0, fov0 = 0, hintHidden = false;
+function hideHint() { if (!hintHidden) { hintHidden = true; document.getElementById('hintover').style.opacity = 0; } }
+
+stage.addEventListener('pointerdown', e => {
+  stage.setPointerCapture(e.pointerId);
+  pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  stage.classList.add('dragging');
+  stopTour(); tween = null; spinEl.checked = false; hideHint();
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    pinch0 = Math.hypot(a.x - b.x, a.y - b.y); fov0 = view.fov;
+  }
+});
+stage.addEventListener('pointermove', e => {
+  const p = pointers.get(e.pointerId);
+  if (!p) return;
+  if (pointers.size === 1) {
+    // degrees per pixel roughly follows the field of view across the screen
+    const k = Math.min(view.fov, 200 * DEG) / stage.clientWidth;
+    view.yaw -= (e.clientX - p.x) * k;
+    view.pitch = Math.max(-PI / 2, Math.min(PI / 2, view.pitch + (e.clientY - p.y) * k));
+  }
+  p.x = e.clientX; p.y = e.clientY;
+  if (pointers.size === 2) {
+    const [a, b] = [...pointers.values()];
+    const d = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinch0 > 0) { view.fov = clampFov(fov0 * pinch0 / d, PROJ[view.proj]); syncUI(); }
+  }
+  lowRes(); kick();
+});
+function endPointer(e) {
+  pointers.delete(e.pointerId);
+  if (pointers.size < 2) pinch0 = 0;
+  if (!pointers.size) stage.classList.remove('dragging');
+}
+stage.addEventListener('pointerup', endPointer);
+stage.addEventListener('pointercancel', endPointer);
+stage.addEventListener('wheel', e => {
+  e.preventDefault(); stopTour(); hideHint();
+  view.fov = clampFov(view.fov * Math.exp(e.deltaY * 0.0012), PROJ[view.proj]);
+  syncUI(); lowRes(); kick();
+}, { passive: false });
+
+/* click / drag on the source map to look at that spot */
+function miniLook(e) {
+  const r = mini.getBoundingClientRect();
+  const u = (e.clientX - r.left) / r.width, v = (e.clientY - r.top) / r.height;
+  view.yaw = (u - 0.5) * TAU;
+  view.pitch = Math.max(-PI / 2, Math.min(PI / 2, (0.5 - v) * PI));
+  stopTour(); tween = null; spinEl.checked = false; lowRes(); kick();
+}
+let miniDown = false;
+mini.addEventListener('pointerdown', e => { miniDown = true; mini.setPointerCapture(e.pointerId); miniLook(e); });
+mini.addEventListener('pointermove', e => { if (miniDown) miniLook(e); });
+mini.addEventListener('pointerup', () => { miniDown = false; });
+
+/* keyboard */
+window.addEventListener('keydown', e => {
+  if (e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= PROJ.length) { stopTour(); setProjection(n - 1); return; }
+  const step = Math.min(view.fov, 120 * DEG) * 0.06;
+  if (e.key === 'ArrowLeft') view.yaw -= step;
+  else if (e.key === 'ArrowRight') view.yaw += step;
+  else if (e.key === 'ArrowUp') view.pitch = Math.min(PI / 2, view.pitch + step);
+  else if (e.key === 'ArrowDown') view.pitch = Math.max(-PI / 2, view.pitch - step);
+  else if (e.key === '+' || e.key === '=') view.fov = clampFov(view.fov / 1.1, PROJ[view.proj]);
+  else if (e.key === '-' || e.key === '_') view.fov = clampFov(view.fov * 1.1, PROJ[view.proj]);
+  else if (e.key === 't' || e.key === 'T') { tourTimer ? stopTour() : startTour(); return; }
+  else return;
+  e.preventDefault(); stopTour(); syncUI(); lowRes(); kick();
+});
+
+/* tour: step through the presets on its own */
+let tourTimer = 0, tourIdx = 0;
+function startTour() {
+  spinEl.checked = false;
+  const next = () => { applyPreset(tourIdx % PRESETS.length); tourIdx++; };
+  next(); tourTimer = setInterval(next, 3600);
+}
+function stopTour() { if (tourTimer) { clearInterval(tourTimer); tourTimer = 0; } }
+
+/* own photo: decoded locally, downscaled to at most 4096 px wide */
+const fileEl = document.getElementById('file');
+document.getElementById('fileBtn').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileEl.click(); } });
+fileEl.addEventListener('change', () => { if (fileEl.files[0]) loadPhoto(fileEl.files[0]); fileEl.value = ''; });
+stage.addEventListener('dragover', e => { e.preventDefault(); stage.classList.add('over'); });
+stage.addEventListener('dragleave', () => stage.classList.remove('over'));
+stage.addEventListener('drop', e => {
+  e.preventDefault(); stage.classList.remove('over');
+  const f = e.dataTransfer.files[0]; if (f && f.type.startsWith('image/')) loadPhoto(f);
+});
+function loadPhoto(file) {
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => {
+    const W = Math.min(4096, img.naturalWidth), H = Math.round(W / 2);
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d'); g.imageSmoothingQuality = 'high';
+    g.drawImage(img, 0, 0, W, H);   // stretched to 2:1 if it isn't quite
+    URL.revokeObjectURL(url);
+    setTexture(g.getImageData(0, 0, W, H));
+    kick();
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); readout.textContent = t('lpLoadError'); };
+  img.src = url;
+}
+document.getElementById('btnScene').onclick = () => { if (sceneImage) { setTexture(sceneImage); kick(); } };
+document.getElementById('btnPng').onclick = () => {
+  quality = 1; lowResUntil = 0; render();
+  canvas.toBlob(b => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b); a.download = `little-planet-${PROJ[view.proj].id}.png`;
+    a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  });
+};
+
+/* ------------------------------------------------------------------
+   Frame loop: render only when something changed; drop to half
+   resolution while the user is dragging, then sharpen.
+   ------------------------------------------------------------------ */
+function lowRes() { lowResUntil = performance.now() + 160; }
+let raf = 0, lastT = 0;
+function kick() { needsRender = true; if (!raf) raf = requestAnimationFrame(frame); }
+function frame(t) {
+  raf = 0;
+  const dt = Math.min(0.05, (t - (lastT || t)) / 1000); lastT = t;
+  let animating = false;
+  if (tween) {
+    let k = Math.min(1, (t - tween.t0) / tween.dur); const e = k * k * (3 - 2 * k);
+    view.yaw = tween.y0 + tween.dy * e; view.pitch = tween.p0 + tween.dp * e;
+    if (k >= 1) tween = null; animating = true;
+  }
+  if (spinEl.checked && !pointers.size) { view.yaw += dt * 0.12; animating = true; }
+  if (morph) animating = true;
+  const wantLow = animating || t < lowResUntil;
+  const q = wantLow ? 0.5 : 1;
+  if (needsRender || animating || q !== quality) {
+    quality = q; needsRender = false;
+    render();
+  }
+  if (animating || t < lowResUntil + 30) raf = requestAnimationFrame(frame);
+  else lastT = 0;
+}
+new ResizeObserver(kick).observe(stage);
+
+/* ------------------------------------------------------------------
+   Boot: bake the scene (a few hundred ms), then start in little planet.
+   ------------------------------------------------------------------ */
+readout.textContent = t('lpBuilding');
+syncUI();
+function applyAria() {
+  const viewCanvas = document.getElementById('view'), miniCanvas = document.getElementById('mini');
+  if (viewCanvas) viewCanvas.setAttribute('aria-label', t('lpAriaView'));
+  if (miniCanvas) miniCanvas.setAttribute('aria-label', t('lpAriaMini'));
+}
+applyAria();
+document.addEventListener('presker-lang-change', () => {
+  applyAria(); relabelProjBar(); relabelPresetBar(); syncUI(); kick();
+});
+setTimeout(() => {
+  const W = innerWidth < 600 ? 1536 : 2048;
+  sceneImage = bakeScene(W, W / 2);
+  overlay = bakeOverlay(1440, 720);
+  setTexture(sceneImage);
+  kick();
+}, 30);
+</script>
+</body>
+</html>

@@ -1,0 +1,463 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Word Safari — learn whole words in German and Slovenian</title>
+<meta name="description" content="A memory-match game for kids: learn whole German and Slovenian words together — animals, food, nature and home — by pairing translations, not single letters. Click to hear each word spoken aloud.">
+<link rel="canonical" href="https://www.presker.at/lab/word-safari/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/word-safari/">
+<meta property="og:title" content="Word Safari">
+<meta property="og:description" content="Learn whole German and Slovenian words by matching translation pairs — animals, food, nature and home — with audio for every word.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a;
+  --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff;
+  --de: #a2461f; --sl: #2a5fb0; --bad: #c23e1f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414;
+  --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --de: #f5b85a; --sl: #7ab8f5; --bad: #f57a7a;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414;
+    --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --de: #f5b85a; --sl: #7ab8f5; --bad: #f57a7a;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 920px; margin: 0 auto; padding: 18px 16px 28px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 8px; }
+.home:hover { color: var(--accent); }
+h1 { font: 600 22px var(--mono); margin: 0; letter-spacing: -.01em; }
+.lede { margin: 4px 0 14px; color: var(--muted); max-width: 680px; }
+
+.levels { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 14px; }
+button { font: 13px var(--mono); color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; touch-action: manipulation; }
+button:hover { border-color: var(--muted); }
+button.on, button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:disabled { opacity: .4; cursor: default; }
+.levels button.done::after { content: " ✓"; }
+
+.tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+
+.stat { font: 12px var(--mono); color: var(--muted); display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 10px; }
+.stat b { color: var(--ink); }
+
+/* --- learn screen --- */
+.learnGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; margin-bottom: 16px; }
+.learnCard { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+.learnCard .emoji { font-size: 30px; line-height: 1; flex: none; }
+.learnCard .words { flex: 1; min-width: 0; }
+.learnCard .w { display: flex; align-items: baseline; gap: 6px; }
+.learnCard .tag { font: 10px var(--mono); width: 20px; flex: none; }
+.learnCard .tag.de { color: var(--de); } .learnCard .tag.sl { color: var(--sl); }
+.learnCard .word { font: 700 16px var(--mono); }
+.speak { flex: none; width: 30px; height: 30px; padding: 0; border-radius: 50%; font-size: 13px; }
+
+/* --- match screen --- */
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+.card { aspect-ratio: 1 / 0.82; border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  cursor: pointer; padding: 4px; text-align: center; position: relative; }
+.card .back { font: 20px var(--mono); color: var(--line); }
+.card .tag { position: absolute; top: 5px; left: 7px; font: 10px var(--mono); }
+.card .tag.de { color: var(--de); } .card .tag.sl { color: var(--sl); }
+.card .word { font: 700 15px var(--mono); padding: 0 4px; overflow-wrap: anywhere; display: none; }
+.card.flipped .word { display: block; } .card.flipped .back { display: none; }
+.card.flipped { border-color: var(--muted); }
+.card.matched { border-color: var(--accent); background: var(--paper); cursor: default; }
+.card.matched .emoji { font-size: 20px; margin-top: 2px; }
+.card.wrong { animation: shake .3s; border-color: var(--bad); }
+.card:disabled, .card.locked { pointer-events: none; }
+@keyframes shake { 0%,100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+.done-panel { background: var(--panel); border: 1px solid var(--accent); border-radius: 14px; padding: 16px; margin-bottom: 16px; }
+.done-panel h2 { font: 600 16px var(--mono); margin: 0 0 8px; color: var(--accent); }
+
+.about { margin-top: 26px; color: var(--muted); max-width: 760px; font-size: 14px; }
+.about h2 { font: 600 13px var(--mono); color: var(--ink); margin: 18px 0 4px; }
+.about p { margin: 4px 0 8px; }
+.site-foot { margin-top: 24px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+.lab-related { margin-top: 22px; font: 12px var(--mono); color: var(--muted); }
+.lab-related .lbl { text-transform: uppercase; letter-spacing: .06em; font-size: 11px; margin-right: 8px; }
+.lab-related a { color: var(--accent); }
+
+@media (max-width: 560px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  wsLede: 'Learn whole words in German and Slovenian together, two at a time — animals, food, and nature & home. No spelling, no letters: just match each word to its translation and hear it spoken.',
+  wsStudy: 'Study', wsMatch: 'Match',
+  wsStat1: 'pairs found', wsStat2: 'moves', wsStat3: 'words known so far',
+  wsStudyHint: 'Look through the words, then press Match to test yourself.',
+  wsToMatch: 'I know these — start matching →',
+  wsDoneTitle: 'Level complete!',
+  wsDoneBody: 'You matched every pair. Here they are again, in order:',
+  wsNext: 'Next level →', wsReplay: 'Play this level again', wsAllDone: 'You have matched every level — well done! Replay any level from the list above.',
+  wsAboutH: 'For grown-ups: how it works',
+  wsAboutP1: 'Word Safari pairs a German word with its Slovenian translation — not with a picture — so the match itself is the lesson: to find the pair, a child has to recognise (or guess, then remember) that two whole words mean the same thing. Each level starts on a Study screen that shows every pair together with its picture and a speaker button, then switches to a shuffled matching grid to test recall.',
+  wsAboutP2: 'Pronunciation uses your browser’s built-in text-to-speech (German and Slovenian voices, where installed) — nothing is recorded or sent anywhere. If your device has no Slovenian voice installed, those words will simply stay silent; the game still works fully by sight.',
+  moreToExplore: 'More to explore',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  wsLede: 'Lerne ganze Wörter auf Deutsch und Slowenisch zusammen, immer zwei auf einmal — Tiere, Essen und Natur & Zuhause. Kein Buchstabieren: einfach jedes Wort mit seiner Übersetzung verbinden und anhören.',
+  wsStudy: 'Lernen', wsMatch: 'Spielen',
+  wsStat1: 'Paare gefunden', wsStat2: 'Versuche', wsStat3: 'Wörter bisher gelernt',
+  wsStudyHint: 'Schau dir die Wörter an, dann drücke „Spielen“, um dich zu testen.',
+  wsToMatch: 'Ich kenne sie — jetzt spielen →',
+  wsDoneTitle: 'Level geschafft!',
+  wsDoneBody: 'Du hast jedes Paar gefunden. Hier sind sie noch einmal, in der Reihenfolge:',
+  wsNext: 'Nächstes Level →', wsReplay: 'Dieses Level noch einmal spielen', wsAllDone: 'Du hast jedes Level geschafft — gut gemacht! Spiele jedes Level oben noch einmal.',
+  wsAboutH: 'Für Erwachsene: wie es funktioniert',
+  wsAboutP1: 'Word Safari verbindet ein deutsches Wort mit seiner slowenischen Übersetzung — nicht mit einem Bild — sodass das Zuordnen selbst die Lektion ist: Um das Paar zu finden, muss ein Kind erkennen (oder raten und sich merken), dass zwei ganze Wörter dasselbe bedeuten. Jedes Level beginnt mit einem Lernbildschirm, der alle Paare mit Bild und Lautsprecher-Taste zeigt, dann folgt ein gemischtes Spielfeld zum Testen.',
+  wsAboutP2: 'Die Aussprache nutzt die eingebaute Sprachausgabe deines Browsers (deutsche und slowenische Stimmen, falls installiert) — nichts wird aufgezeichnet oder gesendet. Fehlt eine slowenische Stimme auf deinem Gerät, bleiben diese Wörter einfach stumm; das Spiel funktioniert trotzdem vollständig visuell.',
+  moreToExplore: 'Mehr zum Entdecken',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  wsLede: 'Skupaj se uči celih besed v nemščini in slovenščini, vedno dve hkrati — živali, hrana ter narava in dom. Brez črkovanja: samo poveži besedo z njenim prevodom in jo poslušaj.',
+  wsStudy: 'Uči se', wsMatch: 'Igraj',
+  wsStat1: 'najdenih parov', wsStat2: 'poskusov', wsStat3: 'besed znanih doslej',
+  wsStudyHint: 'Oglej si besede, nato pritisni „Igraj“, da se preizkusiš.',
+  wsToMatch: 'Znam jih — začni igro →',
+  wsDoneTitle: 'Nivo opravljen!',
+  wsDoneBody: 'Najdel/-a si vse pare. Tu so še enkrat, po vrsti:',
+  wsNext: 'Naslednji nivo →', wsReplay: 'Igraj ta nivo še enkrat', wsAllDone: 'Opravil/-a si vse nivoje — bravo! Vsak nivo zgoraj lahko igraš še enkrat.',
+  wsAboutH: 'Za odrasle: kako deluje',
+  wsAboutP1: 'Word Safari poveže nemško besedo z njenim slovenskim prevodom — ne s sliko — tako da je iskanje para sam pouk: da najde par, mora otrok prepoznati (ali uganiti in si zapomniti), da dve celi besedi pomenita isto. Vsak nivo se začne z zaslonom za učenje, ki prikaže vse pare s sliko in gumbom za predvajanje, nato sledi premešana mreža za preverjanje.',
+  wsAboutP2: 'Izgovorjava uporablja vgrajeno sintezo govora brskalnika (nemški in slovenski glasovi, če so nameščeni) — nič se ne snema ali pošilja. Če na napravi ni slovenskega glasu, te besede preprosto ostanejo nemе; igra kljub temu deluje v celoti vizualno.',
+  moreToExplore: 'Še več za raziskati',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Word Safari</h1>
+  <p class="lede" data-i18n="wsLede">Learn whole words in German and Slovenian together, two at a time — animals, food, and nature &amp; home. No spelling, no letters: just match each word to its translation and hear it spoken.</p>
+
+  <div class="levels" id="levels"></div>
+
+  <div class="tabs" role="tablist">
+    <button id="tabStudy" class="on" role="tab" data-i18n="wsStudy">Study</button>
+    <button id="tabMatch" role="tab" data-i18n="wsMatch">Match</button>
+  </div>
+
+  <div class="stat" id="stat">
+    <span><b id="statFound">0</b>/<span id="statTotal">0</span> <span data-i18n="wsStat1">pairs found</span></span>
+    <span><b id="statMoves">0</b> <span data-i18n="wsStat2">moves</span></span>
+    <span><b id="statKnown">0</b> <span data-i18n="wsStat3">words known so far</span></span>
+  </div>
+
+  <div id="studyScreen">
+    <p class="lede" data-i18n="wsStudyHint" style="margin-top:0">Look through the words, then press Match to test yourself.</p>
+    <div class="learnGrid" id="learnGrid"></div>
+    <button class="primary" id="toMatchBtn" data-i18n="wsToMatch">I know these — start matching →</button>
+  </div>
+
+  <div id="matchScreen" style="display:none">
+    <div class="grid" id="grid"></div>
+    <div id="donePanel" class="done-panel" style="display:none">
+      <h2 data-i18n="wsDoneTitle">Level complete!</h2>
+      <p data-i18n="wsDoneBody">You matched every pair. Here they are again, in order:</p>
+      <div class="learnGrid" id="doneGrid"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:10px">
+        <button class="primary" id="nextLevelBtn" data-i18n="wsNext">Next level →</button>
+        <button id="replayBtn" data-i18n="wsReplay">Play this level again</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="about">
+    <h2 data-i18n="wsAboutH">For grown-ups: how it works</h2>
+    <p data-i18n="wsAboutP1">Word Safari pairs a German word with its Slovenian translation — not with a picture — so the match itself is the lesson: to find the pair, a child has to recognise (or guess, then remember) that two whole words mean the same thing. Each level starts on a Study screen that shows every pair together with its picture and a speaker button, then switches to a shuffled matching grid to test recall.</p>
+    <p data-i18n="wsAboutP2">Pronunciation uses your browser's built-in text-to-speech (German and Slovenian voices, where installed) — nothing is recorded or sent anywhere. If your device has no Slovenian voice installed, those words will simply stay silent; the game still works fully by sight.</p>
+  </div>
+
+  <div class="lab-related">
+    <span class="lbl" data-i18n="moreToExplore">More to explore</span>
+    <a href="/lab/pitch-garden/">Pitch Garden</a> · <a href="/lab/besedopad/">Besedopad</a> · <a href="/lab/slikovar/">Slikovar</a>
+  </div>
+
+  <footer class="site-foot">
+    <span>Word Safari · presker.at/lab</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+<script>
+(function(){
+  "use strict";
+  const LEVELS = [
+    { key:'animals', name:{en:'Animals',de:'Tiere',sl:'Živali'}, pairs:[
+        ['Hund','Pes','🐶'], ['Katze','Mačka','🐱'], ['Vogel','Ptica','🐦'],
+        ['Fisch','Riba','🐟'], ['Maus','Miš','🐭'], ['Bär','Medved','🐻']
+    ]},
+    { key:'food', name:{en:'Food',de:'Essen',sl:'Hrana'}, pairs:[
+        ['Brot','Kruh','🍞'], ['Apfel','Jabolko','🍎'], ['Wasser','Voda','💧'],
+        ['Milch','Mleko','🥛'], ['Honig','Med','🍯'], ['Ei','Jajce','🥚']
+    ]},
+    { key:'home', name:{en:'Nature & home',de:'Natur & Zuhause',sl:'Narava in dom'}, pairs:[
+        ['Sonne','Sonce','☀️'], ['Mond','Luna','🌙'], ['Stern','Zvezda','⭐'],
+        ['Baum','Drevo','🌳'], ['Blume','Cvetlica','🌸'], ['Buch','Knjiga','📖'],
+        ['Haus','Hiša','🏠'], ['Fenster','Okno','🪟']
+    ]},
+  ];
+  const LS_DONE = 'wordSafariDoneLevels';
+  const LS_KNOWN = 'wordSafariWordsKnown';
+
+  function uiLang() {
+    try { return (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en'; }
+    catch(e) { return 'en'; }
+  }
+
+  function doneLevels() {
+    try { return JSON.parse(localStorage.getItem(LS_DONE) || '[]'); } catch(e) { return []; }
+  }
+  function markDone(key) {
+    const d = doneLevels();
+    if (!d.includes(key)) { d.push(key); localStorage.setItem(LS_DONE, JSON.stringify(d)); }
+  }
+  function wordsKnown() {
+    try { return parseInt(localStorage.getItem(LS_KNOWN) || '0', 10) || 0; } catch(e) { return 0; }
+  }
+  function addWordsKnown(n) {
+    const v = wordsKnown() + n;
+    localStorage.setItem(LS_KNOWN, String(v));
+    return v;
+  }
+
+  let levelIdx = 0;
+  let cards = [];        // {lang, word, pairIdx, el}
+  let flipped = [];      // indices currently face up, unmatched
+  let matchedCount = 0;
+  let moves = 0;
+  let locked = false;
+
+  function speak(text, lang) {
+    try {
+      if (!('speechSynthesis' in window)) return;
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = lang === 'de' ? 'de-DE' : 'sl-SI';
+      u.rate = 0.9;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch(e) {}
+  }
+
+  function renderLevels() {
+    const box = document.getElementById('levels');
+    box.innerHTML = '';
+    const done = doneLevels();
+    LEVELS.forEach((lv, i) => {
+      const b = document.createElement('button');
+      b.textContent = lv.name[uiLang()] || lv.name.en;
+      if (done.includes(lv.key)) b.classList.add('done');
+      if (i === levelIdx) b.classList.add('on');
+      b.addEventListener('click', () => loadLevel(i));
+      box.appendChild(b);
+    });
+  }
+
+  function renderStudy() {
+    const grid = document.getElementById('learnGrid');
+    grid.innerHTML = '';
+    LEVELS[levelIdx].pairs.forEach(([de, sl, emoji]) => {
+      const card = document.createElement('div');
+      card.className = 'learnCard';
+      card.innerHTML = `<div class="emoji">${emoji}</div>
+        <div class="words">
+          <div class="w"><span class="tag de">DE</span><span class="word">${de}</span>
+            <button class="speak" data-say="${de}" data-say-lang="de" aria-label="pronounce ${de}">🔊</button></div>
+          <div class="w"><span class="tag sl">SL</span><span class="word">${sl}</span>
+            <button class="speak" data-say="${sl}" data-say-lang="sl" aria-label="pronounce ${sl}">🔊</button></div>
+        </div>`;
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll('[data-say]').forEach(btn => {
+      btn.addEventListener('click', () => speak(btn.dataset.say, btn.dataset.sayLang));
+    });
+  }
+
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  function buildCards() {
+    const pairs = LEVELS[levelIdx].pairs;
+    const list = [];
+    pairs.forEach(([de, sl, emoji], idx) => {
+      list.push({ lang:'de', word: de, pairIdx: idx, emoji });
+      list.push({ lang:'sl', word: sl, pairIdx: idx, emoji });
+    });
+    return shuffle(list);
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    cards.forEach((c, i) => {
+      const el = document.createElement('button');
+      el.className = 'card';
+      el.setAttribute('aria-label', 'card');
+      el.innerHTML = `<span class="tag ${c.lang}">${c.lang.toUpperCase()}</span>
+        <span class="back">?</span>
+        <span class="word">${c.word}</span>`;
+      el.addEventListener('click', () => flipCard(i));
+      c.el = el;
+      grid.appendChild(el);
+    });
+    document.getElementById('statTotal').textContent = LEVELS[levelIdx].pairs.length;
+    document.getElementById('statFound').textContent = '0';
+    document.getElementById('statMoves').textContent = '0';
+    document.getElementById('statKnown').textContent = wordsKnown();
+  }
+
+  function flipCard(i) {
+    if (locked) return;
+    const c = cards[i];
+    if (c.el.classList.contains('matched') || c.el.classList.contains('flipped')) return;
+    if (flipped.length >= 2) return;
+    c.el.classList.add('flipped');
+    speak(c.word, c.lang);
+    flipped.push(i);
+    if (flipped.length === 2) {
+      moves++;
+      document.getElementById('statMoves').textContent = moves;
+      const [a, b] = flipped;
+      if (cards[a].pairIdx === cards[b].pairIdx && cards[a].lang !== cards[b].lang) {
+        locked = true;
+        setTimeout(() => {
+          cards[a].el.classList.add('matched');
+          cards[b].el.classList.add('matched');
+          cards[a].el.innerHTML = `<span class="emoji">${cards[a].emoji}</span><span class="word">${cards[a].word}</span>`;
+          cards[b].el.innerHTML = `<span class="emoji">${cards[b].emoji}</span><span class="word">${cards[b].word}</span>`;
+          matchedCount++;
+          document.getElementById('statFound').textContent = matchedCount;
+          flipped = [];
+          locked = false;
+          if (matchedCount === LEVELS[levelIdx].pairs.length) finishLevel();
+        }, 420);
+      } else {
+        locked = true;
+        cards[a].el.classList.add('wrong'); cards[b].el.classList.add('wrong');
+        setTimeout(() => {
+          cards[a].el.classList.remove('flipped', 'wrong');
+          cards[b].el.classList.remove('flipped', 'wrong');
+          flipped = [];
+          locked = false;
+        }, 700);
+      }
+    }
+  }
+
+  function finishLevel() {
+    const key = LEVELS[levelIdx].key;
+    const firstTime = !doneLevels().includes(key);
+    markDone(key);
+    renderLevels();
+    let known = wordsKnown();
+    if (firstTime) known = addWordsKnown(LEVELS[levelIdx].pairs.length);
+    document.getElementById('statKnown').textContent = known;
+
+    const doneGrid = document.getElementById('doneGrid');
+    doneGrid.innerHTML = '';
+    LEVELS[levelIdx].pairs.forEach(([de, sl, emoji]) => {
+      const card = document.createElement('div');
+      card.className = 'learnCard';
+      card.innerHTML = `<div class="emoji">${emoji}</div>
+        <div class="words">
+          <div class="w"><span class="tag de">DE</span><span class="word">${de}</span></div>
+          <div class="w"><span class="tag sl">SL</span><span class="word">${sl}</span></div>
+        </div>`;
+      doneGrid.appendChild(card);
+    });
+    document.getElementById('donePanel').style.display = '';
+    const nextBtn = document.getElementById('nextLevelBtn');
+    if (levelIdx < LEVELS.length - 1) {
+      nextBtn.style.display = '';
+      nextBtn.onclick = () => loadLevel(levelIdx + 1);
+    } else {
+      nextBtn.style.display = 'none';
+    }
+  }
+
+  function loadLevel(i) {
+    levelIdx = i;
+    matchedCount = 0; moves = 0; flipped = []; locked = false;
+    renderLevels();
+    document.getElementById('donePanel').style.display = 'none';
+    renderStudy();
+    cards = buildCards();
+    renderGrid();
+    showStudy();
+  }
+
+  function showStudy() {
+    document.getElementById('studyScreen').style.display = '';
+    document.getElementById('matchScreen').style.display = 'none';
+    document.getElementById('tabStudy').classList.add('on');
+    document.getElementById('tabMatch').classList.remove('on');
+  }
+  function showMatch() {
+    document.getElementById('studyScreen').style.display = 'none';
+    document.getElementById('matchScreen').style.display = '';
+    document.getElementById('tabStudy').classList.remove('on');
+    document.getElementById('tabMatch').classList.add('on');
+  }
+
+  document.getElementById('tabStudy').addEventListener('click', showStudy);
+  document.getElementById('tabMatch').addEventListener('click', showMatch);
+  document.getElementById('toMatchBtn').addEventListener('click', showMatch);
+  document.getElementById('replayBtn').addEventListener('click', () => loadLevel(levelIdx));
+
+  document.addEventListener('presker-lang-change', renderLevels);
+
+  loadLevel(0);
+})();
+</script>
+</body>
+</html>

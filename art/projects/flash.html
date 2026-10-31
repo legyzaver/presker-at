@@ -4,7 +4,45 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Focus Free — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      dlFlashSheet: '/art/downloads/flash-sheet.pdf',
+      projLabelTitle: 'Title', projLabelYear: 'Year', projLabelMedium: 'Medium', projLabelDimensions: 'Dimensions',
+      projLabelCredits: 'Credits', projLabelCollection: 'Collection', projLabelKeywords: 'Keywords', projLabelDownloads: 'Downloads',
+      projDescriptionHeading: 'Description', projConceptHeading: 'Concept', projExhibitionHistoryHeading: 'Exhibition History', projRelatedTitle: 'Related Projects',
+      projContactLine: 'Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a>',
+      flashMedium: 'Modified point-and-shoot camera, projection', flashDoc: 'Documentation (10 images)',
+      flashDesc: 'A consumer point-and-shoot camera (a "TL.168," wide/tele switchable, flash on/off) is modified to reverse the basic mechanics of photography: instead of a lens admitting light to record an image, the camera\'s own flash becomes the active element, firing as a projection device rather than a capture device. The work documented here shows the camera\'s flash lit and held, glowing rather than exposing.',
+      flashConcept: 'Photography depends on a brief admission of light to fix an instant. Focus Free strips that function away — the camera "projects images for only a glimpse of a second" instead of recording them, removing its traditional capacity to freeze a moment and replacing it with a flash that produces light without producing a photograph. The piece was documented on vvork.com\'s artist archive (mirrored on Rhizome\'s ArtBase) under the photo-camera tag.',
+      flashExhib: 'P74 Centre and Gallery, Ljubljana, Slovenia. [Date relative to the 2007 OHO Award to be confirmed — the work predates the award by the listed 2005/06 date, so it may have been shown independently or revisited during the award exhibition.]'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      dlFlashSheet: '/art/downloads/flash-sheet-de.pdf',
+      projLabelTitle: 'Titel', projLabelYear: 'Jahr', projLabelMedium: 'Medium', projLabelDimensions: 'Maße',
+      projLabelCredits: 'Credits', projLabelCollection: 'Sammlung', projLabelKeywords: 'Schlagwörter', projLabelDownloads: 'Downloads',
+      projDescriptionHeading: 'Beschreibung', projConceptHeading: 'Konzept', projExhibitionHistoryHeading: 'Ausstellungsgeschichte', projRelatedTitle: 'Verwandte Projekte',
+      projContactLine: 'Korrekturen oder Ergänzungen? <a href="mailto:miha@presker.at" style="color: var(--accent);">Den Künstler kontaktieren →</a>',
+      flashMedium: 'Modifizierte Kompaktkamera, Projektion', flashDoc: 'Dokumentation (10 Bilder)',
+      flashDesc: 'Eine handelsübliche Kompaktkamera (eine „TL.168", umschaltbar zwischen Weitwinkel/Tele, Blitz an/aus) wird so verändert, dass sie die grundlegende Mechanik der Fotografie umkehrt: Statt dass eine Linse Licht einlässt, um ein Bild aufzuzeichnen, wird der eigene Blitz der Kamera zum aktiven Element — er feuert als Projektionsgerät, nicht als Aufnahmegerät. Die hier dokumentierte Arbeit zeigt den Blitz der Kamera erleuchtet und gehalten: Er glüht, statt zu belichten.',
+      flashConcept: 'Fotografie beruht auf dem kurzen Einlass von Licht, um einen Augenblick festzuhalten. Focus Free entzieht ihr genau diese Funktion — die Kamera „projiziert Bilder für nur den Bruchteil einer Sekunde", statt sie aufzuzeichnen, und ersetzt ihre traditionelle Fähigkeit, einen Moment einzufrieren, durch einen Blitz, der Licht erzeugt, ohne ein Foto zu erzeugen. Die Arbeit wurde im Künstlerarchiv von vvork.com dokumentiert (gespiegelt in Rhizomes ArtBase) unter dem Tag photo-camera.',
+      flashExhib: 'P74 Center und Galerie, Ljubljana, Slowenien. [Datum im Verhältnis zum OHO-Preis 2007 noch zu bestätigen — die Arbeit entstand laut der angegebenen Datierung 2005/06 vor dem Preis und wurde möglicherweise unabhängig gezeigt oder im Rahmen der Preisausstellung erneut aufgegriffen.]'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      dlFlashSheet: '/art/downloads/flash-sheet-sl.pdf',
+      projLabelTitle: 'Naslov', projLabelYear: 'Leto', projLabelMedium: 'Medij', projLabelDimensions: 'Dimenzije',
+      projLabelCredits: 'Zasluge', projLabelCollection: 'Zbirka', projLabelKeywords: 'Ključne besede', projLabelDownloads: 'Prenosi',
+      projDescriptionHeading: 'Opis', projConceptHeading: 'Koncept', projExhibitionHistoryHeading: 'Zgodovina razstavljanja', projRelatedTitle: 'Sorodni projekti',
+      projContactLine: 'Popravki ali dodatki? <a href="mailto:miha@presker.at" style="color: var(--accent);">Kontaktirajte umetnika →</a>',
+      flashMedium: 'Prirejen kompaktni fotoaparat, projekcija', flashDoc: 'Dokumentacija (10 slik)',
+      flashDesc: 'Potrošniški kompaktni fotoaparat (model "TL.168", preklopljiv med širokim kotom in tele, bliskavica vklop/izklop) je prirejen tako, da obrne osnovno mehaniko fotografije: namesto da bi objektiv spustil svetlobo za zapis slike, postane fotoaparatova lastna bliskavica aktivni element in deluje kot projekcijska naprava in ne kot naprava za zajem. Tu dokumentirano delo prikazuje prižgano in drženo bliskavico fotoaparata, ki žari, namesto da bi osvetljevala.',
+      flashConcept: 'Fotografija je odvisna od kratkega vstopa svetlobe, da ujame trenutek. Focus Free to funkcijo odstrani — fotoaparat "projicira slike le za trenutek sekunde", namesto da bi jih zapisoval, s čimer odvzame njegovo tradicionalno zmožnost ujeti trenutek in jo nadomesti z bliskom, ki ustvari svetlobo brez fotografije. Delo je bilo dokumentirano v arhivu umetnikov na vvork.com (zrcaljeno v Rhizomovi ArtBase) pod oznako photo-camera.',
+      flashExhib: 'Center in galerija P74, Ljubljana, Slovenija. [Datum glede na nagrado OHO 2007 še ni potrjen — delo je glede na navedeno datacijo 2005/06 nastalo pred nagrado, zato je bilo morda razstavljeno samostojno ali ponovno predstavljeno med razstavo ob nagradi.]'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -19,71 +57,65 @@
 
       <div class="project-meta-bar">
         <div class="project-meta-item">
-          <div class="project-meta-label">Title</div>
+          <div class="project-meta-label" data-i18n="projLabelTitle">Title</div>
           <div class="project-meta-value">Focus Free</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Year</div>
+          <div class="project-meta-label" data-i18n="projLabelYear">Year</div>
           <div class="project-meta-value">2005/06</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Medium</div>
-          <div class="project-meta-value">Modified point-and-shoot camera, projection</div>
+          <div class="project-meta-label" data-i18n="projLabelMedium">Medium</div>
+          <div class="project-meta-value" data-i18n="flashMedium">Modified point-and-shoot camera, projection</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Dimensions</div>
+          <div class="project-meta-label" data-i18n="projLabelDimensions">Dimensions</div>
           <div class="project-meta-value">[variable]</div>
-        </div>
-        <div class="project-meta-item">
-          <div class="project-meta-label">Status</div>
-          <div class="project-meta-value">[Add status]</div>
         </div>
       </div>
 
       <div class="project-layout">
         <div class="project-body">
-          <h2>Description</h2>
-          <p>A consumer point-and-shoot camera (a "TL.168," wide/tele switchable, flash on/off) is modified to reverse the basic mechanics of photography: instead of a lens admitting light to record an image, the camera's own flash becomes the active element, firing as a projection device rather than a capture device. The work documented here shows the camera's flash lit and held, glowing rather than exposing.</p>
+          <h2 data-i18n="projDescriptionHeading">Description</h2>
+          <p data-i18n-html="flashDesc">A consumer point-and-shoot camera (a "TL.168," wide/tele switchable, flash on/off) is modified to reverse the basic mechanics of photography: instead of a lens admitting light to record an image, the camera's own flash becomes the active element, firing as a projection device rather than a capture device. The work documented here shows the camera's flash lit and held, glowing rather than exposing.</p>
 
-          <h2>Concept</h2>
-          <p>Photography depends on a brief admission of light to fix an instant. Focus Free strips that function away — the camera "projects images for only a glimpse of a second" instead of recording them, removing its traditional capacity to freeze a moment and replacing it with a flash that produces light without producing a photograph. The piece was documented on vvork.com's artist archive (mirrored on Rhizome's ArtBase) under the photo-camera tag.</p>
+          <h2 data-i18n="projConceptHeading">Concept</h2>
+          <p data-i18n-html="flashConcept">Photography depends on a brief admission of light to fix an instant. Focus Free strips that function away — the camera "projects images for only a glimpse of a second" instead of recording them, removing its traditional capacity to freeze a moment and replacing it with a flash that produces light without producing a photograph. The piece was documented on vvork.com's artist archive (mirrored on Rhizome's ArtBase) under the photo-camera tag.</p>
 
-          <h2>Exhibition History</h2>
-          <p>P74 Centre and Gallery, Ljubljana, Slovenia. [Date relative to the 2007 OHO Award to be confirmed — the work predates the award by the listed 2005/06 date, so it may have been shown independently or revisited during the award exhibition.]</p>
+          <h2 data-i18n="projExhibitionHistoryHeading">Exhibition History</h2>
+          <p data-i18n-html="flashExhib">P74 Centre and Gallery, Ljubljana, Slovenia. [Date relative to the 2007 OHO Award to be confirmed — the work predates the award by the listed 2005/06 date, so it may have been shown independently or revisited during the award exhibition.]</p>
 
-          <h2>Curatorial Text</h2>
-          <p>[Add curatorial or critical text if available.]</p>
         </div>
 
         <div class="project-sidebar">
           <div class="sidebar-block">
-            <div class="sidebar-label">Credits</div>
+            <div class="sidebar-label" data-i18n="projLabelCredits">Credits</div>
             <div class="sidebar-value">Miha Presker</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Collection</div>
+            <div class="sidebar-label" data-i18n="projLabelCollection">Collection</div>
             <div class="sidebar-value">[Collection]</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Keywords</div>
+            <div class="sidebar-label" data-i18n="projLabelKeywords">Keywords</div>
             <div class="tags">
-              <span class="tag">photography</span>
-              <span class="tag">machine vision</span>
-              <span class="tag">camera</span>
-              <span class="tag">perception</span>
+              <span class="tag" data-i18n="tagPhotography">photography</span>
+              <span class="tag" data-i18n="tagMachineVision">machine vision</span>
+              <span class="tag" data-i18n="tagCamera">camera</span>
+              <span class="tag" data-i18n="tagPerception">perception</span>
             </div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Downloads</div>
+            <div class="sidebar-label" data-i18n="projLabelDownloads">Downloads</div>
             <div class="sidebar-value">
-              <a href="/art/downloads/flash-sheet.pdf" style="color:var(--accent);font-size:11px;font-family:var(--mono);">Technical sheet PDF ↓</a>
+              <a href="/art/downloads/flash-sheet.pdf" data-i18n-href="dlFlashSheet" style="color:var(--accent);font-size:11px;font-family:var(--mono);">Technical sheet PDF ↓</a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="gallery-section">
-        <div class="section-title">Documentation (10 images)</div>
+        <div class="section-title" data-i18n="flashDoc">Documentation (10 images)</div>
         <div class="gallery-grid">
           <div class="gallery-item"><img src="/art/images/flash/flash-01.jpg" alt="Flash 01" onerror="this.parentElement.style.background='var(--bg3)'"></div>
           <div class="gallery-item"><img src="/art/images/flash/flash-02.jpg" alt="Flash 02" onerror="this.parentElement.style.background='var(--bg3)'"></div>
@@ -99,7 +131,7 @@
       </div>
 
       <div class="related-section">
-        <div class="section-title">Related Projects</div>
+        <div class="section-title" data-i18n="projRelatedTitle">Related Projects</div>
         <div class="related-grid">
           <a href="/art/projects/formication.html" class="related-card">
             <div class="related-card-img"><img src="/art/images/formication/formication-01.jpg" alt="Formication" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'related-card-ph\'></div>'"></div>
@@ -116,8 +148,18 @@
         </div>
       </div>
 
-    </main>
+      <p class="project-contact" style="margin-top: 3rem; font-size: 13px; color: var(--dim); font-family: var(--mono);" data-i18n-html="projContactLine">Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a></p>
+
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

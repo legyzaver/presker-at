@@ -4,7 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Homo Diaphoricus — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      projLabelTitle: 'Title', projLabelYear: 'Year', projLabelMedium: 'Medium',
+      projLabelCredits: 'Credits', projLabelSource: 'Source', projLabelKeywords: 'Keywords',
+      projDescriptionHeading: 'Description', projRelatedTitle: 'Related Projects',
+      projContactLine: 'Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a>',
+      hdMedium: 'Animation, black-and-white',
+      hdDesc: 'A stylized black-and-white animation exploring environmental isolation, tribal geographies, and technological intersection. An abstract figure navigates a sequence of landscapes — from primitive hut clusters to mechanized aircraft formations — ending in a reflection on the boundary between species and category.'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      projLabelTitle: 'Titel', projLabelYear: 'Jahr', projLabelMedium: 'Medium',
+      projLabelCredits: 'Credits', projLabelSource: 'Quelle', projLabelKeywords: 'Schlagwörter',
+      projDescriptionHeading: 'Beschreibung', projRelatedTitle: 'Verwandte Projekte',
+      projContactLine: 'Korrekturen oder Ergänzungen? <a href="mailto:miha@presker.at" style="color: var(--accent);">Den Künstler kontaktieren →</a>',
+      hdMedium: 'Animation, Schwarz-Weiß',
+      hdDesc: 'Eine stilisierte Schwarz-Weiß-Animation, die ökologische Isolation, tribale Geografien und technologische Überschneidungen erkundet. Eine abstrakte Figur bewegt sich durch eine Abfolge von Landschaften — von primitiven Hüttenclustern bis zu mechanisierten Flugzeugformationen — und endet in einer Reflexion über die Grenze zwischen Art und Kategorie.'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      projLabelTitle: 'Naslov', projLabelYear: 'Leto', projLabelMedium: 'Medij',
+      projLabelCredits: 'Zasluge', projLabelSource: 'Vir', projLabelKeywords: 'Ključne besede',
+      projDescriptionHeading: 'Opis', projRelatedTitle: 'Sorodni projekti',
+      projContactLine: 'Popravki ali dodatki? <a href="mailto:miha@presker.at" style="color: var(--accent);">Kontaktirajte umetnika →</a>',
+      hdMedium: 'Animacija, črno-bela',
+      hdDesc: 'Stilizirana črno-bela animacija, ki raziskuje okoljsko izolacijo, tribalne geografije in tehnološko prepletanje. Abstraktna figura se giblje skozi zaporedje pokrajin — od primitivnih skupkov kočic do mehaniziranih formacij letal — in se konča z refleksijo o meji med vrsto in kategorijo.'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -17,50 +46,42 @@
       </div>
 
       <div class="project-meta-bar">
-        <div class="project-meta-item"><div class="project-meta-label">Title</div><div class="project-meta-value">Homo Diaphoricus</div></div>
-        <div class="project-meta-item"><div class="project-meta-label">Year</div><div class="project-meta-value">2004</div></div>
-        <div class="project-meta-item"><div class="project-meta-label">Medium</div><div class="project-meta-value">Animation, black-and-white</div></div>
-        <div class="project-meta-item"><div class="project-meta-label">Duration</div><div class="project-meta-value">[Add runtime]</div></div>
-        <div class="project-meta-item"><div class="project-meta-label">Status</div><div class="project-meta-value">[Add status]</div></div>
+        <div class="project-meta-item"><div class="project-meta-label" data-i18n="projLabelTitle">Title</div><div class="project-meta-value">Homo Diaphoricus</div></div>
+        <div class="project-meta-item"><div class="project-meta-label" data-i18n="projLabelYear">Year</div><div class="project-meta-value">2004</div></div>
+        <div class="project-meta-item"><div class="project-meta-label" data-i18n="projLabelMedium">Medium</div><div class="project-meta-value" data-i18n="hdMedium">Animation, black-and-white</div></div>
       </div>
 
       <div class="project-layout">
         <div class="project-body">
-          <h2>Description</h2>
-          <p><em style="color:var(--dim);">[Draft — please confirm this matches the actual video before treating as final:]</em> A stylized black-and-white animation exploring environmental isolation, tribal geographies, and technological intersection. An abstract figure navigates a sequence of landscapes — from primitive hut clusters to mechanized aircraft formations — ending in a reflection on the boundary between species and category.</p>
-
-          <h2>Exhibition History</h2>
-          <p>[Add exhibition history.]</p>
-
-          <h2>Curatorial Text</h2>
-          <p>[Add curatorial or critical text if available.]</p>
+          <h2 data-i18n="projDescriptionHeading">Description</h2>
+          <p data-i18n-html="hdDesc">A stylized black-and-white animation exploring environmental isolation, tribal geographies, and technological intersection. An abstract figure navigates a sequence of landscapes — from primitive hut clusters to mechanized aircraft formations — ending in a reflection on the boundary between species and category.</p>
         </div>
 
         <div class="project-sidebar">
           <div class="sidebar-block">
-            <div class="sidebar-label">Credits</div>
+            <div class="sidebar-label" data-i18n="projLabelCredits">Credits</div>
             <div class="sidebar-value">Miha Presker</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Source</div>
+            <div class="sidebar-label" data-i18n="projLabelSource">Source</div>
             <div class="sidebar-value" style="font-size:11px;">
               <a href="https://www.youtube.com/@F4R4D" target="_blank" rel="noopener" style="color:var(--accent);">youtube.com/@F4R4D ↗</a>
             </div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Keywords</div>
+            <div class="sidebar-label" data-i18n="projLabelKeywords">Keywords</div>
             <div class="tags">
-              <span class="tag">animation</span>
-              <span class="tag">video</span>
-              <span class="tag">isolation</span>
-              <span class="tag">taxonomy</span>
+              <span class="tag" data-i18n="tagAnimation">animation</span>
+              <span class="tag" data-i18n="tagVideo">video</span>
+              <span class="tag" data-i18n="tagIsolation">isolation</span>
+              <span class="tag" data-i18n="tagTaxonomy">taxonomy</span>
             </div>
           </div>
         </div>
       </div>
 
       <div class="related-section">
-        <div class="section-title">Related Projects</div>
+        <div class="section-title" data-i18n="projRelatedTitle">Related Projects</div>
         <div class="related-grid">
           <a href="/art/projects/425.html" class="related-card">
             <div class="related-card-img"><div class="related-card-ph"></div></div>
@@ -77,8 +98,18 @@
         </div>
       </div>
 
-    </main>
+      <p class="project-contact" style="margin-top: 3rem; font-size: 13px; color: var(--dim); font-family: var(--mono);" data-i18n-html="projContactLine">Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a></p>
+
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>

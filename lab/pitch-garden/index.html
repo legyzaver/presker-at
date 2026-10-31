@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pitch Garden — sing to spell, in German and Slovenian</title>
+<meta name="description" content="A singing game for kids who just learned their letters. Sing higher or lower to climb a garden staircase and spell simple words out loud, in German or Slovenian — no microphone needed either, arrow keys work too.">
+<link rel="canonical" href="https://www.presker.at/lab/pitch-garden/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/pitch-garden/">
+<meta property="og:title" content="Pitch Garden">
+<meta property="og:description" content="Sing higher or lower to climb a garden staircase and spell simple words out loud, in German or Slovenian. A kids' ear-training and early-reading game — arrow keys work too, no microphone required.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --paper: #0a0a0a; --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff; --warm: #a2461f; --bad: #c23e1f; --sky: #2a5fb0;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #f5b85a; --bad: #f57a7a; --sky: #7ab8f5;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #f5b85a; --bad: #f57a7a; --sky: #7ab8f5;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+.wrap { max-width: 860px; margin: 0 auto; padding: 14px 16px 40px; }
+.home { font-family: var(--mono); font-size: 12px; text-decoration: none; color: var(--muted); }
+.home:hover { color: var(--accent); }
+h1 { font: 600 24px var(--mono); margin: 10px 0 2px; letter-spacing: -.01em; }
+.lede { color: var(--muted); margin: 0 0 14px; max-width: 64ch; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0; }
+.lbl { font-family: var(--mono); font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+button {
+  font: 13px var(--mono); color: var(--ink); background: var(--panel);
+  border: 1px solid var(--line); border-radius: 8px; padding: 9px 13px; cursor: pointer; min-height: 40px;
+}
+button:hover { border-color: #3a3a3a; }
+button.on { border-color: var(--accent); color: var(--accent); }
+button.go { border-color: var(--accent); background: var(--accent); color: #0e0e0e; font-weight: 700; }
+button:disabled { opacity: .45; cursor: default; }
+.wordbar { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; margin: 14px 0; }
+.pic { font-size: 54px; line-height: 1; }
+.slots { display: flex; gap: 8px; }
+.slot {
+  width: 42px; height: 50px; border: 2px solid var(--line); border-radius: 10px;
+  display: grid; place-items: center; font: 700 26px var(--mono); background: var(--paper); color: var(--ink);
+  transition: border-color .2s, transform .2s;
+}
+.slot.filled { border-color: var(--accent); color: var(--accent); }
+.slot.pop { animation: pop .35s ease; }
+@keyframes pop { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+.stage {
+  position: relative; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(180deg, #0c1410, #0a0a0a);
+  height: 420px; overflow: hidden; touch-action: none; user-select: none;
+}
+.stop {
+  position: absolute; width: 58px; height: 58px; margin-left: -29px; margin-top: -29px;
+  border-radius: 50%; display: grid; place-items: center; font: 700 22px var(--mono);
+  background: var(--panel); border: 2px solid var(--line); color: var(--muted); cursor: pointer;
+  transition: border-color .2s, color .2s, box-shadow .2s;
+}
+.stop.target { border-color: var(--warm); color: var(--warm); box-shadow: 0 0 0 6px rgba(245,184,90,.12); animation: glow 1.4s ease-in-out infinite; }
+.stop.done { border-color: var(--accent); color: var(--accent); box-shadow: none; animation: none; }
+@keyframes glow { 0%, 100% { box-shadow: 0 0 0 4px rgba(245,184,90,.10); } 50% { box-shadow: 0 0 0 10px rgba(245,184,90,.18); } }
+.avatar {
+  position: absolute; width: 30px; height: 30px; margin-left: -15px; margin-top: -15px;
+  border-radius: 50%; background: var(--sky); box-shadow: 0 0 14px rgba(122,184,245,.7);
+  transition: background .15s; pointer-events: none;
+}
+.avatar.hit { background: var(--accent); box-shadow: 0 0 18px rgba(184,245,122,.85); }
+.stage-hint { position: absolute; left: 10px; bottom: 8px; font: 11px var(--mono); color: var(--muted); }
+.say { margin: 12px 0; border-left: 3px solid var(--accent); padding: 4px 12px; color: var(--ink); min-height: 2.6em; }
+.mic-note { color: var(--muted); font-size: 12.5px; }
+details { margin-top: 18px; color: var(--muted); }
+summary { cursor: pointer; font-family: var(--mono); font-size: 12px; color: var(--ink); }
+details p { max-width: 70ch; }
+footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.donate { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #3a3a3a; border-radius: 999px; padding: 5px 12px 5px 6px; color: var(--ink); text-decoration: none; }
+.donate:hover { border-color: var(--accent); }
+.donate .r { width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #000; display: inline-grid; place-items: center; font-weight: 800; font-size: 12px; }
+.lab-related { margin-top: 22px; font: 12px var(--mono); color: var(--muted); }
+.lab-related .lbl { text-transform: uppercase; letter-spacing: .06em; font-size: 11px; margin-right: 8px; }
+.lab-related a { color: var(--accent); }
+@media (max-width: 520px) { .stage { height: 360px; } .pic { font-size: 44px; } }
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+  Object.assign(window.PRESKER_I18N.en, {
+    pgLede: "A little bird climbs the garden the same way your voice does — sing higher to go up, lower to go down. Reach each glowing flower in order and you'll spell a word.",
+    pgSpellIn: 'Spell in', pgControl: 'Control',
+    pgMicBtn: '🎤 Try singing', pgKeysBtn: '⌨️ Arrow keys',
+    pgMicNoteDefault: 'Press <b>↑</b> / <b>↓</b> (or the on-screen buttons) to move the bird — no microphone needed. Nothing you sing is ever recorded or sent anywhere; the listening happens only in your browser.',
+    pgMicNoteListening: 'Listening — hum or sing a long "ahh" and move your voice up and down.',
+    pgMicNoteFailed: "Couldn't reach a microphone, but the arrow keys work just as well!",
+    pgUp: '▲ up', pgDown: '▼ down', pgRestart: 'Restart word',
+    pgSayStart: 'Pick a language, then climb the garden by singing (or pressing ↑ / ↓) from the lowest flower up.',
+    pgSaySpell: 'Spell <b>{word}</b>. Start low and sing (or press ↑) your way up to the glowing flower.',
+    pgSayNext: "Nice! Now find <b>{letter}</b>'s neighbour — the next glowing flower.",
+    pgSayDone: '🎉 You spelled <b>{word}</b>! Great singing.',
+    pgHearNote: 'Hear this note',
+    pgAboutSummary: 'For grown-ups: how it works',
+    pgAboutBody: 'Pitch Garden listens for the fundamental frequency of your child\'s voice (a standard autocorrelation pitch-detector, running entirely in the browser) and maps it onto a five-note scale. Each round spells one short word: every new letter sits one note higher than the last, so spelling the word out loud is also singing a short rising tune — a gentle bridge between phonics and ear training. A child can sing a hum, a long "ahh", or the letter sound itself; exact pitch accuracy isn\'t required, just getting close and holding it for under a second. The arrow keys (or the on-screen ▲▼ buttons) control the same game without any singing at all, for a quieter turn or a shared classroom device. No audio is ever recorded, stored or sent anywhere — the microphone, if you allow it, is read live and only in this tab.',
+    pgFooter: '© 2026 Presker.at · runs in your browser',
+    moreToExplore: 'More to explore',
+  });
+  Object.assign(window.PRESKER_I18N.de, {
+    pgLede: 'Ein kleiner Vogel erklimmt den Garten genau wie deine Stimme — singe höher, um aufzusteigen, tiefer, um abzusteigen. Erreiche jede leuchtende Blume in der richtigen Reihenfolge und du buchstabierst ein Wort.',
+    pgSpellIn: 'Buchstabiere in', pgControl: 'Steuerung',
+    pgMicBtn: '🎤 Singen versuchen', pgKeysBtn: '⌨️ Pfeiltasten',
+    pgMicNoteDefault: 'Drücke <b>↑</b> / <b>↓</b> (oder die Bildschirmtasten), um den Vogel zu bewegen — kein Mikrofon nötig. Nichts, was du singst, wird je aufgenommen oder irgendwohin gesendet; das Zuhören passiert nur in deinem Browser.',
+    pgMicNoteListening: 'Ich höre zu — summe oder singe ein langes „aaah" und bewege deine Stimme nach oben und unten.',
+    pgMicNoteFailed: 'Kein Mikrofon erreichbar, aber die Pfeiltasten funktionieren genauso gut!',
+    pgUp: '▲ hoch', pgDown: '▼ runter', pgRestart: 'Wort neu starten',
+    pgSayStart: 'Wähle eine Sprache, dann erklimme den Garten, indem du singst (oder ↑ / ↓ drückst), von der untersten Blume aufwärts.',
+    pgSaySpell: 'Buchstabiere <b>{word}</b>. Fang tief an und singe (oder drücke ↑) dich hinauf zur leuchtenden Blume.',
+    pgSayNext: 'Gut! Finde jetzt <b>{letter}</b>s Nachbarin — die nächste leuchtende Blume.',
+    pgSayDone: '🎉 Du hast <b>{word}</b> buchstabiert! Toll gesungen.',
+    pgHearNote: 'Diese Note hören',
+    pgAboutSummary: 'Für Erwachsene: wie es funktioniert',
+    pgAboutBody: 'Pitch Garden lauscht der Grundfrequenz der Kinderstimme (ein gewöhnlicher Autokorrelations-Tonhöhendetektor, der vollständig im Browser läuft) und bildet sie auf eine fünftönige Skala ab. Jede Runde buchstabiert ein kurzes Wort: jeder neue Buchstabe sitzt eine Note höher als der letzte, sodass das laute Buchstabieren des Wortes auch das Singen einer kurzen aufsteigenden Melodie ist — eine sanfte Brücke zwischen Phonetik und Gehörbildung. Ein Kind kann summen, ein langes „aaah" singen oder den Buchstabenlaut selbst; exakte Tonhöhe ist nicht nötig, nur nahe genug und für unter eine Sekunde gehalten. Die Pfeiltasten (oder die Bildschirmtasten ▲▼) steuern dasselbe Spiel ganz ohne Singen, für eine leisere Runde oder ein gemeinsames Klassenzimmer-Gerät. Es wird nie Audio aufgenommen, gespeichert oder irgendwohin gesendet — das Mikrofon wird, falls erlaubt, nur live und nur in diesem Tab gelesen.',
+    pgFooter: '© 2026 Presker.at · läuft in deinem Browser',
+    moreToExplore: 'Mehr zum Entdecken',
+  });
+  Object.assign(window.PRESKER_I18N.sl, {
+    pgLede: 'Majhna ptica plezuje po vrtu tako, kot to počne tvoj glas — prepevaj višje, da gre navzgor, nižje, da gre navzdol. Doseži vsako svetlečo cvetlico po vrsti in črkoval boš besedo.',
+    pgSpellIn: 'Črkuj v', pgControl: 'Upravljanje',
+    pgMicBtn: '🎤 Poskusi peti', pgKeysBtn: '⌨️ Smerne tipke',
+    pgMicNoteDefault: 'Pritisni <b>↑</b> / <b>↓</b> (ali gumbe na zaslonu), da premakneš ptico — mikrofon ni potreben. Kar zapoješ, se nikoli ne posnema ali kam pošilja; poslušanje poteka samo v tvojem brskalniku.',
+    pgMicNoteListening: 'Poslušam — zabrneci ali zapoj dolg "aaa" in premikaj glas navzgor in navzdol.',
+    pgMicNoteFailed: 'Mikrofona ni bilo mogoče doseči, a smerne tipke delujejo prav tako dobro!',
+    pgUp: '▲ gor', pgDown: '▼ dol', pgRestart: 'Znova začni besedo',
+    pgSayStart: 'Izberi jezik, nato splezaj po vrtu s petjem (ali s pritiskanjem ↑ / ↓) od najnižje cvetlice navzgor.',
+    pgSaySpell: 'Črkuj <b>{word}</b>. Začni nizko in se s petjem (ali pritiskom ↑) povzpni do svetleče cvetlice.',
+    pgSayNext: 'Lepo! Zdaj poišči sosedo črke <b>{letter}</b> — naslednjo svetlečo cvetlico.',
+    pgSayDone: '🎉 Črkoval/-a si <b>{word}</b>! Odlično petje.',
+    pgHearNote: 'Poslušaj to noto',
+    pgAboutSummary: 'Za odrasle: kako deluje',
+    pgAboutBody: 'Pitch Garden prisluhne osnovni frekvenci otroškega glasu (običajen avtokorelacijski detektor višine tona, ki teče povsem v brskalniku) in jo preslika na petstopenjsko lestvico. Vsaka runda črkuje eno kratko besedo: vsaka nova črka je eno noto višje od prejšnje, zato je naglasno črkovanje besede hkrati petje kratke naraščajoče melodije — nežen prehod med fonetiko in urjenjem posluha. Otrok lahko zabrenči, zapoje dolg "aaa" ali sam glas črke; natančna višina tona ni potrebna, dovolj je približek, zadržan manj kot sekundo. Smerne tipke (ali gumbi na zaslonu ▲▼) upravljajo isto igro brez petja, za tišjo rundo ali skupno napravo v razredu. Zvok se nikoli ne posname, shrani ali kam poslje — mikrofon, če ga dovoliš, se bere v živo in samo v tem zavihku.',
+    pgFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+    moreToExplore: 'Še več za raziskati',
+  });
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+        <button class="pill-btn" data-lang-set="auto">Auto</button>
+        <button class="pill-btn" data-lang-set="en">EN</button>
+        <button class="pill-btn" data-lang-set="de">DE</button>
+        <button class="pill-btn" data-lang-set="sl">SL</button>
+      </div>
+      <div class="pill-group" role="group" aria-label="Site theme" data-theme-toggle>
+        <button class="pill-btn" data-theme-set="light">☀</button>
+        <button class="pill-btn" data-theme-set="auto">Auto</button>
+        <button class="pill-btn" data-theme-set="dark">☾</button>
+      </div>
+    </div>
+  </div>
+  <h1>Pitch Garden</h1>
+  <p class="lede" data-i18n="pgLede">A little bird climbs the garden the same way your voice does — sing higher to go up, lower to go down. Reach each glowing flower in order and you'll spell a word.</p>
+
+  <div class="row">
+    <span class="lbl" data-i18n="pgSpellIn">Spell in</span>
+    <button data-lang="de" class="on">Deutsch</button>
+    <button data-lang="sl">Slovenščina</button>
+    <span class="lbl" style="margin-left:14px" data-i18n="pgControl">Control</span>
+    <button id="micBtn" data-i18n="pgMicBtn">🎤 Try singing</button>
+    <button id="keysBtn" class="on" data-i18n="pgKeysBtn">⌨️ Arrow keys</button>
+  </div>
+  <p class="mic-note" id="micNote" data-i18n-html="pgMicNoteDefault">Press <b>↑</b> / <b>↓</b> (or the on-screen buttons) to move the bird — no microphone needed. Nothing you sing is ever recorded or sent anywhere; the listening happens only in your browser.</p>
+
+  <div class="wordbar">
+    <div class="pic" id="pic">⚽</div>
+    <div class="slots" id="slots"></div>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="avatar" id="avatar"></div>
+    <div class="stage-hint">tap a flower to hear its note</div>
+  </div>
+
+  <div class="row" id="touchRow">
+    <button id="btnUp" style="min-width:64px" data-i18n="pgUp">▲ up</button>
+    <button id="btnDown" style="min-width:64px" data-i18n="pgDown">▼ down</button>
+    <span style="flex:1"></span>
+    <button id="restart" data-i18n="pgRestart">Restart word</button>
+  </div>
+
+  <div class="say" id="say" data-i18n-html="pgSayStart">Pick a language, then climb the garden by singing (or pressing ↑ / ↓) from the lowest flower up.</div>
+
+  <details>
+    <summary data-i18n="pgAboutSummary">For grown-ups: how it works</summary>
+    <p data-i18n="pgAboutBody">Pitch Garden listens for the fundamental frequency of your child's voice (a standard autocorrelation pitch-detector, running entirely in the browser) and maps it onto a five-note scale. Each round spells one short word: every new letter sits one note higher than the last, so spelling the word out loud is also singing a short rising tune — a gentle bridge between phonics and ear training. A child can sing a hum, a long "ahh", or the letter sound itself; exact pitch accuracy isn't required, just getting close and holding it for under a second. The arrow keys (or the on-screen ▲▼ buttons) control the same game without any singing at all, for a quieter turn or a shared classroom device. No audio is ever recorded, stored or sent anywhere — the microphone, if you allow it, is read live and only in this tab.</p>
+  </details>
+
+  <div class="lab-related">
+    <span class="lbl" data-i18n="moreToExplore">More to explore</span>
+    <a href="/lab/word-safari/">Word Safari</a> · <a href="/lab/uhr-ura/">Uhr · Ura</a> · <a href="/lab/abc-quest/">ABC Quest</a>
+  </div>
+
+  <footer>
+    <span data-i18n="pgFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+// ---- pure pitch detector (autocorrelation, bounded to a vocal-friendly range) ----
+function detectPitch(buf, sampleRate, minF, maxF) {
+  minF = minF || 150; maxF = maxF || 800;
+  const n = buf.length;
+  let rms = 0;
+  for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+  rms = Math.sqrt(rms / n);
+  if (rms < 0.008) return null;
+  const minLag = Math.max(2, Math.floor(sampleRate / maxF));
+  const maxLag = Math.min(n - 2, Math.ceil(sampleRate / minF));
+  const corrAt = lag => { let s = 0; const m = n - lag; for (let i = 0; i < m; i++) s += buf[i] * buf[i + lag]; return s; };
+  let bestLag = -1, bestCorr = 0;
+  for (let lag = minLag; lag <= maxLag; lag++) {
+    const c = corrAt(lag);
+    if (c > bestCorr) { bestCorr = c; bestLag = lag; }
+  }
+  if (bestLag <= minLag || bestCorr <= 0) return null;
+  const c0 = corrAt(bestLag - 1), c1 = bestCorr, c2 = corrAt(bestLag + 1);
+  const denom = (c0 - 2 * c1 + c2);
+  const shift = denom !== 0 ? 0.5 * (c0 - c2) / denom : 0;
+  const refined = bestLag + Math.max(-0.5, Math.min(0.5, shift));
+  const freq = sampleRate / refined;
+  if (freq < minF || freq > maxF) return null;
+  return freq;
+}
+
+// ---- musical scale (pentatonic, C4..C5) ----
+const SCALE_MIDI = [60, 62, 64, 67, 69, 72];
+const midiToFreq = m => 440 * Math.pow(2, (m - 69) / 12);
+const SCALE_FREQ = SCALE_MIDI.map(midiToFreq);
+
+// ---- word lists ----
+const WORDS = {
+  de: [
+    { w: 'BALL', pic: '⚽' },
+    { w: 'AUTO', pic: '🚗' },
+    { w: 'HAUS', pic: '🏠' },
+    { w: 'HUND', pic: '🐶' },
+  ],
+  sl: [
+    { w: 'ROKA', pic: '✋' },
+    { w: 'NOGA', pic: '🦵' },
+    { w: 'MUCA', pic: '🐱' },
+    { w: 'PES', pic: '🐶' },
+  ],
+};
+
+// ---- state ----
+let lang = 'de', order = [], orderIdx = 0;
+let stops = [];          // [{letter, freq, x, y, el, hit, armed}]
+let targetPtr = 0;
+let mode = 'keys';        // 'keys' | 'mic'
+let keysY = 0.08;
+let micY = null;
+let displayY = 0.08;
+let holdStart = null;
+const HOLD_MS = 550;
+const TOL = 0.065;
+let roundComplete = false;
+let audioCtx = null;
+let advanceTimer = null;
+
+function ac() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return audioCtx; }
+function beep(freq, dur, type, gain) {
+  try {
+    const a = ac(), o = a.createOscillator(), g = a.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.value = 0; o.connect(g); g.connect(a.destination);
+    const t = a.currentTime;
+    g.gain.linearRampToValueAtTime(gain || 0.18, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, t + (dur || 0.3));
+    o.start(t); o.stop(t + (dur || 0.3) + 0.02);
+  } catch (e) { /* audio unavailable; game still works visually */ }
+}
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function pickOrder() { order = shuffle(WORDS[lang].map((_, i) => i)); orderIdx = 0; }
+
+function buildStops(word) {
+  const seen = [];
+  for (const ch of word) if (!seen.includes(ch)) seen.push(ch);
+  const n = seen.length;
+  const freqs = SCALE_FREQ.slice(0, n);
+  const minF = freqs[0], maxF = freqs[n - 1];
+  const stage = $('stage'), W = stage.clientWidth || 700, H = stage.clientHeight || 420;
+  const margin = 70;
+  return seen.map((letter, i) => {
+    const freq = freqs[i];
+    const y = n > 1 ? 1 - (freq - minF) / (maxF - minF) : 0.5; // 0 = top, 1 = bottom (css-space)
+    const x = n > 1 ? margin + (W - 2 * margin) * (i / (n - 1)) : W / 2;
+    return { letter, freq, x, yNorm: 1 - y, cssY: margin + (H - 2 * margin) * y, hit: false, armed: true };
+  });
+}
+
+function yNormFromFreq(freq, minF, maxF) { return maxF > minF ? (freq - minF) / (maxF - minF) : 0.5; }
+
+function newRound() {
+  if (orderIdx >= order.length) pickOrder();
+  const entry = WORDS[lang][order[orderIdx]];
+  orderIdx++;
+  roundComplete = false;
+  targetPtr = 0;
+  stops = buildStops(entry.w);
+  $('pic').textContent = entry.pic;
+  renderSlots(entry.w);
+  renderStops();
+  keysY = 0.9; // start near the bottom
+  explain(t('pgSaySpell', { word: entry.w }));
+  updateTargetHighlight();
+}
+let currentWord = '';
+function renderSlots(word) {
+  currentWord = word;
+  $('slots').innerHTML = [...word].map(() => '<div class="slot"></div>').join('');
+}
+function renderStops() {
+  const stage = $('stage');
+  stage.querySelectorAll('.stop').forEach(n => n.remove());
+  stops.forEach((s, i) => {
+    const el = document.createElement('div');
+    el.className = 'stop';
+    el.style.left = s.x + 'px';
+    el.style.top = s.cssY + 'px';
+    el.textContent = s.letter;
+    el.title = t('pgHearNote');
+    el.addEventListener('click', () => beep(s.freq, 0.5, 'sine', 0.16));
+    stage.appendChild(el);
+    s.el = el;
+  });
+}
+function updateTargetHighlight() {
+  stops.forEach((s, i) => { s.el && s.el.classList.toggle('target', i === targetPtr && !roundComplete); s.el && s.el.classList.toggle('done', s.hit); });
+}
+
+function explain(html) { $('say').innerHTML = html; }
+
+// ---- input: keys / touch buttons (always available) ----
+const STEP = 0.045;
+function nudge(dy) { keysY = Math.max(0.03, Math.min(0.97, keysY + dy)); if (mode !== 'keys') setMode('keys'); }
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowUp') { nudge(-STEP); e.preventDefault(); }
+  else if (e.key === 'ArrowDown') { nudge(STEP); e.preventDefault(); }
+});
+$('btnUp').onclick = () => nudge(-STEP);
+$('btnDown').onclick = () => nudge(STEP);
+$('restart').onclick = () => { if (advanceTimer) clearTimeout(advanceTimer); orderIdx = Math.max(0, orderIdx - 1); newRound(); };
+
+// ---- input: microphone ----
+let stream = null, analyser = null, micBuf = null;
+function setMode(m) {
+  mode = m;
+  $('micBtn').classList.toggle('on', m === 'mic');
+  $('keysBtn').classList.toggle('on', m === 'keys');
+}
+$('keysBtn').onclick = () => setMode('keys');
+$('micBtn').onclick = async () => {
+  if (mode === 'mic') { setMode('keys'); return; }
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const a = ac(), src = a.createMediaStreamSource(stream);
+    analyser = a.createAnalyser(); analyser.fftSize = 2048;
+    micBuf = new Float32Array(analyser.fftSize);
+    src.connect(analyser);
+    setMode('mic');
+    $('micNote').textContent = t('pgMicNoteListening');
+  } catch (e) {
+    $('micNote').textContent = t('pgMicNoteFailed');
+  }
+};
+
+document.querySelectorAll('[data-lang]').forEach(b => b.onclick = () => {
+  document.querySelectorAll('[data-lang]').forEach(x => x.classList.toggle('on', x === b));
+  lang = b.dataset.lang; pickOrder(); newRound();
+});
+
+// ---- main loop ----
+function currentMinMax() { return [stops[0].freq, stops[stops.length - 1].freq]; }
+function frame() {
+  if (stops.length) {
+    const [minF, maxF] = currentMinMax();
+    if (mode === 'mic' && analyser) {
+      analyser.getFloatTimeDomainData(micBuf);
+      const f = detectPitch(micBuf, ac().sampleRate, minF * 0.72, maxF * 1.35);
+      if (f != null) micY = yNormFromFreq(f, minF, maxF);
+    }
+    const rawY = mode === 'mic' && micY != null ? (1 - micY) : keysY;
+    displayY += (rawY - displayY) * 0.25;
+    applyAvatar(displayY);
+    checkHit(displayY);
+  }
+  requestAnimationFrame(frame);
+}
+function applyAvatar(yNorm) {
+  const stage = $('stage'), H = stage.clientHeight || 420, margin = 70;
+  const cssY = margin + (H - 2 * margin) * yNorm;
+  const avatar = $('avatar');
+  avatar.style.top = cssY + 'px';
+  avatar.style.left = (stops[targetPtr] ? stops[targetPtr].x : (stage.clientWidth || 700) / 2) + 'px';
+}
+function checkHit(displayYNorm) {
+  if (roundComplete || !stops.length) return;
+  const target = stops[targetPtr];
+  if (!target) return;
+  const targetYNorm = 1 - yNormFromFreq(target.freq, stops[0].freq, stops[stops.length - 1].freq);
+  const close = Math.abs(displayYNorm - targetYNorm) < TOL;
+  const avatar = $('avatar');
+  if (close) {
+    avatar.classList.add('hit');
+    if (holdStart == null) holdStart = performance.now();
+    if (performance.now() - holdStart >= HOLD_MS) collect();
+  } else {
+    holdStart = null;
+    avatar.classList.remove('hit');
+  }
+}
+function collect() {
+  const target = stops[targetPtr];
+  target.hit = true;
+  holdStart = null;
+  beep(target.freq, 0.28, 'triangle', 0.2);
+  const slotEls = $('slots').children;
+  if (slotEls[targetPtr]) { slotEls[targetPtr].textContent = target.letter; slotEls[targetPtr].classList.add('filled', 'pop'); }
+  targetPtr++;
+  updateTargetHighlight();
+  if (targetPtr >= stops.length) {
+    roundComplete = true;
+    explain(t('pgSayDone', { word: currentWord }));
+    beep(SCALE_FREQ[SCALE_FREQ.length - 1], 0.5, 'triangle', 0.22);
+    advanceTimer = setTimeout(() => { newRound(); }, 1800);
+  } else {
+    explain(t('pgSayNext', { letter: target.letter }));
+  }
+}
+
+// ---- test hook ----
+window.__pitchGarden = {
+  detectPitch,
+  setLang(l) { document.querySelector(`[data-lang="${l}"]`).click(); },
+  setY(v) { setMode('keys'); keysY = Math.max(0.03, Math.min(0.97, v)); },
+  state() { return { word: currentWord, targetPtr, stopsHit: stops.map(s => s.hit), complete: roundComplete, stops: stops.map(s => ({ letter: s.letter, freq: s.freq })) }; },
+  newRound() { newRound(); },
+};
+
+pickOrder();
+newRound();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

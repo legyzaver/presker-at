@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbit School — teaching orbital mechanics with a 3D game — PRESKER.AT</title>
+  <meta name="description" content="Design notes for Orbit School, a 3D browser game about orbital mechanics: Predict-Observe-Explain, instant visual feedback, guided discovery, self-explanation prompts, and why 3D helps here.">
+  <link rel="canonical" href="https://www.presker.at/lab/orbit-school-notes.html">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://www.presker.at/lab/orbit-school-notes.html">
+  <meta property="og:title" content="Orbit School — teaching orbital mechanics with a 3D game">
+  <meta property="og:description" content="Predict, fly, explain: the didactic design behind a small 3D spaceflight game.">
+  <meta name="twitter:card" content="summary">
+  <link rel="stylesheet" href="/lab/lab.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      orbPlayFull: 'Play full screen →',
+      orbEyebrow: 'Digital Lab · Learning',
+      orbH1: 'Orbit School — learning orbital mechanics by getting it wrong first.',
+      orbSub: "A small 3D spaceflight game in the browser. Four missions, each built around a prediction that most people get wrong. This page covers why it's built the way it is.",
+      orbFullscreen: '⛶ Fullscreen',
+      orbProblemH: 'The teaching problem',
+      orbProblemP1: 'Orbital mechanics is a well-known case where everyday intuition is wrong. On the ground, you go up by pushing up and catch someone by speeding up. In orbit, pushing up mostly tilts your path, pushing forward raises the <em>other side</em> of the planet, and to catch a spacecraft ahead of you, you slow down.',
+      orbProblemP2: 'Telling people the rule rarely changes those intuitions. Intuitions that come from years of everyday experience tend to survive a correct explanation. What changes them is a moment where your own expectation fails in front of you. So the game is designed to make that moment happen on purpose, safely, and then explain it straight away.',
+      orbPoeH: 'Predict → Observe → Explain',
+      orbPoeP: 'Every mission uses the Predict–Observe–Explain sequence (White &amp; Gunstone), a classic structure from science teaching:',
+      orbLoop1T: '1 · Predict', orbLoop1D: 'Before flying, you answer one multiple-choice question: "The station is ahead of you. How do you catch it?" You have to commit to an answer, and there\'s no score.',
+      orbLoop2T: '2 · Observe', orbLoop2D: 'You fly the mission with real controls. Your prediction stays visible in the corner, so you can test it, not just remember it.',
+      orbLoop3T: '3 · Explain', orbLoop3D: 'The debrief compares your prediction with what happened, gives the one-line principle, and then explains why it works.',
+      orbCommitP: 'The commitment in step 1 matters most. A vague "I\'d probably speed up" is easy to quietly revise afterwards. A clicked answer that\'s shown back to you ("You predicted \'Fire forward\'. The answer was \'Fire backward\'.") turns an experience into a contradiction you have to resolve. The wording is on purpose: <em>"That surprise is the lesson, so here\'s why."</em> A wrong prediction is never marked red and never costs anything.',
+      orbFeedbackH: 'Feedback before consequences',
+      orbFeedbackP: 'The hardest thing about real orbits is the delay: a burn here shows its effect half an orbit later, on the far side of the planet. That delay is exactly why intuition never gets corrected. The game removes it. The <strong>orange line</strong> is the orbit you\'d follow if you stopped firing, and it\'s recalculated every frame from your position and velocity. Hold "Forward" and you see the far side of the line swing outward while your ship barely moves.',
+      orbFeedbackLi1: '<strong>Several views of the same thing.</strong> The orbit line, the AP/PE markers (highest and lowest points) and the numbers in the corner all describe the same state. A learner who doesn\'t read numbers can watch the line; one who doesn\'t trust the picture can watch the AP number climb.',
+      orbFeedbackLi2: '<strong>Warnings before failure.</strong> If your orbit is about to hit the planet, the line turns red <em>before</em> you crash, so the cause and the effect show up together.',
+      orbFeedbackLi3: '<strong>Notes that react to what you do.</strong> Hold "Away from planet" during mission 1 and a note appears: "Pushing up or down mostly tilts the orbit sideways. Watch the AP number: it hardly moves." The feedback targets the likely misconception at the moment it happens.',
+      orbGuidedH: 'Guided discovery, not a sandbox',
+      orbGuidedP: 'Pure "go and explore" discovery has a poor track record for learning concepts (Mayer\'s 2004 review is the usual reference). Learners often explore without finding the principle. So the open-ended part, free flight, comes <em>last</em>. Before that, every mission:',
+      orbGuidedLi1: 'has one goal you can see (a dashed ring, a station, an orbit that has to open up);',
+      orbGuidedLi2: 'tracks progress with one bar and one number, so you can tell whether your last action helped;',
+      orbGuidedLi3: "gives a hint after 30 seconds or when the fuel runs out, never before. There's room to struggle a bit first, but not to stay stuck.",
+      orbSelfExplainH: 'Self-explanation prompts',
+      orbSelfExplainP: 'Every debrief ends with a "Think about it" question and a hidden answer, for example: <em>"Your new circular orbit is slower than the one you started on, although you only ever fired forward. How?"</em> Prompting learners to explain things to themselves is one of the best-supported ways to deepen understanding (Chi et al., 1994). Hiding the answer behind a button is a small nudge to think before reading.',
+      orbEfficiencyH: 'A second layer: doing it efficiently',
+      orbEfficiencyP: 'After each mission the game shows how much fuel (Δv) you used next to what an efficient flight needs. Winning a mission proves you know the right <em>direction</em>; matching the efficient figure shows you also know the right <em>place and amount</em>. Mission 2 is the clearest example: firing forward at the low point instead of the high point technically raises your orbit, but it wastes fuel and overshoots the ring. The game says so while you\'re flying.',
+      orb3dH: 'Why 3D, and why not more',
+      orb3dP1: 'The physics is two-dimensional: every orbit here lies in one plane. 3D still helps, because the key ideas are spatial. "The other side of the planet" means something when the planet is a sphere you can look around. The tilted camera makes near and far sides of the orbit readable. A globe with clouds and an atmosphere also makes the scale feel real (the readouts use real Earth numbers: 7.1 km/s at 1,600 km).',
+      orb3dP2: 'What the game avoids: a free 3D camera that can lose the orbital plane (the tilt is limited), inclination changes, and anything needing a gamepad. Every one of those would show off more 3D and teach less.',
+      orbClassH: 'Using it in a class',
+      orbClassP: 'It works well projected at the front of a room for about 20 minutes, age 12 and up:',
+      orbClassLi1: 'Show the prediction question for mission 1 and let everyone vote by hand <em>before</em> anyone touches the controls.',
+      orbClassLi2: 'Let pupils who disagree convince a neighbour, then vote again. This is Mazur\'s Peer Instruction, which works well with exactly this kind of misconception question.',
+      orbClassLi3: 'Fly the mission live. Read the debrief together, and leave the "Think about it" question open as a discussion prompt.',
+      orbClassLi4: 'Repeat for missions 2–4. Mission 3 ("to catch up, slow down") usually starts the best argument.',
+      orbClassP2: 'On laptops or tablets, pupils can play alone. The touch controls are big buttons, and nothing is saved anywhere except which missions are done, kept in that browser.',
+      orbHoodH: 'Under the hood',
+      orbHoodP: 'One HTML file plus a self-hosted copy of <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT licence). No build step, no external requests, no tracking. Units follow Earth: one length unit is the planet radius (6371 km), GM = 1, so one speed unit is 7.905 km/s. The ship and the station are integrated with symplectic Euler in substeps of 0.004 time units, which keeps orbits stable at 16× time warp. The orange prediction line is <em>not</em> simulated forward. It\'s the exact Kepler conic from the current position and velocity (eccentricity vector, semi-latus rectum), so it costs nothing to redraw every frame and is always correct. Orbits are drawn as flat ribbons in the orbital plane because WebGL lines are stuck at one pixel wide. The planet\'s texture is value noise sampled on the sphere itself, so there\'s no seam.',
+      orbRefsH: 'References',
+      orbBack: '← back to presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      orbPlayFull: 'Vollbild spielen →',
+      orbEyebrow: 'Digitales Lab · Lernen',
+      orbH1: 'Orbit School — Orbitalmechanik lernen, indem man es zuerst falsch macht.',
+      orbSub: 'Ein kleines 3D-Raumflugspiel im Browser. Vier Missionen, jede aufgebaut um eine Vorhersage, die die meisten Leute falsch treffen. Diese Seite erklärt, warum es so gebaut ist, wie es ist.',
+      orbFullscreen: '⛶ Vollbild',
+      orbProblemH: 'Das didaktische Problem',
+      orbProblemP1: 'Orbitalmechanik ist ein bekannter Fall, in dem die Alltagsintuition falsch liegt. Auf dem Boden geht man nach oben, indem man nach oben drückt, und holt jemanden ein, indem man schneller wird. Im Orbit kippt ein Schub nach oben meist nur die Flugbahn, ein Schub nach vorne hebt die <em>gegenüberliegende Seite</em> des Planeten an, und um ein Raumschiff vor sich einzuholen, muss man langsamer werden.',
+      orbProblemP2: 'Die Regel zu erklären, ändert diese Intuitionen selten. Intuitionen aus jahrelanger Alltagserfahrung überleben eine korrekte Erklärung meist. Was sie ändert, ist der Moment, in dem die eigene Erwartung vor den eigenen Augen scheitert. Das Spiel ist deshalb so gebaut, dass dieser Moment absichtlich und sicher eintritt — und dann sofort erklärt wird.',
+      orbPoeH: 'Vorhersagen → Beobachten → Erklären',
+      orbPoeP: 'Jede Mission nutzt die Abfolge Vorhersagen–Beobachten–Erklären (White &amp; Gunstone), eine klassische Struktur aus dem naturwissenschaftlichen Unterricht:',
+      orbLoop1T: '1 · Vorhersagen', orbLoop1D: 'Vor dem Flug beantwortest du eine Multiple-Choice-Frage: „Die Station ist vor dir. Wie holst du sie ein?" Du musst dich auf eine Antwort festlegen, und es gibt keine Punktzahl.',
+      orbLoop2T: '2 · Beobachten', orbLoop2D: 'Du fliegst die Mission mit echten Steuerungen. Deine Vorhersage bleibt in der Ecke sichtbar, sodass du sie testen kannst, nicht nur dich erinnern.',
+      orbLoop3T: '3 · Erklären', orbLoop3D: 'Die Nachbesprechung vergleicht deine Vorhersage mit dem, was passiert ist, gibt das Ein-Satz-Prinzip und erklärt dann, warum es funktioniert.',
+      orbCommitP: 'Die Festlegung in Schritt 1 zählt am meisten. Ein vages „ich würde wohl schneller werden" lässt sich hinterher leicht still revidieren. Eine angeklickte Antwort, die dir gezeigt wird („Du hast \'nach vorne feuern\' vorhergesagt. Die Antwort war \'nach hinten feuern\'.") verwandelt eine Erfahrung in einen Widerspruch, den du aufklären musst. Die Formulierung ist bewusst gewählt: <em>„Diese Überraschung ist die Lektion, deshalb hier das Warum."</em> Eine falsche Vorhersage wird nie rot markiert und kostet nie etwas.',
+      orbFeedbackH: 'Rückmeldung vor den Konsequenzen',
+      orbFeedbackP: 'Das Schwierigste an echten Orbits ist die Verzögerung: Ein Schub hier zeigt seine Wirkung erst eine halbe Umlaufbahn später, auf der anderen Seite des Planeten. Genau diese Verzögerung ist der Grund, warum sich die Intuition nie korrigiert. Das Spiel beseitigt sie. Die <strong>orange Linie</strong> ist die Umlaufbahn, der du folgen würdest, wenn du jetzt aufhörst zu zünden, und sie wird jeden Frame aus deiner Position und Geschwindigkeit neu berechnet. Halte „Vorwärts" gedrückt, und du siehst, wie sich die ferne Seite der Linie nach außen schwingt, während dein Schiff sich kaum bewegt.',
+      orbFeedbackLi1: '<strong>Mehrere Ansichten derselben Sache.</strong> Die Orbitlinie, die AP/PE-Marker (höchster und tiefster Punkt) und die Zahlen in der Ecke beschreiben alle denselben Zustand. Wer keine Zahlen liest, kann die Linie beobachten; wer dem Bild nicht traut, kann zusehen, wie die AP-Zahl steigt.',
+      orbFeedbackLi2: '<strong>Warnungen vor dem Scheitern.</strong> Wenn deine Umlaufbahn kurz davor ist, den Planeten zu treffen, wird die Linie <em>vor</em> dem Absturz rot, sodass Ursache und Wirkung gemeinsam sichtbar werden.',
+      orbFeedbackLi3: '<strong>Hinweise, die auf dein Tun reagieren.</strong> Halte während Mission 1 „Weg vom Planeten" gedrückt, und ein Hinweis erscheint: „Nach oben oder unten drücken kippt die Umlaufbahn meist nur seitlich. Beobachte die AP-Zahl: Sie bewegt sich kaum." Die Rückmeldung zielt genau in dem Moment auf das wahrscheinliche Missverständnis.',
+      orbGuidedH: 'Geführtes Entdecken, kein Sandkasten',
+      orbGuidedP: 'Reines „geh und entdecke"-Lernen hat für das Lernen von Konzepten eine schlechte Erfolgsbilanz (Mayers Überblick von 2004 ist die übliche Referenz). Lernende erkunden oft, ohne das Prinzip zu finden. Deshalb kommt der offene Teil, der freie Flug, <em>zuletzt</em>. Davor hat jede Mission:',
+      orbGuidedLi1: 'ein sichtbares Ziel (einen gestrichelten Ring, eine Station, eine Umlaufbahn, die sich öffnen muss);',
+      orbGuidedLi2: 'einen Fortschritt, verfolgt mit einem Balken und einer Zahl, sodass man erkennt, ob die letzte Aktion geholfen hat;',
+      orbGuidedLi3: 'einen Hinweis nach 30 Sekunden oder wenn der Treibstoff ausgeht, nie vorher. Es gibt Raum, sich erst ein wenig zu bemühen, aber nicht, um festzustecken.',
+      orbSelfExplainH: 'Aufforderungen zur Selbsterklärung',
+      orbSelfExplainP: 'Jede Nachbesprechung endet mit einer „Denk darüber nach"-Frage und einer versteckten Antwort, zum Beispiel: <em>„Deine neue Kreisbahn ist langsamer als die, mit der du gestartet bist, obwohl du nur nach vorne gezündet hast. Wie?"</em> Lernende aufzufordern, sich Dinge selbst zu erklären, ist eine der am besten belegten Methoden, das Verständnis zu vertiefen (Chi et al., 1994). Die Antwort hinter einem Button zu verstecken, ist ein kleiner Anstoß, erst zu denken, dann zu lesen.',
+      orbEfficiencyH: 'Eine zweite Ebene: es effizient machen',
+      orbEfficiencyP: 'Nach jeder Mission zeigt das Spiel, wie viel Treibstoff (Δv) du verbraucht hast, neben dem, was ein effizienter Flug braucht. Eine Mission zu gewinnen beweist, dass du die richtige <em>Richtung</em> kennst; die effiziente Zahl zu treffen zeigt, dass du auch den richtigen <em>Ort und die richtige Menge</em> kennst. Mission 2 ist das klarste Beispiel: Vorwärts zünden am tiefsten Punkt statt am höchsten hebt die Umlaufbahn technisch an, verschwendet aber Treibstoff und schießt über den Ring hinaus. Das Spiel sagt das, während du fliegst.',
+      orb3dH: 'Warum 3D, und warum nicht mehr',
+      orb3dP1: 'Die Physik ist zweidimensional: Jede Umlaufbahn hier liegt in einer Ebene. 3D hilft trotzdem, weil die zentralen Ideen räumlich sind. „Die andere Seite des Planeten" bedeutet etwas, wenn der Planet eine Kugel ist, um die man herumschauen kann. Die geneigte Kamera macht nahe und ferne Seiten der Umlaufbahn lesbar. Ein Globus mit Wolken und Atmosphäre lässt den Maßstab auch echt wirken (die Anzeigen nutzen echte Erdzahlen: 7,1 km/s bei 1.600 km).',
+      orb3dP2: 'Was das Spiel vermeidet: eine freie 3D-Kamera, die die Orbitalebene verlieren könnte (die Neigung ist begrenzt), Bahnneigungsänderungen und alles, was einen Gamepad braucht. Jedes davon würde mehr 3D zeigen und weniger lehren.',
+      orbClassH: 'Im Unterricht einsetzen',
+      orbClassP: 'Es funktioniert gut, projiziert vor der Klasse, für etwa 20 Minuten, ab 12 Jahren:',
+      orbClassLi1: 'Zeige die Vorhersagefrage für Mission 1 und lass alle per Handzeichen abstimmen, <em>bevor</em> jemand die Steuerung berührt.',
+      orbClassLi2: 'Lass Schüler, die anderer Meinung sind, einen Nachbarn überzeugen, dann noch einmal abstimmen. Das ist Mazurs Peer Instruction, die bei genau dieser Art von Missverständnisfrage gut funktioniert.',
+      orbClassLi3: 'Fliege die Mission live. Lest die Nachbesprechung gemeinsam und lasst die „Denk darüber nach"-Frage als offene Diskussionsfrage stehen.',
+      orbClassLi4: 'Wiederhole das für Missionen 2–4. Mission 3 („um aufzuholen, langsamer werden") liefert meist die beste Diskussion.',
+      orbClassP2: 'Auf Laptops oder Tablets können Schüler allein spielen. Die Touch-Steuerung besteht aus großen Buttons, und nichts wird gespeichert außer, welche Missionen erledigt sind — und das nur in diesem Browser.',
+      orbHoodH: 'Unter der Haube',
+      orbHoodP: 'Eine HTML-Datei plus eine selbst gehostete Kopie von <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT-Lizenz). Kein Build-Schritt, keine externen Anfragen, kein Tracking. Die Einheiten folgen der Erde: Eine Längeneinheit ist der Planetenradius (6371 km), GM = 1, also ist eine Geschwindigkeitseinheit 7,905 km/s. Schiff und Station werden mit symplektischem Euler in Teilschritten von 0,004 Zeiteinheiten integriert, was Umlaufbahnen bei 16-facher Zeitraffung stabil hält. Die orange Vorhersagelinie wird <em>nicht</em> vorwärts simuliert. Sie ist der exakte Kepler-Kegelschnitt aus aktueller Position und Geschwindigkeit (Exzentrizitätsvektor, Halbparameter), kostet also nichts, jeden Frame neu gezeichnet zu werden, und ist immer korrekt. Umlaufbahnen werden als flache Bänder in der Orbitalebene gezeichnet, weil WebGL-Linien bei einem Pixel Breite festhängen. Die Planetentextur ist Valuenoise, direkt auf die Kugel abgetastet, sodass es keine Nahtstelle gibt.',
+      orbRefsH: 'Quellen',
+      orbBack: '← zurück zu presker.at',
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      orbPlayFull: 'Igraj v celozaslonskem načinu →',
+      orbEyebrow: 'Digitalni lab · Učenje',
+      orbH1: 'Orbit School — učenje orbitalne mehanike, tako da najprej zgrešiš.',
+      orbSub: 'Majhna 3D igra vesoljskega poleta v brskalniku. Štiri misije, vsaka zgrajena okoli napovedi, ki jo večina ljudi napove napačno. Ta stran razloži, zakaj je zgrajena tako, kot je.',
+      orbFullscreen: '⛶ Celozaslonsko',
+      orbProblemH: 'Pedagoški problem',
+      orbProblemP1: 'Orbitalna mehanika je znan primer, kjer je vsakdanja intuicija napačna. Na tleh gremo navzgor s potiskom navzgor in ujamemo nekoga s pospeševanjem. V orbiti potisk navzgor predvsem nagne pot, potisk naprej dvigne <em>nasprotno stran</em> planeta, in da ujamemo plovilo pred seboj, moramo zmanjšati hitrost.',
+      orbProblemP2: 'Povedati ljudem pravilo redko spremeni te intuicije. Intuicije, ki izvirajo iz let vsakdanje izkušnje, navadno preživijo pravilno razlago. Kar jih spremeni, je trenutek, ko lastno pričakovanje spodleti pred lastnimi očmi. Zato je igra zasnovana tako, da se ta trenutek zgodi namenoma, varno, in nato takoj razloži.',
+      orbPoeH: 'Napovej → Opazuj → Razloži',
+      orbPoeP: 'Vsaka misija uporablja zaporedje Napovej–Opazuj–Razloži (White &amp; Gunstone), klasično strukturo iz naravoslovnega poučevanja:',
+      orbLoop1T: '1 · Napovej', orbLoop1D: 'Pred letom odgovoriš na eno vprašanje z več možnimi odgovori: „Postaja je pred teboj. Kako jo ujameš?" Odgovoru se moraš zavezati, točk pa ni.',
+      orbLoop2T: '2 · Opazuj', orbLoop2D: 'Misijo letiš z resničnimi kontrolami. Tvoja napoved ostane vidna v kotu, tako da jo lahko preizkusiš, ne le pomniš.',
+      orbLoop3T: '3 · Razloži', orbLoop3D: 'Razbremenitev primerja tvojo napoved s tem, kar se je zgodilo, poda enovrstično načelo in nato razloži, zakaj deluje.',
+      orbCommitP: 'Zaveza v 1. korak štejejo največ. Nejasno „verjetno bi pospešil" je pozneje enostavno tiho popraviti. Kliknjen odgovor, ki ti je prikazan nazaj („Napovedal si \'sproži naprej\'. Odgovor je bil \'sproži nazaj\'.") spremeni izkušnjo v protislovje, ki ga moraš razrešiti. Besedilo je namenoma izbrano: <em>„To presenečenje je lekcija, zato tukaj razlaga."</em> Napačna napoved nikoli ni označena rdeče in nikoli ne stane ničesar.',
+      orbFeedbackH: 'Povratne informacije pred posledicami',
+      orbFeedbackP: 'Najtežja stvar pri resničnih orbitah je zamik: zažig tukaj pokaže svoj učinek pol obhoda pozneje, na drugi strani planeta. Prav ta zamik je razlog, da se intuicija nikoli ne popravi. Igra ga odpravi. <strong>Oranžna črta</strong> je orbita, ki bi ji sledil, če bi zdaj prenehal zažigati, in se vsak okvir preračuna iz tvojega položaja in hitrosti. Pritisni in držite „Naprej" in videl boš, kako se daljna stran črte razširi navzven, medtem ko se tvoje plovilo komaj premakne.',
+      orbFeedbackLi1: '<strong>Več pogledov na isto stvar.</strong> Orbitalna črta, markerji AP/PE (najvišja in najnižja točka) ter številke v kotu vsi opisujejo isto stanje. Kdor ne bere številk, lahko opazuje črto; kdor ne zaupa slikam, lahko spremlja, kako narašča številka AP.',
+      orbFeedbackLi2: '<strong>Opozorila pred neuspehom.</strong> Če je tvoja orbita blizu trku s planetom, črta pordi <em>pred</em> trkom, tako da se vzrok in učinek pokažeta skupaj.',
+      orbFeedbackLi3: '<strong>Opombe, ki se odzivajo na to, kar počneš.</strong> Med 1. misijo pridrži „Stran od planeta" in se prikaže opomba: „Potisk navzgor ali navzdol predvsem nagne orbito postrani. Opazuj številko AP: skoraj se ne premakne." Povratna informacija cilja na verjetno napačno predstavo točno v trenutku, ko se zgodi.',
+      orbGuidedH: 'Vodeno odkrivanje, ne peskovnik',
+      orbGuidedP: 'Čisto odkrivanje v slogu „pojdi in raziskuj" ima za učenje konceptov slab zgodovinski izkupiček (Mayerjev pregled iz leta 2004 je običajna referenca). Učenci pogosto raziskujejo, ne da bi odkrili načelo. Zato pride odprti del, prosti let, <em>nazadnje</em>. Pred tem ima vsaka misija:',
+      orbGuidedLi1: 'en viden cilj (črtkan obroč, postajo, orbito, ki jo je treba odpreti);',
+      orbGuidedLi2: 'spremljanje napredka z enim trakom in eno številko, tako da veš, ali je zadnje dejanje pomagalo;',
+      orbGuidedLi3: 'namig po 30 sekundah ali ko zmanjka goriva, nikoli prej. Je prostor, da se najprej nekoliko trudiš, ne pa, da obtičiš.',
+      orbSelfExplainH: 'Pozivi k samorazlagi',
+      orbSelfExplainP: 'Vsaka razbremenitev se konča z vprašanjem „Premisli o tem" in skritim odgovorom, na primer: <em>„Tvoja nova krožna orbita je počasnejša od tiste, s katero si začel, čeprav si zažigal le naprej. Kako?"</em> Spodbujanje učencev, da si stvari razložijo sami, je ena najbolje podprtih metod za poglabljanje razumevanja (Chi in sod., 1994). Skrivanje odgovora za gumbom je majhen spodbudnik, da najprej premisliš, šele nato preberes.',
+      orbEfficiencyH: 'Druga plast: narediti to učinkovito',
+      orbEfficiencyP: 'Po vsaki misiji igra pokaže, koliko goriva (Δv) si porabil, poleg tega, kaj potrebuje učinkovit let. Zmaga misije dokazuje, da poznaš pravo <em>smer</em>; ujemanje z učinkovito številko pokaže, da poznaš tudi pravo <em>mesto in količino</em>. Misija 2 je najjasnejši primer: zažig naprej na najnižji točki namesto na najvišji tehnično dvigne orbito, a zapravi gorivo in preseže obroč. Igra to pove, medtem ko letiš.',
+      orb3dH: 'Zakaj 3D in zakaj ne več',
+      orb3dP1: 'Fizika je dvodimenzionalna: vsaka orbita tukaj leži v eni ravnini. 3D vseeno pomaga, ker so ključne ideje prostorske. „Druga stran planeta" pomeni nekaj, ko je planet krogla, okoli katere lahko pogledaš. Nagnjena kamera naredi bližnjo in daljno stran orbite berljivi. Globus z oblaki in ozračjem tudi naredi merilo bolj resnično (odčitki uporabljajo resnične zemeljske številke: 7,1 km/s pri 1600 km).',
+      orb3dP2: 'Česar se igra izogiba: prosta 3D kamera, ki bi lahko izgubila orbitalno ravnino (nagib je omejen), spremembe naklona orbite in vse, kar potrebuje igralni plošček. Vsako od tega bi pokazalo več 3D, a učilo manj.',
+      orbClassH: 'Uporaba pri pouku',
+      orbClassP: 'Dobro deluje projicirano pred razredom za približno 20 minut, od 12. leta naprej:',
+      orbClassLi1: 'Pokaži vprašanje napovedi za 1. misijo in naj vsi glasujejo z dvigom roke, <em>preden</em> kdorkoli dotakne kontrol.',
+      orbClassLi2: 'Naj učenci, ki se ne strinjajo, prepričajo soseda, nato naj glasujejo še enkrat. To je Mazurjevo Vrstniško učenje (Peer Instruction), ki dobro deluje prav pri takšnih vprašanjih z napačnimi predstavami.',
+      orbClassLi3: 'Odleti misijo v živo. Skupaj preberite razbremenitev in pustite vprašanje „Premisli o tem" odprto kot izhodišče za razpravo.',
+      orbClassLi4: 'Ponovi za misije 2–4. Misija 3 („da ujameš, pojdi počasneje") navadno sproži najboljšo razpravo.',
+      orbClassP2: 'Na prenosnikih ali tablicah lahko učenci igrajo sami. Dotikalne kontrole so velike tipke, in nič se ne shranjuje nikamor, razen katere misije so opravljene — in to samo v tem brskalniku.',
+      orbHoodH: 'Pod pokrovom',
+      orbHoodP: 'Ena datoteka HTML in samostojno gostovana kopija <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (licenca MIT). Brez korakov gradnje, brez zunanjih zahtev, brez sledenja. Enote sledijo Zemlji: ena dolžinska enota je polmer planeta (6371 km), GM = 1, zato je ena hitrostna enota 7,905 km/s. Plovilo in postaja se integrirata s simplektičnim Eulerjem v podkorakih 0,004 časovne enote, kar ohranja orbite stabilne pri 16-kratnem časovnem pospešku. Oranžna napovedna črta <em>ni</em> simulirana naprej. Je natančen Keplerjev koničen presek iz trenutnega položaja in hitrosti (vektor izsrednosti, polparameter), zato nič ne stane, da se riše vsak okvir, in je vedno pravilna. Orbite so narisane kot ploščati trakovi v orbitalni ravnini, ker so črte WebGL omejene na eno slikovno piko širine. Tekstura planeta je šum vrednosti, vzorčen neposredno na krogli, zato ni šiva.',
+      orbRefsH: 'Viri',
+      orbBack: '← nazaj na presker.at',
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
+  <style>
+    .nav-buttons { position: fixed; top: 2px; left: 1.5rem; display: flex; gap: 12px; z-index: 1000; font-family: var(--mono); font-size: 13px; }
+    .nav-toggles { position: fixed; top: 10px; right: 1.5rem; z-index: 1000; }
+    .nav-btn { background: var(--bg2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 6px;
+      cursor: pointer; text-decoration: none; transition: all 0.15s; display: flex; align-items: center; gap: 6px; }
+    .nav-btn:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+    .game-container { position: relative; margin-bottom: 2rem; }
+    .fullscreen-btn { position: absolute; top: 8px; right: 8px; background: rgba(0,0,0,.6); border: 1px solid var(--accent); color: var(--accent);
+      padding: 6px 12px; border-radius: 4px; cursor: pointer; font-family: var(--mono); font-size: 12px; z-index: 100; transition: all 0.15s; }
+    .fullscreen-btn:hover { background: var(--accent); color: var(--bg); }
+    #gameFrame { width: 100%; height: min(78vh, 720px); min-height: 520px; display: block; border: 1px solid var(--border); border-radius: 8px; background: #050608; }
+    #gameFrame:fullscreen { height: 100vh; }
+    .loop { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 1.5rem; }
+    .loop div { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--bg2); font-size: 14px; line-height: 1.55; }
+    .loop b { display: block; font-family: var(--mono); color: var(--accent); margin-bottom: 4px; }
+    .lab-shell ul, .lab-shell ol { margin: 0 0 1.5rem 1.25rem; color: var(--text); font-size: 15px; line-height: 1.85; }
+    .refs { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+    @media (max-width: 640px) { .loop { grid-template-columns: 1fr; } #gameFrame { min-height: 480px; } }
+  </style>
+</head>
+<body>
+  <div class="top-bar"></div>
+  <div class="nav-buttons">
+    <a href="/" class="nav-btn" data-i18n="backHome">&larr; PRESKER.AT</a>
+    <a href="/lab/orbit-school/" class="nav-btn" data-i18n="orbPlayFull">Play full screen →</a>
+  </div>
+  <div class="nav-toggles toggles">
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <main class="lab-shell">
+
+    <p class="lab-eyebrow" data-i18n="orbEyebrow">Digital Lab · Learning</p>
+    <h1 data-i18n="orbH1">Orbit School — learning orbital mechanics by getting it wrong first.</h1>
+    <p class="lab-sub" data-i18n="orbSub">A small 3D spaceflight game in the browser. Four missions, each built around a prediction that most people get wrong. This page covers why it's built the way it is.</p>
+
+    <div class="game-container">
+      <button class="fullscreen-btn" data-i18n="orbFullscreen" onclick="document.getElementById('gameFrame').requestFullscreen()">⛶ Fullscreen</button>
+      <iframe id="gameFrame" src="/lab/orbit-school/" title="Orbit School" loading="lazy"></iframe>
+    </div>
+
+    <h2 data-i18n="orbProblemH">The teaching problem</h2>
+    <p data-i18n-html="orbProblemP1">Orbital mechanics is a well-known case where everyday intuition is wrong. On the ground, you go up by pushing up and catch someone by speeding up. In orbit, pushing up mostly tilts your path, pushing forward raises the <em>other side</em> of the planet, and to catch a spacecraft ahead of you, you slow down.</p>
+    <p data-i18n="orbProblemP2">Telling people the rule rarely changes those intuitions. Intuitions that come from years of everyday experience tend to survive a correct explanation. What changes them is a moment where your own expectation fails in front of you. So the game is designed to make that moment happen on purpose, safely, and then explain it straight away.</p>
+
+    <h2 data-i18n="orbPoeH">Predict → Observe → Explain</h2>
+    <p data-i18n-html="orbPoeP">Every mission uses the Predict–Observe–Explain sequence (White &amp; Gunstone), a classic structure from science teaching:</p>
+    <div class="loop">
+      <div><b data-i18n="orbLoop1T">1 · Predict</b><span data-i18n="orbLoop1D">Before flying, you answer one multiple-choice question: "The station is ahead of you. How do you catch it?" You have to commit to an answer, and there's no score.</span></div>
+      <div><b data-i18n="orbLoop2T">2 · Observe</b><span data-i18n="orbLoop2D">You fly the mission with real controls. Your prediction stays visible in the corner, so you can test it, not just remember it.</span></div>
+      <div><b data-i18n="orbLoop3T">3 · Explain</b><span data-i18n="orbLoop3D">The debrief compares your prediction with what happened, gives the one-line principle, and then explains why it works.</span></div>
+    </div>
+    <p data-i18n-html="orbCommitP">The commitment in step 1 matters most. A vague "I'd probably speed up" is easy to quietly revise afterwards. A clicked answer that's shown back to you ("You predicted 'Fire forward'. The answer was 'Fire backward'.") turns an experience into a contradiction you have to resolve. The wording is on purpose: <em>"That surprise is the lesson, so here's why."</em> A wrong prediction is never marked red and never costs anything.</p>
+
+    <h2 data-i18n="orbFeedbackH">Feedback before consequences</h2>
+    <p data-i18n-html="orbFeedbackP">The hardest thing about real orbits is the delay: a burn here shows its effect half an orbit later, on the far side of the planet. That delay is exactly why intuition never gets corrected. The game removes it. The <strong>orange line</strong> is the orbit you'd follow if you stopped firing, and it's recalculated every frame from your position and velocity. Hold "Forward" and you see the far side of the line swing outward while your ship barely moves.</p>
+    <ul>
+      <li data-i18n-html="orbFeedbackLi1"><strong>Several views of the same thing.</strong> The orbit line, the AP/PE markers (highest and lowest points) and the numbers in the corner all describe the same state. A learner who doesn't read numbers can watch the line; one who doesn't trust the picture can watch the AP number climb.</li>
+      <li data-i18n-html="orbFeedbackLi2"><strong>Warnings before failure.</strong> If your orbit is about to hit the planet, the line turns red <em>before</em> you crash, so the cause and the effect show up together.</li>
+      <li data-i18n-html="orbFeedbackLi3"><strong>Notes that react to what you do.</strong> Hold "Away from planet" during mission 1 and a note appears: "Pushing up or down mostly tilts the orbit sideways. Watch the AP number: it hardly moves." The feedback targets the likely misconception at the moment it happens.</li>
+    </ul>
+
+    <h2 data-i18n="orbGuidedH">Guided discovery, not a sandbox</h2>
+    <p data-i18n-html="orbGuidedP">Pure "go and explore" discovery has a poor track record for learning concepts (Mayer's 2004 review is the usual reference). Learners often explore without finding the principle. So the open-ended part, free flight, comes <em>last</em>. Before that, every mission:</p>
+    <ul>
+      <li data-i18n="orbGuidedLi1">has one goal you can see (a dashed ring, a station, an orbit that has to open up);</li>
+      <li data-i18n="orbGuidedLi2">tracks progress with one bar and one number, so you can tell whether your last action helped;</li>
+      <li data-i18n="orbGuidedLi3">gives a hint after 30 seconds or when the fuel runs out, never before. There's room to struggle a bit first, but not to stay stuck.</li>
+    </ul>
+
+    <h2 data-i18n="orbSelfExplainH">Self-explanation prompts</h2>
+    <p data-i18n-html="orbSelfExplainP">Every debrief ends with a "Think about it" question and a hidden answer, for example: <em>"Your new circular orbit is slower than the one you started on, although you only ever fired forward. How?"</em> Prompting learners to explain things to themselves is one of the best-supported ways to deepen understanding (Chi et al., 1994). Hiding the answer behind a button is a small nudge to think before reading.</p>
+
+    <h2 data-i18n="orbEfficiencyH">A second layer: doing it efficiently</h2>
+    <p data-i18n-html="orbEfficiencyP">After each mission the game shows how much fuel (Δv) you used next to what an efficient flight needs. Winning a mission proves you know the right <em>direction</em>; matching the efficient figure shows you also know the right <em>place and amount</em>. Mission 2 is the clearest example: firing forward at the low point instead of the high point technically raises your orbit, but it wastes fuel and overshoots the ring. The game says so while you're flying.</p>
+
+    <h2 data-i18n="orb3dH">Why 3D, and why not more</h2>
+    <p data-i18n-html="orb3dP1">The physics is two-dimensional: every orbit here lies in one plane. 3D still helps, because the key ideas are spatial. "The other side of the planet" means something when the planet is a sphere you can look around. The tilted camera makes near and far sides of the orbit readable. A globe with clouds and an atmosphere also makes the scale feel real (the readouts use real Earth numbers: 7.1 km/s at 1,600 km).</p>
+    <p data-i18n="orb3dP2">What the game avoids: a free 3D camera that can lose the orbital plane (the tilt is limited), inclination changes, and anything needing a gamepad. Every one of those would show off more 3D and teach less.</p>
+
+    <h2 data-i18n="orbClassH">Using it in a class</h2>
+    <p data-i18n="orbClassP">It works well projected at the front of a room for about 20 minutes, age 12 and up:</p>
+    <ol>
+      <li data-i18n-html="orbClassLi1">Show the prediction question for mission 1 and let everyone vote by hand <em>before</em> anyone touches the controls.</li>
+      <li data-i18n="orbClassLi2">Let pupils who disagree convince a neighbour, then vote again. This is Mazur's Peer Instruction, which works well with exactly this kind of misconception question.</li>
+      <li data-i18n="orbClassLi3">Fly the mission live. Read the debrief together, and leave the "Think about it" question open as a discussion prompt.</li>
+      <li data-i18n="orbClassLi4">Repeat for missions 2–4. Mission 3 ("to catch up, slow down") usually starts the best argument.</li>
+    </ol>
+    <p data-i18n="orbClassP2">On laptops or tablets, pupils can play alone. The touch controls are big buttons, and nothing is saved anywhere except which missions are done, kept in that browser.</p>
+
+    <h2 data-i18n="orbHoodH">Under the hood</h2>
+    <p data-i18n-html="orbHoodP">One HTML file plus a self-hosted copy of <a class="lab-link" href="https://threejs.org" target="_blank" rel="noopener">three.js</a> r178 (MIT licence). No build step, no external requests, no tracking. Units follow Earth: one length unit is the planet radius (6371 km), GM = 1, so one speed unit is 7.905 km/s. The ship and the station are integrated with symplectic Euler in substeps of 0.004 time units, which keeps orbits stable at 16× time warp. The orange prediction line is <em>not</em> simulated forward. It's the exact Kepler conic from the current position and velocity (eccentricity vector, semi-latus rectum), so it costs nothing to redraw every frame and is always correct. Orbits are drawn as flat ribbons in the orbital plane because WebGL lines are stuck at one pixel wide. The planet's texture is value noise sampled on the sphere itself, so there's no seam.</p>
+
+    <h2 data-i18n="orbRefsH">References</h2>
+    <p class="refs">
+      White, R. &amp; Gunstone, R. (1992). <em>Probing Understanding.</em> London: Falmer Press. (Predict–Observe–Explain)<br>
+      Mayer, R. E. (2004). Should there be a three-strikes rule against pure discovery learning? <em>American Psychologist, 59</em>(1), 14–19.<br>
+      Chi, M. T. H., de Leeuw, N., Chiu, M.-H. &amp; LaVancher, C. (1994). Eliciting self-explanations improves understanding. <em>Cognitive Science, 18</em>(3), 439–477.<br>
+      Mazur, E. (1997). <em>Peer Instruction: A User's Manual.</em> Upper Saddle River, NJ: Prentice Hall.
+    </p>
+
+    <a href="/" class="lab-back" data-i18n="orbBack">← back to presker.at</a>
+
+    <div class="donate-mini">
+      <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+      <div class="donate-mini-text">
+        <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+      </div>
+    </div>
+
+  </main>
+</body>
+</html>

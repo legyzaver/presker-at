@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Platter Sequencer — a drum machine on a spinning record</title>
+<meta name="description" content="A step sequencer laid out on a vinyl record. Tap grooves to place notes, switch between 33, 45 and 78 rpm, and grab the platter to scratch. Synthesised in your browser.">
+<link rel="canonical" href="https://www.presker.at/lab/platter-sequencer/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/platter-sequencer/">
+<meta property="og:title" content="Platter Sequencer">
+<meta property="og:description" content="A step sequencer laid out on a vinyl record. Tap grooves to place notes, switch between 33, 45 and 78 rpm, and grab the platter to scratch.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --ink: #1c1b18; --muted: #6b6a63;
+  --line: #e4e0d4; --accent: #3f6b1a; --accent-ink: #ffffff;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a;
+  --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a;
+    --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+    color-scheme: dark;
+  }
+}
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.toggles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.5 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+.wrap { max-width: 1040px; margin: 0 auto; padding: 18px 16px 28px; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; }
+.home:hover { color: var(--accent); }
+h1 { font: 600 22px var(--mono); margin: 10px 0 4px; letter-spacing: -.01em; }
+h2 { font: 600 13px var(--mono); margin: 0 0 8px; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+.lede { margin: 0 0 18px; color: var(--muted); max-width: 62ch; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 22px; align-items: start; }
+.deck {
+  position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 14px; aspect-ratio: 1 / 1; width: 100%; max-width: 640px; justify-self: center;
+}
+canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: pointer; border-radius: 8px; }
+.readout {
+  position: absolute; left: 18px; bottom: 14px; font: 12px var(--mono); color: var(--muted);
+  font-variant-numeric: tabular-nums; pointer-events: none;
+}
+.start-hint {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none;
+}
+.start-hint span {
+  font: 600 13px var(--mono); color: var(--accent-ink); background: var(--accent);
+  padding: 8px 14px; border-radius: 999px; box-shadow: 0 6px 24px rgba(0,0,0,.5);
+}
+.start-hint.gone { display: none; }
+aside { display: flex; flex-direction: column; gap: 14px; }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button {
+  font: 13px var(--mono); color: var(--ink); background: #0a0a0a; border: 1px solid var(--line);
+  border-radius: 8px; padding: 8px 12px; cursor: pointer; touch-action: manipulation;
+}
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; min-width: 92px; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; flex: 1; background: #0a0a0a; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: #1d2a12; color: var(--accent); }
+.ctl { display: grid; grid-template-columns: 72px 1fr 44px; gap: 8px; align-items: center; margin-top: 10px; font: 12px var(--mono); color: var(--muted); }
+.ctl output { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+label.check { display: flex; gap: 8px; align-items: center; margin-top: 10px; font: 12px var(--mono); color: var(--muted); cursor: pointer; }
+input[type=checkbox] { accent-color: var(--accent); }
+.hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+kbd { font: 11px var(--mono); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; color: var(--ink); }
+.maths { font: 12px var(--mono); color: var(--muted); margin: 0; font-variant-numeric: tabular-nums; }
+.maths b { color: var(--ink); font-weight: 600; }
+.maths td { padding: 2px 10px 2px 0; }
+.explain { margin-top: 26px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; }
+.explain p { margin: 0; color: var(--muted); font-size: 13.5px; }
+.site-foot { margin-top: 26px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: #0a0a0a; border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+@media (max-width: 820px) {
+  .app { grid-template-columns: 1fr; }
+  .deck { padding: 8px; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  pltLede: "A drum machine cut into a record. Each ring is an instrument, each of the 16 slices is a sixteenth note, and the record's speed is the tempo. Tap a groove to cut a note, then grab the platter and scratch.",
+  pltStartHint: '▶ tap Start, then tap the grooves',
+  pltDeck: 'Deck', pltStart: 'Start', pltStop: 'Stop',
+  pltVolume: 'Volume', pltEcho: 'Echo',
+  pltPitchFollow: 'pitch follows platter speed',
+  pltGrooves: 'Grooves',
+  pltDemoBeat: 'Demo beat', pltRandom: 'Random', pltClear: 'Clear', pltCopyLink: 'Copy link',
+  pltCopied: 'Copied', pltSeeAddressBar: 'See address bar',
+  pltRingsHint: 'Rings from the edge inwards: kick, snare, hi-hat, then a minor pentatonic scale climbing towards the label.',
+  pltKeysHint: '<kbd>Space</kbd> start/stop &nbsp;<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> speed &nbsp;<kbd>R</kbd> random &nbsp;<kbd>C</kbd> clear',
+  pltSpeedIsTempo: 'Speed is tempo',
+  pltOneRev: 'One revolution = one bar of four beats.',
+  pltWhyPitchH: 'Why speed changes pitch',
+  pltWhyPitchP: 'A real record stores sound as a wiggle along the groove. Play it faster and the stylus meets every wiggle sooner, so the frequency rises by the same ratio: a 33 played at 45 sounds 35% higher, about five semitones. Untick "pitch follows" to hear only the tempo change.',
+  pltScratchH: 'Scratching',
+  pltScratchP: 'Grab the record and the motor lets go. Wherever you push it, the reading bar plays whatever passes underneath, forwards or backwards, at whatever speed your hand moves. Let go and the motor pulls it back up to speed, just like a direct-drive deck with a bit of torque.',
+  pltStopBrakeH: 'Stop and brake',
+  pltStopBrakeP: 'Stop cuts the motor, so the platter coasts down and the last notes sag in pitch on the way out. Start spins it back up in about half a second. Your pattern lives in the page address, so a copied link brings back the same record.',
+  pltFooter: '© 2026 Presker.at · runs in your browser',
+  pltStepWord: 'step', pltScratchingWord: 'scratching',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  pltLede: 'Eine Drum-Machine, in eine Schallplatte geschnitten. Jeder Ring ist ein Instrument, jede der 16 Scheiben ist eine Sechzehntelnote, und die Geschwindigkeit der Platte ist das Tempo. Tippe auf eine Rille, um eine Note zu schneiden, dann greif den Plattenteller und scratche.',
+  pltStartHint: '▶ Tippe auf Start, dann auf die Rillen',
+  pltDeck: 'Deck', pltStart: 'Start', pltStop: 'Stopp',
+  pltVolume: 'Lautstärke', pltEcho: 'Echo',
+  pltPitchFollow: 'Tonhöhe folgt Plattengeschwindigkeit',
+  pltGrooves: 'Rillen',
+  pltDemoBeat: 'Demo-Beat', pltRandom: 'Zufällig', pltClear: 'Löschen', pltCopyLink: 'Link kopieren',
+  pltCopied: 'Kopiert', pltSeeAddressBar: 'Siehe Adressleiste',
+  pltRingsHint: 'Ringe von außen nach innen: Kick, Snare, Hi-Hat, dann eine Moll-Pentatonik, die zum Label hin aufsteigt.',
+  pltKeysHint: '<kbd>Leertaste</kbd> Start/Stopp &nbsp;<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Geschwindigkeit &nbsp;<kbd>R</kbd> zufällig &nbsp;<kbd>C</kbd> löschen',
+  pltSpeedIsTempo: 'Geschwindigkeit ist Tempo',
+  pltOneRev: 'Eine Umdrehung = ein Takt mit vier Schlägen.',
+  pltWhyPitchH: 'Warum Geschwindigkeit die Tonhöhe ändert',
+  pltWhyPitchP: 'Eine echte Schallplatte speichert Ton als Wellenlinie entlang der Rille. Spielt man sie schneller ab, erreicht die Nadel jede Welle früher, sodass die Frequenz im gleichen Verhältnis steigt: Eine bei 33 aufgenommene und bei 45 abgespielte Platte klingt 35% höher, etwa fünf Halbtöne. Deaktiviere „Tonhöhe folgt", um nur die Tempoänderung zu hören.',
+  pltScratchH: 'Scratchen',
+  pltScratchP: 'Greif die Platte, und der Motor lässt los. Wo auch immer du sie bewegst, spielt der Tonarm, was darunter vorbeizieht, vorwärts oder rückwärts, in der Geschwindigkeit deiner Hand. Lässt du los, zieht der Motor sie wieder auf Tempo, wie ein Direktantrieb mit etwas Drehmoment.',
+  pltStopBrakeH: 'Stopp und Bremse',
+  pltStopBrakeP: 'Stopp schaltet den Motor ab, sodass der Teller ausrollt und die letzten Noten beim Auslaufen in der Tonhöhe absacken. Start dreht ihn in etwa einer halben Sekunde wieder auf Tempo. Dein Pattern steckt in der Seitenadresse, sodass ein kopierter Link dieselbe Platte zurückbringt.',
+  pltFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  pltStepWord: 'Schritt', pltScratchingWord: 'scratchen',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  pltLede: 'Ritem mašina, vrezana v gramofonsko ploščo. Vsak obroč je en instrument, vsaka od 16 rezin je ena šestnajstinka, hitrost plošče pa je tempo. Tapni utor, da vrežeš noto, nato zagrabi krožnik in scratchaj.',
+  pltStartHint: '▶ tapni Start, nato tapni utore',
+  pltDeck: 'Gramofon', pltStart: 'Start', pltStop: 'Stop',
+  pltVolume: 'Glasnost', pltEcho: 'Odmev',
+  pltPitchFollow: 'višina tona sledi hitrosti plošče',
+  pltGrooves: 'Utori',
+  pltDemoBeat: 'Demo ritem', pltRandom: 'Naključno', pltClear: 'Počisti', pltCopyLink: 'Kopiraj povezavo',
+  pltCopied: 'Kopirano', pltSeeAddressBar: 'Glej naslovno vrstico',
+  pltRingsHint: 'Obroči od robu navznoter: bas boben, mala terca (snare), hi-hat, nato mala pentatonska lestvica, ki narašča proti nalepki.',
+  pltKeysHint: '<kbd>Preslednica</kbd> start/stop &nbsp;<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> hitrost &nbsp;<kbd>R</kbd> naključno &nbsp;<kbd>C</kbd> počisti',
+  pltSpeedIsTempo: 'Hitrost je tempo',
+  pltOneRev: 'En vrtljaj = en takt s štirimi dobami.',
+  pltWhyPitchH: 'Zakaj hitrost spremeni višino tona',
+  pltWhyPitchP: 'Resnična gramofonska plošča shrani zvok kot valovanje vzdolž utora. Če jo predvajaš hitreje, igla doseže vsako valovanje prej, zato se frekvenca dvigne v enakem razmerju: plošča, posneta pri 33 in predvajana pri 45, zveni 35 % višje, približno pet polton. Odkljukaj „višina tona sledi", če želiš slišati samo spremembo tempa.',
+  pltScratchH: 'Scratchanje',
+  pltScratchP: 'Zagrabi ploščo in motor jo izpusti. Kamor koli jo premakneš, igralna ročica predvaja vse, kar gre mimo, naprej ali nazaj, s hitrostjo tvoje roke. Ko izpustiš, jo motor spet pospeši na hitrost, podobno kot direktni pogon z nekaj navora.',
+  pltStopBrakeH: 'Stop in zaviranje',
+  pltStopBrakeP: 'Stop izklopi motor, zato se krožnik umirja in zadnje note ob iztekanju padajo v višini. Start ga v približno pol sekunde spet pospeši. Tvoj vzorec živi v naslovu strani, zato kopirana povezava prikliče isto ploščo nazaj.',
+  pltFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  pltStepWord: 'korak', pltScratchingWord: 'scratchanje',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="row" style="justify-content: space-between; margin: 0 0 10px;">
+    <a class="home" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+  <h1>Platter Sequencer</h1>
+  <p class="lede" data-i18n="pltLede">A drum machine cut into a record. Each ring is an instrument, each of the 16 slices is a sixteenth note, and the record's speed is the tempo. Tap a groove to cut a note, then grab the platter and scratch.</p>
+
+  <div class="app">
+    <div class="deck" id="deck">
+      <canvas id="disc" aria-label="Spinning record sequencer. Tap a cell to toggle a note, drag to scratch."></canvas>
+      <div class="readout" id="readout"></div>
+      <div class="start-hint" id="startHint"><span data-i18n="pltStartHint">▶ tap Start, then tap the grooves</span></div>
+    </div>
+
+    <aside>
+      <div class="box">
+        <h2 data-i18n="pltDeck">Deck</h2>
+        <div class="row">
+          <button class="primary" id="btnPlay" title="Space" data-i18n="pltStart">Start</button>
+          <div class="seg" id="speeds" role="group" aria-label="Speed" style="flex:1">
+            <button data-rpm="33.333" aria-pressed="true" title="1">33</button>
+            <button data-rpm="45" aria-pressed="false" title="2">45</button>
+            <button data-rpm="78" aria-pressed="false" title="3">78</button>
+          </div>
+        </div>
+        <div class="ctl"><span data-i18n="pltVolume">Volume</span><input type="range" id="vol" min="0" max="1" step="0.01" value="0.7"><output id="volOut"></output></div>
+        <div class="ctl"><span data-i18n="pltEcho">Echo</span><input type="range" id="echo" min="0" max="0.7" step="0.01" value="0.28"><output id="echoOut"></output></div>
+        <label class="check"><input type="checkbox" id="pitchFollow" checked> <span data-i18n="pltPitchFollow">pitch follows platter speed</span></label>
+      </div>
+
+      <div class="box">
+        <h2 data-i18n="pltGrooves">Grooves</h2>
+        <div class="row">
+          <button id="btnDemo" data-i18n="pltDemoBeat">Demo beat</button>
+          <button id="btnRandom" title="R" data-i18n="pltRandom">Random</button>
+          <button id="btnClear" title="C" data-i18n="pltClear">Clear</button>
+          <button id="btnLink" data-i18n="pltCopyLink">Copy link</button>
+        </div>
+        <p class="hint" data-i18n="pltRingsHint">Rings from the edge inwards: kick, snare, hi-hat, then a minor pentatonic scale climbing towards the label.</p>
+        <p class="hint" data-i18n-html="pltKeysHint"><kbd>Space</kbd> start/stop &nbsp;<kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> speed &nbsp;<kbd>R</kbd> random &nbsp;<kbd>C</kbd> clear</p>
+      </div>
+
+      <div class="box">
+        <h2 data-i18n="pltSpeedIsTempo">Speed is tempo</h2>
+        <table class="maths">
+          <tr><td>33⅓ rpm</td><td>1.80 s / rev</td><td><b>133 BPM</b></td></tr>
+          <tr><td>45 rpm</td><td>1.33 s / rev</td><td><b>180 BPM</b></td></tr>
+          <tr><td>78 rpm</td><td>0.77 s / rev</td><td><b>312 BPM</b></td></tr>
+        </table>
+        <p class="hint" data-i18n="pltOneRev">One revolution = one bar of four beats.</p>
+      </div>
+    </aside>
+  </div>
+
+  <section class="explain">
+    <div>
+      <h2 data-i18n="pltWhyPitchH">Why speed changes pitch</h2>
+      <p data-i18n="pltWhyPitchP">A real record stores sound as a wiggle along the groove. Play it faster and the stylus meets every wiggle sooner, so the frequency rises by the same ratio: a 33 played at 45 sounds 35% higher, about five semitones. Untick "pitch follows" to hear only the tempo change.</p>
+    </div>
+    <div>
+      <h2 data-i18n="pltScratchH">Scratching</h2>
+      <p data-i18n="pltScratchP">Grab the record and the motor lets go. Wherever you push it, the reading bar plays whatever passes underneath, forwards or backwards, at whatever speed your hand moves. Let go and the motor pulls it back up to speed, just like a direct-drive deck with a bit of torque.</p>
+    </div>
+    <div>
+      <h2 data-i18n="pltStopBrakeH">Stop and brake</h2>
+      <p data-i18n="pltStopBrakeP">Stop cuts the motor, so the platter coasts down and the last notes sag in pitch on the way out. Start spins it back up in about half a second. Your pattern lives in the page address, so a copied link brings back the same record.</p>
+    </div>
+  </section>
+
+  <footer class="site-foot">
+    <span data-i18n="pltFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : fallback[key] || '';
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+// ---------------------------------------------------------------------------
+// Pattern model: one 16-bit mask per ring, ring 0 is the outer edge.
+// ---------------------------------------------------------------------------
+const STEPS = 16;
+const RINGS = [
+  { name: 'kick',  label: 'K', kind: 'kick' },
+  { name: 'snare', label: 'S', kind: 'snare' },
+  { name: 'hat',   label: 'H', kind: 'hat' },
+  { name: 'A3',    label: 'A', kind: 'note', freq: 220.00 },
+  { name: 'C4',    label: 'C', kind: 'note', freq: 261.63 },
+  { name: 'D4',    label: 'D', kind: 'note', freq: 293.66 },
+  { name: 'E4',    label: 'E', kind: 'note', freq: 329.63 },
+  { name: 'G4',    label: 'G', kind: 'note', freq: 392.00 },
+  { name: 'A4',    label: 'a', kind: 'note', freq: 440.00 },
+  { name: 'C5',    label: 'c', kind: 'note', freq: 523.25 },
+];
+const NR = RINGS.length;
+let pattern = new Array(NR).fill(0);
+const flash = Array.from({ length: NR }, () => new Float32Array(STEPS)); // glow after a hit
+
+// Steps written as strings make the demo readable: x = hit, . = rest.
+const DEMO = [
+  'x.....x...x.....',
+  '....x.......x...',
+  'x.x.x.x.x.x.xxx.',
+  'x.......x.......',
+  '...x............',
+  '......x.....x...',
+  '..........x.....',
+  '...............x',
+  '.....x..........',
+  '.............x..',
+];
+const fromStrings = rows => rows.map(r => [...r].reduce((m, ch, i) => ch === 'x' ? m | (1 << i) : m, 0));
+const on = (r, s) => (pattern[r] >> s) & 1;
+
+// ---------------------------------------------------------------------------
+// Turntable physics. Angles in radians, the platter turns clockwise
+// (positive angle on a canvas whose y axis points down).
+// ---------------------------------------------------------------------------
+const TAU = Math.PI * 2;
+const BASE_RPM = 100 / 3;          // 33⅓: the reference for "normal" pitch
+let rpm = BASE_RPM;
+let motorOn = false;
+let rot = 0;                       // platter angle
+let omega = 0;                     // angular velocity, rad/s
+let dragging = null;               // pointer state while scratching
+
+const targetOmega = () => motorOn ? rpm / 60 * TAU : 0;
+const STEP_ANGLE = TAU / STEPS;
+// The reading bar sits at 12 o'clock. Step s is cut at local angle -s·Δ,
+// so a clockwise platter brings steps 0, 1, 2 … under the bar in order.
+const BAR_ANGLE = -Math.PI / 2;
+const stepPos = r => r / STEP_ANGLE; // continuous position in steps
+
+// ---------------------------------------------------------------------------
+// Audio: everything is synthesised; nothing is loaded.
+// ---------------------------------------------------------------------------
+let ac = null, master, echoSend, delay, feedback, noiseBuf;
+
+function initAudio() {
+  if (ac) return;
+  const AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  ac = new AC();
+  master = ac.createGain();
+  master.gain.value = +ui.vol.value;
+  const comp = ac.createDynamicsCompressor();
+  comp.threshold.value = -14; comp.ratio.value = 4;
+  master.connect(comp).connect(ac.destination);
+
+  // A dotted-eighth-ish echo, darkened in the feedback loop like tape.
+  delay = ac.createDelay(2);
+  delay.delayTime.value = 0.34;
+  feedback = ac.createGain();
+  feedback.gain.value = 0.38;
+  const tone = ac.createBiquadFilter();
+  tone.type = 'lowpass'; tone.frequency.value = 2400;
+  echoSend = ac.createGain();
+  echoSend.gain.value = +ui.echo.value;
+  echoSend.connect(delay);
+  delay.connect(tone).connect(feedback).connect(delay);
+  tone.connect(master);
+
+  noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
+  const d = noiseBuf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+}
+
+function out(node, wet) {
+  node.connect(master);
+  if (wet) {
+    const g = ac.createGain(); g.gain.value = wet;
+    node.connect(g).connect(echoSend);
+  }
+}
+
+function noise(t, dur) {
+  const src = ac.createBufferSource();
+  src.buffer = noiseBuf;
+  src.start(t, Math.random() * 0.5, dur + 0.05);
+  return src;
+}
+
+function kick(t, p, vel) {
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.setValueAtTime(150 * p, t);
+  o.frequency.exponentialRampToValueAtTime(42 * p, t + 0.12);
+  g.gain.setValueAtTime(vel, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.42);
+  o.connect(g); out(g, 0);
+  o.start(t); o.stop(t + 0.45);
+}
+
+function snare(t, p, vel) {
+  const n = noise(t, 0.2), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'bandpass'; f.frequency.value = 1800 * p; f.Q.value = 0.8;
+  g.gain.setValueAtTime(vel * 0.7, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.18);
+  n.connect(f).connect(g); out(g, 0.25);
+  const o = ac.createOscillator(), og = ac.createGain();
+  o.type = 'triangle'; o.frequency.setValueAtTime(190 * p, t);
+  og.gain.setValueAtTime(vel * 0.5, t);
+  og.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
+  o.connect(og); out(og, 0);
+  o.start(t); o.stop(t + 0.12);
+}
+
+function hat(t, p, vel) {
+  const n = noise(t, 0.06), f = ac.createBiquadFilter(), g = ac.createGain();
+  f.type = 'highpass'; f.frequency.value = Math.min(16000, 7000 * p);
+  g.gain.setValueAtTime(vel * 0.32, t);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  n.connect(f).connect(g); out(g, 0.1);
+}
+
+function pluck(t, freq, vel) {
+  const g = ac.createGain(), f = ac.createBiquadFilter();
+  f.type = 'lowpass'; f.Q.value = 6;
+  f.frequency.setValueAtTime(Math.min(12000, freq * 9), t);
+  f.frequency.exponentialRampToValueAtTime(Math.max(80, freq * 1.2), t + 0.35);
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vel * 0.22, t + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+  for (const det of [-7, 7]) {           // two detuned saws for width
+    const o = ac.createOscillator();
+    o.type = 'sawtooth'; o.frequency.value = freq; o.detune.value = det;
+    o.connect(f); o.start(t); o.stop(t + 0.65);
+  }
+  f.connect(g); out(g, 0.6);
+}
+
+function trigger(r, speedRatio) {
+  if (!ac || ac.state !== 'running') return;
+  const p = ui.pitch.checked ? Math.min(4, Math.max(0.2, speedRatio)) : 1;
+  // Very slow drags are quieter: less groove energy reaches the stylus.
+  const vel = Math.min(1, 0.35 + speedRatio * 0.65);
+  const t = ac.currentTime + 0.005;
+  const ring = RINGS[r];
+  if (ring.kind === 'kick') kick(t, p, vel);
+  else if (ring.kind === 'snare') snare(t, p, vel);
+  else if (ring.kind === 'hat') hat(t, p, vel);
+  else pluck(t, ring.freq * p, vel);
+}
+
+// Fire every step whose centre crossed the bar between two platter angles.
+function readSteps(prevRot, curRot, dt) {
+  const a = stepPos(prevRot), b = stepPos(curRot);
+  if (a === b) return;
+  const lo = Math.min(a, b), hi = Math.max(a, b);
+  const first = Math.floor(lo) + 1, last = Math.floor(hi);
+  const ratio = Math.abs(curRot - prevRot) / Math.max(dt, 1e-3) / (BASE_RPM / 60 * TAU);
+  for (let k = first, n = 0; k <= last && n < STEPS; k++, n++) {
+    const s = ((k % STEPS) + STEPS) % STEPS;
+    for (let r = 0; r < NR; r++) if (on(r, s)) { trigger(r, ratio); flash[r][s] = 1; }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Drawing
+// ---------------------------------------------------------------------------
+const cv = document.getElementById('disc');
+const ctx = cv.getContext('2d');
+let W = 0, dpr = 1, R = 0, grooveImg = null;
+// Geometry as fractions of the record radius.
+const LABEL_R = 0.30, INNER = 0.34, OUTER = 0.975;
+const ringR = r => [OUTER - (r + 1) * (OUTER - INNER) / NR, OUTER - r * (OUTER - INNER) / NR];
+
+function resize() {
+  const rect = cv.getBoundingClientRect();
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = Math.max(200, Math.round(rect.width * dpr));
+  cv.width = cv.height = W;
+  R = W / 2 * 0.94;
+  grooveImg = renderGrooves();
+}
+
+// The static vinyl texture is drawn once and rotated as a bitmap each frame.
+function renderGrooves() {
+  const c = document.createElement('canvas');
+  c.width = c.height = W;
+  const g = c.getContext('2d');
+  const cx = W / 2;
+  const base = g.createRadialGradient(cx, cx, R * 0.3, cx, cx, R);
+  base.addColorStop(0, '#151515'); base.addColorStop(1, '#090909');
+  g.fillStyle = base;
+  g.beginPath(); g.arc(cx, cx, R, 0, TAU); g.fill();
+  // Fine grooves with a slow wobble so the rotation is visible.
+  g.lineWidth = Math.max(0.6, dpr * 0.5);
+  for (let rr = R * 0.33; rr < R * 0.99; rr += Math.max(1.6, dpr * 1.4)) {
+    g.strokeStyle = `rgba(255,255,255,${0.025 + 0.025 * Math.random()})`;
+    g.beginPath(); g.arc(cx, cx, rr, 0, TAU); g.stroke();
+  }
+  // A few run-out marks scratched near the label, useful to see the spin.
+  g.strokeStyle = 'rgba(184,245,122,.25)';
+  g.lineWidth = dpr;
+  g.font = `${Math.round(R * 0.032)}px ui-monospace, Consolas, monospace`;
+  g.fillStyle = 'rgba(232,232,232,.22)';
+  g.save(); g.translate(cx, cx);
+  g.rotate(Math.PI * 0.75);
+  g.fillText('PL-LAB-001 A', -R * 0.11, R * 0.325);
+  g.restore();
+  // Label
+  const lr = R * LABEL_R;
+  const lab = g.createRadialGradient(cx, cx - lr * 0.3, lr * 0.1, cx, cx, lr);
+  lab.addColorStop(0, '#c9fb93'); lab.addColorStop(1, '#9ad65e');
+  g.fillStyle = lab;
+  g.beginPath(); g.arc(cx, cx, lr, 0, TAU); g.fill();
+  g.fillStyle = '#0e0e0e';
+  g.textAlign = 'center';
+  g.font = `600 ${Math.round(lr * 0.2)}px ui-monospace, Consolas, monospace`;
+  g.fillText('PRESKER', cx, cx - lr * 0.42);
+  g.font = `${Math.round(lr * 0.13)}px ui-monospace, Consolas, monospace`;
+  g.fillText('lab · side A', cx, cx - lr * 0.22);
+  g.font = `600 ${Math.round(lr * 0.15)}px ui-monospace, Consolas, monospace`;
+  g.fillText('PLATTER SEQ', cx, cx + lr * 0.5);
+  g.strokeStyle = 'rgba(14,14,14,.35)';
+  g.lineWidth = dpr;
+  g.beginPath(); g.arc(cx, cx, lr * 0.86, 0, TAU); g.stroke();
+  // Spindle hole
+  g.fillStyle = '#0e0e0e';
+  g.beginPath(); g.arc(cx, cx, lr * 0.09, 0, TAU); g.fill();
+  return c;
+}
+
+function cellPath(r, s) {
+  const [r0, r1] = ringR(r);
+  const gap = 0.012;
+  const mid = -s * STEP_ANGLE;               // local angle of the step centre
+  const a0 = mid - STEP_ANGLE / 2 + gap, a1 = mid + STEP_ANGLE / 2 - gap;
+  const pad = R * 0.004;
+  ctx.beginPath();
+  ctx.arc(0, 0, R * r1 - pad, a0, a1);
+  ctx.arc(0, 0, R * r0 + pad, a1, a0, true);
+  ctx.closePath();
+}
+
+function draw(dt) {
+  const cx = W / 2;
+  ctx.clearRect(0, 0, W, W);
+
+  // Platter rim and shadow (fixed)
+  ctx.fillStyle = '#050505';
+  ctx.beginPath(); ctx.arc(cx, cx, R * 1.03, 0, TAU); ctx.fill();
+
+  // Everything cut into the record rotates together.
+  ctx.save();
+  ctx.translate(cx, cx);
+  ctx.rotate(rot + BAR_ANGLE);
+  ctx.drawImage(grooveImg, -cx, -cx);
+  for (let r = 0; r < NR; r++) {
+    for (let s = 0; s < STEPS; s++) {
+      const f = flash[r][s];
+      const active = on(r, s);
+      cellPath(r, s);
+      if (active) {
+        // Hits fade from white-hot back to the accent green.
+        const k = f;
+        ctx.fillStyle = `rgb(${184 + 71 * k | 0},${245 + 10 * k | 0},${122 + 133 * k | 0})`;
+        ctx.globalAlpha = 0.78 + 0.22 * k;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.fillStyle = s % 4 === 0 ? 'rgba(255,255,255,.055)' : 'rgba(255,255,255,.028)';
+        ctx.fill();
+      }
+      if (f > 0) flash[r][s] = Math.max(0, f - dt * 4);
+    }
+  }
+  // Beat ticks just outside the cells, so the bar lines are readable.
+  ctx.strokeStyle = 'rgba(184,245,122,.45)';
+  ctx.lineWidth = 1.5 * dpr;
+  for (let b = 0; b < 4; b++) {
+    const a = -b * 4 * STEP_ANGLE;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(a) * R * 0.985, Math.sin(a) * R * 0.985);
+    ctx.lineTo(Math.cos(a) * R * 1.0, Math.sin(a) * R * 1.0);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Studio light: a fixed sheen that does not turn with the record.
+  if (ctx.createConicGradient) {
+    const sh = ctx.createConicGradient(-Math.PI / 4, cx, cx);
+    sh.addColorStop(0, 'rgba(255,255,255,0)');
+    sh.addColorStop(0.08, 'rgba(255,255,255,.07)');
+    sh.addColorStop(0.16, 'rgba(255,255,255,0)');
+    sh.addColorStop(0.5, 'rgba(255,255,255,0)');
+    sh.addColorStop(0.58, 'rgba(255,255,255,.05)');
+    sh.addColorStop(0.66, 'rgba(255,255,255,0)');
+    sh.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = sh;
+    ctx.beginPath();
+    ctx.arc(cx, cx, R, 0, TAU);
+    ctx.arc(cx, cx, R * LABEL_R, 0, TAU, true);
+    ctx.fill();
+  }
+
+  drawBar(cx);
+}
+
+// The reading bar: a comb of styli, one per ring, at 12 o'clock.
+function drawBar(cx) {
+  const x = cx, top = cx - R * 1.02, bot = cx - R * (INNER - 0.015);
+  const live = Math.min(1, Math.abs(omega) / (BASE_RPM / 60 * TAU));
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = `rgba(184,245,122,${0.25 + 0.5 * live})`;
+  ctx.shadowColor = '#b8f57a';
+  ctx.shadowBlur = 10 * dpr * live;
+  ctx.lineWidth = 2.2 * dpr;
+  ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bot); ctx.stroke();
+  ctx.shadowBlur = 0;
+  // Headshell and arm reaching in from the top-right corner.
+  ctx.strokeStyle = '#3a3a3a';
+  ctx.lineWidth = 6 * dpr;
+  ctx.beginPath(); ctx.moveTo(x + R * 0.04, top + R * 0.02); ctx.lineTo(W - R * 0.02, R * 0.05); ctx.stroke();
+  ctx.fillStyle = '#2b2b2b';
+  ctx.strokeStyle = '#4a4a4a';
+  ctx.lineWidth = dpr;
+  ctx.beginPath();
+  ctx.roundRect ? ctx.roundRect(x - R * 0.03, top - R * 0.02, R * 0.08, R * 0.05, 3 * dpr)
+                : ctx.rect(x - R * 0.03, top - R * 0.02, R * 0.08, R * 0.05);
+  ctx.fill(); ctx.stroke();
+  // Ring letters beside the bar, so you know which groove is which.
+  ctx.fillStyle = 'rgba(232,232,232,.55)';
+  ctx.font = `${Math.round(R * 0.034)}px ui-monospace, Consolas, monospace`;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let r = 0; r < NR; r++) {
+    const [r0, r1] = ringR(r);
+    const y = cx - R * (r0 + r1) / 2;
+    ctx.fillText(RINGS[r].label, x - R * 0.025, y);
+    ctx.fillStyle = 'rgba(184,245,122,.9)';
+    ctx.beginPath(); ctx.arc(x, y, 2.2 * dpr, 0, TAU); ctx.fill();
+    ctx.fillStyle = 'rgba(232,232,232,.55)';
+  }
+  ctx.restore();
+}
+
+// ---------------------------------------------------------------------------
+// Pointer: a short tap toggles a cell, a drag scratches the platter.
+// ---------------------------------------------------------------------------
+function toCanvas(e) {
+  const rect = cv.getBoundingClientRect();
+  return { x: (e.clientX - rect.left) * dpr, y: (e.clientY - rect.top) * dpr };
+}
+function polar(p) {
+  const dx = p.x - W / 2, dy = p.y - W / 2;
+  return { r: Math.hypot(dx, dy) / R, a: Math.atan2(dy, dx) };
+}
+function cellAt(p) {
+  const { r, a } = polar(p);
+  if (r < INNER || r > OUTER) return null;
+  const ring = Math.floor((OUTER - r) / ((OUTER - INNER) / NR));
+  const local = a - rot - BAR_ANGLE;         // angle in the record's own frame
+  let s = Math.round(-local / STEP_ANGLE);
+  s = ((s % STEPS) + STEPS) % STEPS;
+  return { ring: Math.min(NR - 1, ring), step: s };
+}
+
+cv.addEventListener('pointerdown', e => {
+  initAudio(); if (ac && ac.state === 'suspended') ac.resume();
+  const p = toCanvas(e);
+  const { r, a } = polar(p);
+  if (r > 1.04) return;
+  cv.setPointerCapture(e.pointerId);
+  dragging = { id: e.pointerId, start: p, lastA: a, lastT: performance.now(), moved: false, vel: 0 };
+});
+
+cv.addEventListener('pointermove', e => {
+  if (!dragging || e.pointerId !== dragging.id) return;
+  const p = toCanvas(e);
+  if (!dragging.moved && Math.hypot(p.x - dragging.start.x, p.y - dragging.start.y) > 8 * dpr) {
+    dragging.moved = true;
+    dragging.lastA = polar(p).a;
+    dragging.lastT = performance.now();
+  }
+  if (!dragging.moved) return;
+  const { a } = polar(p);
+  let d = a - dragging.lastA;
+  if (d > Math.PI) d -= TAU; else if (d < -Math.PI) d += TAU;
+  const now = performance.now();
+  const dt = Math.max(1, now - dragging.lastT) / 1000;
+  const prev = rot;
+  rot += d;
+  readSteps(prev, rot, dt);
+  // Smoothed hand speed becomes the platter speed on release (a fling).
+  dragging.vel = dragging.vel * 0.6 + (d / dt) * 0.4;
+  omega = dragging.vel;
+  dragging.lastA = a; dragging.lastT = now;
+});
+
+function endDrag(e) {
+  if (!dragging || e.pointerId !== dragging.id) return;
+  if (!dragging.moved) {
+    const c = cellAt(dragging.start);
+    if (c) {
+      pattern[c.ring] ^= 1 << c.step;
+      if (on(c.ring, c.step)) { trigger(c.ring, 1); flash[c.ring][c.step] = 1; }
+      saveHash();
+    }
+  } else if (performance.now() - dragging.lastT > 80) {
+    omega = 0;                      // held still before letting go: no fling
+  }
+  dragging = null;
+}
+cv.addEventListener('pointerup', endDrag);
+cv.addEventListener('pointercancel', endDrag);
+
+// ---------------------------------------------------------------------------
+// UI wiring
+// ---------------------------------------------------------------------------
+const ui = {
+  play: document.getElementById('btnPlay'),
+  speeds: document.getElementById('speeds'),
+  vol: document.getElementById('vol'), volOut: document.getElementById('volOut'),
+  echo: document.getElementById('echo'), echoOut: document.getElementById('echoOut'),
+  pitch: document.getElementById('pitchFollow'),
+  readout: document.getElementById('readout'),
+  hint: document.getElementById('startHint'),
+  link: document.getElementById('btnLink'),
+};
+
+function setMotor(v) {
+  initAudio(); if (ac && ac.state === 'suspended') ac.resume();
+  motorOn = v;
+  ui.play.textContent = v ? t('pltStop') : t('pltStart');
+  ui.hint.classList.add('gone');
+}
+function setRpm(v) {
+  rpm = v;
+  for (const b of ui.speeds.querySelectorAll('button')) b.setAttribute('aria-pressed', String(+b.dataset.rpm === +v.toFixed(3)));
+  saveHash();
+}
+
+ui.play.addEventListener('click', () => setMotor(!motorOn));
+ui.speeds.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (b) setRpm(+b.dataset.rpm);
+});
+const showVals = () => {
+  ui.volOut.textContent = Math.round(ui.vol.value * 100);
+  ui.echoOut.textContent = Math.round(ui.echo.value * 100);
+};
+ui.vol.addEventListener('input', () => { if (master) master.gain.value = +ui.vol.value; showVals(); });
+ui.echo.addEventListener('input', () => { if (echoSend) echoSend.gain.value = +ui.echo.value; showVals(); });
+showVals();
+
+function randomPattern() {
+  const density = [0.22, 0.14, 0.45, 0.1, 0.08, 0.1, 0.08, 0.08, 0.06, 0.06];
+  pattern = density.map((d, r) => {
+    let m = 0;
+    for (let s = 0; s < STEPS; s++) if (Math.random() < d) m |= 1 << s;
+    if (r === 0) m |= 1;            // keep a downbeat so it still grooves
+    return m;
+  });
+  saveHash();
+}
+document.getElementById('btnDemo').addEventListener('click', () => { pattern = fromStrings(DEMO); saveHash(); });
+document.getElementById('btnRandom').addEventListener('click', randomPattern);
+document.getElementById('btnClear').addEventListener('click', () => { pattern = new Array(NR).fill(0); saveHash(); });
+ui.link.addEventListener('click', async () => {
+  saveHash();
+  try { await navigator.clipboard.writeText(location.href); ui.link.textContent = t('pltCopied'); }
+  catch { ui.link.textContent = t('pltSeeAddressBar'); }
+  setTimeout(() => ui.link.textContent = t('pltCopyLink'), 1400);
+});
+
+window.addEventListener('keydown', e => {
+  if (e.target.closest && e.target.closest('input')) return;
+  if (e.code === 'Space') { e.preventDefault(); setMotor(!motorOn); }
+  else if (e.key === '1') setRpm(BASE_RPM);
+  else if (e.key === '2') setRpm(45);
+  else if (e.key === '3') setRpm(78);
+  else if (e.key === 'r' || e.key === 'R') randomPattern();
+  else if (e.key === 'c' || e.key === 'C') { pattern = new Array(NR).fill(0); saveHash(); }
+});
+
+// Pattern + speed in the hash: "#p=<4 hex per ring>&rpm=45". Nothing leaves the page.
+function saveHash() {
+  const p = pattern.map(m => m.toString(16).padStart(4, '0')).join('');
+  const s = `#p=${p}&rpm=${Math.round(rpm)}`;
+  try { history.replaceState(null, '', s); } catch { /* file:// in some browsers */ }
+}
+function loadHash() {
+  const q = new URLSearchParams(location.hash.slice(1));
+  const p = q.get('p');
+  if (p && /^[0-9a-f]+$/i.test(p) && p.length === NR * 4) {
+    pattern = Array.from({ length: NR }, (_, i) => parseInt(p.slice(i * 4, i * 4 + 4), 16));
+  } else pattern = fromStrings(DEMO);
+  const r = +q.get('rpm');
+  setRpm(r === 45 ? 45 : r === 78 ? 78 : BASE_RPM);
+}
+
+// ---------------------------------------------------------------------------
+// Main loop
+// ---------------------------------------------------------------------------
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  if (!dragging || !dragging.moved) {
+    // Motor torque: quick spin-up, slower coast-down when switched off.
+    const target = targetOmega();
+    const k = motorOn ? 7 : 1.6;
+    omega += (target - omega) * Math.min(1, dt * k);
+    if (!motorOn && Math.abs(omega) < 0.02) omega = 0;
+    const prev = rot;
+    rot += omega * dt;
+    readSteps(prev, rot, dt);
+  } else if (now - dragging.lastT > 60) {
+    omega *= 0.8;                    // hand held still: the platter stops under it
+  }
+  // Keep the angle bounded without disturbing the step count's parity.
+  if (Math.abs(rot) > 1e4 * TAU) rot %= TAU;
+  draw(dt);
+  const shownRpm = omega / TAU * 60;
+  const beat = ((Math.floor(stepPos(rot)) % STEPS) + STEPS) % STEPS;
+  ui.readout.textContent = `${shownRpm.toFixed(1).padStart(5)} rpm · ${t('pltStepWord')} ${String(beat + 1).padStart(2, '0')}/16` +
+    (dragging && dragging.moved ? ' · ' + t('pltScratchingWord') : '');
+  requestAnimationFrame(frame);
+}
+
+window.addEventListener('resize', resize);
+loadHash();
+resize();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

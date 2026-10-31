@@ -4,7 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kamin — Miha Presker</title>
-  <link rel="stylesheet" href="/art/art.css">
+  <link rel="stylesheet" href="/art/art.css?v=2">
+  <script src="/theme.js?v=2"></script>
+  <script src="/i18n-nav.js?v=2"></script>
+  <script>
+    Object.assign(window.PRESKER_I18N.en, {
+      dlKaminSheet: '/art/downloads/kamin-sheet.pdf',
+      metaMedium: 'Patterned fabric, folded metal/paper, mixed media',
+      kamLabelTitle: 'Title', kamLabelYear: 'Year', kamLabelMedium: 'Medium', kamLabelDimensions: 'Dimensions',
+      kamH2Description: 'Description', kamH2Exhibition: 'Exhibition History',
+      kamPDescription: 'In collaboration with Luiza Margan. The work, also known as Shif, was produced in cardboard and acrylic and shown as part of the Solid exhibition. An arched, fireplace-shaped panel ("Kamin" = chimney/fireplace) covered in a dense floral-tile pattern, shown mounted flat on a gallery wall alongside a brick-pattern projection and a free-standing angular metal form. The Solidno documentation shows what appears to be the same type of patterned arched panel used as a foldable, modular element — propped into tent-like forms or collapsed flat — suggesting Kamin may be one specific wall-mounted configuration of a panel system shared with Solidno, rather than a wholly separate object.',
+      kamPExhibition: 'Solid, group exhibition, 2008.',
+      kamLabelCredits: 'Credits', kamLabelCollection: 'Collection', kamLabelKeywords: 'Keywords', kamLabelDownloads: 'Downloads',
+      kamDownloadLink: 'Technical sheet PDF ↓',
+      kamSectionDoc: 'Documentation (9 images)', kamSectionRelated: 'Related Projects',
+      kamContact: 'Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.de, {
+      dlKaminSheet: '/art/downloads/kamin-sheet-de.pdf',
+      metaMedium: 'Gemusterter Stoff, gefaltetes Metall/Papier, Mischtechnik',
+      kamLabelTitle: 'Titel', kamLabelYear: 'Jahr', kamLabelMedium: 'Medium', kamLabelDimensions: 'Maße',
+      kamH2Description: 'Beschreibung', kamH2Exhibition: 'Ausstellungsgeschichte',
+      kamPDescription: 'In Zusammenarbeit mit Luiza Margan. Die Arbeit, auch unter dem Titel Shif bekannt, wurde aus Karton und Acryl gefertigt und im Rahmen der Ausstellung Solid gezeigt. Ein gebogenes, kaminförmiges Paneel („Kamin" = Feuerstelle) mit einem dichten Blumenkachelmuster, flach an einer Galeriewand montiert gezeigt, neben einer Projektion im Backsteinmuster und einer freistehenden, kantigen Metallform. Die Dokumentation von Solidno zeigt offenbar denselben Typ gemusterten, gebogenen Paneels, verwendet als faltbares, modulares Element — zu zeltartigen Formen aufgestellt oder flach zusammengelegt —, was nahelegt, dass Kamin eine bestimmte, wandmontierte Konfiguration eines mit Solidno gemeinsam genutzten Paneelsystems sein könnte, statt ein vollständig eigenständiges Objekt.',
+      kamPExhibition: 'Solid, Gruppenausstellung, 2008.',
+      kamLabelCredits: 'Credits', kamLabelCollection: 'Sammlung', kamLabelKeywords: 'Schlagwörter', kamLabelDownloads: 'Downloads',
+      kamDownloadLink: 'Technisches Datenblatt PDF ↓',
+      kamSectionDoc: 'Dokumentation (9 Bilder)', kamSectionRelated: 'Verwandte Projekte',
+      kamContact: 'Korrekturen oder Ergänzungen? <a href="mailto:miha@presker.at" style="color: var(--accent);">Künstler kontaktieren →</a>'
+    });
+    Object.assign(window.PRESKER_I18N.sl, {
+      dlKaminSheet: '/art/downloads/kamin-sheet-sl.pdf',
+      metaMedium: 'Vzorčasta tkanina, prepognjena kovina/papir, mešana tehnika',
+      kamLabelTitle: 'Naslov', kamLabelYear: 'Leto', kamLabelMedium: 'Medij', kamLabelDimensions: 'Dimenzije',
+      kamH2Description: 'Opis', kamH2Exhibition: 'Zgodovina razstavljanja',
+      kamPDescription: 'V sodelovanju z Luizo Margan. Delo, znano tudi kot Shif, je bilo izdelano iz kartona in akrila in razstavljeno v okviru razstave Solid. Obokan, kaminu podoben panel ("Kamin" = kamin/ognjišče), prekrit z gostim cvetličnim ploščičnim vzorcem, prikazan ploščato montiran na galerijsko steno ob projekciji z vzorcem opeke in prostostoječi kotni kovinski obliki. Dokumentacija dela Solidno kaže na videz enak tip vzorčastega obokanega panela, uporabljenega kot zložljiv, modularen element — postavljen v šotoru podobne oblike ali zložen plosko —, kar nakazuje, da je Kamin morda ena specifična, na steno montirana konfiguracija panelnega sistema, ki si ga deli s Solidnim, in ne povsem ločen objekt.',
+      kamPExhibition: 'Solid, skupinska razstava, 2008.',
+      kamLabelCredits: 'Zasluge', kamLabelCollection: 'Zbirka', kamLabelKeywords: 'Ključne besede', kamLabelDownloads: 'Prenosi',
+      kamDownloadLink: 'Tehnični list PDF ↓',
+      kamSectionDoc: 'Dokumentacija (9 slik)', kamSectionRelated: 'Sorodni projekti',
+      kamContact: 'Popravki ali dodatki? <a href="mailto:miha@presker.at" style="color: var(--accent);">Kontaktirajte umetnika →</a>'
+    });
+  </script>
+  <script src="/i18n.js?v=2"></script>
 </head>
 <body>
   <div class="top-bar"></div>
@@ -19,70 +60,60 @@
 
       <div class="project-meta-bar">
         <div class="project-meta-item">
-          <div class="project-meta-label">Title</div>
+          <div class="project-meta-label" data-i18n="kamLabelTitle">Title</div>
           <div class="project-meta-value">Kamin</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Year</div>
-          <div class="project-meta-value">[Year]</div>
+          <div class="project-meta-label" data-i18n="kamLabelYear">Year</div>
+          <div class="project-meta-value">2008</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Medium</div>
-          <div class="project-meta-value">Patterned fabric, folded metal/paper, mixed media</div>
+          <div class="project-meta-label" data-i18n="kamLabelMedium">Medium</div>
+          <div class="project-meta-value" data-i18n="metaMedium">Patterned fabric, folded metal/paper, mixed media</div>
         </div>
         <div class="project-meta-item">
-          <div class="project-meta-label">Dimensions</div>
+          <div class="project-meta-label" data-i18n="kamLabelDimensions">Dimensions</div>
           <div class="project-meta-value">[variable]</div>
-        </div>
-        <div class="project-meta-item">
-          <div class="project-meta-label">Status</div>
-          <div class="project-meta-value">[Add status]</div>
         </div>
       </div>
 
       <div class="project-layout">
         <div class="project-body">
-          <h2>Description</h2>
-          <p><em style="color:var(--dim);">[Based on the documentation images — please confirm/correct:]</em> An arched, fireplace-shaped panel ("Kamin" = chimney/fireplace) covered in a dense floral-tile pattern, shown mounted flat on a gallery wall alongside a brick-pattern projection and a free-standing angular metal form. The Solidno documentation shows what appears to be the same type of patterned arched panel used as a foldable, modular element — propped into tent-like forms or collapsed flat — suggesting Kamin may be one specific wall-mounted configuration of a panel system shared with Solidno, rather than a wholly separate object.</p>
+          <h2 data-i18n="kamH2Description">Description</h2>
+          <p data-i18n-html="kamPDescription">In collaboration with Luiza Margan. The work, also known as Shif, was produced in cardboard and acrylic and shown as part of the Solid exhibition. An arched, fireplace-shaped panel ("Kamin" = chimney/fireplace) covered in a dense floral-tile pattern, shown mounted flat on a gallery wall alongside a brick-pattern projection and a free-standing angular metal form. The Solidno documentation shows what appears to be the same type of patterned arched panel used as a foldable, modular element — propped into tent-like forms or collapsed flat — suggesting Kamin may be one specific wall-mounted configuration of a panel system shared with Solidno, rather than a wholly separate object.</p>
 
-          <h2>Concept</h2>
-          <p>[Add conceptual text — the fireplace/chimney form combined with a domestic tile pattern suggests a reading around warmth or domesticity, but given the panel's apparent foldability (seen in Solidno), it may be more useful to think of Kamin as one pose of a multi-form object rather than a fixed sculpture. Confirm the relationship with Solidno before finalizing this text.]</p>
-
-          <h2>Exhibition History</h2>
-          <p>[Add exhibition history.]</p>
-
-          <h2>Curatorial Text</h2>
-          <p>[Add curatorial or critical text if available.]</p>
+          <h2 data-i18n="kamH2Exhibition">Exhibition History</h2>
+          <p data-i18n-html="kamPExhibition">Solid, group exhibition, 2008.</p>
         </div>
 
         <div class="project-sidebar">
           <div class="sidebar-block">
-            <div class="sidebar-label">Credits</div>
+            <div class="sidebar-label" data-i18n="kamLabelCredits">Credits</div>
             <div class="sidebar-value">Miha Presker & Luiza Margan</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Collection</div>
+            <div class="sidebar-label" data-i18n="kamLabelCollection">Collection</div>
             <div class="sidebar-value">[Collection]</div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Keywords</div>
+            <div class="sidebar-label" data-i18n="kamLabelKeywords">Keywords</div>
             <div class="tags">
-              <span class="tag">installation</span>
-              <span class="tag">space</span>
-              <span class="tag">perception</span>
+              <span class="tag" data-i18n="tagInstallation">installation</span>
+              <span class="tag" data-i18n="tagSpace">space</span>
+              <span class="tag" data-i18n="tagPerception">perception</span>
             </div>
           </div>
           <div class="sidebar-block">
-            <div class="sidebar-label">Downloads</div>
+            <div class="sidebar-label" data-i18n="kamLabelDownloads">Downloads</div>
             <div class="sidebar-value">
-              <a href="/art/downloads/kamin-sheet.pdf" style="color:var(--accent);font-size:11px;font-family:var(--mono);">Technical sheet PDF ↓</a>
+              <a href="/art/downloads/kamin-sheet.pdf" data-i18n-href="dlKaminSheet" style="color:var(--accent);font-size:11px;font-family:var(--mono);" data-i18n="kamDownloadLink">Technical sheet PDF ↓</a>
             </div>
           </div>
         </div>
       </div>
 
       <div class="gallery-section">
-        <div class="section-title">Documentation (9 images)</div>
+        <div class="section-title" data-i18n="kamSectionDoc">Documentation (9 images)</div>
         <div class="gallery-grid">
           <div class="gallery-item"><img src="/art/images/kamin/kamin-01.jpg" alt="Kamin 01" onerror="this.parentElement.style.background='var(--bg3)'"></div>
           <div class="gallery-item"><img src="/art/images/kamin/kamin-02.jpg" alt="Kamin 02" onerror="this.parentElement.style.background='var(--bg3)'"></div>
@@ -97,7 +128,7 @@
       </div>
 
       <div class="related-section">
-        <div class="section-title">Related Projects</div>
+        <div class="section-title" data-i18n="kamSectionRelated">Related Projects</div>
         <div class="related-grid">
           <a href="/art/projects/formication.html" class="related-card">
             <div class="related-card-img"><img src="/art/images/formication/formication-01.jpg" alt="Formication" onerror="this.style.display='none';this.parentElement.innerHTML='<div class=\'related-card-ph\'></div>'"></div>
@@ -114,8 +145,18 @@
         </div>
       </div>
 
-    </main>
+      <p class="project-contact" style="margin-top: 3rem; font-size: 13px; color: var(--dim); font-family: var(--mono);" data-i18n-html="kamContact">Corrections or additions? <a href="mailto:miha@presker.at" style="color: var(--accent);">Contact the artist →</a></p>
+
+          <div class="donate-mini">
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <div class="donate-mini-text">
+          <p class="donate-mini-note" data-i18n="artDonateNote">Support this — everything here is free.</p>
+          <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+        </div>
+      </div>
+
+</main>
   </div>
-  <script src="/art/nav.js"></script>
+  <script src="/art/nav.js?v=2"></script>
 </body>
 </html>
