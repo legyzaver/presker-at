@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tonearm Lab — why a pivoted tonearm is never quite straight</title>
+<meta name="description" content="A pivoted tonearm swings on an arc, so the stylus is almost never tangent to the groove. Play with effective length and alignment (Löfgren A/Baerwald, Löfgren B, Stevenson), watch the tracking error across the side, and print a 1:1 protractor for your own arm.">
+<link rel="canonical" href="https://www.presker.at/lab/tonearm-lab/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/tonearm-lab/">
+<meta property="og:title" content="Tonearm Lab">
+<meta property="og:description" content="A pivoted tonearm swings on an arc, so the stylus is almost never tangent to the groove. Compare Baerwald, Löfgren B and Stevenson alignments and print a 1:1 protractor.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #f4f1ea;
+  --panel: #fbfaf6;
+  --paper: #fffdf8;
+  --ink: #1f1d1a;
+  --muted: #6d675d;
+  --line: #e2ddd2;
+  --accent: #b5532a;
+  --accent-ink: #fff;
+  --disc: #2b2724;
+  --disc-groove: rgba(255,255,255,.12);
+  --label: #c9b483;
+  --metal: #9a958c;
+  --metal-hi: #c9c4ba;
+  --shadow: 0 1px 2px rgba(40,30,10,.06), 0 8px 24px rgba(40,30,10,.06);
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+    --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --disc: #141414; --disc-groove: rgba(255,255,255,.10);
+    --label: #6b5f44; --metal: #6e6a63; --metal-hi: #a8a39a;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+  --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --disc: #141414; --disc-groove: rgba(255,255,255,.10);
+  --label: #6b5f44; --metal: #6e6a63; --metal-hi: #a8a39a;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.45 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.app { display: grid; grid-template-columns: 370px 1fr; min-height: 100vh; }
+aside {
+  background: var(--panel); border-right: 1px solid var(--line);
+  padding: 18px 18px 30px; max-height: 100vh; overflow-y: auto;
+}
+header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; }
+header p.lede { margin: 4px 0 14px; color: var(--muted); font-size: 13px; }
+h2.sec {
+  font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin: 18px 0 7px; font-weight: 400;
+}
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+button, select {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer;
+  font-family: var(--mono); font-size: 12.5px;
+}
+button:hover, select:hover { border-color: var(--muted); }
+button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.mini { padding: 5px 8px; font-size: 11.5px; }
+.ctl { display: grid; grid-template-columns: 1fr 66px; align-items: center; gap: 4px 8px; margin: 8px 0 2px; }
+.ctl label { color: var(--muted); font-size: 12.5px; }
+.ctl output { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; font-family: var(--mono); }
+.ctl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+.hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+/* readout table */
+.stats { margin: 10px 0 0; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); overflow: hidden; }
+.stat { display: flex; justify-content: space-between; gap: 10px; padding: 6px 11px; font-size: 12.5px; }
+.stat + .stat { border-top: 1px solid var(--line); }
+.stat b { font: 600 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); }
+.stat.big b { font-size: 15px; }
+.warn { color: #d8603c; }
+details { border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; background: var(--paper); }
+summary { cursor: pointer; padding: 9px 12px; font: 600 12.5px var(--mono); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: " +"; color: var(--muted); }
+details[open] summary::after { content: " –"; }
+details .body { padding: 0 12px 12px; font-size: 13px; color: var(--muted); }
+details .body p { margin: 8px 0; }
+details .body b { color: var(--ink); font-weight: 600; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.home:hover { color: var(--accent); }
+header h1 { font-family: var(--mono); }
+.site-foot { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+/* stage */
+main { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 18px; min-width: 0; }
+.stage { position: relative; flex: 1 1 auto; min-height: 260px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.badge { position: absolute; left: 14px; top: 12px; font: 12px var(--mono); color: var(--muted);
+  font-variant-numeric: tabular-nums; pointer-events: none; max-width: calc(100% - 76px); }
+.graphwrap { position: relative; height: 190px; flex: 0 0 auto;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.graphwrap canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; }
+.theme-toggle { position: absolute; top: 14px; right: 14px; padding: 5px 9px; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  aside { border-right: 0; border-top: 1px solid var(--line); order: 2; max-height: none; overflow: visible; padding: 16px; }
+  main { order: 1; padding: 12px; height: auto; }
+  .stage { height: 62vw; min-height: 240px; }
+  .graphwrap { height: 160px; }
+  .badge { font-size: 11px; line-height: 1.3; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside>
+    <header>
+      <a class="home" href="/lab/">← presker.at / lab</a>
+      <h1>Tonearm Lab</h1>
+      <p class="lede">A record is cut with a cutter head that runs on a straight rail, dead tangent to the groove.
+        Your tonearm swings on an arc, so it can only be tangent at two radii — everywhere else it is a little crooked,
+        and that crookedness is distortion. Here is where to put the two right answers.</p>
+    </header>
+
+    <h2 class="sec">Arm</h2>
+    <div class="ctl">
+      <label for="len">Effective length — pivot to stylus</label>
+      <output id="lenOut">233.2 mm</output>
+      <input type="range" id="len" min="180" max="330" step="0.1" value="233.2">
+    </div>
+    <div class="row" id="armPresets"></div>
+
+    <h2 class="sec">Alignment</h2>
+    <div class="row" id="alignBtns"></div>
+    <div id="customCtls" hidden>
+      <div class="ctl">
+        <label for="oh">Overhang — stylus past the spindle</label>
+        <output id="ohOut">17.8 mm</output>
+        <input type="range" id="oh" min="0" max="32" step="0.1" value="17.8">
+      </div>
+      <div class="ctl">
+        <label for="off">Offset angle — cartridge twist in the headshell</label>
+        <output id="offOut">23.6°</output>
+        <input type="range" id="off" min="0" max="34" step="0.1" value="23.6">
+      </div>
+      <p class="hint">Drag these out of true and watch the curve lift off the zero line. One millimetre of overhang matters.</p>
+    </div>
+
+    <h2 class="sec">Record</h2>
+    <div class="row" id="stdBtns"></div>
+
+    <div class="stats" id="stats"></div>
+
+    <h2 class="sec">Try it</h2>
+    <div class="row">
+      <button class="primary" id="btnPlay">▶ Play the side</button>
+      <button id="btnSvg">Print a protractor (SVG)</button>
+      <button id="btnLink">Copy link</button>
+    </div>
+    <p class="hint" id="tip">Drag anywhere on the record to move the stylus. The protractor prints 1:1 on A4 — check the 50&nbsp;mm bar before you trust it.</p>
+
+    <details>
+      <summary>Why two null points, and why these ones</summary>
+      <div class="body">
+        <p>Tracking error is the angle between the cartridge's cantilever and the groove's tangent. It never
+          disappears on a pivoted arm: push it to zero at one radius and it grows at another. Two things are yours
+          to choose — how far the stylus overshoots the spindle (<b>overhang</b>) and how far the cartridge is
+          twisted in the headshell (<b>offset angle</b>) — and those two choices buy exactly two zeros,
+          the <b>null radii</b>.</p>
+        <p>The audible cost is second-harmonic distortion, and it grows with the error angle but also with how
+          slowly the groove is passing under the stylus. That is why the graph can be weighted by radius: the same
+          one degree of error does far more damage near the label, where the groove crawls past at
+          <span id="innerSpeed">21</span>&nbsp;cm/s, than at the rim, where it races by at
+          <span id="outerSpeed">51</span>&nbsp;cm/s.</p>
+        <p><b>Löfgren A</b>, which most people know as Baerwald, spreads that weighted error into three equal humps,
+          so the worst moment is as small as it can be. <b>Löfgren B</b> trades bigger errors at the two ends for a
+          lower average across the side. <b>Stevenson</b> pins one null right at the inner groove, keeping the last
+          track cleanest at the cost of everything before it — a reasonable bet for classical sides that end loud,
+          and the alignment many Japanese headshells assume.</p>
+        <p>None of this fixes the arc. A linear-tracking arm has no tracking error at all; it just has every other
+          problem instead.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>The maths, and how honest these numbers are</summary>
+      <div class="body">
+        <p>With spindle, pivot and stylus forming a triangle, the error at groove radius <i>r</i> is
+          <b>ε(r) = asin((r² + L² − D²) / (2 L r)) − β</b>, where <i>L</i> is effective length, <i>D</i> the
+          pivot-to-spindle distance and <i>β</i> the offset angle. Zeros at <i>n₁</i> and <i>n₂</i> require
+          <b>sin β = (n₁+n₂)/2L</b> and <b>D = √(L² − n₁n₂)</b>, which is why overhang and offset always come as a pair.</p>
+        <p>Löfgren's trick was to substitute <i>u = 1/r</i>, which turns the weighted error into a plain quadratic in
+          <i>u</i>. The equal-ripple answer is then a Chebyshev polynomial (that is Löfgren A) and the
+          lowest-average answer is a least-squares fit (Löfgren B). This page solves both directly, so the numbers
+          move with whatever inner and outer radius you choose rather than coming from a lookup table.</p>
+        <p>For IEC radii that puts Löfgren A at 66.0 and 120.9&nbsp;mm and Stevenson at 60.3 and 117.4&nbsp;mm,
+          matching the published figures to a tenth of a millimetre. The Löfgren B nulls here land a few tenths
+          below the 70.3/116.6 that most protractors print — those older figures come from Löfgren's approximate
+          formulas, and a 2021 re-derivation in the AES Journal found the circulating values off by up to 0.6&nbsp;mm
+          in just this direction. For setting up a cartridge the difference is smaller than your eyesight.</p>
+      </div>
+    </details>
+
+    <footer class="site-foot">
+      <span>© 2026 Presker.at · runs in your browser</span>
+      <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+    </footer>
+  </aside>
+
+  <main>
+    <div class="stage" id="stage">
+      <canvas id="deck"></canvas>
+      <div class="badge" id="badge"></div>
+    </div>
+    <div class="graphwrap">
+      <canvas id="graph"></canvas>
+    </div>
+    <button class="theme-toggle" id="btnTheme" aria-label="Toggle light and dark">◐</button>
+  </main>
+</div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Record geometry. All distances are millimetres, measured from the
+ * spindle. The modulated band runs from the inner groove radius to the
+ * outer; the disc itself is a little wider than the outer groove.
+ * ------------------------------------------------------------------ */
+const STANDARDS = {
+  IEC: { ri: 60.325, ro: 146.05, note: "IEC" },
+  DIN: { ri: 57.5,   ro: 146.05, note: "DIN" }
+};
+const DISC_R = 150;      // physical edge of a 12" LP
+const LABEL_R = 50;      // paper label
+const RPM = 100 / 3;     // 33 1/3
+
+const ARM_PRESETS = [
+  { label: "SL-1200", L: 230 },
+  { label: "SME 3009", L: 233.2 },
+  { label: "Rega", L: 239 },
+  { label: "10 inch", L: 254 },
+  { label: "12 inch", L: 304.8 }
+];
+
+const ALIGNMENTS = {
+  A: { name: "Löfgren A (Baerwald)", short: "Löfgren A" },
+  B: { name: "Löfgren B", short: "Löfgren B" },
+  S: { name: "Stevenson", short: "Stevenson" },
+  C: { name: "Custom", short: "Custom" }
+};
+
+/* ---------------------------- state ------------------------------- */
+const S = {
+  L: 233.2,
+  align: "A",
+  std: "IEC",
+  oh: 17.8,        // only used when align === "C"
+  off: 23.6,       // only used when align === "C"
+  r: 146.05,       // stylus radius
+  playing: false,
+  weighted: false,
+  spin: 0          // platter angle, radians
+};
+
+const deg = x => x * 180 / Math.PI;
+const rad = x => x * Math.PI / 180;
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const fmt = (v, d) => (Math.abs(v) < 5e-7 ? 0 : v).toFixed(d);
+
+/* ------------------- the three classic alignments ------------------ *
+ * Substituting u = 1/r turns the radius-weighted tracking error into a
+ * quadratic  q(u) = 1 - (n1+n2)u + n1n2 u^2 , whose roots are the null
+ * radii. Each alignment is a different way of making that quadratic
+ * small across the band u in [1/ro, 1/ri].
+ * ------------------------------------------------------------------ */
+function nullsFromPS(p, s) {               // roots of x^2 - p x + s
+  const disc = p * p - 4 * s;
+  if (disc < 0) return null;
+  const q = Math.sqrt(disc);
+  return [(p - q) / 2, (p + q) / 2];
+}
+
+// Löfgren A / Baerwald: equal ripple. The minimax quadratic with a fixed
+// value at u = 0 is a scaled Chebyshev T2 on the interval.
+function lofgrenA(ri, ro) {
+  const a = 1 / ro, b = 1 / ri, m = (a + b) / 2, h = (b - a) / 2;
+  const s = 2 / (2 * m * m - h * h);
+  return { p: 2 * m * s, s };
+}
+
+// Löfgren B: least squares of the weighted error over the playing band.
+function lofgrenB(ri, ro) {
+  const N1 = Math.log(ro / ri);
+  const N2 = 1 / ri - 1 / ro;
+  const N3 = (1 / (ri * ri) - 1 / (ro * ro)) / 2;
+  const N4 = (1 / (ri ** 3) - 1 / (ro ** 3)) / 3;
+  const det = -N2 * N4 + N3 * N3;
+  return { p: (-N1 * N4 + N2 * N3) / det, s: (N2 * N2 - N1 * N3) / det };
+}
+
+// Stevenson: inner null nailed to the inner groove radius, the outer one
+// chosen so the remaining error ripples equally.
+function stevenson(ri, ro) {
+  const a = 1 / ro;
+  const f = n2 => {
+    const p = ri + n2, s = ri * n2;
+    return (s * a * a - p * a + 1) + (1 - p * p / (4 * s));  // outer hump + middle dip
+  };
+  let lo = ri + 0.5, hi = ro * 2;
+  for (let i = 0; i < 120; i++) {
+    const mid = (lo + hi) / 2;
+    if (f(mid) > 0) lo = mid; else hi = mid;
+  }
+  const n2 = (lo + hi) / 2;
+  return { p: ri + n2, s: ri * n2 };
+}
+
+/* Everything the rest of the page needs about the current setup. */
+function geom() {
+  const { ri, ro } = STANDARDS[S.std];
+  const L = S.L;
+  let p, s, oh, off, D, nulls;
+
+  if (S.align === "C") {
+    oh = S.oh; off = S.off; D = L - oh;
+    p = 2 * L * Math.sin(rad(off));
+    s = L * L - D * D;
+    nulls = nullsFromPS(p, s);
+  } else {
+    ({ p, s } = S.align === "A" ? lofgrenA(ri, ro)
+            : S.align === "B" ? lofgrenB(ri, ro)
+            : stevenson(ri, ro));
+    nulls = nullsFromPS(p, s);
+    const sinb = p / (2 * L);
+    off = deg(Math.asin(clamp(sinb, -1, 1)));
+    D = Math.sqrt(Math.max(0, L * L - s));
+    oh = L - D;
+  }
+
+  const ok = D > 0 && L > D && Math.abs(p / (2 * L)) <= 1;
+  const g = { L, D, oh, off, nulls, ri, ro, ok };
+  g.err = r => deg(Math.asin(clamp((r * r + L * L - D * D) / (2 * L * r), -1, 1))) - off;
+
+  // worst error and worst radius-weighted error across the playing band
+  let maxErr = 0, maxErrAt = ri, maxW = 0, maxWAt = ri, sum = 0, n = 0;
+  for (let r = ri; r <= ro + 1e-9; r += 0.05) {
+    const e = Math.abs(g.err(r)), w = e / r;
+    if (e > maxErr) { maxErr = e; maxErrAt = r; }
+    if (w > maxW) { maxW = w; maxWAt = r; }
+    sum += w; n++;
+  }
+  g.maxErr = maxErr; g.maxErrAt = maxErrAt;
+  g.maxW = maxW; g.maxWAt = maxWAt; g.avgW = sum / n;
+  return g;
+}
+
+/* Where the stylus sits for a given groove radius: spindle at the
+ * origin, pivot at (D, 0), stylus in the upper half plane. */
+function stylusXY(r, g) {
+  const x = (g.D * g.D + r * r - g.L * g.L) / (2 * g.D);
+  const y2 = r * r - x * x;
+  return { x, y: Math.sqrt(Math.max(0, y2)), reachable: y2 > -1e-6 };
+}
+
+/* ------------------------------ UI -------------------------------- */
+const $ = id => document.getElementById(id);
+const deck = $("deck"), graph = $("graph");
+const dctx = deck.getContext("2d"), gctx = graph.getContext("2d");
+
+function makeButtons(host, items, isOn, onPick) {
+  host.innerHTML = "";
+  items.forEach(it => {
+    const b = document.createElement("button");
+    b.textContent = it.label;
+    b.className = "mini" + (isOn(it) ? " on" : "");
+    b.addEventListener("click", () => { onPick(it); });
+    host.appendChild(b);
+  });
+}
+
+function buildControls() {
+  makeButtons($("armPresets"), ARM_PRESETS,
+    it => Math.abs(it.L - S.L) < 0.05,
+    it => { S.L = it.L; sync(); });
+
+  makeButtons($("alignBtns"),
+    Object.keys(ALIGNMENTS).map(k => ({ key: k, label: ALIGNMENTS[k].short })),
+    it => it.key === S.align,
+    it => {
+      if (it.key === "C" && S.align !== "C") {       // start custom from where we are
+        const g = geom();
+        S.oh = Math.round(g.oh * 10) / 10;
+        S.off = Math.round(g.off * 10) / 10;
+      }
+      S.align = it.key; sync();
+    });
+
+  makeButtons($("stdBtns"),
+    Object.keys(STANDARDS).map(k => ({ key: k, label: STANDARDS[k].note + " " + STANDARDS[k].ri + "–" + STANDARDS[k].ro + " mm" })),
+    it => it.key === S.std,
+    it => { S.std = it.key; S.r = clamp(S.r, STANDARDS[it.key].ri, STANDARDS[it.key].ro); sync(); });
+}
+
+function bindSlider(id, outId, set, fmtOut) {
+  const el = $(id);
+  const push = () => { set(parseFloat(el.value)); sync(); };
+  el.addEventListener("input", push);
+  return { el, out: $(outId), fmtOut };
+}
+
+const sliders = [
+  bindSlider("len", "lenOut", v => S.L = v),
+  bindSlider("oh", "ohOut", v => S.oh = v),
+  bindSlider("off", "offOut", v => S.off = v)
+];
+
+/* --------------------------- read-out ----------------------------- */
+function stats(g) {
+  const e = g.err(S.r);
+  const grooveSpeed = 2 * Math.PI * S.r * RPM / 60 / 10;   // cm/s
+  const rows = [];
+  rows.push(["Pivot to spindle", fmt(g.D, 2) + " mm"]);
+  rows.push(["Overhang", fmt(g.oh, 2) + " mm"]);
+  rows.push(["Offset angle", fmt(g.off, 2) + "°"]);
+  rows.push(["Null radii", g.nulls ? fmt(g.nulls[0], 1) + " · " + fmt(g.nulls[1], 1) + " mm"
+                                   : "none — never tangent"]);
+  rows.push(["Worst error", fmt(g.maxErr, 2) + "° at " + fmt(g.maxErrAt, 0) + " mm"]);
+  rows.push(["Worst ε/r", fmt(g.maxW * 1000, 2) + " m°/mm"]);
+  rows.push(["Average ε/r", fmt(g.avgW * 1000, 2) + " m°/mm"]);
+
+  let html = '<div class="stat big"><span>Stylus at ' + fmt(S.r, 1) + ' mm · ' + fmt(grooveSpeed, 0) +
+             ' cm/s</span><b' + (Math.abs(e) > 1.5 ? ' class="warn"' : '') + '>' +
+             (e >= 0 ? "+" : "") + fmt(e, 2) + "°</b></div>";
+  html += rows.map(r => '<div class="stat"><span>' + r[0] + "</span><b>" + r[1] + "</b></div>").join("");
+  if (!g.ok) html += '<div class="stat"><span class="warn">Impossible geometry — the arm cannot reach that way</span><b></b></div>';
+  $("stats").innerHTML = html;
+}
+
+/* --------------------------- the deck ----------------------------- */
+function fit(canvas, ctx) {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const w = canvas.clientWidth, h = canvas.clientHeight;
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+  }
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { w, h };
+}
+
+// world (mm, y up) -> canvas (px, y down)
+function view(g, w, h) {
+  const x0 = -DISC_R - 10, x1 = Math.max(g.D + 62, 210), y0 = -DISC_R - 24, y1 = DISC_R + 24;
+  const sc = Math.min(w / (x1 - x0), h / (y1 - y0));
+  const ox = (w - (x1 - x0) * sc) / 2, oy = (h - (y1 - y0) * sc) / 2;
+  return {
+    sc,
+    X: x => ox + (x - x0) * sc,
+    Y: y => oy + (y1 - y) * sc,
+    inv: (px, py) => ({ x: (px - ox) / sc + x0, y: y1 - (py - oy) / sc })
+  };
+}
+let V = null;
+
+/* Green (clean) through amber to red (nasty), by radius-weighted error.
+ * The scale is fixed rather than per-alignment, so switching alignment
+ * actually changes the colour of the record instead of just moving it. */
+const WREF = 0.03;    // degrees per mm — roughly "as bad as it gets"
+function heatColor(w) {
+  const t = clamp(w / WREF, 0, 1);
+  const hue = 105 - 105 * Math.pow(t, 0.85);
+  return "hsla(" + hue.toFixed(0) + ",72%,52%," + (0.12 + 0.5 * t).toFixed(3) + ")";
+}
+
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+function drawDeck() {
+  const g = geom();
+  const { w, h } = fit(deck, dctx);
+  V = view(g, w, h);
+  const { X, Y, sc } = V;
+  const ctx = dctx;
+  ctx.clearRect(0, 0, w, h);
+
+  const ink = css("--ink"), muted = css("--muted"), accent = css("--accent");
+
+  /* --- the record ------------------------------------------------- */
+  ctx.save();
+  ctx.beginPath(); ctx.arc(X(0), Y(0), DISC_R * sc, 0, 7);
+  ctx.fillStyle = css("--disc"); ctx.fill();
+  ctx.strokeStyle = muted; ctx.lineWidth = 1; ctx.stroke();
+
+  // grooves: one faint circle per millimetre of the playing band
+  ctx.strokeStyle = css("--disc-groove"); ctx.lineWidth = Math.max(0.5, 0.35 * sc);
+  for (let r = g.ri; r <= g.ro; r += 1) {
+    ctx.beginPath(); ctx.arc(X(0), Y(0), r * sc, 0, 7); ctx.stroke();
+  }
+
+  // distortion heat band: how bad the error is, radius by radius
+  ctx.lineWidth = Math.max(1, 1.05 * sc);
+  for (let r = g.ri; r <= g.ro; r += 1) {
+    ctx.strokeStyle = heatColor(Math.abs(g.err(r)) / r);
+    ctx.beginPath(); ctx.arc(X(0), Y(0), r * sc, 0, 7); ctx.stroke();
+  }
+
+  // null radii
+  if (g.nulls) {
+    ctx.setLineDash([4, 4]); ctx.lineWidth = 1; ctx.strokeStyle = accent;
+    g.nulls.forEach(n => {
+      if (n < g.ri - 2 || n > g.ro + 2) return;
+      ctx.beginPath(); ctx.arc(X(0), Y(0), n * sc, 0, 7); ctx.stroke();
+    });
+    ctx.setLineDash([]);
+  }
+
+  // label, with a wedge so you can see it turning
+  ctx.save();
+  ctx.translate(X(0), Y(0)); ctx.rotate(S.spin);
+  ctx.beginPath(); ctx.arc(0, 0, LABEL_R * sc, 0, 7);
+  ctx.fillStyle = css("--label"); ctx.fill();
+  ctx.beginPath(); ctx.moveTo(0, 0);
+  ctx.arc(0, 0, LABEL_R * sc, -0.22, 0.22); ctx.closePath();
+  ctx.fillStyle = "rgba(0,0,0,.22)"; ctx.fill();
+  ctx.restore();
+
+  // spindle
+  ctx.beginPath(); ctx.arc(X(0), Y(0), 3.6 * sc, 0, 7);
+  ctx.fillStyle = css("--metal-hi"); ctx.fill();
+  ctx.restore();
+
+  if (!g.ok) { drawBadge(g); return; }
+
+  /* --- the arm ---------------------------------------------------- */
+  const sp = stylusXY(S.r, g);
+  const P = { x: g.D, y: 0 };
+  const dx = (sp.x - P.x) / g.L, dy = (sp.y - P.y) / g.L;      // pivot -> stylus, unit
+  const ang = Math.atan2(dy, dx);
+  const cant = ang + rad(g.off);                                // cantilever axis
+  const tang = Math.atan2(sp.x, -sp.y);                         // groove tangent at the stylus
+
+  // travel arc of the stylus
+  const aOut = Math.atan2(stylusXY(g.ro, g).y - 0, stylusXY(g.ro, g).x - g.D);
+  const aIn = Math.atan2(stylusXY(g.ri, g).y - 0, stylusXY(g.ri, g).x - g.D);
+  ctx.save();
+  ctx.setLineDash([3, 5]); ctx.strokeStyle = muted; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(X(P.x), Y(P.y), g.L * sc, -Math.max(aOut, aIn), -Math.min(aOut, aIn));
+  ctx.stroke(); ctx.setLineDash([]);
+  ctx.restore();
+
+  // counterweight stub behind the pivot
+  ctx.save();
+  ctx.lineCap = "round";
+  ctx.strokeStyle = css("--metal"); ctx.lineWidth = 3.2 * sc;
+  ctx.beginPath();
+  ctx.moveTo(X(P.x), Y(P.y));
+  ctx.lineTo(X(P.x - dx * 52), Y(P.y - dy * 52));
+  ctx.stroke();
+  ctx.lineWidth = 15 * sc;
+  ctx.beginPath();
+  ctx.moveTo(X(P.x - dx * 42), Y(P.y - dy * 42));
+  ctx.lineTo(X(P.x - dx * 52), Y(P.y - dy * 52));
+  ctx.stroke();
+
+  // arm tube
+  ctx.strokeStyle = css("--metal-hi"); ctx.lineWidth = 2.6 * sc;
+  ctx.beginPath();
+  ctx.moveTo(X(P.x), Y(P.y));
+  ctx.lineTo(X(sp.x - dx * 12), Y(sp.y - dy * 12));
+  ctx.stroke();
+
+  // headshell + cartridge, twisted by the offset angle
+  ctx.translate(X(sp.x), Y(sp.y));
+  ctx.rotate(-cant);
+  ctx.fillStyle = css("--metal");
+  ctx.fillRect(-26 * sc, -5.5 * sc, 24 * sc, 11 * sc);
+  ctx.fillStyle = css("--metal-hi");
+  ctx.fillRect(-26 * sc, -5.5 * sc, 24 * sc, 2 * sc);
+  ctx.restore();
+
+  // tangent (where the groove wants to go) and cantilever (where it points)
+  const ray = (a, len, color, dash, wdt) => {
+    ctx.save();
+    ctx.setLineDash(dash); ctx.strokeStyle = color; ctx.lineWidth = wdt;
+    ctx.beginPath();
+    ctx.moveTo(X(sp.x - Math.cos(a) * len * 0.35), Y(sp.y - Math.sin(a) * len * 0.35));
+    ctx.lineTo(X(sp.x + Math.cos(a) * len), Y(sp.y + Math.sin(a) * len));
+    ctx.stroke(); ctx.restore();
+  };
+  ray(tang, 54, accent, [5, 4], 1.2);
+  ray(cant, 54, ink, [], 1.4);
+
+  // stylus
+  ctx.beginPath(); ctx.arc(X(sp.x), Y(sp.y), Math.max(2.4, 1.4 * sc), 0, 7);
+  ctx.fillStyle = accent; ctx.fill();
+
+  // pivot on top of everything
+  ctx.beginPath(); ctx.arc(X(P.x), Y(P.y), 5 * sc, 0, 7);
+  ctx.fillStyle = css("--panel"); ctx.fill();
+  ctx.strokeStyle = muted; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.beginPath(); ctx.arc(X(P.x), Y(P.y), 1.6 * sc, 0, 7);
+  ctx.fillStyle = muted; ctx.fill();
+
+  // small labels
+  ctx.font = "11px " + css("--mono");
+  ctx.fillStyle = muted; ctx.textAlign = "center";
+  ctx.fillText("pivot", X(P.x), Y(P.y) + 20);
+  if (g.nulls) {
+    // at the bottom of each null circle, so the two never collide
+    g.nulls.forEach((n, i) => {
+      if (n < g.ri - 2 || n > g.ro + 2) return;
+      ctx.fillStyle = accent;
+      ctx.fillText("null " + (i + 1) + " · " + fmt(n, 1) + " mm", X(0), Y(-n) + 13);
+    });
+  }
+  drawBadge(g);
+}
+
+function drawBadge(g) {
+  const e = g.err(S.r);
+  $("badge").textContent = ALIGNMENTS[S.align].name + " · " + STANDARDS[S.std].note +
+    " · tracking error " + (e >= 0 ? "+" : "") + fmt(e, 2) + "°";
+}
+
+/* ---------------------------- the graph --------------------------- */
+function drawGraph() {
+  const { w, h } = fit(graph, gctx);
+  const ctx = gctx;
+  ctx.clearRect(0, 0, w, h);
+  const g = geom();
+  const ink = css("--ink"), muted = css("--muted"), accent = css("--accent"), line = css("--line");
+
+  const pad = { l: 42, r: 12, t: 16, b: 26 };
+  const x0 = g.ri - 4, x1 = g.ro + 4;
+  const X = r => pad.l + (r - x0) / (x1 - x0) * (w - pad.l - pad.r);
+
+  // build the curves: the chosen one plus the other two as ghosts
+  const keys = S.align === "C" ? ["C", "A"] : ["A", "B", "S"];
+  const save = { align: S.align, oh: S.oh, off: S.off };
+  const curves = keys.map(k => {
+    S.align = k;
+    const gg = geom();
+    const pts = [];
+    for (let r = g.ri; r <= g.ro + 1e-9; r += 0.5) {
+      const e = gg.err(r);
+      pts.push([r, S.weighted ? e / r * 1000 : e]);
+    }
+    return { k, pts, cur: k === save.align };
+  });
+  Object.assign(S, save);
+
+  let ymax = 0;
+  curves.forEach(c => c.pts.forEach(p => ymax = Math.max(ymax, Math.abs(p[1]))));
+  ymax = Math.max(ymax * 1.15, S.weighted ? 8 : 1.2);
+  const Y = v => pad.t + (ymax - v) / (2 * ymax) * (h - pad.t - pad.b);
+
+  // grid
+  ctx.strokeStyle = line; ctx.lineWidth = 1;
+  ctx.font = "10px " + css("--mono"); ctx.fillStyle = muted;
+  ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  const step = ymax > 30 ? 20 : ymax > 12 ? 10 : ymax > 6 ? 4 : ymax > 2.4 ? 2 : 1;
+  for (let v = -Math.floor(ymax / step) * step; v <= ymax; v += step) {
+    ctx.beginPath(); ctx.moveTo(pad.l, Y(v)); ctx.lineTo(w - pad.r, Y(v)); ctx.stroke();
+    ctx.fillText(v.toFixed(0), pad.l - 6, Y(v));
+  }
+  ctx.strokeStyle = muted;
+  ctx.beginPath(); ctx.moveTo(pad.l, Y(0)); ctx.lineTo(w - pad.r, Y(0)); ctx.stroke();
+
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  ctx.fillStyle = muted;
+  for (let r = 75; r <= 135; r += 15) {
+    if (r < x0 || r > x1) continue;
+    ctx.fillText(r + "", X(r), h - pad.b + 6);
+  }
+  ctx.textAlign = "left";
+  ctx.fillText("label", pad.l + 1, h - pad.b + 6);
+  ctx.textAlign = "right";
+  ctx.fillText("rim · mm", w - pad.r - 1, h - pad.b + 6);
+  ctx.save();
+  ctx.translate(12, pad.t + (h - pad.t - pad.b) / 2); ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+  ctx.fillText(S.weighted ? "ε/r, m°/mm" : "tracking error, degrees", 0, 0);
+  ctx.restore();
+
+  // curves
+  curves.forEach(c => {
+    ctx.beginPath();
+    c.pts.forEach((p, i) => { const px = X(p[0]), py = Y(p[1]); i ? ctx.lineTo(px, py) : ctx.moveTo(px, py); });
+    ctx.strokeStyle = c.cur ? accent : muted;
+    ctx.globalAlpha = c.cur ? 1 : 0.38;
+    ctx.lineWidth = c.cur ? 2 : 1;
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  });
+
+  // legend, doubling as a way to switch alignment straight from the graph
+  ctx.font = "10px " + css("--mono");
+  ctx.textAlign = "left"; ctx.textBaseline = "top";
+  graph._legend = [];
+  let lx = pad.l + 2;
+  curves.forEach(c => {
+    const t = ALIGNMENTS[c.k].short, tw = ctx.measureText(t).width;
+    ctx.fillStyle = c.cur ? accent : muted;
+    ctx.globalAlpha = c.cur ? 1 : .6;
+    ctx.fillText(t, lx, 5);
+    ctx.globalAlpha = 1;
+    graph._legend.push({ x: lx - 4, y: 2, w: tw + 8, h: 16, k: c.k });
+    lx += tw + 13;
+  });
+
+  // nulls and the stylus marker
+  if (g.nulls) {
+    ctx.fillStyle = accent;
+    g.nulls.forEach(n => {
+      if (n < x0 || n > x1) return;
+      ctx.beginPath(); ctx.arc(X(n), Y(0), 3, 0, 7); ctx.fill();
+    });
+  }
+  const ev = S.weighted ? g.err(S.r) / S.r * 1000 : g.err(S.r);
+  ctx.strokeStyle = ink; ctx.globalAlpha = .35;
+  ctx.beginPath(); ctx.moveTo(X(S.r), pad.t); ctx.lineTo(X(S.r), h - pad.b); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = ink;
+  ctx.beginPath(); ctx.arc(X(S.r), Y(clamp(ev, -ymax, ymax)), 3.5, 0, 7); ctx.fill();
+
+  // weighting toggle, drawn as a hit-tested chip
+  const txt = S.weighted ? "weighted by radius ✓" : "weight by radius";
+  ctx.font = "10px " + css("--mono");
+  const tw = ctx.measureText(txt).width + 14;
+  graph._toggle = { x: w - pad.r - tw, y: 4, w: tw, h: 17 };
+  ctx.fillStyle = css("--panel"); ctx.strokeStyle = line;
+  ctx.beginPath();
+  ctx.rect(graph._toggle.x, graph._toggle.y, tw, 17);
+  ctx.fill(); ctx.stroke();
+  ctx.fillStyle = S.weighted ? accent : muted;
+  ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.fillText(txt, graph._toggle.x + tw / 2, graph._toggle.y + 9);
+}
+
+/* ------------------------ printable protractor -------------------- *
+ * A4 landscape, drawn in millimetres so that printing at 100% gives a
+ * usable two-point protractor. Spindle hole on the left, null points
+ * out along +x, each with a grid you line the cartridge body up with.
+ * ------------------------------------------------------------------ */
+function protractorSVG() {
+  const g = geom();
+  if (!g.nulls) return null;
+  const W = 297, H = 210, cx = 34, cy = H / 2;
+  const o = [];
+  const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  o.push('<?xml version="1.0" encoding="UTF-8"?>');
+  o.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + 'mm" height="' + H + 'mm" viewBox="0 0 ' + W + ' ' + H + '">');
+  o.push('<rect width="' + W + '" height="' + H + '" fill="#fff"/>');
+  o.push('<g fill="none" stroke="#000" stroke-width="0.2" stroke-linecap="round">');
+
+  // spindle: a 7.2 mm hole to drop over the spindle, plus crosshairs
+  o.push('<circle cx="' + cx + '" cy="' + cy + '" r="3.6"/>');
+  o.push('<path d="M' + (cx - 11) + ' ' + cy + 'h22 M' + cx + ' ' + (cy - 11) + 'v22"/>');
+
+  // The two null arcs, broken either side of the alignment grid so they
+  // frame it instead of cutting through it. Both are circles about the
+  // spindle, so the stylus rides along them.
+  g.nulls.forEach(n => {
+    const a0 = Math.asin(Math.min(0.9, 15 / n));      // just clear of the grid box
+    const a1 = Math.asin(Math.min(0.95, 34 / n));
+    [1, -1].forEach(sign => {
+      const p1 = [cx + n * Math.cos(a0), cy + sign * n * Math.sin(a0)];
+      const p2 = [cx + n * Math.cos(a1), cy + sign * n * Math.sin(a1)];
+      o.push('<path d="M' + p1[0].toFixed(2) + ' ' + p1[1].toFixed(2) +
+             ' A' + n.toFixed(3) + ' ' + n.toFixed(3) + ' 0 0 ' + (sign > 0 ? 1 : 0) + ' ' +
+             p2[0].toFixed(2) + ' ' + p2[1].toFixed(2) + '" stroke-dasharray="2 1.5"/>');
+    });
+  });
+
+  // alignment grid at each null: lines parallel to the groove tangent,
+  // which is what the cartridge sides must be parallel to.
+  g.nulls.forEach((n, i) => {
+    const px = cx + n;
+    o.push('<path d="M' + (px - 13) + ' ' + cy + 'h26" stroke-width="0.3"/>');            // the radius itself
+    for (let k = -6; k <= 6; k++) {
+      const x = px + k * 1.6, len = (k === 0) ? 11 : 8;
+      o.push('<path d="M' + x.toFixed(2) + ' ' + (cy - len) + 'V' + (cy + len) + '" stroke-width="' + (k === 0 ? 0.3 : 0.14) + '"/>');
+    }
+    o.push('<rect x="' + (px - 12) + '" y="' + (cy - 13) + '" width="24" height="26" stroke-width="0.15"/>');
+    o.push('<text x="' + px + '" y="' + (cy - 16) + '" font-family="monospace" font-size="3.2" text-anchor="middle" stroke="none" fill="#000">null ' +
+           (i + 1) + ' — ' + g.nulls[i].toFixed(2) + ' mm</text>');
+  });
+
+  // mounting distance, drawn if it fits on the sheet
+  if (cx + g.D < W - 14) {
+    o.push('<path d="M' + cx + ' ' + (cy + 46) + 'h' + g.D.toFixed(2) + '" stroke-dasharray="4 2"/>');
+    o.push('<path d="M' + (cx + g.D).toFixed(2) + ' ' + (cy + 41) + 'v10"/>');
+    o.push('<text x="' + (cx + g.D / 2).toFixed(2) + '" y="' + (cy + 44) + '" font-family="monospace" font-size="3.2" text-anchor="middle" stroke="none" fill="#000">pivot: ' +
+           g.D.toFixed(2) + ' mm from spindle</text>');
+  }
+
+  // print-scale check bar
+  o.push('<path d="M' + (W - 74) + ' ' + (H - 16) + 'h50 M' + (W - 74) + ' ' + (H - 19) + 'v6 M' + (W - 24) + ' ' + (H - 19) + 'v6"/>');
+  for (let k = 10; k < 50; k += 10) o.push('<path d="M' + (W - 74 + k) + ' ' + (H - 18) + 'v4"/>');
+  o.push('<text x="' + (W - 49) + '" y="' + (H - 8) + '" font-family="monospace" font-size="3.2" text-anchor="middle" stroke="none" fill="#000">this bar must measure 50 mm — print at 100%</text>');
+  o.push('</g>');
+
+  // the numbers
+  const lines = [
+    "Tonearm Lab — " + ALIGNMENTS[S.align].name + " (" + STANDARDS[S.std].note + " " + g.ri + "–" + g.ro + " mm)",
+    "effective length " + g.L.toFixed(1) + " mm   ·   pivot to spindle " + g.D.toFixed(2) + " mm",
+    "overhang " + g.oh.toFixed(2) + " mm   ·   offset angle " + g.off.toFixed(2) + "°",
+    "nulls " + g.nulls[0].toFixed(2) + " and " + g.nulls[1].toFixed(2) + " mm   ·   worst error " + g.maxErr.toFixed(2) + "°",
+    "Drop the hole over the spindle. Slide the stylus onto a null point and turn the",
+    "cartridge until its side edges are parallel to the vertical lines. Repeat on the other.",
+    "presker.at/lab/tonearm-lab"
+  ];
+  lines.forEach((t, i) => {
+    o.push('<text x="14" y="' + (18 + i * 5.4) + '" font-family="monospace" font-size="' + (i === 0 ? 4 : 3.4) + '" fill="#000">' + esc(t) + '</text>');
+  });
+  o.push('</svg>');
+  return o.join("\n");
+}
+
+function downloadSVG() {
+  const svg = protractorSVG();
+  if (!svg) { $("tip").textContent = "This geometry has no null points, so there is nothing to print."; return; }
+  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "protractor-" + S.align + "-" + S.L.toFixed(1) + "mm.svg";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+/* --------------------------- interaction -------------------------- */
+function pointTo(ev, canvas) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+}
+
+function deckPick(ev) {
+  if (!V) return;
+  const p = pointTo(ev, deck);
+  const wpt = V.inv(p.x, p.y);
+  const g = geom();
+  S.r = clamp(Math.hypot(wpt.x, wpt.y), g.ri, g.ro);
+  S.playing = false;
+  sync();
+}
+
+let dragging = false;
+deck.addEventListener("pointerdown", e => { dragging = true; deck.setPointerCapture(e.pointerId); deckPick(e); });
+deck.addEventListener("pointermove", e => { if (dragging) deckPick(e); });
+deck.addEventListener("pointerup", () => { dragging = false; });
+deck.addEventListener("pointercancel", () => { dragging = false; });
+
+let gdrag = false;
+const hit = (p, b) => b && p.x >= b.x && p.x <= b.x + b.w && p.y >= b.y && p.y <= b.y + b.h;
+
+function graphPick(ev) {
+  const p = pointTo(ev, graph);
+  const g = geom();
+  const pad = { l: 42, r: 12 };
+  const x0 = g.ri - 4, x1 = g.ro + 4;
+  const r = x0 + (p.x - pad.l) / (graph.clientWidth - pad.l - pad.r) * (x1 - x0);
+  S.r = clamp(r, g.ri, g.ro); S.playing = false; sync();
+}
+graph.addEventListener("pointerdown", e => {
+  const p = pointTo(e, graph);
+  if (hit(p, graph._toggle)) { S.weighted = !S.weighted; sync(); return; }
+  const leg = (graph._legend || []).find(b => hit(p, b));
+  if (leg) { S.align = leg.k; sync(); return; }
+  gdrag = true; graph.setPointerCapture(e.pointerId); graphPick(e);
+});
+graph.addEventListener("pointermove", e => { if (gdrag) graphPick(e); });
+graph.addEventListener("pointerup", () => { gdrag = false; });
+graph.addEventListener("pointercancel", () => { gdrag = false; });
+
+$("btnPlay").addEventListener("click", () => {
+  const g = geom();
+  if (!S.playing && S.r <= g.ri + 0.5) S.r = g.ro;
+  S.playing = !S.playing;
+  sync();
+});
+$("btnSvg").addEventListener("click", downloadSVG);
+$("btnLink").addEventListener("click", async () => {
+  writeHash();
+  const url = location.href;
+  try { await navigator.clipboard.writeText(url); $("tip").textContent = "Link copied — it carries this exact setup."; }
+  catch (e) { $("tip").textContent = "Copy this from the address bar: it carries this exact setup."; }
+});
+$("btnTheme").addEventListener("click", () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", cur === "dark" ? "light" : "dark");
+  draw();
+});
+
+/* ------------------------- link state ----------------------------- */
+function writeHash() {
+  const p = new URLSearchParams();
+  p.set("L", S.L.toFixed(1)); p.set("a", S.align); p.set("s", S.std);
+  if (S.align === "C") { p.set("oh", S.oh.toFixed(1)); p.set("of", S.off.toFixed(1)); }
+  // file:// pages can refuse a history rewrite; the page works fine without it
+  try { history.replaceState(null, "", "#" + p.toString()); } catch (e) { location.hash = p.toString(); }
+}
+function readHash() {
+  if (!location.hash) return;
+  const p = new URLSearchParams(location.hash.slice(1));
+  const L = parseFloat(p.get("L")); if (L >= 180 && L <= 330) S.L = L;
+  const a = p.get("a"); if (a && ALIGNMENTS[a]) S.align = a;
+  const s = p.get("s"); if (s && STANDARDS[s]) S.std = s;
+  const oh = parseFloat(p.get("oh")); if (oh >= 0 && oh <= 32) S.oh = oh;
+  const of = parseFloat(p.get("of")); if (of >= 0 && of <= 34) S.off = of;
+  S.r = STANDARDS[S.std].ro;
+}
+
+/* --------------------------- main loop ---------------------------- */
+function syncInputs() {
+  $("len").value = S.L; $("lenOut").textContent = fmt(S.L, 1) + " mm";
+  $("oh").value = S.oh; $("ohOut").textContent = fmt(S.oh, 1) + " mm";
+  $("off").value = S.off; $("offOut").textContent = fmt(S.off, 1) + "°";
+  $("customCtls").hidden = S.align !== "C";
+  $("btnPlay").textContent = S.playing ? "❚❚ Pause" : "▶ Play the side";
+  const sp = r => (2 * Math.PI * r * RPM / 60 / 10).toFixed(0);
+  $("innerSpeed").textContent = sp(STANDARDS[S.std].ri);
+  $("outerSpeed").textContent = sp(STANDARDS[S.std].ro);
+}
+
+function draw() { drawDeck(); drawGraph(); }
+
+function sync() {
+  buildControls();
+  syncInputs();
+  stats(geom());
+  draw();
+  writeHash();
+}
+
+let last = performance.now();
+function frame(now) {
+  const dt = Math.min(0.05, (now - last) / 1000);
+  last = now;
+  step(dt);
+  requestAnimationFrame(frame);
+}
+
+/* One step of the world: the platter turns, and if we are playing the
+ * side the stylus creeps inward at about a side's worth per 25 s. */
+function step(dt) {
+  const g = geom();
+  S.spin -= dt * 2 * Math.PI * RPM / 60;
+  if (S.playing) {
+    S.r -= dt * (g.ro - g.ri) / 25;
+    if (S.r <= g.ri) { S.r = g.ri; S.playing = false; syncInputs(); }
+    stats(g);
+    drawGraph();
+  }
+  drawDeck();
+}
+
+window.addEventListener("resize", draw);
+
+readHash();
+sync();
+requestAnimationFrame(frame);
+
+/* Test hook: lets the headless checker drive the page without clicking. */
+window.__lab = {
+  set(patch) { Object.assign(S, patch); sync(); return window.__lab.metrics(); },
+  advance(seconds) { const n = Math.ceil(seconds / 0.02); for (let i = 0; i < n; i++) step(0.02); return S.r; },
+  metrics() {
+    const g = geom();
+    return {
+      L: g.L, D: g.D, overhang: g.oh, offset: g.off,
+      nulls: g.nulls, maxErr: g.maxErr, maxErrAt: g.maxErrAt,
+      errAtNulls: g.nulls ? g.nulls.map(n => g.err(n)) : null,
+      errAtStylus: g.err(S.r), r: S.r, align: S.align, std: S.std
+    };
+  },
+  svg() { return protractorSVG(); },
+  svgLength() { const s = protractorSVG(); return s ? s.length : 0; }
+};
+</script>
+</body>
+</html>

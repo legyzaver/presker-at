@@ -1,0 +1,7 @@
+# Names on the server that deploy and pull must never touch. One per line, matched at any folder depth.
+# stats: the host's own statistics. scores.txt: game scores the live site writes itself.
+# C: and art$rel are stray uploads from 2026-10-29, pending removal.
+stats
+scores.txt
+C:
+art$rel

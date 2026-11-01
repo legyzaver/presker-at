@@ -32,6 +32,8 @@
       sliceDesc: 'I wanted to see exactly which part of a 3D print needs supports before it fails on the bed. Slice a vase, a chess pawn, a mushroom table or a bridge into layers, watch the overhangs light up red, then add supports and see what they cost in time and filament.',
       sliceCta: 'slice something →',
       plotterDesc: 'A pen plotter wastes most of its time flying between dots with the pen lifted. Guess how much a smarter order saves, then watch nearest-neighbour and 2-opt shorten the trip, and export the result as SVG.',
+      tonearmDesc: 'A record is cut dead straight, but a tonearm swings on an arc, so it is only ever tangent to the groove at two radii. Move those two points around, watch the distortion across the side, and print a protractor for your own arm.',
+      tonearmCta: 'align an arm →',
       plotterCta: 'shorten the trip →',
       cameraDesc: 'I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.',
       cameraCta: 'open the shutter →',
@@ -111,6 +113,7 @@
       aiPredHomeCta: 'read the study \u2192',
       slikovarDesc: 'A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice, not the browser\'s own. Animals, food and home, A to Ž.',
       slikovarCta: 'tap a picture →',
+      alt034: 'Scan or tap to donate via Revolut',
     },
     de: {
       navNew: 'neu', navFeatured: 'empfohlen', navProjects: 'projekte', navObjects: 'objekte',
@@ -129,6 +132,8 @@
       sliceDesc: 'Ich wollte genau sehen, welcher Teil eines 3D-Drucks Stützen braucht, bevor er auf dem Druckbett scheitert. Zerlege eine Vase, einen Schachbauern, einen Pilztisch oder eine Brücke in Schichten, sieh die Überhänge rot aufleuchten, und füge dann Stützen hinzu, um zu sehen, was sie an Zeit und Filament kosten.',
       sliceCta: 'etwas zerlegen →',
       plotterDesc: 'Ein Stiftplotter verbringt die meiste Zeit mit angehobenem Stift zwischen Punkten. Rate, wie viel eine klügere Reihenfolge spart, dann beobachte, wie Nearest-Neighbour und 2-opt die Strecke verkürzen, und exportiere das Ergebnis als SVG.',
+      tonearmDesc: 'Eine Schallplatte wird schnurgerade geschnitten, aber ein Tonarm schwenkt auf einem Bogen und steht deshalb nur an zwei Radien genau tangential zur Rille. Verschiebe diese beiden Punkte, beobachte die Verzerrung über die ganze Plattenseite und drucke eine Schablone für deinen eigenen Arm.',
+      tonearmCta: 'Arm justieren →',
       plotterCta: 'Strecke verkürzen →',
       cameraDesc: 'Ich wollte meinem Kind zeigen, warum ein dunkler Raum mit einem kleinen Loch ein echtes, kopfstehendes Bild an die Wand malt — ganz ohne Linse, ganz ohne Elektronik. Verändere die Lochgröße, verschiebe die Leinwand, bohre ein zweites Loch, und beobachte den Kompromiss zwischen Helligkeit und Schärfe, der die ersten Kameras geprägt hat.',
       cameraCta: 'Verschluss öffnen →',
@@ -208,6 +213,7 @@
       aiPredHomeCta: 'die Auswertung lesen \u2192',
       slikovarDesc: 'Ein Bildwörterbuch für Vorschulkinder: Tippe auf ein Bild und höre seinen Namen auf Slowenisch — gesprochen von einer echten, offline laufenden neuronalen Stimme, nicht der des Browsers. Tiere, Essen und Zuhause, von A bis Ž.',
       slikovarCta: 'auf ein Bild tippen →',
+      alt034: 'Scannen oder tippen, um über Revolut zu spenden',
     },
     sl: {
       navNew: 'novo', navFeatured: 'izbrano', navProjects: 'projekti', navObjects: 'predmeti',
@@ -226,6 +232,8 @@
       sliceDesc: 'Želel sem natančno videti, kateri del 3D-izdelka potrebuje podpore, preden spodleti na podlagi. Razreži vazo, šahovskega kmeta, gobasto mizico ali most na plasti, opazuj, kako previsi zasvetijo rdeče, nato dodaj podpore in poglej, koliko časa in filamenta stanejo.',
       sliceCta: 'razreži nekaj →',
       plotterDesc: 'Risalni ploter večino časa porabi za letenje med pikami z dvignjenim peresom. Ugani, koliko prihrani pametnejši vrstni red, nato opazuj, kako nearest-neighbour in 2-opt skrajšata pot, in izvozi rezultat kot SVG.',
+      tonearmDesc: 'Plošča je rezana povsem naravnost, ročica pa se giblje po loku, zato je na žlebič tangentna le pri dveh polmerih. Premikaj ti dve točki, opazuj popačenje po vsej strani plošče in si natisni šablono za svojo ročico.',
+      tonearmCta: 'nastavi ročico →',
       plotterCta: 'skrajšaj pot →',
       cameraDesc: 'Hotel sem svojemu otroku pokazati, zakaj temen prostor z eno majhno luknjo nariše pravo, narobe obrnjeno sliko na steno — brez leče, brez elektronike. Spremeni velikost luknje, premakni zaslon, prebij drugo luknjo in opazuj razmerje med svetlostjo in ostrino, ki je oblikovalo prve fotoaparate.',
       cameraCta: 'odpri zaslonko →',
@@ -305,6 +313,7 @@
       aiPredHomeCta: 'preberi analizo \u2192',
       slikovarDesc: 'Slikovni slovar za predšolske otroke: tapni na sliko in slišiš njeno ime, izgovorjeno v slovenščini — s pravim glasom nevronske sinteze, ki teče brez povezave, ne z glasom brskalnika. Živali, hrana in dom, od A do Ž.',
       slikovarCta: 'tapni na sliko →',
+      alt034: 'Skenirajte ali tapnite za donacijo prek Revoluta',
     },
   };
   </script>
@@ -399,7 +408,8 @@
       ['Camera Obscura Lab','/lab/camera-obscura/'],
       ['Word Safari','/lab/word-safari/'],
       ['Besedopad','/lab/besedopad/'],
-      ['Slikovar','/lab/slikovar/']
+      ['Slikovar','/lab/slikovar/'],
+      ['Tonearm Lab','/lab/tonearm-lab/']
     ];
     // Same pick for every visitor on a given calendar day; changes daily.
     var d = new Date();
@@ -426,6 +436,15 @@
         <span class="label" data-i18n="newLabel">New in the lab</span>
       </div>
       <div class="grid">
+        <article class="card" onclick="location.href='/lab/tonearm-lab/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">code</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Tonearm Lab</h2>
+          <p data-i18n="tonearmDesc">A record is cut dead straight, but a tonearm swings on an arc, so it is only ever tangent to the groove at two radii. Move those two points around, watch the distortion across the side, and print a protractor for your own arm.</p>
+          <a href="/lab/tonearm-lab/" class="card-link" data-i18n="tonearmCta">align an arm →</a>
+        </article>
         <article class="card" onclick="location.href='/lab/slikovar/'" style="cursor:pointer;">
           <div class="card-top">
             <span class="tag tag-code">learn</span>
@@ -443,15 +462,6 @@
           <h2>Word Safari</h2>
           <p data-i18n="wordSafariDesc">The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation. Every word is spoken aloud, in both languages.</p>
           <a href="/lab/word-safari/" class="card-link" data-i18n="wordSafariCta">start matching →</a>
-        </article>
-        <article class="card" onclick="location.href='/lab/camera-obscura/'" style="cursor:pointer;">
-          <div class="card-top">
-            <span class="tag tag-code">learn</span>
-            <span class="card-date">2026</span>
-          </div>
-          <h2>Camera Obscura Lab</h2>
-          <p data-i18n="cameraDesc">I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.</p>
-          <a href="/lab/camera-obscura/" class="card-link" data-i18n="cameraCta">open the shutter →</a>
         </article>
       </div>
     </section>
@@ -632,6 +642,15 @@
           <h2>Word Safari</h2>
           <p data-i18n="wordSafariLearnDesc">The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation, spoken aloud in both languages.</p>
           <a href="/lab/word-safari/" class="card-link" data-i18n="wordSafariCta">start matching →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/camera-obscura/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Camera Obscura Lab</h2>
+          <p data-i18n="cameraDesc">I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.</p>
+          <a href="/lab/camera-obscura/" class="card-link" data-i18n="cameraCta">open the shutter →</a>
         </article>
         <article class="card" onclick="location.href='/lab/pitch-garden/'" style="cursor:pointer;">
           <div class="card-top">
@@ -843,7 +862,7 @@
     </section>
 
         <div class="donate-mini">
-        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" class="donate-mini-qr" loading="lazy"></a>
+        <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" aria-label="Donate via Revolut"><img src="/images/revolut-qr.png" alt="Scan or tap to donate via Revolut" data-i18n-alt="alt034" class="donate-mini-qr" loading="lazy"></a>
         <div class="donate-mini-text">
           <p class="donate-mini-note" data-i18n="donateNote">Support this — everything here is free.</p>
           <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>

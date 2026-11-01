@@ -3,8 +3,9 @@
  * lookup, no geolocation. A page opts in by setting window.PRESKER_I18N =
  * { en:{...}, de:{...}, sl:{...} } before this script runs, and tagging
  * elements with data-i18n="key" (textContent), data-i18n-html="key"
- * (innerHTML, for copy that needs a nested tag) or data-i18n-href="key"
- * (the href itself, for per-language downloads). Elements with no matching
+ * (innerHTML, for copy that needs a nested tag) data-i18n-href="key"
+ * (the href itself, for per-language downloads) or data-i18n-alt="key" (the
+ * alt text a screen reader announces). Elements with no matching
  * key, or pages with no PRESKER_I18N at all, are left untouched.
  */
 (function () {
@@ -58,6 +59,15 @@
       var mkey = hrefEls[m].getAttribute('data-i18n-href');
       var mval = dict[mkey] != null ? dict[mkey] : fallback[mkey];
       if (mval != null) hrefEls[m].setAttribute('href', mval);
+    }
+    /* data-i18n-alt translates the alt text a screen reader announces. Only
+     * descriptions are tagged — artwork titles like "Breather 03" read the
+     * same in every language, so translating them would be noise. */
+    var altEls = document.querySelectorAll('[data-i18n-alt]');
+    for (var n = 0; n < altEls.length; n++) {
+      var nkey = altEls[n].getAttribute('data-i18n-alt');
+      var nval = dict[nkey] != null ? dict[nkey] : fallback[nkey];
+      if (nval != null) altEls[n].setAttribute('alt', nval);
     }
   }
 
