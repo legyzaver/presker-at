@@ -1,0 +1,1511 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cogwork — gear ratios you can turn with your finger</title>
+<meta name="description" content="Build a gear train from real involute teeth and turn it with your finger. See why an idler changes nothing, how compound gears multiply, and how one planetary set gives three different ratios depending on which part you hold still. Four predict-first lessons, plus a 1:1 SVG of printable gears.">
+<link rel="canonical" href="https://www.presker.at/lab/cogwork/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/cogwork/">
+<meta property="og:title" content="Cogwork">
+<meta property="og:description" content="Build a gear train from real involute teeth and turn it with your finger. Idlers, compound gears and a planetary set that gives three different ratios from the same three gears.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #f4f1ea;
+  --panel: #fbfaf6;
+  --paper: #fffdf8;
+  --ink: #1f1d1a;
+  --muted: #6d675d;
+  --line: #e2ddd2;
+  --accent: #b5532a;
+  --accent-ink: #fff;
+  --metal: #cfc9bd;
+  --metal-hi: #e7e2d8;
+  --metal-dark: #9a958c;
+  --metal-edge: #8d887f;
+  --shadow: 0 1px 2px rgba(40,30,10,.06), 0 8px 24px rgba(40,30,10,.06);
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+    --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+    --metal: #3a3a38; --metal-hi: #53524e; --metal-dark: #2a2a28; --metal-edge: #6e6a63;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --paper: #0a0a0a; --ink: #e8e8e8;
+  --muted: #8a8a8a; --line: #262626; --accent: #b8f57a; --accent-ink: #0e0e0e;
+  --metal: #3a3a38; --metal-hi: #53524e; --metal-dark: #2a2a28; --metal-edge: #6e6a63;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 14px/1.45 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+.app { display: grid; grid-template-columns: 370px 1fr; min-height: 100vh; }
+aside {
+  background: var(--panel); border-right: 1px solid var(--line);
+  padding: 18px 18px 30px; max-height: 100vh; overflow-y: auto;
+}
+header h1 { font-size: 20px; margin: 0; letter-spacing: -.01em; font-family: var(--mono); }
+header p.lede { margin: 4px 0 14px; color: var(--muted); font-size: 13px; }
+h2.sec {
+  font: 11px var(--mono); letter-spacing: .12em; text-transform: uppercase;
+  color: var(--muted); margin: 18px 0 7px; font-weight: 400;
+}
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+button, select {
+  font: inherit; color: var(--ink); background: var(--paper);
+  border: 1px solid var(--line); border-radius: 8px; padding: 7px 11px; cursor: pointer;
+  font-family: var(--mono); font-size: 12.5px;
+}
+button:hover:not(:disabled), select:hover { border-color: var(--muted); }
+button:disabled { opacity: .45; cursor: default; }
+button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.mini { padding: 5px 8px; font-size: 11.5px; }
+.ctl { display: grid; grid-template-columns: 1fr 76px; align-items: center; gap: 4px 8px; margin: 8px 0 2px; }
+.ctl label { color: var(--muted); font-size: 12.5px; }
+.ctl output { text-align: right; font-variant-numeric: tabular-nums; font-size: 12.5px; font-family: var(--mono); }
+.ctl input[type=range] { grid-column: 1 / -1; width: 100%; accent-color: var(--accent); margin: 0; }
+.hint { color: var(--muted); font-size: 12px; margin: 6px 0 0; }
+.hint b { color: var(--ink); font-weight: 600; }
+/* gear train editor */
+.gearlist { margin: 4px 0 0; }
+.gearrow { border: 1px solid var(--line); border-radius: 10px; background: var(--paper);
+  padding: 8px 10px 10px; margin-bottom: 7px; }
+.gearrow .gtop { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.gearrow .gnum { font: 600 11px var(--mono); color: var(--accent-ink); background: var(--accent);
+  width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center;
+  justify-content: center; flex: 0 0 auto; }
+.gearrow .gteeth { font: 600 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+.gearrow .grm { margin-left: auto; }
+.gearrow input[type=range] { width: 100%; accent-color: var(--accent); margin: 2px 0 0; display: block; }
+.linkpills { display: inline-flex; gap: 2px; background: var(--panel); border: 1px solid var(--line);
+  border-radius: 7px; padding: 2px; }
+.linkpills button { font: 11px var(--mono); border: none; background: transparent; color: var(--muted);
+  padding: 4px 7px; border-radius: 5px; line-height: 1; }
+.linkpills button.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+/* readouts */
+.stats { margin: 10px 0 0; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); overflow: hidden; }
+.stat { display: flex; justify-content: space-between; gap: 10px; padding: 6px 11px; font-size: 12.5px; }
+.stat + .stat { border-top: 1px solid var(--line); }
+.stat b { font: 600 12.5px var(--mono); font-variant-numeric: tabular-nums; }
+.stat span { color: var(--muted); }
+.stat.big b { font-size: 15px; }
+.shafts { width: 100%; border-collapse: collapse; margin-top: 9px; font: 11.5px var(--mono);
+  font-variant-numeric: tabular-nums; table-layout: fixed; }
+.shafts th { text-align: right; font-weight: 400; color: var(--muted); padding: 3px 4px;
+  border-bottom: 1px solid var(--line); font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; }
+.shafts th:first-child, .shafts td:first-child { text-align: left; }
+.shafts td { text-align: right; padding: 3px 4px; border-bottom: 1px solid var(--line); }
+.shafts tr:last-child td { border-bottom: 0; }
+.shafts .cw { color: var(--muted); }
+details { border: 1px solid var(--line); border-radius: 10px; margin-top: 12px; background: var(--paper); }
+summary { cursor: pointer; padding: 9px 12px; font: 600 12.5px var(--mono); list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: " +"; color: var(--muted); }
+details[open] summary::after { content: " –"; }
+details .body { padding: 0 12px 12px; font-size: 13px; color: var(--muted); }
+details .body p { margin: 8px 0; }
+details .body b { color: var(--ink); font-weight: 600; }
+.home { display: inline-block; font: 12px var(--mono); color: var(--muted); text-decoration: none; margin-bottom: 10px; }
+.home:hover { color: var(--accent); }
+.site-foot { margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+.donate { display: inline-flex; align-items: center; gap: 7px; background: var(--paper); border: 1px solid var(--line);
+  color: var(--muted); font-size: 12px; padding: 6px 13px; border-radius: 999px; text-decoration: none; }
+.donate:hover { color: var(--ink); border-color: var(--muted); }
+.donate .r { display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px;
+  border-radius: 50%; background: #fff; color: #000; font-size: 10px; font-weight: 700; }
+/* stage */
+main { position: relative; display: flex; flex-direction: column; gap: 12px; padding: 18px; min-width: 0; }
+.stage { position: relative; flex: 1 1 auto; min-height: 300px;
+  background: var(--paper); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; touch-action: none; cursor: grab; }
+.stage canvas.dragging { cursor: grabbing; }
+.badge { position: absolute; left: 14px; top: 12px; font: 12px var(--mono); color: var(--muted);
+  font-variant-numeric: tabular-nums; pointer-events: none; max-width: calc(100% - 76px); }
+.nudge { position: absolute; left: 14px; bottom: 12px; font: 11.5px var(--mono); color: var(--muted);
+  pointer-events: none; max-width: calc(100% - 28px); }
+.theme-toggle { position: absolute; top: 14px; right: 14px; padding: 5px 9px; z-index: 2; }
+/* lesson panel */
+.quiz { flex: 0 0 auto; background: var(--paper); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+  border-radius: 8px; padding: 12px 14px 13px; box-shadow: var(--shadow); }
+.qhead { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.qnum { font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.qhead button { margin-left: auto; }
+.qtext { margin: 0 0 10px; font-size: 14px; max-width: 70ch; }
+.qtext b { font-weight: 600; }
+.qopts { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.qopts button { text-align: left; white-space: normal; max-width: 62ch; font-family: inherit; font-size: 13px; }
+.qopts button.picked-wrong { border-color: #d8603c; color: var(--muted); }
+.qopts button.picked-right { border-color: var(--accent); }
+.qafter { margin-top: 10px; }
+.qverdict { margin: 0 0 6px; font: 600 13px var(--mono); }
+.qverdict.good { color: var(--accent); }
+.qverdict.bad { color: #d8603c; }
+.qexplain { margin: 0 0 10px; font-size: 13px; color: var(--muted); max-width: 70ch; }
+.qexplain b { color: var(--ink); font-weight: 600; }
+.toast { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%);
+  background: var(--ink); color: var(--bg); font: 12px var(--mono); padding: 8px 14px;
+  border-radius: 999px; opacity: 0; transition: opacity .18s; pointer-events: none; z-index: 5; }
+.toast.show { opacity: 1; }
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  aside { border-right: 0; border-top: 1px solid var(--line); order: 2; max-height: none; overflow: visible; padding: 16px; }
+  main { order: 1; padding: 12px; height: auto; }
+  .stage { height: 74vw; min-height: 260px; }
+  .badge { font-size: 11px; line-height: 1.3; }
+  .qopts button { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <aside>
+    <header>
+      <a class="home" href="/lab/">← presker.at / lab</a>
+      <h1>Cogwork</h1>
+      <p class="lede">Two gears touching are really two invisible wheels rolling on each other without slipping.
+        The teeth only stop them slipping — everything you can work out about speed, direction and torque comes from
+        the wheels. Build a train, drag it round with your finger, and watch what the tooth counts do.</p>
+    </header>
+
+    <h2 class="sec">What are we turning</h2>
+    <div class="row" id="modeBtns"></div>
+
+    <div id="trainPanel">
+      <h2 class="sec">The train</h2>
+      <div class="gearlist" id="gearlist"></div>
+      <div class="row">
+        <button class="mini" id="btnAddMesh">+ mesh a gear on</button>
+        <button class="mini" id="btnAddShaft">+ gear on the same shaft</button>
+      </div>
+      <p class="hint">A gear <b>on the same shaft</b> is bolted to the one before it: same speed, no new ratio —
+        but it hands the drive on through a tooth count of your choosing. That is how one little gearbox gets to 100:1.</p>
+    </div>
+
+    <div id="planetPanel" hidden>
+      <h2 class="sec">The planetary set</h2>
+      <div class="ctl">
+        <label for="sunT">Sun — the little gear in the middle</label>
+        <output id="sunOut">24 t</output>
+        <input type="range" id="sunT" min="12" max="36" step="1" value="24">
+      </div>
+      <div class="ctl">
+        <label for="planT">Planets — the ones that orbit</label>
+        <output id="planOut">18 t</output>
+        <input type="range" id="planT" min="10" max="28" step="1" value="18">
+      </div>
+      <div class="stats">
+        <div class="stat"><span>Ring, forced by the other two</span><b id="ringOut">60 t</b></div>
+        <div class="stat"><span>Planets that fit symmetrically</span><b id="pcOut">3</b></div>
+      </div>
+      <h2 class="sec">Hold one part still</h2>
+      <div class="row" id="holdBtns"></div>
+      <p class="hint" id="holdHint"></p>
+    </div>
+
+    <h2 class="sec">Drive</h2>
+    <div class="ctl">
+      <label for="rpm">Input speed</label>
+      <output id="rpmOut">30 rpm</output>
+      <input type="range" id="rpm" min="2" max="120" step="1" value="30">
+    </div>
+    <div class="ctl" id="modCtl">
+      <label for="mod">Tooth size (module) — for the printable sheet</label>
+      <output id="modOut">2.0 mm</output>
+      <input type="range" id="mod" min="1" max="6" step="0.5" value="2">
+    </div>
+
+    <div class="stats" id="stats"></div>
+    <table class="shafts" id="shafts"></table>
+
+    <h2 class="sec">Try it</h2>
+    <div class="row">
+      <button class="primary" id="btnPlay">⏸ Pause</button>
+      <button id="btnPitch">Show pitch circles</button>
+      <button id="btnSvg">Printable gears (SVG)</button>
+      <button id="btnLink">Copy link</button>
+    </div>
+    <p class="hint">Drag anywhere on the drawing to turn the input by hand — slowly, and watch a single tooth go
+      into mesh. The accent-coloured tooth on each gear is there so you can count turns.</p>
+
+    <h2 class="sec">Four things worth guessing first</h2>
+    <div class="row" id="lessonBtns"></div>
+    <p class="hint">Each one asks you to commit to an answer before it runs. Guessing wrong is the useful part —
+      that is the moment the explanation has something to fix.</p>
+
+    <details>
+      <summary>Why the tooth count is the only number that matters</summary>
+      <div class="body">
+        <p>Every gear has a <b>pitch circle</b>: the circle where it would touch its partner if both were plain
+          friction wheels. Teeth are a way of guaranteeing that this imaginary rolling happens exactly, with no slip
+          and no creep, and nothing else. Turn on <b>pitch circles</b> and you will see the two dashed circles kiss
+          at a single point, right in the middle of the mesh.</p>
+        <p>Because the pitch circles roll together, the <i>rim speed</i> of both gears is the same, so
+          <b>ω₁r₁ = ω₂r₂</b>. And since teeth on meshing gears must be the same size, the radius is just the tooth
+          count times a constant — the <b>module</b>, millimetres of pitch circle diameter per tooth. The constant
+          cancels, and you are left with <b>ω₁N₁ = ω₂N₂</b>. Speed down by N₂/N₁, torque up by the same factor,
+          minus friction. Nothing about the shape of a tooth gets a say.</p>
+        <p>That is also why an <b>idler</b> is free: it divides and then multiplies by its own tooth count, and the
+          two cancel. It earns its keep by bridging a gap between shafts and by flipping the direction, not by
+          changing the ratio. Each mesh reverses the direction, so a train of gears alternates: count the meshes,
+          and an odd count comes out backwards.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>Why one planetary set has three different ratios</summary>
+      <div class="body">
+        <p>A planetary set has three ways in and out — <b>sun</b>, <b>ring</b> and <b>carrier</b>, the arm the
+          planets are pinned to. Hold any one of them still and the other two become an input and an output with a
+          different ratio each time. One lump of metal, three gearboxes. That is why they are inside almost every
+          automatic transmission, cordless drill and e-bike hub.</p>
+        <p>The whole thing obeys one equation, Willis's: <b>N<sub>s</sub>ω<sub>s</sub> + N<sub>r</sub>ω<sub>r</sub>
+          = (N<sub>s</sub>+N<sub>r</sub>)ω<sub>c</sub></b>. Set one ω to zero and read off the other two.
+          Ring held: reduction <b>1 + N<sub>r</sub>/N<sub>s</sub></b>, same direction. Sun held: reduction
+          <b>1 + N<sub>s</sub>/N<sub>r</sub></b>, same direction, much gentler. Carrier held: the planets are
+          nothing but idlers and you get <b>−N<sub>s</sub>/N<sub>r</sub></b> — a speed <i>increase</i>, backwards.
+          Notice the planets never appear. They set the geometry, not the ratio.</p>
+        <p>They do set what fits together, though. Ring teeth are forced to be
+          <b>N<sub>r</sub> = N<sub>s</sub> + 2N<sub>p</sub></b>, because the planets have to span the gap, and you
+          can only space planets evenly if <b>N<sub>s</sub>+N<sub>r</sub></b> divides by their number. Drag the two
+          sliders and watch that readout refuse some combinations.</p>
+      </div>
+    </details>
+
+    <details>
+      <summary>These are real gears, and what is still a lie</summary>
+      <div class="body">
+        <p>The tooth flanks here are genuine <b>involutes of a circle</b> — the curve a taut string traces as you
+          unwind it off a spool. Involute teeth have a property nothing else does: they transmit rotation at a
+          perfectly constant ratio even if the two shafts are not quite the right distance apart. Push the centres
+          a little wide and the gears still run smoothly, just with more backlash. Every other curve rumbles.</p>
+        <p>Everything is drawn at the textbook proportions: 20° pressure angle, addendum one module, dedendum
+          1.25 modules. At the module you pick, the <b>SVG sheet</b> comes out 1:1 with a 50&nbsp;mm bar to check
+          your printer against — the outlines are real enough to cut or print, though you will want to add
+          backlash and a root fillet before you trust them in something that matters.</p>
+        <p>The lie: below about <b>17 teeth</b> a real 20° cutter gouges into the flank near the root — undercut —
+          and the drawn tooth here does not show it. The small gears on this page are a little stronger and a
+          little quieter than their real counterparts. The ratios are honest, which is the part this page is about.</p>
+      </div>
+    </details>
+
+    <footer class="site-foot">
+      <span>© 2026 Presker.at · runs in your browser</span>
+      <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+    </footer>
+  </aside>
+
+  <main>
+    <div class="quiz" id="quiz" hidden>
+      <div class="qhead">
+        <span class="qnum" id="qnum"></span>
+        <button class="mini" id="qClose">Leave the lesson</button>
+      </div>
+      <p class="qtext" id="qtext"></p>
+      <div class="qopts" id="qopts"></div>
+      <div class="qafter" id="qafter" hidden>
+        <p class="qverdict" id="qverdict"></p>
+        <p class="qexplain" id="qexplain"></p>
+        <div class="row"><button class="primary" id="qNext"></button></div>
+      </div>
+    </div>
+    <div class="stage" id="stage">
+      <canvas id="deck"></canvas>
+      <div class="badge" id="badge"></div>
+      <div class="nudge" id="nudge">Drag to turn it by hand.</div>
+    </div>
+    <button class="theme-toggle" id="btnTheme" aria-label="Toggle light and dark">◐</button>
+  </main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ================================================================== *
+ * Involute gear geometry.
+ *
+ * Everything is generated at module 1 and scaled when drawn, so the
+ * polygon for a given tooth count is computed once and cached.
+ *
+ * A tooth is built from two mirrored involutes of the base circle.
+ * The involute through parameter t sits at radius rb*sqrt(1+t^2) and
+ * polar angle t - atan(t); rotating the whole curve by delta puts the
+ * flank through the pitch circle at exactly half a tooth off centre,
+ * which is what makes the tooth and the space the same width there.
+ * ================================================================== */
+const PA = 20 * Math.PI / 180;      // pressure angle, the industry standard
+const ADD = 1.0;                    // addendum, in modules
+const DED = 1.25;                   // dedendum, in modules
+const profileCache = new Map();
+
+function gearProfile(N, internal) {
+  const key = N + (internal ? "i" : "e");
+  const hit = profileCache.get(key);
+  if (hit) return hit;
+
+  const r = N / 2;                          // pitch radius at module 1
+  const rb = r * Math.cos(PA);              // base circle
+  const ra = r + ADD;                       // tip
+  const rd = Math.max(0.25, r - DED);       // root
+  const inv = t => t - Math.atan(t);
+  const tAt = rho => Math.sqrt(Math.max(0, (rho / rb) * (rho / rb) - 1));
+  const delta = -(Math.PI / (2 * N)) - inv(Math.tan(PA));
+  // On gears over ~41 teeth the root circle sits outside the base circle,
+  // so the usable flank starts there instead of at t = 0.
+  const t0 = rd > rb ? tAt(rd) : 0;
+  const t1 = tAt(ra);
+  const r0 = rd > rb ? rd : rb;
+
+  const pts = [];
+  const FLANK = 9, TIP = 4, ROOT = 3;
+  const step = 2 * Math.PI / N;
+  for (let k = 0; k < N; k++) {
+    const A = k * step;
+    const aIn = A + delta + inv(t0);          // where this tooth leaves the root
+    const aPrevOut = A - step - delta - inv(t0);   // where the last one came back
+    for (let i = 1; i <= ROOT; i++) pts.push([rd, aPrevOut + (aIn - aPrevOut) * i / ROOT]);
+    if (rd < r0) pts.push([r0, aIn]);
+    for (let i = 0; i <= FLANK; i++) {
+      const t = t0 + (t1 - t0) * i / FLANK;
+      pts.push([rb * Math.sqrt(1 + t * t), A + delta + inv(t)]);
+    }
+    const aTip = A + delta + inv(t1);
+    for (let i = 1; i < TIP; i++) pts.push([ra, aTip + (-2 * aTip + 2 * A) * i / TIP]);
+    for (let i = FLANK; i >= 0; i--) {
+      const t = t0 + (t1 - t0) * i / FLANK;
+      pts.push([rb * Math.sqrt(1 + t * t), A - delta - inv(t)]);
+    }
+    if (rd < r0) pts.push([r0, A - delta - inv(t0)]);
+  }
+  // A ring gear's teeth point inwards. Reflecting each radius about the
+  // pitch circle turns an external tooth into the internal tooth that
+  // meshes with it, tip at r-1 module and root at r+1.25, angles intact.
+  const out = internal ? pts.map(([rho, a]) => [2 * r - rho, a]) : pts;
+  profileCache.set(key, out);
+  return out;
+}
+
+/* Phase of gear B so its teeth actually sit in A's spaces.
+   psi is the direction from A's centre to B's. Derived from the
+   condition "a tooth of A pointing at B faces a space of B". */
+const meshPhase = (psi, thA, NA, NB) => psi + Math.PI - Math.PI / NB + (NA / NB) * (psi - thA);
+/* Same idea for a ring enclosing a planet: an internal mesh, so both
+   turn the same way. Written in terms of the sun and carrier, which is
+   where it is actually needed. */
+const ringPhase = (psi, thS, NS, NP, NR) => psi + (NP / NR) * Math.PI + (NS / NR) * (psi - thS);
+
+/* ================================================================== *
+ * State
+ * ================================================================== */
+const state = {
+  mode: "train",
+  stages: [{ N: 12 }, { N: 20, link: "mesh" }, { N: 36, link: "mesh" }],
+  sun: 24,
+  planet: 18,
+  hold: "ring",
+  rpm: 30,
+  module: 2,
+  phi: 0,          // input rotation, radians
+  running: true,
+  pitch: false
+};
+
+const MAX_STAGES = 5;
+const $ = id => document.getElementById(id);
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const fmt = (v, d = 2) => {
+  const s = v.toFixed(d);
+  return s.replace(/\.?0+$/, "") || "0";
+};
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+/* ---- the planetary set's forced numbers ---- */
+function ringTeeth() { return state.sun + 2 * state.planet; }
+/* Two rules decide how many planets fit. They can only be spaced evenly
+   if their number divides sun + ring, and big planets around a small sun
+   run out of room and start touching each other. */
+function planetCount() {
+  const total = state.sun + ringTeeth();
+  const a = (state.sun + state.planet) / 2;        // orbit radius, module 1
+  const clear = state.planet / 2 + ADD;            // half the space one planet needs
+  for (const p of [3, 4, 5, 2, 1]) {
+    if (total % p !== 0) continue;
+    if (p > 1 && a * Math.sin(Math.PI / p) <= clear) continue;
+    return p;
+  }
+  return 1;
+}
+
+/* ================================================================== *
+ * Kinematics
+ * ================================================================== */
+
+/* A gear train: one gear per stage, each either meshed onto the previous
+   one or bolted to its shaft. Returns laid-out gears at module 1. */
+function layoutTrain(phi) {
+  const g = [];
+  let x = 0;
+  for (let i = 0; i < state.stages.length; i++) {
+    const s = state.stages[i];
+    const N = s.N, r = N / 2;
+    if (i === 0) {
+      g.push({ N, x: 0, y: 0, th: phi, rpm: state.rpm, link: "first", idx: i });
+      continue;
+    }
+    const p = g[i - 1];
+    if (s.link === "shaft") {
+      g.push({ N, x: p.x, y: 0, th: p.th, rpm: p.rpm, link: "shaft", idx: i });
+    } else {
+      x = p.x + p.N / 2 + r;
+      g.push({
+        N, x, y: 0,
+        th: meshPhase(0, p.th, p.N, N),
+        rpm: -p.rpm * p.N / N,
+        link: "mesh", idx: i
+      });
+    }
+  }
+  return g;
+}
+
+/* A planetary set. The sun and carrier angles come from Willis's
+   equation; the planet and ring angles are then derived from the mesh
+   conditions, so what is drawn is guaranteed to interlock. */
+function layoutPlanetary(phi) {
+  const NS = state.sun, NP = state.planet, NR = ringTeeth();
+  const p = planetCount();
+  const rs = NS / 2, rp = NP / 2, a = rs + rp;
+  let thS, thC, rpmS, rpmC, rpmR;
+  const w = state.rpm;
+  if (state.hold === "ring") {           // sun in, carrier out
+    thS = phi; thC = phi * NS / (NS + NR);
+    rpmS = w; rpmC = w * NS / (NS + NR); rpmR = 0;
+  } else if (state.hold === "sun") {     // ring in, carrier out
+    thS = 0; thC = phi * NR / (NS + NR);
+    rpmS = 0; rpmC = w * NR / (NS + NR); rpmR = w;
+  } else {                               // carrier held: sun in, ring out
+    thS = phi; thC = 0;
+    rpmS = w; rpmC = 0; rpmR = -w * NS / NR;
+  }
+  const planets = [];
+  for (let j = 0; j < p; j++) {
+    const psi = thC + 2 * Math.PI * j / p;
+    planets.push({
+      N: NP, x: a * Math.cos(psi), y: a * Math.sin(psi),
+      th: meshPhase(psi, thS, NS, NP), psi
+    });
+  }
+  // The ring's phase follows from the first planet's internal mesh. It
+  // only comes out the same for every planet when the planet count
+  // divides sun + ring, which is exactly the assembly condition above.
+  const thR = ringPhase(thC, thS, NS, NP, NR);
+  // In the carrier's frame a planet is driven by the sun alone.
+  const rpmP = rpmC - (NS / NP) * (rpmS - rpmC);
+  return {
+    NS, NP, NR, p, a, planets, thS, thC, thR,
+    rpmS, rpmC, rpmR, rpmP, sun: { N: NS, x: 0, y: 0, th: thS }
+  };
+}
+
+/* Overall numbers for the readouts. */
+function trainSummary() {
+  const g = layoutTrain(state.phi);
+  const last = g[g.length - 1];
+  const ratio = state.rpm === 0 ? 1 : Math.abs(last.rpm) / state.rpm;
+  const meshes = g.filter(x => x.link === "mesh").length;
+  return { gears: g, out: last, ratio, meshes };
+}
+
+/* ================================================================== *
+ * Drawing
+ * ================================================================== */
+const cv = $("deck"), ctx = cv.getContext("2d");
+let W = 0, H = 0, DPR = 1;
+
+function resize() {
+  const r = cv.getBoundingClientRect();
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = Math.max(1, Math.round(r.width));
+  H = Math.max(1, Math.round(r.height));
+  cv.width = Math.round(W * DPR);
+  cv.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+
+function pathFor(N, m, internal, append) {
+  const pts = gearProfile(N, internal);
+  if (!append) ctx.beginPath();   // a ring needs its outer circle kept
+  for (let i = 0; i < pts.length; i++) {
+    const X = pts[i][0] * m * Math.cos(pts[i][1]);
+    const Y = pts[i][0] * m * Math.sin(pts[i][1]);
+    i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
+  }
+  ctx.closePath();
+}
+
+function drawSpur(gear, m, col, opts = {}) {
+  const r = gear.N / 2 * m;
+  ctx.save();
+  ctx.translate(gear.x * m, gear.y * m);
+  ctx.rotate(gear.th);
+  pathFor(gear.N, m, false);
+  ctx.fillStyle = col.body;
+  ctx.fill();
+  ctx.lineWidth = 1.1;
+  ctx.strokeStyle = col.edge;
+  ctx.stroke();
+
+  // one tooth painted so you can count turns. The clip is an annulus
+  // wedge, not a pie slice from the hub, or the whole body goes with it.
+  const step = 2 * Math.PI / gear.N;
+  const h = step * 0.52;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, 0, Math.max(0.5, (gear.N / 2 - DED) * m), -h, h);
+  ctx.arc(0, 0, (gear.N / 2 + ADD) * m, h, -h, true);
+  ctx.closePath();
+  ctx.clip();
+  pathFor(gear.N, m, false);
+  ctx.fillStyle = col.mark;
+  ctx.fill();
+  ctx.restore();
+
+  // hub and bore
+  ctx.beginPath();
+  ctx.arc(0, 0, Math.max(2.2, r * 0.28), 0, 7);
+  ctx.fillStyle = col.hub;
+  ctx.fill();
+  ctx.strokeStyle = col.edge;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, Math.max(1.3, r * 0.1), 0, 7);
+  ctx.fillStyle = col.bore;
+  ctx.fill();
+  ctx.restore();
+
+  if (state.pitch) {
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = col.pitch;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(gear.x * m, gear.y * m, r, 0, 7);
+    ctx.stroke();
+    ctx.restore();
+  }
+  if (opts.label) {
+    ctx.fillStyle = col.text;
+    ctx.font = "600 11px " + cssVar("--mono");
+    ctx.textAlign = "center";
+    ctx.fillText(opts.label, gear.x * m, gear.y * m + r + (opts.below || 15));
+  }
+}
+
+function drawRing(NR, m, thR, col) {
+  const r = NR / 2 * m;
+  const rimOuter = r + (DED + 2.2) * m;
+  ctx.save();
+  ctx.rotate(thR);
+  ctx.beginPath();
+  ctx.arc(0, 0, rimOuter, 0, 7);
+  pathFor(NR, m, true, true);
+  ctx.fillStyle = col.hub;
+  ctx.fill("evenodd");
+  ctx.lineWidth = 1.1;
+  ctx.strokeStyle = col.edge;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, 0, rimOuter, 0, 7);
+  ctx.stroke();
+  // marked tooth, clipped to the toothed band only
+  const step = 2 * Math.PI / NR;
+  const h = step * 0.55;
+  ctx.save();
+  ctx.beginPath();
+  ctx.arc(0, 0, (NR / 2 - ADD) * m, -h, h);
+  ctx.arc(0, 0, (NR / 2 + DED) * m, h, -h, true);
+  ctx.closePath();
+  ctx.clip();
+  ctx.beginPath();
+  ctx.arc(0, 0, rimOuter, 0, 7);
+  pathFor(NR, m, true, true);
+  ctx.fillStyle = col.mark;
+  ctx.fill("evenodd");
+  ctx.restore();
+  ctx.restore();
+  if (state.pitch) {
+    ctx.save();
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = col.pitch;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, r, 0, 7);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+function arrow(cx, cy, rad, dir, col) {
+  if (!dir) return;
+  const a0 = -0.8, a1 = 0.8;
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.fillStyle = col;
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(cx, cy, rad, a0, a1);
+  ctx.stroke();
+  const ae = dir > 0 ? a1 : a0;
+  const sgn = dir > 0 ? 1 : -1;
+  const tx = cx + rad * Math.cos(ae), ty = cy + rad * Math.sin(ae);
+  const tang = ae + sgn * Math.PI / 2;
+  ctx.beginPath();
+  ctx.moveTo(tx + 5 * Math.cos(tang), ty + 5 * Math.sin(tang));
+  ctx.lineTo(tx + 4 * Math.cos(tang + 2.5), ty + 4 * Math.sin(tang + 2.5));
+  ctx.lineTo(tx + 4 * Math.cos(tang - 2.5), ty + 4 * Math.sin(tang - 2.5));
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+}
+
+/* The engineering shorthand for "this part is bolted to the world":
+   short hatch strokes leaning off a circle. */
+function groundHatch(r, col, outward) {
+  const n = clamp(Math.round(2 * Math.PI * r / 9), 24, 360);
+  const L = 6, d = outward ? 1 : -1;
+  ctx.save();
+  ctx.strokeStyle = col;
+  ctx.lineWidth = 1;
+  for (let i = 0; i < n; i++) {
+    const a = 2 * Math.PI * i / n;
+    const x0 = r * Math.cos(a), y0 = r * Math.sin(a);
+    const t = a + Math.PI / 4;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x0 + d * L * Math.cos(t), y0 + d * L * Math.sin(t));
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/* A corner key, so nothing has to be written over the gears. */
+function legend(rows, col) {
+  ctx.save();
+  ctx.font = "11px " + cssVar("--mono");
+  ctx.textAlign = "left";
+  const pad = 9, lh = 15;
+  let wmax = 0;
+  for (const r of rows) wmax = Math.max(wmax, ctx.measureText(r.t).width);
+  const bw = wmax + pad * 2, bh = rows.length * lh + pad * 2 - 3;
+  const bx = W - bw - 13, by = H - bh - 13;
+  ctx.globalAlpha = 0.93;
+  ctx.fillStyle = cssVar("--paper");
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(bx, by, bw, bh, 8); else ctx.rect(bx, by, bw, bh);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.strokeStyle = col.line;
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  rows.forEach((r, i) => {
+    ctx.fillStyle = r.hot ? col.mark : col.text;
+    ctx.fillText(r.t, bx + pad, by + pad + 11 + i * lh);
+  });
+  ctx.restore();
+}
+
+function palette() {
+  return {
+    body: cssVar("--metal"), hi: cssVar("--metal-hi"), hub: cssVar("--metal-dark"),
+    edge: cssVar("--metal-edge"), bore: cssVar("--paper"), mark: cssVar("--accent"),
+    text: cssVar("--muted"), ink: cssVar("--ink"), pitch: cssVar("--accent"),
+    line: cssVar("--line")
+  };
+}
+
+function render() {
+  const col = palette();
+  ctx.clearRect(0, 0, W, H);
+  if (state.mode === "train") renderTrain(col); else renderPlanetary(col);
+}
+
+function renderTrain(col) {
+  const g = layoutTrain(state.phi);
+  // bounding box at module 1
+  let x0 = Infinity, x1 = -Infinity, y1 = 0;
+  for (const k of g) {
+    const ra = k.N / 2 + ADD;
+    x0 = Math.min(x0, k.x - ra); x1 = Math.max(x1, k.x + ra);
+    y1 = Math.max(y1, ra);
+  }
+  const padX = 34, padY = 46;
+  const m = Math.min((W - padX * 2) / (x1 - x0), (H - padY * 2) / (y1 * 2));
+  const ox = W / 2 - ((x0 + x1) / 2) * m;
+  const oy = H / 2;
+  ctx.save();
+  ctx.translate(ox, oy);
+
+  // shaft centre line
+  ctx.strokeStyle = col.line;
+  ctx.setLineDash([2, 5]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x0 * m, 0); ctx.lineTo(x1 * m, 0);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // coaxial gears: biggest first so the small one stays visible on top
+  const order = g.slice().sort((a, b) => b.N - a.N);
+  for (const k of order) {
+    const shade = k.link === "shaft"
+      ? { ...col, body: col.hi }
+      : col;
+    drawSpur(k, m, shade);
+  }
+  // Coaxial gears share an x, so a label placed off their own radius can
+  // land on top of the gear they are bolted to. Measure the stack.
+  const stackR = new Map();
+  for (const k of g) stackR.set(k.x, Math.max(stackR.get(k.x) || 0, (k.N / 2 + ADD) * m));
+
+  for (const k of g) {
+    const r = k.N / 2 * m, top = stackR.get(k.x);
+    const dir = k.rpm === 0 ? 0 : (k.rpm > 0 ? 1 : -1);
+    arrow(k.x * m, 0, Math.max(10, r * 0.46), dir, col.ink);
+    ctx.fillStyle = col.text;
+    ctx.font = "11px " + cssVar("--mono");
+    ctx.textAlign = "center";
+    const yl = k.link === "shaft" ? -(top + 10) : (top + 14);
+    ctx.fillText(k.N + " t · " + fmt(Math.abs(k.rpm), 1) + " rpm", k.x * m, yl);
+    if (k.link === "shaft") {
+      ctx.fillStyle = col.mark;
+      ctx.fillText("same shaft", k.x * m, -(top + 23));
+    }
+  }
+  ctx.restore();
+
+  const s = trainSummary();
+  const dirWord = s.out.rpm === 0 ? "" : (s.out.rpm > 0 ? " anticlockwise" : " clockwise");
+  $("badge").textContent =
+    state.stages.length + " gears · " + s.meshes + " mesh" + (s.meshes === 1 ? "" : "es") + " · " +
+    ratioWords(s.ratio) + " · output " + fmt(Math.abs(s.out.rpm), 1) + " rpm" + dirWord;
+}
+
+function renderPlanetary(col) {
+  const P = layoutPlanetary(state.phi);
+  const rimOuter = P.NR / 2 + DED + 2.2;
+  const pad = 38;
+  const m = Math.min((W - pad * 2) / (rimOuter * 2), (H - pad * 2) / (rimOuter * 2));
+  ctx.save();
+  ctx.translate(W / 2, H / 2 + 10);
+
+  // ring first, it is the housing
+  drawRing(P.NR, m, P.thR, col);
+  if (state.hold === "ring") groundHatch(rimOuter * m + 1, col.mark, true);
+
+  for (const pl of P.planets) drawSpur(pl, m, col);
+  drawSpur(P.sun, m, col);
+
+  // The carrier is a plate in front of the gears: an arm out to each
+  // planet pin, and a hub over the sun's bore.
+  const armW = clamp(P.NP / 2 * m * 0.12, 2.5, 6);
+  const hubR = clamp(P.NS / 2 * m * 0.16, 3.5, 11);
+  ctx.save();
+  ctx.strokeStyle = col.edge;
+  ctx.lineWidth = armW;
+  ctx.lineCap = "round";
+  for (const pl of P.planets) {
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(pl.x * m, pl.y * m);
+    ctx.stroke();
+  }
+  ctx.fillStyle = col.edge;
+  for (const pl of P.planets) {
+    ctx.beginPath();
+    ctx.arc(pl.x * m, pl.y * m, armW * 1.15, 0, 7);
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, hubR, 0, 7);
+  ctx.fill();
+  ctx.restore();
+  if (state.hold === "carrier") groundHatch(hubR + 1, col.mark, true);
+  if (state.hold === "sun") groundHatch(Math.max(6, P.NS / 2 * m * 0.28), col.mark, false);
+
+  // direction arrows for whatever is moving
+  if (P.rpmS) arrow(0, 0, Math.max(13, (P.NS / 2) * m * 0.62), Math.sign(P.rpmS), col.ink);
+  if (P.rpmR) arrow(0, 0, (P.NR / 2) * m + 1.6 * m, Math.sign(P.rpmR), col.ink);
+  if (P.rpmC) arrow(0, 0, (P.a * m) * 0.55, Math.sign(P.rpmC), col.mark);
+  ctx.restore();
+
+  const spin = v => v === 0 ? "held" : fmt(Math.abs(v), 1) + " rpm " + (v > 0 ? "↺" : "↻");
+  legend([
+    { t: "sun " + P.NS + " t · " + spin(P.rpmS), hot: state.hold === "sun" },
+    { t: P.p + " planets " + P.NP + " t · " + spin(P.rpmP), hot: false },
+    { t: "ring " + P.NR + " t · " + spin(P.rpmR), hot: state.hold === "ring" },
+    { t: "carrier · " + spin(P.rpmC), hot: state.hold === "carrier" }
+  ], col);
+
+  const io = planetaryIO(P);
+  $("badge").textContent =
+    "hold the " + state.hold + " · " + io.inName + " in at " + fmt(Math.abs(io.inRpm), 1) +
+    " rpm · " + io.outName + " out at " + fmt(Math.abs(io.outRpm), 1) + " rpm " +
+    (io.outRpm * io.inRpm < 0 ? "backwards" : "the same way") + " · " + ratioWords(io.ratio);
+}
+
+function planetaryIO(P) {
+  if (state.hold === "ring")
+    return { inName: "sun", outName: "carrier", inRpm: P.rpmS, outRpm: P.rpmC, ratio: P.NS / (P.NS + P.NR) };
+  if (state.hold === "sun")
+    return { inName: "ring", outName: "carrier", inRpm: P.rpmR, outRpm: P.rpmC, ratio: P.NR / (P.NS + P.NR) };
+  return { inName: "sun", outName: "ring", inRpm: P.rpmS, outRpm: P.rpmR, ratio: -P.NS / P.NR };
+}
+
+function ratioWords(ratio) {
+  const a = Math.abs(ratio);
+  if (a < 1) return fmt(1 / a, 2) + " : 1 reduction";
+  if (a > 1) return "1 : " + fmt(a, 2) + " overdrive";
+  return "1 : 1";
+}
+
+/* ================================================================== *
+ * Readouts
+ * ================================================================== */
+function updateStats() {
+  if (state.mode === "train") {
+    const s = trainSummary();
+    const out = s.out;
+    const dir = out.rpm === 0 ? "—" : (out.rpm > 0 ? "↺" : "↻");
+    const odd = s.meshes % 2 === 1;
+    $("stats").innerHTML =
+      row("Ratio, input to output", ratioWords(s.ratio), true) +
+      row("Output shaft", fmt(Math.abs(out.rpm), 1) + " rpm " + dir) +
+      row("Torque at the output", "× " + fmt(1 / s.ratio, 2)) +
+      row("Direction", odd ? "reversed — " + s.meshes + " meshes" : "as the input — " + s.meshes + " meshes");
+    let t = "<tr><th>Gear</th><th>Teeth</th><th>rpm</th><th>Turns</th></tr>";
+    for (const g of s.gears) {
+      const turns = state.rpm === 0 ? 0 : g.rpm / state.rpm;
+      t += "<tr><td>" + (g.idx + 1) + (g.link === "shaft" ? " <span class='cw'>shaft</span>" : "") +
+        "</td><td>" + g.N + "</td><td>" + fmt(Math.abs(g.rpm), 1) +
+        "</td><td class='cw'>" + (turns < 0 ? "−" : "") + fmt(Math.abs(turns), 3) + "</td></tr>";
+    }
+    $("shafts").innerHTML = t;
+  } else {
+    const P = layoutPlanetary(state.phi);
+    const io = planetaryIO(P);
+    $("stats").innerHTML =
+      row("Ratio, " + io.inName + " to " + io.outName, ratioWords(io.ratio), true) +
+      row("Output", fmt(Math.abs(io.outRpm), 1) + " rpm " + (io.outRpm === 0 ? "" : io.outRpm > 0 ? "↺" : "↻")) +
+      row("Torque at the output", "× " + fmt(Math.abs(1 / io.ratio), 2)) +
+      row("Direction", io.inRpm * io.outRpm < 0 ? "reversed" : "as the input");
+    const r = (n, s, v, extra) => "<tr><td>" + n + "</td><td>" + s + "</td><td>" +
+      fmt(Math.abs(v), 1) + "</td><td class='cw'>" + extra + "</td></tr>";
+    $("shafts").innerHTML = "<tr><th>Part</th><th>Teeth</th><th>rpm</th><th>Turns</th></tr>" +
+      r("sun", P.NS, P.rpmS, turnsOf(P.rpmS, io.inRpm)) +
+      r("planet", P.NP, P.rpmP, turnsOf(P.rpmP, io.inRpm)) +
+      r("ring", P.NR, P.rpmR, turnsOf(P.rpmR, io.inRpm)) +
+      r("carrier", "—", P.rpmC, turnsOf(P.rpmC, io.inRpm));
+    $("ringOut").textContent = P.NR + " t";
+    $("pcOut").textContent = P.p + (P.p === 1 ? " (nothing else fits evenly)" : "");
+  }
+}
+const turnsOf = (v, base) => {
+  if (!base) return "0";
+  const t = v / base;
+  return (t < 0 ? "−" : "") + fmt(Math.abs(t), 3);
+};
+const row = (k, v, big) =>
+  "<div class='stat" + (big ? " big" : "") + "'><span>" + k + "</span><b>" + v + "</b></div>";
+
+/* ================================================================== *
+ * Controls
+ * ================================================================== */
+const MODES = [["train", "A gear train"], ["planetary", "A planetary set"]];
+const HOLDS = [["ring", "Hold the ring"], ["sun", "Hold the sun"], ["carrier", "Hold the carrier"]];
+const HOLD_HINT = {
+  ring: "The everyday one: a drill, a hub motor, a planetary reduction box. The ring is the housing, bolted to the frame.",
+  sun: "Gentler reduction out of the same metal. Common where a big ring is the natural input, as in some wind-turbine stages.",
+  carrier: "The planets become plain idlers, so the whole thing turns into a one-mesh reverse — and it speeds up instead of slowing down."
+};
+
+function buildModeBtns() {
+  $("modeBtns").innerHTML = "";
+  for (const [k, label] of MODES) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.className = state.mode === k ? "on" : "";
+    b.onclick = () => setMode(k);
+    $("modeBtns").appendChild(b);
+  }
+  $("holdBtns").innerHTML = "";
+  for (const [k, label] of HOLDS) {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.className = state.hold === k ? "on" : "";
+    b.onclick = () => { state.hold = k; state.phi = 0; buildModeBtns(); updateStats(); render(); writeHash(); };
+    $("holdBtns").appendChild(b);
+  }
+  $("holdHint").textContent = HOLD_HINT[state.hold];
+}
+
+function setMode(k) {
+  state.mode = k;
+  state.phi = 0;
+  $("trainPanel").hidden = k !== "train";
+  $("planetPanel").hidden = k !== "planetary";
+  $("modCtl").hidden = k !== "train";
+  buildModeBtns();
+  buildGearList();
+  updateStats();
+  render();
+  writeHash();
+}
+
+function buildGearList() {
+  const host = $("gearlist");
+  host.innerHTML = "";
+  state.stages.forEach((s, i) => {
+    const box = document.createElement("div");
+    box.className = "gearrow";
+    const top = document.createElement("div");
+    top.className = "gtop";
+    const num = document.createElement("span");
+    num.className = "gnum";
+    num.textContent = String(i + 1);
+    const teeth = document.createElement("span");
+    teeth.className = "gteeth";
+    teeth.textContent = s.N + " teeth";
+    top.appendChild(num);
+    top.appendChild(teeth);
+
+    if (i > 0) {
+      const pills = document.createElement("span");
+      pills.className = "linkpills";
+      for (const [k, label] of [["mesh", "meshed on"], ["shaft", "same shaft"]]) {
+        const b = document.createElement("button");
+        b.textContent = label;
+        b.className = s.link === k ? "on" : "";
+        b.onclick = () => { s.link = k; buildGearList(); updateStats(); render(); writeHash(); };
+        pills.appendChild(b);
+      }
+      top.appendChild(pills);
+    }
+    if (state.stages.length > 2) {
+      const rm = document.createElement("button");
+      rm.className = "mini grm";
+      rm.textContent = "×";
+      rm.setAttribute("aria-label", "Remove gear " + (i + 1));
+      rm.onclick = () => {
+        state.stages.splice(i, 1);
+        if (state.stages[0]) delete state.stages[0].link;
+        if (state.stages[1] && !state.stages[1].link) state.stages[1].link = "mesh";
+        buildGearList(); updateStats(); render(); writeHash();
+      };
+      top.appendChild(rm);
+    }
+    box.appendChild(top);
+
+    const rng = document.createElement("input");
+    rng.type = "range";
+    rng.min = "8"; rng.max = "60"; rng.step = "1"; rng.value = String(s.N);
+    rng.setAttribute("aria-label", "Teeth on gear " + (i + 1));
+    rng.oninput = () => {
+      s.N = +rng.value;
+      teeth.textContent = s.N + " teeth";
+      updateStats(); render(); writeHash();
+    };
+    box.appendChild(rng);
+    host.appendChild(box);
+  });
+  $("btnAddMesh").disabled = state.stages.length >= MAX_STAGES;
+  $("btnAddShaft").disabled = state.stages.length >= MAX_STAGES;
+}
+
+function addStage(link) {
+  if (state.stages.length >= MAX_STAGES) return;
+  state.stages.push({ N: link === "shaft" ? 12 : 40, link });
+  buildGearList(); updateStats(); render(); writeHash();
+}
+
+/* ================================================================== *
+ * Lessons — predict first, then watch it run
+ * ================================================================== */
+const LESSONS = [
+  {
+    title: "The gear that does nothing",
+    apply() {
+      state.mode = "train";
+      state.stages = [{ N: 12 }, { N: 20, link: "mesh" }, { N: 36, link: "mesh" }];
+      state.rpm = 30;
+    },
+    q: "A 12-tooth gear drives a 36-tooth gear — on its own that is a 3:1 reduction. Here a 20-tooth gear has been dropped in between them, so the small one no longer touches the big one at all. Turn the 12 one full turn. How far does the 36 go round?",
+    opts: [
+      "A third of a turn — exactly what it did without the 20 in the middle",
+      "A fifth of a turn — the extra gear slows it down further",
+      "Three turns — the extra gear is now driving the big one"
+    ],
+    right: 0,
+    hint: "Do it one mesh at a time. The first mesh multiplies the speed by 12/20. The second multiplies by 20/36. Multiply those two fractions together and look for something that cancels.",
+    why: "<b>The 20 cancels itself out.</b> 12/20 × 20/36 = 12/36 = 1/3. Every intermediate gear divides by its own tooth count and then multiplies straight back by it, so only the first and last count — that is what an <b>idler</b> is. It is not useless: it bridges a gap between two shafts that need to stay where they are, and it reverses the direction. Watch the arrows — with two meshes the output now turns the <i>same</i> way as the input, where the bare 12→36 pair turned the opposite way. If you want a ratio, change the ends. If you want a direction, add an idler."
+  },
+  {
+    title: "Getting 25:1 out of small gears",
+    apply() {
+      state.mode = "train";
+      state.stages = [{ N: 10 }, { N: 50, link: "mesh" }];
+      state.rpm = 30;
+    },
+    q: "This pair is 10 teeth into 50 teeth: a 5:1 reduction. You need <b>25:1</b>, and nothing in the box is bigger than 50 teeth. What do you add?",
+    opts: [
+      "Mesh a second 50-tooth gear onto the first one",
+      "Bolt a 10-tooth gear to the big gear's own shaft, and mesh that into a second 50",
+      "It cannot be done — 25:1 needs a 250-tooth gear"
+    ],
+    right: 1,
+    // the answer is a thing you can build, so build it
+    reveal() {
+      state.stages = [{ N: 10 }, { N: 50, link: "mesh" }, { N: 10, link: "shaft" }, { N: 50, link: "mesh" }];
+    },
+    hint: "You just learned that a gear meshed in the middle of a chain cancels out. So a plain 50→50 mesh buys you a ratio of exactly 1. What else can you do with a gear besides mesh it onto the previous one?",
+    why: "<b>Two meshes, multiplied.</b> The small gear bolted to the big gear's shaft turns at the big gear's speed, but hands the drive on through 10 teeth instead of 50 — so the second mesh is another 5:1, and 5 × 5 = 25. That is a <b>compound train</b>, and it is the only way a gearbox the size of your fist gets to 100:1 without a gear the size of a dinner plate. Meshing another 50 on, by contrast, is the idler from the last lesson: it would have bought you nothing but a direction change. Look at the Turns column — gear 2 and gear 3 show the same number, because they are one piece of metal."
+  },
+  {
+    title: "Hold the ring: the drill gearbox",
+    apply() {
+      state.mode = "planetary";
+      state.sun = 24; state.planet = 18; state.hold = "ring";
+      state.rpm = 30;
+    },
+    q: "Three gears now: a 24-tooth sun in the middle, three 18-tooth planets around it, and a 60-tooth ring around the outside. The ring is bolted to the housing and cannot move. Turn the sun one full turn — how far does the carrier, the arm the planets are pinned to, go round?",
+    opts: [
+      "0.286 of a turn, the same way as the sun",
+      "0.286 of a turn, the opposite way to the sun",
+      "3.5 turns, the same way — the planets gear it up"
+    ],
+    right: 0,
+    hint: "Try the extreme case first. If the sun were enormous and the ring barely bigger, the carrier would nearly keep up with the sun. If the sun were tiny, the carrier would barely move. So the answer is some fraction less than one — and this is a reduction, not an overdrive. Which leaves the direction to settle.",
+    why: "<b>Reduction is 1 + ring/sun = 1 + 60/24 = 3.5</b>, so the carrier makes 1/3.5 = 0.286 turns for every turn of the sun, and it follows the sun round. Here is the intuition: a planet is being driven by the sun on its inside face and is simultaneously having to roll along a ring that is standing still. It cannot just spin in place — it has to crawl around the inside of the ring, dragging the carrier with it. The planets' own tooth count never appears in that formula. Change the planets and you change what <i>fits</i>, not the ratio: the ring is forced to be sun + 2 × planet, and the ratio only ever cared about the sun and the ring."
+  },
+  {
+    title: "Same three gears, bolt the carrier instead",
+    apply() {
+      state.mode = "planetary";
+      state.sun = 24; state.planet = 18; state.hold = "carrier";
+      state.rpm = 30;
+    },
+    q: "Identical gears, one change: the carrier is now bolted down, so the planets can spin on their pins but cannot orbit. The ring is free to turn. Turn the sun one full turn — what does the ring do?",
+    opts: [
+      "0.4 of a turn, the opposite way to the sun",
+      "0.4 of a turn, the same way as the sun",
+      "2.5 turns, the opposite way",
+      "Nothing — with the carrier locked the whole set is jammed"
+    ],
+    right: 0,
+    hint: "With the carrier bolted down, every planet is just a gear spinning on a fixed shaft between the sun and the ring. You have met that arrangement already, two lessons ago. What did a gear in the middle of a chain do to the ratio, and what did it do to the direction?",
+    why: "<b>The planets are now idlers</b>, so this is a plain sun-to-ring pair: 24/60 = 0.4 turns, and the sign is negative. Direction is the subtle bit — the sun drives the planet backwards (external mesh), and the planet drives the ring from the inside, where both turn together (internal mesh), so one reversal survives and the ring goes the other way. Note what you have proved: <b>the same three gears gave 3.5:1 down with the ring held and 2.5:1 up and backwards with the carrier held</b> — and holding the sun instead gives 1.4:1 down. Three ratios, one lump of metal, and switching between them is just a matter of which part a brake grabs. That is an automatic gearbox."
+  }
+];
+
+const quiz = { open: false, i: 0, tries: 0, done: false, picked: -1 };
+
+function startLesson(i) {
+  if (i < 0 || i >= LESSONS.length) return;
+  quiz.open = true; quiz.i = i; quiz.tries = 0; quiz.done = false; quiz.picked = -1;
+  LESSONS[i].apply();
+  state.phi = 0;
+  state.running = false;
+  syncInputs();
+  buildModeBtns(); buildGearList();
+  $("trainPanel").hidden = state.mode !== "train";
+  $("planetPanel").hidden = state.mode !== "planetary";
+  $("modCtl").hidden = state.mode !== "train";
+  renderQuiz();
+  updateStats(); render(); writeHash();
+}
+
+function renderQuiz() {
+  const L = LESSONS[quiz.i];
+  $("quiz").hidden = !quiz.open;
+  if (!quiz.open) return;
+  $("qnum").textContent = "Lesson " + (quiz.i + 1) + " of " + LESSONS.length + " — " + L.title;
+  $("qtext").innerHTML = L.q;
+  const host = $("qopts");
+  host.innerHTML = "";
+  L.opts.forEach((o, k) => {
+    const b = document.createElement("button");
+    b.innerHTML = o;
+    b.disabled = quiz.done;
+    if (quiz.done && k === L.right) b.className = "picked-right";
+    else if (quiz.picked === k && k !== L.right) b.className = "picked-wrong";
+    b.onclick = () => pick(k);
+    host.appendChild(b);
+  });
+  $("qafter").hidden = !(quiz.tries > 0);
+  $("qNext").textContent = quiz.i + 1 < LESSONS.length ? "Next lesson →" : "Back to playing →";
+}
+
+function pick(k) {
+  if (quiz.done) return;
+  const L = LESSONS[quiz.i];
+  quiz.tries++;
+  quiz.picked = k;
+  const right = k === L.right;
+  if (right || quiz.tries >= 2) {
+    quiz.done = true;
+    state.running = true;
+    $("btnPlay").textContent = "⏸ Pause";
+    if (L.reveal) { L.reveal(); state.phi = 0; buildGearList(); render(); writeHash(); }
+    $("qverdict").textContent = right
+      ? (quiz.tries === 1 ? "That's it. Watch it run." : "Yes — that one. Watch it run.")
+      : "Not that one either. Here is what happens.";
+    $("qverdict").className = "qverdict " + (right ? "good" : "bad");
+    $("qexplain").innerHTML = L.why;
+  } else {
+    $("qverdict").textContent = "Not quite — have another go.";
+    $("qverdict").className = "qverdict bad";
+    $("qexplain").innerHTML = L.hint;
+  }
+  renderQuiz();
+  updateStats();
+}
+
+function nextLesson() {
+  if (quiz.i + 1 < LESSONS.length) startLesson(quiz.i + 1);
+  else closeQuiz();
+}
+function closeQuiz() {
+  quiz.open = false;
+  state.running = true;
+  $("btnPlay").textContent = "⏸ Pause";
+  renderQuiz();
+}
+
+function buildLessonBtns() {
+  const host = $("lessonBtns");
+  host.innerHTML = "";
+  LESSONS.forEach((L, i) => {
+    const b = document.createElement("button");
+    b.className = "mini";
+    b.textContent = (i + 1) + ". " + L.title;
+    b.onclick = () => startLesson(i);
+    host.appendChild(b);
+  });
+}
+
+/* ================================================================== *
+ * SVG sheet — 1:1 at the chosen module
+ * ================================================================== */
+function gearSvgPath(N, m, cx, cy, internal) {
+  const pts = gearProfile(N, internal);
+  let d = "";
+  for (let i = 0; i < pts.length; i++) {
+    const X = cx + pts[i][0] * m * Math.cos(pts[i][1]);
+    const Y = cy + pts[i][0] * m * Math.sin(pts[i][1]);
+    d += (i ? "L" : "M") + X.toFixed(3) + " " + Y.toFixed(3);
+  }
+  return d + "Z";
+}
+
+function buildSvg() {
+  const m = state.module;
+  const items = [];
+  if (state.mode === "train") {
+    // lay the gears out in a row with a gap, so they can be cut out
+    let x = 0;
+    for (const s of state.stages) {
+      const ra = (s.N / 2 + ADD) * m;
+      x += ra;
+      items.push({ N: s.N, cx: x, cy: 0, internal: false });
+      x += ra + 6;
+    }
+  } else {
+    items.push({ N: state.sun, cx: 0, cy: 0, internal: false });
+    let x = (state.sun / 2 + ADD) * m + (state.planet / 2 + ADD) * m + 6;
+    items.push({ N: state.planet, cx: x, cy: 0, internal: false });
+  }
+  let minX = Infinity, maxX = -Infinity, maxY = 0;
+  for (const it of items) {
+    const ra = (it.N / 2 + ADD) * m;
+    minX = Math.min(minX, it.cx - ra); maxX = Math.max(maxX, it.cx + ra);
+    maxY = Math.max(maxY, ra);
+  }
+  const pad = 10, barH = 16;
+  const w = (maxX - minX) + pad * 2;
+  const h = maxY * 2 + pad * 2 + barH;
+  const ox = pad - minX, oy = pad + maxY;
+  let body = "";
+  for (const it of items) {
+    body += '<path d="' + gearSvgPath(it.N, m, it.cx + ox, it.cy + oy, it.internal) + '"/>\n';
+    const rb = Math.max(0.8, (it.N / 2) * m * 0.1);
+    body += '<circle cx="' + (it.cx + ox).toFixed(3) + '" cy="' + oy.toFixed(3) +
+      '" r="' + rb.toFixed(3) + '"/>\n';
+    body += '<text x="' + (it.cx + ox).toFixed(2) + '" y="' + (oy + 3).toFixed(2) +
+      '" font-size="3.2" text-anchor="middle" fill="#000" stroke="none">' + it.N + 't</text>\n';
+  }
+  const by = h - pad * 0.5;
+  body += '<path d="M' + pad + ' ' + by.toFixed(2) + 'h50m0 -3v6m-50 -6v6"/>\n';
+  body += '<text x="' + (pad + 53) + '" y="' + (by + 2).toFixed(2) +
+    '" font-size="4" fill="#000" stroke="none">50 mm — check this on paper before you cut</text>\n';
+  return '<?xml version="1.0" encoding="UTF-8"?>\n' +
+    '<svg xmlns="http://www.w3.org/2000/svg" width="' + w.toFixed(2) + 'mm" height="' + h.toFixed(2) +
+    'mm" viewBox="0 0 ' + w.toFixed(2) + ' ' + h.toFixed(2) + '">\n' +
+    '<g fill="none" stroke="#000" stroke-width="0.25" ' +
+    'font-family="monospace">\n' + body + '</g>\n</svg>\n';
+}
+
+function saveSvg() {
+  const blob = new Blob([buildSvg()], { type: "image/svg+xml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "cogwork-module" + fmt(state.module, 1) + ".svg";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  toast("SVG saved — module " + fmt(state.module, 1) + " mm, 1:1");
+}
+
+/* ================================================================== *
+ * Link, toast, theme
+ * ================================================================== */
+function writeHash() {
+  const p = new URLSearchParams();
+  if (state.mode === "train") {
+    p.set("t", state.stages.map((s, i) =>
+      (i > 0 && s.link === "shaft" ? "*" : "") + s.N).join(","));
+    p.set("m", fmt(state.module, 1));
+  } else {
+    p.set("g", state.sun + "," + state.planet);
+    p.set("hold", state.hold);
+  }
+  p.set("rpm", String(state.rpm));
+  history.replaceState(null, "", "#" + p.toString());
+}
+
+function readHash() {
+  const p = new URLSearchParams(location.hash.replace(/^#/, ""));
+  if (p.has("rpm")) state.rpm = clamp(+p.get("rpm") || 30, 2, 120);
+  if (p.has("g")) {
+    const [s, pl] = p.get("g").split(",").map(Number);
+    if (s) state.sun = clamp(Math.round(s), 12, 36);
+    if (pl) state.planet = clamp(Math.round(pl), 10, 28);
+    state.mode = "planetary";
+    const h = p.get("hold");
+    if (h === "sun" || h === "ring" || h === "carrier") state.hold = h;
+  } else if (p.has("t")) {
+    const parts = p.get("t").split(",").filter(Boolean).slice(0, MAX_STAGES);
+    const stages = parts.map((raw, i) => {
+      const shaft = raw.startsWith("*");
+      const N = clamp(Math.round(+raw.replace("*", "")) || 20, 8, 60);
+      return i === 0 ? { N } : { N, link: shaft ? "shaft" : "mesh" };
+    });
+    if (stages.length >= 2) state.stages = stages;
+    state.mode = "train";
+    if (p.has("m")) state.module = clamp(+p.get("m") || 2, 1, 6);
+  }
+}
+
+let toastT = 0;
+function toast(msg) {
+  const el = $("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove("show"), 1900);
+}
+
+function copyLink() {
+  writeHash();
+  const url = location.href;
+  const done = () => toast("Link copied");
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(done, () => toast("Copy failed — the link is in the address bar"));
+  } else {
+    toast("The link is in the address bar");
+  }
+}
+
+/* ================================================================== *
+ * Dragging the train round by hand
+ * ================================================================== */
+let drag = null;
+function pointerAngle(ev) {
+  const r = cv.getBoundingClientRect();
+  const px = ev.clientX - r.left, py = ev.clientY - r.top;
+  // the input gear's screen centre: gear 1 in a train, the sun otherwise
+  let cx = W / 2, cy = H / 2;
+  if (state.mode === "train") {
+    const g = layoutTrain(state.phi);
+    let x0 = Infinity, x1 = -Infinity, y1 = 0;
+    for (const k of g) {
+      const ra = k.N / 2 + ADD;
+      x0 = Math.min(x0, k.x - ra); x1 = Math.max(x1, k.x + ra); y1 = Math.max(y1, ra);
+    }
+    const m = Math.min((W - 68) / (x1 - x0), (H - 92) / (y1 * 2));
+    cx = W / 2 - ((x0 + x1) / 2) * m + g[0].x * m;
+  }
+  return Math.atan2(py - cy, px - cx);
+}
+cv.addEventListener("pointerdown", ev => {
+  drag = { a: pointerAngle(ev), wasRunning: state.running };
+  state.running = false;
+  cv.classList.add("dragging");
+  cv.setPointerCapture(ev.pointerId);
+  $("btnPlay").textContent = "▶ Run";
+  $("nudge").textContent = "Turning by hand — one tooth at a time.";
+});
+cv.addEventListener("pointermove", ev => {
+  if (!drag) return;
+  const a = pointerAngle(ev);
+  let d = a - drag.a;
+  while (d > Math.PI) d -= 2 * Math.PI;
+  while (d < -Math.PI) d += 2 * Math.PI;
+  drag.a = a;
+  state.phi += d;
+  render();
+  ev.preventDefault();
+});
+const endDrag = () => {
+  if (!drag) return;
+  drag = null;
+  cv.classList.remove("dragging");
+  $("nudge").textContent = "Drag to turn it by hand.";
+};
+cv.addEventListener("pointerup", endDrag);
+cv.addEventListener("pointercancel", endDrag);
+
+/* ================================================================== *
+ * Wiring
+ * ================================================================== */
+function syncInputs() {
+  $("rpm").value = String(state.rpm);
+  $("rpmOut").textContent = state.rpm + " rpm";
+  $("mod").value = String(state.module);
+  $("modOut").textContent = fmt(state.module, 1) + " mm";
+  $("sunT").value = String(state.sun);
+  $("sunOut").textContent = state.sun + " t";
+  $("planT").value = String(state.planet);
+  $("planOut").textContent = state.planet + " t";
+  $("btnPitch").className = state.pitch ? "on" : "";
+  $("btnPlay").textContent = state.running ? "⏸ Pause" : "▶ Run";
+}
+
+$("rpm").oninput = e => {
+  state.rpm = +e.target.value;
+  $("rpmOut").textContent = state.rpm + " rpm";
+  updateStats(); render(); writeHash();
+};
+$("mod").oninput = e => {
+  state.module = +e.target.value;
+  $("modOut").textContent = fmt(state.module, 1) + " mm";
+  writeHash();
+};
+$("sunT").oninput = e => {
+  state.sun = +e.target.value;
+  $("sunOut").textContent = state.sun + " t";
+  updateStats(); render(); writeHash();
+};
+$("planT").oninput = e => {
+  state.planet = +e.target.value;
+  $("planOut").textContent = state.planet + " t";
+  updateStats(); render(); writeHash();
+};
+$("btnAddMesh").onclick = () => addStage("mesh");
+$("btnAddShaft").onclick = () => addStage("shaft");
+$("btnPlay").onclick = () => {
+  state.running = !state.running;
+  $("btnPlay").textContent = state.running ? "⏸ Pause" : "▶ Run";
+};
+$("btnPitch").onclick = () => {
+  state.pitch = !state.pitch;
+  $("btnPitch").className = state.pitch ? "on" : "";
+  render();
+};
+$("btnSvg").onclick = saveSvg;
+$("btnLink").onclick = copyLink;
+$("qClose").onclick = closeQuiz;
+$("qNext").onclick = nextLesson;
+$("btnTheme").onclick = () => {
+  const cur = document.documentElement.getAttribute("data-theme");
+  document.documentElement.setAttribute("data-theme", cur === "light" ? "dark" : "light");
+  render();
+};
+window.addEventListener("keydown", ev => {
+  if (ev.target.tagName === "INPUT" || ev.target.tagName === "BUTTON") return;
+  if (ev.key === " ") { ev.preventDefault(); $("btnPlay").click(); }
+  if (ev.key === "p" || ev.key === "P") $("btnPitch").click();
+});
+
+/* ================================================================== *
+ * Loop
+ * ================================================================== */
+let last = 0;
+function frame(now) {
+  if (!last) last = now;
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now;
+  if (state.running && !drag) {
+    state.phi += dt * state.rpm / 60 * 2 * Math.PI;
+    render();
+  }
+  requestAnimationFrame(frame);
+}
+
+const ro = new ResizeObserver(() => { resize(); render(); });
+ro.observe($("stage"));
+
+readHash();
+resize();
+buildModeBtns();
+buildGearList();
+buildLessonBtns();
+syncInputs();
+$("trainPanel").hidden = state.mode !== "train";
+$("planetPanel").hidden = state.mode !== "planetary";
+$("modCtl").hidden = state.mode !== "train";
+updateStats();
+render();
+writeHash();
+requestAnimationFrame(frame);
+
+/* A small hook so the headless checker can play every lesson. */
+window.__cog = {
+  state, LESSONS,
+  lessons: LESSONS.length,
+  lesson: startLesson,
+  pick,
+  next: nextLesson,
+  close: closeQuiz,
+  setMode,
+  setHold: h => { state.hold = h; state.phi = 0; buildModeBtns(); updateStats(); render(); },
+  setTeeth: (s, p) => { state.sun = s; state.planet = p; syncInputs(); updateStats(); render(); },
+  qState: () => ({ open: quiz.open, i: quiz.i, tries: quiz.tries, done: quiz.done, picked: quiz.picked }),
+  ratio: () => state.mode === "train"
+    ? trainSummary().ratio
+    : planetaryIO(layoutPlanetary(state.phi)).ratio,
+  summary: () => state.mode === "train" ? trainSummary() : layoutPlanetary(state.phi),
+  svgSource: buildSvg,
+  svgLength: () => buildSvg().length,
+  badge: () => $("badge").textContent
+};
+</script>
+</body>
+</html>

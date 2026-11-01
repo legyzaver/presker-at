@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No Now — a picture is a pile of moments</title>
+<meta name="description" content="Every column of this picture comes from a different moment. Still things look normal; moving things are drawn by their own history. A slit-scan instrument about why no image — and no glance — ever holds a single now. Runs in your browser, camera optional and never uploaded.">
+<link rel="canonical" href="https://www.presker.at/lab/no-now/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.presker.at/lab/no-now/">
+<meta property="og:title" content="No Now">
+<meta property="og:description" content="Every column of the picture is from a different moment. Still things survive untouched; moving things are drawn by their own history.">
+<meta name="twitter:card" content="summary">
+<style>
+:root {
+  --bg: #faf8f3; --panel: #fffefb; --ink: #1c1b18; --muted: #6b6a63; --line: #e4e0d4;
+  --accent: #3f6b1a; --accent-ink: #ffffff; --warm: #a2461f;
+  --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+  --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme]) {
+    --bg: #0e0e0e; --panel: #141414; --ink: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --accent: #b8f57a; --accent-ink: #0e0e0e; --warm: #ff9d5c;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg); color: var(--ink);
+  font: 15px/1.55 ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  overflow-x: hidden;
+}
+a { color: var(--accent); }
+.wrap { max-width: 1060px; margin: 0 auto; padding: 14px 16px 40px; }
+
+.pill-group { display: flex; align-items: center; gap: 2px; background: var(--panel); border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.pill-btn { font: 11px var(--mono); border: none; background: transparent; color: var(--muted); padding: 5px 8px; border-radius: 5px; cursor: pointer; line-height: 1; }
+.pill-btn:hover { color: var(--ink); }
+.pill-btn.on { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.topbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+.back { font: 12px var(--mono); text-decoration: none; color: var(--muted); }
+.back:hover { color: var(--accent); }
+
+h1 { font: 700 30px/1.1 var(--mono); letter-spacing: -.02em; margin: 18px 0 8px; }
+.lead { max-width: 64ch; color: var(--ink); margin: 0 0 16px; }
+
+/* The stage is a dark room in both themes: the picture is a lit scene, not page furniture. */
+.stage {
+  position: relative; background: #0b0b0c; border: 1px solid var(--line);
+  border-radius: 10px; overflow: hidden; line-height: 0; touch-action: none; cursor: crosshair;
+}
+.stage canvas.main { display: block; width: 100%; height: auto; }
+.inset {
+  position: absolute; top: 10px; right: 10px; width: 24%; max-width: 190px;
+  border: 1px solid rgba(255,255,255,.22); border-radius: 5px; overflow: hidden; background: #000;
+}
+.inset canvas { display: block; width: 100%; height: auto; }
+.inset .cap {
+  position: absolute; left: 0; top: 0; right: 0; font: 9px var(--mono); letter-spacing: .06em;
+  color: rgba(255,255,255,.72); background: rgba(0,0,0,.5); padding: 2px 4px; line-height: 1.3; text-transform: uppercase;
+}
+.hint { margin: 6px 0 0; font: 10px var(--mono); color: var(--muted); line-height: 1.3; }
+
+.bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; margin: 12px 0 0; }
+.bar .lbl { font: 10px var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.grp { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+button.b {
+  font: 12px var(--mono); border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+  padding: 7px 11px; border-radius: 7px; cursor: pointer;
+}
+button.b:hover { border-color: var(--accent); }
+button.b.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 700; }
+input[type=range] { width: 130px; accent-color: var(--accent); }
+.val { font: 11px var(--mono); color: var(--muted); min-width: 3.4em; }
+.toggles { display: flex; gap: 14px; flex-wrap: wrap; font: 12px var(--mono); color: var(--muted); }
+.toggles label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.toggles input { accent-color: var(--accent); }
+
+.say {
+  margin: 14px 0 0; padding: 12px 14px; background: var(--panel); border: 1px solid var(--line);
+  border-left: 3px solid var(--accent); border-radius: 8px; max-width: 78ch;
+}
+.camnote { font: 11px var(--mono); color: var(--muted); margin: 8px 0 0; max-width: 70ch; line-height: 1.5; }
+
+.ask { margin: 22px 0 0; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; max-width: 78ch; }
+.ask .step { font: 10px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.ask p.q { margin: 6px 0 12px; font-size: 16px; }
+.choices { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; }
+.choices button {
+  font: 13px/1.3 ui-sans-serif, system-ui, sans-serif; text-align: left;
+  border: 1px solid var(--line); background: var(--bg); color: var(--ink);
+  padding: 9px 13px; border-radius: 8px; cursor: pointer; max-width: 100%;
+}
+.choices button:hover { border-color: var(--accent); }
+.choices button.right { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.choices button.wrong { opacity: .5; text-decoration: line-through; }
+.reveal { margin: 12px 0 0; }
+.reveal p { margin: 0 0 10px; }
+
+details { margin: 22px 0 0; max-width: 78ch; }
+summary { font: 12px var(--mono); color: var(--muted); cursor: pointer; }
+details p { max-width: 74ch; }
+
+footer {
+  margin: 34px 0 0; padding-top: 14px; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  font: 11px var(--mono); color: var(--muted);
+}
+.donate { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px 5px 6px; color: var(--ink); text-decoration: none; }
+.donate:hover { border-color: var(--accent); }
+.donate .r { width: 20px; height: 20px; border-radius: 50%; background: #fff; color: #000; display: inline-grid; place-items: center; font-weight: 800; font-size: 12px; }
+
+@media (max-width: 620px) {
+  h1 { font-size: 24px; }
+  .wrap { padding: 12px 12px 32px; }
+  input[type=range] { width: 108px; }
+  .inset { width: 30%; }
+}
+</style>
+<script src="/theme.js?v=2"></script>
+<script src="/i18n-nav.js?v=2"></script>
+<script>
+Object.assign(window.PRESKER_I18N.en, {
+  nnLede: "Every column of the picture below comes from a different moment: the left edge is now, the right edge is a moment ago. Anything holding still looks completely normal. Move something, and the picture stops being a moment.",
+  nnLblPicture: 'What the picture is made of',
+  nnModeRamp: 'A ramp of moments', nnModeRings: 'Rings of moments', nnModeSlit: 'One slit, forever',
+  nnLblSource: 'Source', nnSrcRoom: 'The dark room', nnSrcCam: 'My camera', nnCamStop: 'Stop the camera',
+  nnLblDepth: 'How far back', nnLblSpeed: 'How fast the room moves',
+  nnSeams: 'Show the seams', nnInset: 'Show one instant', nnMirror: 'Mirror',
+  nnInsetCap: 'one instant',
+  nnHintRamp: 'Drag across the picture to move "now".',
+  nnHintRings: 'Drag to move the centre of now.',
+  nnHintSlit: 'Drag left and right to move the slit.',
+  nnCamNote: 'The camera runs only inside this page. Every frame is handled on your device and thrown away: nothing is uploaded, recorded or stored, and leaving the page ends it.',
+  nnCamFail: 'The camera could not be opened, so the dark room stays on. Nothing was sent anywhere.',
+  nnSayRamp: '{n} photographs standing side by side. The first strip is now, the last is {s} seconds ago. The pale post never moves, so it survives the stack untouched; everything else is drawn by its own history.',
+  nnSayRings: 'Now sits where you last touched the picture, and the past spreads outwards in rings, so movement arrives as ripples. The picture is a pool, not a moment.',
+  nnSaySlit: 'The camera sees one thin column of the room and nothing else. Each new column is a new moment, pushed in from the right. Space has been traded for time: the still room is only stripes, and only what moves has a shape.',
+  nnSayFrozen: 'The room is frozen — and the time picture looks like an ordinary photograph again. That is the only reason photographs seem to hold a moment: the world mostly holds still for them.',
+  nnAskStep: 'Question {i} of 3 · guess first',
+  nnQ1: 'The pale post on the left never moves. In a picture stitched from {n} different moments, what happens to it?',
+  nnQ1a: 'It blurs', nnQ1b: 'Nothing at all', nnQ1c: 'It stretches sideways',
+  nnR1: 'Nothing at all. A still thing is identical in every moment, so a stack of moments leaves it untouched. Stillness is the whole reason a photograph looks like an instant.',
+  nnQ2: 'The spokes of the wheel are dead straight. What shape do they take when every column is a different moment?',
+  nnQ2a: 'Still straight', nnQ2b: 'Curved', nnQ2c: 'They disappear',
+  nnR2: 'They curve. Each strip catches the spoke at a different angle, and the stack of angles reads as a bend. Phone cameras do this for real: they read the sensor line by line, which is why a fast propeller comes out bent.',
+  nnQ3: 'Now the camera is a single thin slit, and the picture is nothing but that slit over and over. What becomes of the room standing still behind it?',
+  nnQ3a: 'It looks normal', nnQ3b: 'It turns into stripes', nnQ3c: 'It goes black',
+  nnR3: 'Stripes. Through a slit there is no left and right any more, only earlier and later. Photo-finish cameras at a race track work exactly this way: the runners come out looking right, and the background is a smear.',
+  nnLook: 'Look at it →', nnNext: 'Next question →', nnAgain: 'Not quite — look again, then pick.',
+  nnEndTitle: 'And then there is you.',
+  nnEnd: 'Nothing here is a drawing trick: every strip is a real picture of the room, and only their times differ. What you call now works the same way. The light from the far wall is older than the light from your hand, and your eye takes a moment to answer. You have never seen a now — you see a thin stack of just-beens, and it is smooth enough that you call it the present.',
+  nnEndCta: 'Play with it',
+  nnHowSummary: 'How it is made',
+  nnHowP1: 'The page keeps the last {n} frames of the scene in memory and builds every picture out of them. In the ramp, strip number n is taken from n frames ago. In the rings, the delay grows with the distance from the centre. In the slit, one column of the newest frame is pushed in at the right while everything already in the picture shifts one pixel to the left.',
+  nnHowP2: 'No library, no server, no recording. The frames live in the page for about a second and a half and are then overwritten; if you switch the source to your camera, those frames are handled the same way and never leave the device.',
+  nnFooter: '© 2026 Presker.at · runs in your browser',
+  nnCanvasAria: 'A dark room with a still post, a spinning spoked wheel, a swinging pendulum and a passing train, drawn so that each part of the picture comes from a different moment',
+});
+Object.assign(window.PRESKER_I18N.de, {
+  nnLede: 'Jede Spalte des Bildes unten stammt aus einem anderen Augenblick: der linke Rand ist jetzt, der rechte ist einen Moment her. Alles, was stillsteht, sieht völlig normal aus. Bewege etwas, und das Bild hört auf, ein Augenblick zu sein.',
+  nnLblPicture: 'Woraus das Bild besteht',
+  nnModeRamp: 'Eine Rampe aus Momenten', nnModeRings: 'Ringe aus Momenten', nnModeSlit: 'Ein Spalt, endlos',
+  nnLblSource: 'Quelle', nnSrcRoom: 'Der dunkle Raum', nnSrcCam: 'Meine Kamera', nnCamStop: 'Kamera stoppen',
+  nnLblDepth: 'Wie weit zurück', nnLblSpeed: 'Wie schnell sich der Raum bewegt',
+  nnSeams: 'Nähte zeigen', nnInset: 'Einen Augenblick zeigen', nnMirror: 'Spiegeln',
+  nnInsetCap: 'ein augenblick',
+  nnHintRamp: 'Zieh über das Bild, um das „Jetzt“ zu verschieben.',
+  nnHintRings: 'Zieh, um die Mitte des Jetzt zu verschieben.',
+  nnHintSlit: 'Zieh nach links und rechts, um den Spalt zu verschieben.',
+  nnCamNote: 'Die Kamera läuft nur in dieser Seite. Jedes Bild wird auf deinem Gerät verarbeitet und verworfen: nichts wird hochgeladen, aufgezeichnet oder gespeichert, und beim Verlassen der Seite ist alles vorbei.',
+  nnCamFail: 'Die Kamera ließ sich nicht öffnen, der dunkle Raum bleibt an. Es wurde nichts irgendwohin gesendet.',
+  nnSayRamp: '{n} Fotografien nebeneinander. Der erste Streifen ist jetzt, der letzte ist {s} Sekunden her. Der helle Pfosten bewegt sich nie und übersteht den Stapel unverändert; alles andere zeichnet sich aus seiner eigenen Geschichte.',
+  nnSayRings: 'Das Jetzt liegt dort, wo du das Bild zuletzt berührt hast, und die Vergangenheit breitet sich in Ringen nach außen aus, sodass Bewegung als Wellen ankommt. Das Bild ist ein Teich, kein Augenblick.',
+  nnSaySlit: 'Die Kamera sieht eine einzige schmale Spalte des Raums und sonst nichts. Jede neue Spalte ist ein neuer Moment, von rechts hineingeschoben. Raum wurde gegen Zeit getauscht: der stillstehende Raum ist nur noch Streifen, und nur das Bewegte hat eine Gestalt.',
+  nnSayFrozen: 'Der Raum ist eingefroren — und das Zeitbild sieht wieder aus wie eine gewöhnliche Fotografie. Nur deshalb scheinen Fotos einen Augenblick festzuhalten: die Welt hält für sie meistens still.',
+  nnAskStep: 'Frage {i} von 3 · zuerst raten',
+  nnQ1: 'Der helle Pfosten links bewegt sich nie. Was passiert mit ihm in einem Bild, das aus {n} verschiedenen Momenten zusammengesetzt ist?',
+  nnQ1a: 'Er verwischt', nnQ1b: 'Gar nichts', nnQ1c: 'Er wird in die Breite gezogen',
+  nnR1: 'Gar nichts. Ein stillstehendes Ding ist in jedem Moment identisch, also lässt ein Stapel von Momenten es unberührt. Stillstand ist der ganze Grund, warum ein Foto wie ein Augenblick aussieht.',
+  nnQ2: 'Die Speichen des Rades sind schnurgerade. Welche Form nehmen sie an, wenn jede Spalte ein anderer Moment ist?',
+  nnQ2a: 'Weiterhin gerade', nnQ2b: 'Gebogen', nnQ2c: 'Sie verschwinden',
+  nnR2: 'Sie biegen sich. Jeder Streifen erwischt die Speiche in einem anderen Winkel, und der Stapel der Winkel liest sich als Krümmung. Handykameras machen das wirklich: sie lesen den Sensor Zeile für Zeile, deshalb kommt ein schneller Propeller verbogen heraus.',
+  nnQ3: 'Jetzt ist die Kamera ein einziger schmaler Spalt, und das Bild besteht nur noch aus diesem Spalt, wieder und wieder. Was wird aus dem Raum, der still dahinter steht?',
+  nnQ3a: 'Er sieht normal aus', nnQ3b: 'Er wird zu Streifen', nnQ3c: 'Er wird schwarz',
+  nnR3: 'Streifen. Durch einen Spalt gibt es kein Links und Rechts mehr, nur noch Früher und Später. Zielfotokameras an der Rennbahn arbeiten genau so: die Läufer sehen richtig aus, der Hintergrund ist ein Schmier.',
+  nnLook: 'Ansehen →', nnNext: 'Nächste Frage →', nnAgain: 'Nicht ganz — schau noch einmal hin und wähle dann.',
+  nnEndTitle: 'Und dann bist da noch du.',
+  nnEnd: 'Nichts hier ist ein Zeichentrick: jeder Streifen ist ein echtes Bild des Raums, nur ihre Zeiten unterscheiden sich. Was du Jetzt nennst, funktioniert genauso. Das Licht von der hinteren Wand ist älter als das Licht von deiner Hand, und dein Auge braucht einen Moment, um zu antworten. Du hast nie ein Jetzt gesehen — du siehst einen dünnen Stapel von Gerade-gewesen, und er ist glatt genug, dass du ihn Gegenwart nennst.',
+  nnEndCta: 'Spiel damit',
+  nnHowSummary: 'Wie es gemacht ist',
+  nnHowP1: 'Die Seite behält die letzten {n} Einzelbilder der Szene im Speicher und baut daraus jedes Bild. In der Rampe stammt Streifen Nummer n von vor n Einzelbildern. In den Ringen wächst die Verzögerung mit dem Abstand zur Mitte. Im Spalt wird eine Spalte des neuesten Bildes rechts hineingeschoben, während alles schon Vorhandene um ein Pixel nach links rutscht.',
+  nnHowP2: 'Keine Bibliothek, kein Server, keine Aufzeichnung. Die Einzelbilder leben etwa anderthalb Sekunden in der Seite und werden dann überschrieben; schaltest du die Quelle auf deine Kamera, werden diese Bilder genauso behandelt und verlassen das Gerät nie.',
+  nnFooter: '© 2026 Presker.at · läuft in deinem Browser',
+  nnCanvasAria: 'Ein dunkler Raum mit einem stillstehenden Pfosten, einem drehenden Speichenrad, einem schwingenden Pendel und einem vorbeifahrenden Zug, so gezeichnet, dass jeder Teil des Bildes aus einem anderen Moment stammt',
+});
+Object.assign(window.PRESKER_I18N.sl, {
+  nnLede: 'Vsak stolpec spodnje slike je iz drugega trenutka: levi rob je zdaj, desni je trenutek nazaj. Vse, kar miruje, je videti povsem običajno. Premakni nekaj in slika neha biti trenutek.',
+  nnLblPicture: 'Iz česa je slika',
+  nnModeRamp: 'Klančina trenutkov', nnModeRings: 'Obroči trenutkov', nnModeSlit: 'Ena reža, brez konca',
+  nnLblSource: 'Vir', nnSrcRoom: 'Temna soba', nnSrcCam: 'Moja kamera', nnCamStop: 'Ustavi kamero',
+  nnLblDepth: 'Kako daleč nazaj', nnLblSpeed: 'Kako hitro se soba giblje',
+  nnSeams: 'Pokaži šive', nnInset: 'Pokaži en trenutek', nnMirror: 'Zrcali',
+  nnInsetCap: 'en trenutek',
+  nnHintRamp: 'Povleci čez sliko in premakni „zdaj“.',
+  nnHintRings: 'Povleci in premakni središče zdaj.',
+  nnHintSlit: 'Povleci levo in desno in premakni režo.',
+  nnCamNote: 'Kamera teče samo znotraj te strani. Vsaka sličica se obdela na tvoji napravi in zavrže: nič se ne naloži, posname ali shrani, in ko zapustiš stran, je konec.',
+  nnCamFail: 'Kamere ni bilo mogoče odpreti, zato ostaja temna soba. Nič ni bilo nikamor poslano.',
+  nnSayRamp: '{n} fotografij druga ob drugi. Prvi trak je zdaj, zadnji je {s} sekund nazaj. Svetli steber se nikoli ne premakne, zato kup trenutkov ostane brez učinka nanj; vse drugo nariše lastna zgodovina.',
+  nnSayRings: 'Zdaj je tam, kjer si se nazadnje dotaknil slike, preteklost pa se v obročih širi navzven, zato gibanje prihaja kot valovi. Slika je tolmun, ne trenutek.',
+  nnSaySlit: 'Kamera vidi en sam tanek stolpec sobe in nič drugega. Vsak nov stolpec je nov trenutek, potisnjen z desne. Prostor je zamenjan za čas: mirujoča soba je samo še proge, obliko pa ima le tisto, kar se giblje.',
+  nnSayFrozen: 'Soba je zamrznjena — in časovna slika je spet videti kot običajna fotografija. Samo zato se zdi, da fotografije držijo trenutek: svet zanje večinoma miruje.',
+  nnAskStep: 'Vprašanje {i} od 3 · najprej ugibaj',
+  nnQ1: 'Svetli steber na levi se nikoli ne premakne. Kaj se z njim zgodi na sliki, sešiti iz {n} različnih trenutkov?',
+  nnQ1a: 'Zabriše se', nnQ1b: 'Čisto nič', nnQ1c: 'Raztegne se vstran',
+  nnR1: 'Čisto nič. Mirujoča stvar je v vsakem trenutku enaka, zato jo kup trenutkov pusti nedotaknjeno. Mirovanje je edini razlog, da je fotografija videti kot hip.',
+  nnQ2: 'Napere kolesa so povsem ravne. Kakšno obliko dobijo, ko je vsak stolpec drug trenutek?',
+  nnQ2a: 'Še vedno ravne', nnQ2b: 'Ukrivljene', nnQ2c: 'Izginejo',
+  nnR2: 'Ukrivijo se. Vsak trak ujame napero pod drugim kotom, kup kotov pa se bere kot krivina. Telefonske kamere to počnejo zares: senzor berejo vrstico za vrstico, zato hiter propeler pride ven ukrivljen.',
+  nnQ3: 'Zdaj je kamera ena sama tanka reža in slika ni nič drugega kot ta reža, znova in znova. Kaj postane soba, ki mirno stoji za njo?',
+  nnQ3a: 'Videti je normalna', nnQ3b: 'Spremeni se v proge', nnQ3c: 'Postane črna',
+  nnR3: 'Proge. Skozi režo ni več levo in desno, ampak samo prej in pozneje. Ciljne kamere na dirkališčih delujejo točno tako: tekači pridejo ven pravilni, ozadje pa je razmaz.',
+  nnLook: 'Poglej →', nnNext: 'Naslednje vprašanje →', nnAgain: 'Ne čisto — poglej še enkrat in nato izberi.',
+  nnEndTitle: 'In potem si tu še ti.',
+  nnEnd: 'Nič tu ni risarski trik: vsak trak je resnična slika sobe, razlikujejo se le njihovi časi. Tisto, čemur praviš zdaj, deluje enako. Svetloba z oddaljene stene je starejša od svetlobe s tvoje roke, tvoje oko pa potrebuje trenutek, da odgovori. Nikoli nisi videl zdaj — vidiš tanek kup pravkar-bilo, in dovolj gladek je, da mu praviš sedanjost.',
+  nnEndCta: 'Igraj se z njo',
+  nnHowSummary: 'Kako je narejeno',
+  nnHowP1: 'Stran hrani zadnjih {n} sličic prizora v pomnilniku in iz njih sestavi vsako sliko. V klančini je trak številka n vzet izpred n sličic. V obročih zamik raste z oddaljenostjo od središča. V reži se en stolpec najnovejše sličice potisne na desni, vse že obstoječe pa se premakne za eno slikovno piko v levo.',
+  nnHowP2: 'Brez knjižnic, brez strežnika, brez snemanja. Sličice živijo v strani kakšno sekundo in pol in se nato prepišejo; če vir preklopiš na svojo kamero, se te sličice obravnavajo enako in nikoli ne zapustijo naprave.',
+  nnFooter: '© 2026 Presker.at · teče v tvojem brskalniku',
+  nnCanvasAria: 'Temna soba z mirujočim stebrom, vrtečim se kolesom z naperami, nihajočim nihalom in mimo vozečim vlakom, narisana tako, da je vsak del slike iz drugega trenutka',
+});
+</script>
+<script src="/i18n.js?v=2"></script>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <a class="back" href="/lab/" data-i18n="backLabHome">← presker.at / lab</a>
+    <div class="pill-group" role="group" aria-label="Language" data-lang-toggle>
+      <button class="pill-btn" data-lang-set="auto">Auto</button>
+      <button class="pill-btn" data-lang-set="en">EN</button>
+      <button class="pill-btn" data-lang-set="de">DE</button>
+      <button class="pill-btn" data-lang-set="sl">SL</button>
+    </div>
+    <div class="pill-group" role="group" aria-label="Theme" data-theme-toggle>
+      <button class="pill-btn" data-theme-set="light">☀</button>
+      <button class="pill-btn" data-theme-set="auto">Auto</button>
+      <button class="pill-btn" data-theme-set="dark">☾</button>
+    </div>
+  </div>
+
+  <h1>No Now</h1>
+  <p class="lead" data-i18n="nnLede">Every column of the picture below comes from a different moment: the left edge is now, the right edge is a moment ago. Anything holding still looks completely normal. Move something, and the picture stops being a moment.</p>
+
+  <div class="stage" id="stage">
+    <canvas class="main" id="out" width="960" height="540" aria-label="A dark room drawn so that each part of the picture comes from a different moment"></canvas>
+    <div class="inset" id="inset">
+      <canvas id="live" width="240" height="135"></canvas>
+      <span class="cap" data-i18n="nnInsetCap">one instant</span>
+    </div>
+  </div>
+  <p class="hint" id="hint" data-i18n="nnHintRamp">Drag across the picture to move "now".</p>
+
+  <div class="bar">
+    <span class="lbl" data-i18n="nnLblPicture">What the picture is made of</span>
+    <div class="grp">
+      <button class="b on" id="mRamp" data-i18n="nnModeRamp">A ramp of moments</button>
+      <button class="b" id="mRings" data-i18n="nnModeRings">Rings of moments</button>
+      <button class="b" id="mSlit" data-i18n="nnModeSlit">One slit, forever</button>
+    </div>
+  </div>
+
+  <div class="bar">
+    <span class="lbl" data-i18n="nnLblDepth">How far back</span>
+    <input type="range" id="depth" min="10" max="100" value="100" aria-label="How far back the picture reaches">
+    <span class="val" id="depthV">–</span>
+    <span class="lbl" data-i18n="nnLblSpeed">How fast the room moves</span>
+    <input type="range" id="speed" min="0" max="200" value="100" aria-label="How fast the room moves">
+    <span class="val" id="speedV">1.0×</span>
+  </div>
+
+  <div class="bar">
+    <span class="lbl" data-i18n="nnLblSource">Source</span>
+    <div class="grp">
+      <button class="b on" id="sRoom" data-i18n="nnSrcRoom">The dark room</button>
+      <button class="b" id="sCam" data-i18n="nnSrcCam">My camera</button>
+    </div>
+    <div class="toggles">
+      <label><input type="checkbox" id="tSeams"> <span data-i18n="nnSeams">Show the seams</span></label>
+      <label><input type="checkbox" id="tInset" checked> <span data-i18n="nnInset">Show one instant</span></label>
+      <label><input type="checkbox" id="tMirror" checked> <span data-i18n="nnMirror">Mirror</span></label>
+    </div>
+  </div>
+
+  <p class="camnote" id="camnote" data-i18n="nnCamNote">The camera runs only inside this page. Every frame is handled on your device and thrown away: nothing is uploaded, recorded or stored, and leaving the page ends it.</p>
+
+  <div class="say" id="say"></div>
+
+  <section class="ask" id="ask" aria-live="polite"></section>
+
+  <details>
+    <summary data-i18n="nnHowSummary">How it is made</summary>
+    <p id="howP1" data-i18n="nnHowP1"></p>
+    <p data-i18n="nnHowP2">No library, no server, no recording. The frames live in the page for about a second and a half and are then overwritten; if you switch the source to your camera, those frames are handled the same way and never leave the device.</p>
+  </details>
+
+  <footer>
+    <span data-i18n="nnFooter">© 2026 Presker.at · runs in your browser</span>
+    <a href="https://revolut.me/mihadxmro" target="_blank" rel="noopener" class="donate"><span class="r">R</span> Donate via Revolut</a>
+  </footer>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+function t(key, vars) {
+  const lang = (window.PreskerI18n && window.PreskerI18n.getResolved()) || 'en';
+  const dict = (window.PRESKER_I18N && window.PRESKER_I18N[lang]) || {};
+  const fallback = (window.PRESKER_I18N && window.PRESKER_I18N.en) || {};
+  let s = dict[key] != null ? dict[key] : (fallback[key] || '');
+  if (vars) for (const k in vars) s = s.split('{' + k + '}').join(vars[k]);
+  return s;
+}
+
+/* ---------------------------------------------------------------------------
+   The time stack.
+
+   Every frame the scene is drawn once at SW x SH and copied into one slot of a
+   big offscreen canvas holding the last K frames, laid out as a COLS x ROWS
+   grid (one tall strip would blow past the canvas size limits on phones).
+   Every picture on this page is then assembled out of those slots: a strip,
+   a ring or a single column, each taken from a different slot, which is to
+   say from a different moment.
+--------------------------------------------------------------------------- */
+const narrow = Math.min(window.innerWidth, window.screen ? window.screen.width : 9999) < 700;
+const SW = narrow ? 320 : 448;
+const SH = narrow ? 160 : 224;              // a wide, cinematic frame
+const K = narrow ? 64 : 96;                 // frames kept
+const COLS = narrow ? 8 : 7;
+const ROWS = Math.ceil(K / COLS);
+
+const stack = document.createElement('canvas');
+stack.width = SW * COLS; stack.height = SH * ROWS;
+const kctx = stack.getContext('2d', { alpha: false });
+kctx.fillStyle = '#0b0b0c'; kctx.fillRect(0, 0, stack.width, stack.height);
+
+const src = document.createElement('canvas');
+src.width = SW; src.height = SH;
+const sctx = src.getContext('2d', { alpha: false });
+
+const slotX = s => (s % COLS) * SW;
+const slotY = s => Math.floor(s / COLS) * SH;
+let head = 0;                                // slot holding the newest frame
+const slotOf = delay => (head - delay % K + K) % K;
+
+/* The output picture and the little live inset. */
+const out = $('out'), octx = out.getContext('2d', { alpha: false });
+const live = $('live'), lctx = live.getContext('2d', { alpha: false });
+live.width = Math.round(SW / 2); live.height = Math.round(SH / 2);
+
+/* The slit picture is built incrementally, so it keeps its own canvas. */
+const slitCv = document.createElement('canvas');
+const slctx = slitCv.getContext('2d', { alpha: false });
+
+let OW = 960, OH = 540;
+function sizeOut() {
+  const w = Math.max(280, $('stage').clientWidth);
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  OW = Math.min(1600, Math.round(w * dpr));
+  OH = Math.round(OW * SH / SW);
+  out.width = OW; out.height = OH;
+  slitCv.width = OW; slitCv.height = OH;
+  slctx.fillStyle = '#0b0b0c'; slctx.fillRect(0, 0, OW, OH);
+}
+
+/* ---------------------------------------------------------------------------
+   The dark room: four things, chosen for what each one does to a stack of
+   moments. A post that never moves. A wheel whose straight spokes bend. A
+   pendulum that writes a wave. A train that is stretched or squeezed.
+--------------------------------------------------------------------------- */
+function drawRoom(c, time) {
+  c.fillStyle = '#0b0b0c'; c.fillRect(0, 0, SW, SH);
+
+  // a faint pool of light on the floor, so the room has a place
+  const g = c.createRadialGradient(SW * 0.42, SH * 0.52, SH * 0.05, SW * 0.42, SH * 0.52, SH * 1.25);
+  g.addColorStop(0, 'rgba(255,255,255,.055)');
+  g.addColorStop(1, 'rgba(255,255,255,0)');
+  c.fillStyle = g; c.fillRect(0, 0, SW, SH);
+  c.strokeStyle = '#1b1b1e'; c.lineWidth = 1;
+  c.beginPath(); c.moveTo(0, SH * 0.805); c.lineTo(SW, SH * 0.805); c.stroke();
+
+  // 1. the post that never moves
+  const pw = Math.max(4, SW * 0.020), px = SW * 0.12;
+  c.fillStyle = '#787880';
+  c.fillRect(px - pw / 2, SH * 0.24, pw, SH * 0.565);
+  c.fillStyle = '#9a9aa2';
+  c.fillRect(px - pw * 0.9, SH * 0.22, pw * 1.8, pw * 0.7);
+
+  // 2. the spoked wheel
+  const cx = SW * 0.40, cy = SH * 0.44, r = SH * 0.27;
+  const ang = time * Math.PI * 2 * 0.75;
+  c.save(); c.translate(cx, cy); c.rotate(ang);
+  c.lineCap = 'round';
+  for (let i = 0; i < 7; i++) {
+    const a = i / 7 * Math.PI * 2;
+    c.strokeStyle = i === 0 ? ACCENT : '#c9c9d0';
+    c.lineWidth = i === 0 ? 3 : 2;
+    c.beginPath(); c.moveTo(0, 0); c.lineTo(Math.cos(a) * r * 0.93, Math.sin(a) * r * 0.93); c.stroke();
+  }
+  c.restore();
+  c.strokeStyle = '#8e8e96'; c.lineWidth = 2.5;
+  c.beginPath(); c.arc(cx, cy, r, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = '#d6d6dc';
+  c.beginPath(); c.arc(cx, cy, r * 0.09, 0, Math.PI * 2); c.fill();
+
+  // 3. the pendulum
+  const pvx = SW * 0.80, pvy = SH * 0.05, L = SH * 0.58;
+  const th = 0.62 * Math.sin(time * Math.PI * 2 * 0.42);
+  const bx = pvx + Math.sin(th) * L, by = pvy + Math.cos(th) * L;
+  c.strokeStyle = '#5a5a62'; c.lineWidth = 1.5;
+  c.beginPath(); c.moveTo(pvx, pvy); c.lineTo(bx, by); c.stroke();
+  c.fillStyle = '#ececf2';
+  c.beginPath(); c.arc(bx, by, SH * 0.042, 0, Math.PI * 2); c.fill();
+
+  // 4. the train, sliding right and wrapping
+  const carW = SW * 0.19, gap = SW * 0.035, pitch = carW + gap;
+  const offset = (time * SW * 0.30) % pitch;
+  const ty = SH * 0.835, tH = SH * 0.12;
+  for (let x = offset - pitch * 2; x < SW + pitch; x += pitch) {
+    c.fillStyle = '#26262b';
+    c.fillRect(x, ty, carW, tH);
+    c.fillStyle = '#3a3a42';
+    c.fillRect(x, ty, carW, 2);
+    for (let w = 0; w < 3; w++) {
+      c.fillStyle = ACCENT;
+      c.fillRect(x + carW * (0.14 + w * 0.26), ty + tH * 0.26, carW * 0.16, tH * 0.34);
+    }
+  }
+}
+const ACCENT = '#b8f57a';
+
+/* ---------------------------------------------------------------------------
+   Composition
+--------------------------------------------------------------------------- */
+const state = {
+  mode: 'ramp',
+  depth: 1,            // fraction of K used by the far edge
+  speed: 1,
+  seams: false,
+  inset: true,
+  mirror: true,
+  anchorU: 0,          // where "now" sits, 0..1 across the picture
+  anchorV: 0.5,
+  slitU: 0.5,
+  camera: false,
+  simTime: 0,
+  dt: 1 / 60,
+  frames: 0
+};
+
+const maxDelay = () => Math.max(1, Math.round(state.depth * (K - 1)));
+
+function composeRamp() {
+  const maxD = maxDelay();
+  const far = Math.max(state.anchorU, 1 - state.anchorU) || 1;
+  const bw = OW / K;
+  for (let b = 0; b < K; b++) {
+    const u = (b + 0.5) / K;
+    const d = Math.round(Math.abs(u - state.anchorU) / far * maxD);
+    const s = slotOf(d);
+    octx.drawImage(stack,
+      slotX(s) + b * SW / K, slotY(s), SW / K, SH,
+      b * bw, 0, bw + 1, OH);
+  }
+  if (state.seams) {
+    octx.strokeStyle = 'rgba(255,255,255,.17)'; octx.lineWidth = 1;
+    octx.beginPath();
+    for (let b = 1; b < K; b++) { const x = Math.round(b * bw) + 0.5; octx.moveTo(x, 0); octx.lineTo(x, OH); }
+    octx.stroke();
+  }
+}
+
+function composeRings() {
+  const maxD = maxDelay();
+  const rings = narrow ? 28 : 40;
+  const cx = state.anchorU * OW, cy = state.anchorV * OH;
+  const R = Math.max(
+    Math.hypot(cx, cy), Math.hypot(OW - cx, cy),
+    Math.hypot(cx, OH - cy), Math.hypot(OW - cx, OH - cy));
+  for (let i = rings - 1; i >= 0; i--) {
+    const r0 = i * R / rings, r1 = (i + 1) * R / rings;
+    const d = Math.round(i / (rings - 1) * maxD);
+    const s = slotOf(d);
+    octx.save();
+    octx.beginPath();
+    octx.arc(cx, cy, r1, 0, Math.PI * 2);
+    if (r0 > 0) octx.arc(cx, cy, r0, 0, Math.PI * 2, true);
+    octx.clip();
+    octx.drawImage(stack, slotX(s), slotY(s), SW, SH, 0, 0, OW, OH);
+    octx.restore();
+  }
+  if (state.seams) {
+    octx.strokeStyle = 'rgba(255,255,255,.17)'; octx.lineWidth = 1;
+    for (let i = 1; i < rings; i++) {
+      octx.beginPath(); octx.arc(cx, cy, i * R / rings, 0, Math.PI * 2); octx.stroke();
+    }
+  }
+}
+
+/* The slit picture is pushed one pixel at a time, so it is advanced on every
+   simulation step rather than rebuilt. */
+function stepSlit() {
+  slctx.drawImage(slitCv, -1, 0);
+  const sx = Math.min(SW - 1, Math.max(0, Math.round(state.slitU * SW)));
+  slctx.drawImage(stack, slotX(head) + sx, slotY(head), 1, SH, OW - 1, 0, 1, OH);
+}
+function composeSlit() {
+  octx.drawImage(slitCv, 0, 0);
+  if (state.seams) {
+    octx.strokeStyle = 'rgba(255,255,255,.14)'; octx.lineWidth = 1;
+    octx.beginPath();
+    for (let x = OW; x > 0; x -= 60) { octx.moveTo(x + 0.5, 0); octx.lineTo(x + 0.5, OH); }
+    octx.stroke();
+  }
+}
+
+function compose() {
+  if (state.mode === 'ramp') composeRamp();
+  else if (state.mode === 'rings') composeRings();
+  else composeSlit();
+
+  // the live inset: a single real instant, for comparison
+  if (state.inset) {
+    lctx.drawImage(src, 0, 0, SW, SH, 0, 0, live.width, live.height);
+    if (state.mode === 'slit') {
+      lctx.strokeStyle = ACCENT; lctx.lineWidth = 1;
+      const x = Math.round(state.slitU * live.width) + 0.5;
+      lctx.beginPath(); lctx.moveTo(x, 0); lctx.lineTo(x, live.height); lctx.stroke();
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Sources
+--------------------------------------------------------------------------- */
+let video = null, stream = null;
+
+function paintSource() {
+  if (state.camera && video && video.readyState >= 2) {
+    // cover-fit the camera frame into SW x SH
+    const vw = video.videoWidth || 640, vh = video.videoHeight || 480;
+    const scale = Math.max(SW / vw, SH / vh);
+    const dw = vw * scale, dh = vh * scale;
+    sctx.save();
+    if (state.mirror) { sctx.translate(SW, 0); sctx.scale(-1, 1); }
+    sctx.drawImage(video, (SW - dw) / 2, (SH - dh) / 2, dw, dh);
+    sctx.restore();
+  } else {
+    drawRoom(sctx, state.simTime);
+  }
+}
+
+async function startCamera() {
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+    video = document.createElement('video');
+    video.playsInline = true; video.muted = true; video.srcObject = stream;
+    await video.play();
+    state.camera = true;
+    syncButtons();
+  } catch (e) {
+    state.camera = false;
+    syncButtons();
+    $('camnote').textContent = t('nnCamFail');
+  }
+}
+function stopCamera() {
+  if (stream) stream.getTracks().forEach(tr => tr.stop());
+  stream = null; video = null; state.camera = false;
+  syncButtons();
+}
+
+/* ---------------------------------------------------------------------------
+   The loop. One step = draw the source, store it, advance the slit, compose.
+   step() is deliberately independent of the clock so the page can be driven
+   frame by frame from a script.
+--------------------------------------------------------------------------- */
+function step(dt) {
+  state.simTime += dt * state.speed;
+  paintSource();
+  head = (head + 1) % K;
+  kctx.drawImage(src, slotX(head), slotY(head));
+  stepSlit();
+  compose();
+  state.frames++;
+}
+
+let last = 0, avgDt = 1 / 60;
+function frame(now) {
+  if (last) {
+    const dt = Math.min(0.1, (now - last) / 1000);
+    avgDt = avgDt * 0.92 + dt * 0.08;
+    step(dt);
+  }
+  last = now;
+  requestAnimationFrame(frame);
+}
+
+/* ---------------------------------------------------------------------------
+   Words that follow what is on screen
+--------------------------------------------------------------------------- */
+function updateSay() {
+  const el = $('say');
+  if (state.speed === 0 && !state.camera) { el.textContent = t('nnSayFrozen'); return; }
+  if (state.mode === 'ramp') {
+    el.textContent = t('nnSayRamp', { n: K, s: (maxDelay() * avgDt).toFixed(1) });
+  } else if (state.mode === 'rings') {
+    el.textContent = t('nnSayRings');
+  } else {
+    el.textContent = t('nnSaySlit');
+  }
+}
+function updateReadouts() {
+  $('depthV').textContent = (maxDelay() * avgDt).toFixed(1) + ' s';
+  $('speedV').textContent = state.speed.toFixed(1) + '×';
+  const p1 = $('howP1');
+  if (p1) p1.textContent = t('nnHowP1', { n: K });
+  $('hint').textContent = t(state.mode === 'ramp' ? 'nnHintRamp' : state.mode === 'rings' ? 'nnHintRings' : 'nnHintSlit');
+}
+
+function syncButtons() {
+  $('mRamp').classList.toggle('on', state.mode === 'ramp');
+  $('mRings').classList.toggle('on', state.mode === 'rings');
+  $('mSlit').classList.toggle('on', state.mode === 'slit');
+  $('sRoom').classList.toggle('on', !state.camera);
+  $('sCam').classList.toggle('on', state.camera);
+  $('sCam').textContent = state.camera ? t('nnCamStop') : t('nnSrcCam');
+  $('inset').style.display = state.inset ? '' : 'none';
+  updateSay(); updateReadouts();
+}
+
+function setMode(m) {
+  state.mode = m;
+  if (m === 'ramp') { state.anchorU = 0; state.anchorV = 0.5; }
+  if (m === 'rings') { state.anchorU = 0.5; state.anchorV = 0.5; }
+  syncButtons();
+}
+
+/* ---------------------------------------------------------------------------
+   Guess first, then look.
+--------------------------------------------------------------------------- */
+const QUESTIONS = [
+  { q: 'nnQ1', a: ['nnQ1a', 'nnQ1b', 'nnQ1c'], right: 1, reveal: 'nnR1', mode: 'ramp', speed: 1 },
+  { q: 'nnQ2', a: ['nnQ2a', 'nnQ2b', 'nnQ2c'], right: 1, reveal: 'nnR2', mode: 'ramp', speed: 1 },
+  { q: 'nnQ3', a: ['nnQ3a', 'nnQ3b', 'nnQ3c'], right: 1, reveal: 'nnR3', mode: 'slit', speed: 1 }
+];
+const quiz = { i: 0, answered: false, tries: 0, done: false };
+
+function renderAsk() {
+  const el = $('ask');
+  el.innerHTML = '';
+  if (quiz.done) {
+    const h = document.createElement('p');
+    h.innerHTML = '<b>' + t('nnEndTitle') + '</b>';
+    h.style.margin = '0 0 8px';
+    const p = document.createElement('p');
+    p.textContent = t('nnEnd');
+    p.style.margin = '0';
+    el.append(h, p);
+    return;
+  }
+  const qq = QUESTIONS[quiz.i];
+  const step = document.createElement('div');
+  step.className = 'step';
+  step.textContent = t('nnAskStep', { i: quiz.i + 1 });
+  const q = document.createElement('p');
+  q.className = 'q';
+  q.textContent = t(qq.q, { n: K });
+  const box = document.createElement('div');
+  box.className = 'choices';
+  qq.a.forEach((key, idx) => {
+    const b = document.createElement('button');
+    b.textContent = t(key);
+    b.dataset.idx = String(idx);
+    b.addEventListener('click', () => pick(idx));
+    box.appendChild(b);
+  });
+  el.append(step, q, box);
+  if (quiz.answered) {
+    [...box.children].forEach((b, idx) => {
+      if (idx === qq.right) b.classList.add('right');
+      else b.classList.add('wrong');
+      b.disabled = true;
+    });
+    const rv = document.createElement('div');
+    rv.className = 'reveal';
+    const p = document.createElement('p');
+    p.textContent = t(qq.reveal);
+    const nb = document.createElement('button');
+    nb.className = 'b';
+    nb.textContent = quiz.i === QUESTIONS.length - 1 ? t('nnEndCta') : t('nnNext');
+    nb.addEventListener('click', next);
+    rv.append(p, nb);
+    el.append(rv);
+  } else if (quiz.tries > 0) {
+    const p = document.createElement('p');
+    p.className = 'reveal';
+    p.textContent = t('nnAgain');
+    el.append(p);
+  }
+}
+
+function pick(idx) {
+  const qq = QUESTIONS[quiz.i];
+  if (quiz.answered) return;
+  if (idx === qq.right) { quiz.answered = true; }
+  else { quiz.tries++; }
+  renderAsk();
+}
+function next() {
+  if (quiz.i === QUESTIONS.length - 1) { quiz.done = true; renderAsk(); return; }
+  quiz.i++; quiz.answered = false; quiz.tries = 0;
+  const qq = QUESTIONS[quiz.i];
+  setMode(qq.mode);
+  state.speed = qq.speed; $('speed').value = String(Math.round(qq.speed * 100));
+  renderAsk();
+}
+
+/* ---------------------------------------------------------------------------
+   Wiring
+--------------------------------------------------------------------------- */
+$('mRamp').addEventListener('click', () => setMode('ramp'));
+$('mRings').addEventListener('click', () => setMode('rings'));
+$('mSlit').addEventListener('click', () => setMode('slit'));
+$('sRoom').addEventListener('click', () => { if (state.camera) stopCamera(); });
+$('sCam').addEventListener('click', () => { state.camera ? stopCamera() : startCamera(); });
+$('depth').addEventListener('input', e => { state.depth = e.target.value / 100; updateSay(); updateReadouts(); });
+$('speed').addEventListener('input', e => { state.speed = e.target.value / 100; updateSay(); updateReadouts(); });
+$('tSeams').addEventListener('change', e => { state.seams = e.target.checked; });
+$('tInset').addEventListener('change', e => { state.inset = e.target.checked; syncButtons(); });
+$('tMirror').addEventListener('change', e => { state.mirror = e.target.checked; });
+
+const stage = $('stage');
+let dragging = false;
+function pointAt(ev) {
+  const r = out.getBoundingClientRect();
+  const u = Math.min(1, Math.max(0, (ev.clientX - r.left) / r.width));
+  const v = Math.min(1, Math.max(0, (ev.clientY - r.top) / r.height));
+  if (state.mode === 'slit') state.slitU = u;
+  else { state.anchorU = u; state.anchorV = v; }
+}
+stage.addEventListener('pointerdown', ev => {
+  dragging = true; stage.setPointerCapture(ev.pointerId); pointAt(ev); ev.preventDefault();
+});
+stage.addEventListener('pointermove', ev => { if (dragging) pointAt(ev); });
+stage.addEventListener('pointerup', () => { dragging = false; });
+stage.addEventListener('pointercancel', () => { dragging = false; });
+
+window.addEventListener('resize', sizeOut);
+document.addEventListener('presker-lang-change', () => { syncButtons(); renderAsk(); });
+
+sizeOut();
+out.setAttribute('aria-label', t('nnCanvasAria'));
+syncButtons();
+renderAsk();
+// prime the stack so the first painted picture is already a full stack of moments
+for (let i = 0; i < K; i++) step(1 / 60);
+requestAnimationFrame(frame);
+
+/* A small hook so the headless checker can drive the page without a mouse. */
+window.__nonow = {
+  state, K, SW, SH,
+  setMode, pick, next,
+  setDepth: d => { state.depth = d; $('depth').value = String(Math.round(d * 100)); updateSay(); updateReadouts(); },
+  setSpeed: s => { state.speed = s; $('speed').value = String(Math.round(s * 100)); updateSay(); updateReadouts(); },
+  setAnchor: (u, v) => { state.anchorU = u; state.anchorV = v; },
+  setSlit: u => { state.slitU = u; },
+  setSeams: b => { state.seams = b; $('tSeams').checked = b; },
+  advance: n => { for (let i = 0; i < n; i++) step(1 / 60); return state.frames; },
+  quiz: () => ({ i: quiz.i, answered: quiz.answered, tries: quiz.tries, done: quiz.done }),
+  say: () => $('say').textContent,
+  // average brightness of one output column, so a script can prove that
+  // different columns really do hold different moments
+  column: u => {
+    const x = Math.min(OW - 1, Math.max(0, Math.round(u * OW)));
+    const d = octx.getImageData(x, 0, 1, OH).data;
+    let sum = 0;
+    for (let i = 0; i < d.length; i += 4) sum += (d[i] + d[i + 1] + d[i + 2]) / 3;
+    return +(sum / (d.length / 4)).toFixed(2);
+  }
+};
+})();
+</script>
+</body>
+</html>

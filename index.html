@@ -34,6 +34,10 @@
       plotterDesc: 'A pen plotter wastes most of its time flying between dots with the pen lifted. Guess how much a smarter order saves, then watch nearest-neighbour and 2-opt shorten the trip, and export the result as SVG.',
       tonearmDesc: 'A record is cut dead straight, but a tonearm swings on an arc, so it is only ever tangent to the groove at two radii. Move those two points around, watch the distortion across the side, and print a protractor for your own arm.',
       tonearmCta: 'align an arm →',
+      noNowDesc: 'Every column of this picture comes from a different moment. Things that hold still look completely normal, the spinning wheel bends and the train stretches — and then you start wondering what your own eyes are doing. Your camera can join in, and never leaves the page.',
+      noNowCta: 'pull a moment apart →',
+      cogworkDesc: 'Two gears touching are really two invisible wheels rolling on each other without slipping. Build a train, drag it round with your finger, and see why an idler changes nothing and why one planetary set gives three different ratios depending on which part you hold still.',
+      cogworkCta: 'turn some gears →',
       plotterCta: 'shorten the trip →',
       cameraDesc: 'I wanted to show my kid why a dark room with one small hole paints a real, upside-down picture on the wall — no lens, no electronics. Resize the hole, move the screen, poke a second hole, and watch the brightness/sharpness trade-off that shaped the first cameras.',
       cameraCta: 'open the shutter →',
@@ -134,6 +138,10 @@
       plotterDesc: 'Ein Stiftplotter verbringt die meiste Zeit mit angehobenem Stift zwischen Punkten. Rate, wie viel eine klügere Reihenfolge spart, dann beobachte, wie Nearest-Neighbour und 2-opt die Strecke verkürzen, und exportiere das Ergebnis als SVG.',
       tonearmDesc: 'Eine Schallplatte wird schnurgerade geschnitten, aber ein Tonarm schwenkt auf einem Bogen und steht deshalb nur an zwei Radien genau tangential zur Rille. Verschiebe diese beiden Punkte, beobachte die Verzerrung über die ganze Plattenseite und drucke eine Schablone für deinen eigenen Arm.',
       tonearmCta: 'Arm justieren →',
+      noNowDesc: 'Jede Spalte dieses Bildes stammt aus einem anderen Augenblick. Was stillsteht, sieht völlig normal aus, das drehende Rad verbiegt sich, der Zug wird gedehnt — und dann fragst du dich, was deine eigenen Augen eigentlich tun. Deine Kamera darf mitmachen und verlässt die Seite nie.',
+      noNowCta: 'einen Moment auseinandernehmen →',
+      cogworkDesc: 'Zwei Zahnräder, die sich berühren, sind in Wahrheit zwei unsichtbare Räder, die ohne Schlupf aufeinander abrollen. Bau einen Getriebezug, dreh ihn mit dem Finger und sieh, warum ein Zwischenrad nichts ändert und warum ein einziger Planetensatz drei verschiedene Übersetzungen liefert, je nachdem, welches Teil du festhältst.',
+      cogworkCta: 'Zahnräder drehen →',
       plotterCta: 'Strecke verkürzen →',
       cameraDesc: 'Ich wollte meinem Kind zeigen, warum ein dunkler Raum mit einem kleinen Loch ein echtes, kopfstehendes Bild an die Wand malt — ganz ohne Linse, ganz ohne Elektronik. Verändere die Lochgröße, verschiebe die Leinwand, bohre ein zweites Loch, und beobachte den Kompromiss zwischen Helligkeit und Schärfe, der die ersten Kameras geprägt hat.',
       cameraCta: 'Verschluss öffnen →',
@@ -234,6 +242,10 @@
       plotterDesc: 'Risalni ploter večino časa porabi za letenje med pikami z dvignjenim peresom. Ugani, koliko prihrani pametnejši vrstni red, nato opazuj, kako nearest-neighbour in 2-opt skrajšata pot, in izvozi rezultat kot SVG.',
       tonearmDesc: 'Plošča je rezana povsem naravnost, ročica pa se giblje po loku, zato je na žlebič tangentna le pri dveh polmerih. Premikaj ti dve točki, opazuj popačenje po vsej strani plošče in si natisni šablono za svojo ročico.',
       tonearmCta: 'nastavi ročico →',
+      noNowDesc: 'Vsak stolpec te slike je iz drugega trenutka. Kar miruje, je videti povsem običajno, vrteče se kolo se ukrivi, vlak se raztegne — in nato se vprašaš, kaj pravzaprav počnejo tvoje oči. Tvoja kamera lahko sodeluje in nikoli ne zapusti strani.',
+      noNowCta: 'razstavi trenutek →',
+      cogworkDesc: 'Dve zobniški kolesi, ki se dotikata, sta v resnici dve nevidni kolesi, ki se brez drsenja kotalita druga po drugi. Sestavi zobniški sklop, ga zavrti s prstom in poglej, zakaj vmesni zobnik ničesar ne spremeni in zakaj en sam planetni sklop da tri različna razmerja, odvisno od tega, kaj držiš pri miru.',
+      cogworkCta: 'zavrti zobnike →',
       plotterCta: 'skrajšaj pot →',
       cameraDesc: 'Hotel sem svojemu otroku pokazati, zakaj temen prostor z eno majhno luknjo nariše pravo, narobe obrnjeno sliko na steno — brez leče, brez elektronike. Spremeni velikost luknje, premakni zaslon, prebij drugo luknjo in opazuj razmerje med svetlostjo in ostrino, ki je oblikovalo prve fotoaparate.',
       cameraCta: 'odpri zaslonko →',
@@ -409,7 +421,9 @@
       ['Word Safari','/lab/word-safari/'],
       ['Besedopad','/lab/besedopad/'],
       ['Slikovar','/lab/slikovar/'],
-      ['Tonearm Lab','/lab/tonearm-lab/']
+      ['Tonearm Lab','/lab/tonearm-lab/'],
+      ['Cogwork','/lab/cogwork/'],
+      ['No Now','/lab/no-now/']
     ];
     // Same pick for every visitor on a given calendar day; changes daily.
     var d = new Date();
@@ -436,6 +450,24 @@
         <span class="label" data-i18n="newLabel">New in the lab</span>
       </div>
       <div class="grid">
+        <article class="card" onclick="location.href='/lab/no-now/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>No Now</h2>
+          <p data-i18n="noNowDesc">Every column of this picture comes from a different moment. Things that hold still look completely normal, the spinning wheel bends and the train stretches — and then you start wondering what your own eyes are doing. Your camera can join in, and never leaves the page.</p>
+          <a href="/lab/no-now/" class="card-link" data-i18n="noNowCta">pull a moment apart →</a>
+        </article>
+        <article class="card" onclick="location.href='/lab/cogwork/'" style="cursor:pointer;">
+          <div class="card-top">
+            <span class="tag tag-code">learn</span>
+            <span class="card-date">2026</span>
+          </div>
+          <h2>Cogwork</h2>
+          <p data-i18n="cogworkDesc">Two gears touching are really two invisible wheels rolling on each other without slipping. Build a train, drag it round with your finger, and see why an idler changes nothing and why one planetary set gives three different ratios depending on which part you hold still.</p>
+          <a href="/lab/cogwork/" class="card-link" data-i18n="cogworkCta">turn some gears →</a>
+        </article>
         <article class="card" onclick="location.href='/lab/tonearm-lab/'" style="cursor:pointer;">
           <div class="card-top">
             <span class="tag tag-code">code</span>
@@ -444,24 +476,6 @@
           <h2>Tonearm Lab</h2>
           <p data-i18n="tonearmDesc">A record is cut dead straight, but a tonearm swings on an arc, so it is only ever tangent to the groove at two radii. Move those two points around, watch the distortion across the side, and print a protractor for your own arm.</p>
           <a href="/lab/tonearm-lab/" class="card-link" data-i18n="tonearmCta">align an arm →</a>
-        </article>
-        <article class="card" onclick="location.href='/lab/slikovar/'" style="cursor:pointer;">
-          <div class="card-top">
-            <span class="tag tag-code">learn</span>
-            <span class="card-date">2026</span>
-          </div>
-          <h2>Slikovar</h2>
-          <p data-i18n="slikovarDesc">A picture dictionary for preschoolers: tap any picture and hear its name spoken aloud in Slovenian, by a real offline neural voice, not the browser's own. Animals, food and home, A to Ž.</p>
-          <a href="/lab/slikovar/" class="card-link" data-i18n="slikovarCta">tap a picture →</a>
-        </article>
-        <article class="card" onclick="location.href='/lab/word-safari/'" style="cursor:pointer;">
-          <div class="card-top">
-            <span class="tag tag-code">learn</span>
-            <span class="card-date">2026</span>
-          </div>
-          <h2>Word Safari</h2>
-          <p data-i18n="wordSafariDesc">The next step after the alphabet: whole words. Study six German/Slovenian pairs at a time — animals, food, nature and home — then flip cards to match each word with its translation. Every word is spoken aloud, in both languages.</p>
-          <a href="/lab/word-safari/" class="card-link" data-i18n="wordSafariCta">start matching →</a>
         </article>
       </div>
     </section>
